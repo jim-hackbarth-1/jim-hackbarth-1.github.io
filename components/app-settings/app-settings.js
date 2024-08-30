@@ -43,4 +43,11 @@ export class AppSettingsModel {
         const appDocument = KitDependencyManager.getDocument();
         appDocument.documentElement.style.setProperty("--theme-dark-mode", darkModeTheme);
     }
+
+    getColor() {
+        //return "testing";
+        const appDocument = KitDependencyManager.getDocument();
+        const style = getComputedStyle(appDocument.documentElement);
+        return style.getPropertyValue("--theme-color-primary");
+    }
 }

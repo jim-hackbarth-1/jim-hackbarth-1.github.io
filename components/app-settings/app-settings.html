@@ -1,0 +1,30 @@
+﻿
+<div id="app-settings">
+    <link rel="stylesheet" href="/components/app-settings/app-settings.css" />
+    <h3>settings</h3>
+    <fieldset>
+        <legend>Theme</legend>
+        <kit-array data-kit-array="#model.getThemes()" data-kit-item-ref="theme">
+            <div>
+                <input type="radio"
+                       id="%{#theme.id}%"
+                       name="theme"
+                       value="%{#theme.id}%"
+                       onclick="#model.selectTheme('%{#theme.id}%')"
+                       data-kit-add-attributes="%{#theme.checked}%" />
+                <label for="%{#theme.id}%">%{#theme.label}%</label>
+            </div>
+        </kit-array>
+    </fieldset>
+    <fieldset>
+        <legend>Dark mode</legend>
+        <div>
+            <input type="checkbox"
+                   id="dark-mode"
+                   name="dark-mode"
+                   onclick="#model.toggleDarkMode()"
+                   data-kit-add-attributes="%{#model.isDarkModeOn() ? 'checked' : ''}%" />
+            <label for="dark-mode">Dark mode</label>
+        </div>
+    </fieldset>
+</div>

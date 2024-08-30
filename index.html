@@ -1,0 +1,24 @@
+﻿
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>hello world</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu+Sans+Mono:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/index.css" />
+    <script type="module" src="/ui-kit.js"></script>
+</head>
+<body>
+    <!-- components can also be defined with a path to an external template (rather than inner HTML) -->
+    <!-- the model for the component can also be derived from an external javascript model (see the ui-kit reference below)-->
+    <!--<kit-component data-kit-template-path="/components/my-component.html" />-->
+    <kit-component data-kit-template-path="/components/app-heading/app-heading.html"></kit-component>
+    <div id="app-content-container">
+        <kit-component id="app-nav-container" data-kit-template-path="/components/app-navigation/app-navigation.html"></kit-component>
+        <kit-component id="app-content-detail-container" data-kit-template-path="/components/app-content-detail-container/app-content-detail-container.html"></kit-component>
+    </div>
+</body>
+</html>

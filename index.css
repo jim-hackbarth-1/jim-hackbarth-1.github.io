@@ -1,0 +1,97 @@
+﻿
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:scope {
+    --app-nav-width-expanded: 150px;
+    --app-nav-width: var(--app-nav-width-expanded);
+    --app-nav-left: 0px;
+    --theme-dark-mode: 0;
+    --theme-hue-primary: 300; /* pink (default spring) */
+}
+
+:scope[data-app-theme="summer"] {
+    --theme-hue-primary: 120; /* green */
+}
+
+:scope[data-app-theme="fall"] {
+    --theme-hue-primary: 30; /* orange */
+}
+
+:scope[data-app-theme="winter"] {
+    --theme-hue-primary: 240; /* blue */
+}
+
+:scope {
+    --theme-hue-secondary: rem(360 + var(--theme-hue-primary) + 30, 360);
+    --theme-hue-tertiary: rem(360 + var(--theme-hue-primary) - 30, 360);
+    --theme-hue-complementary: rem(360 + var(--theme-hue-primary) + 180, 360);
+    --theme-lighter: max(74 - 100 * var(--theme-dark-mode), 100 * var(--theme-dark-mode) - 70); /* 74 | 30 */
+    --theme-lightest: max(98 - 100 * var(--theme-dark-mode), 100 * var(--theme-dark-mode) - 90); /* 98 | 10 */
+    --theme-darker: max(30 - 100 * var(--theme-dark-mode), 100 * var(--theme-dark-mode) - 26); /* 30 | 74 */
+    --theme-darkest: max(10 - 100 * var(--theme-dark-mode), 100 * var(--theme-dark-mode) - 2); /* 30 | 98 */
+    --theme-color-primary: hsl(var(--theme-hue-primary) 30 70);
+    --theme-color-primary-lighter: hsl(var(--theme-hue-primary) 75 var(--theme-lighter));
+    --theme-color-primary-lightest: hsl(var(--theme-hue-primary) 100 var(--theme-lightest));
+    --theme-color-primary-darker: hsl(var(--theme-hue-primary) 75 var(--theme-darker));
+    --theme-color-primary-darkest: hsl(var(--theme-hue-primary) 100 var(--theme-darkest));
+    --theme-color-primary-darkest-fixed: hsl(var(--theme-hue-primary) 100 10);
+    --theme-color-secondary: hsl(var(--theme-hue-secondary) 50 50);
+    --theme-color-secondary-lighter: hsl(var(--theme-hue-secondary) 75 var(--theme-lighter));
+    --theme-color-secondary-lightest: hsl(var(--theme-hue-secondary) 100 var(--theme-lightest));
+    --theme-color-secondary-darker: hsl(var(--theme-hue-secondary) 75 var(--theme-darker));
+    --theme-color-secondary-darkest: hsl(var(--theme-hue-secondary) 100 var(--theme-darkest));
+    --theme-color-secondary-darkest-fixed: hsl(var(--theme-hue-secondary) 100 10);
+    --theme-color-tertiary: hsl(var(--theme-hue-tertiary) 50 50);
+    --theme-color-tertiary-lighter: hsl(var(--theme-hue-tertiary) 75 var(--theme-lighter));
+    --theme-color-tertiary-lightest: hsl(var(--theme-hue-tertiary) 100 var(--theme-lightest));
+    --theme-color-tertiary-darker: hsl(var(--theme-hue-tertiary) 75 var(--theme-darker));
+    --theme-color-tertiary-darkest: hsl(var(--theme-hue-tertiary) 100 var(--theme-darkest));
+    --theme-color-tertiary-darkest-fixed: hsl(var(--theme-hue-tertiary) 100 10);
+    --theme-color-complementary: hsl(var(--theme-hue-complementary) 50 50);
+    --theme-color-complementary-lighter: hsl(var(--theme-hue-complementary) 75 var(--theme-lighter));
+    --theme-color-complementary-lightest: hsl(var(--theme-hue-complementary) 100 var(--theme-lightest));
+    --theme-color-complementary-darker: hsl(var(--theme-hue-complementary) 75 var(--theme-darker));
+    --theme-color-complementary-darkest: hsl(var(--theme-hue-complementary) 100 var(--theme-darkest));
+    --theme-color-complementary-darkest-fixed: hsl(var(--theme-hue-complementary) 100 10);
+}
+
+@media (max-width: 768px) {
+    :scope {
+        --app-nav-width-expanded: 50px;
+    }
+}
+
+body {
+    font-family: "Ubuntu Sans Mono", Arial, sans-serif;
+    background-color: var(--theme-color-primary-lightest);
+    color: var(--theme-color-primary-darkest);
+}
+
+kit-component:not([data-kit-component-id]), kit-if:not([data-kit-component-id]), kit-array:not([data-kit-component-id]) {
+    display: none;
+}
+
+#app-content-container {
+    display: flex;
+    margin-top:60px;
+}
+
+#app-content-detail-container {
+    padding:10px;
+    width:100%;
+    margin:auto;
+}
+
+a {
+    text-decoration: none;
+}
+
+.icon {
+    fill: none;
+    stroke: var(--app-theme-background-text-color);
+    stroke-width: 8px;
+}

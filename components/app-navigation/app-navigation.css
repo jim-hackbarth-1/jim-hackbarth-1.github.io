@@ -1,0 +1,63 @@
+﻿
+@scope (#app-nav) {
+
+    #app-nav-spacer {
+        width: var(--app-nav-width);
+        transition: width 0.5s;
+    }
+
+    nav {
+        position: fixed;
+        left: var(--app-nav-left);
+        width: var(--app-nav-width);
+        top: 60px;
+        bottom: 0;
+        background-color: var(--theme-color-primary);
+        box-shadow: 5px 5px 5px 0px var(--theme-color-primary-darkest-fixed);
+        transition: left 0.5s;
+        overflow: hidden;
+    }
+
+    li {
+        display: flex;
+    }
+
+    .link-content {
+        display: flex;
+        white-space: nowrap;
+        align-items: center;
+        padding: 2px;
+    }
+
+    .icon-container {
+        min-height: 30px;
+        min-width: 30px;
+        margin: 2px;
+    }
+
+    .selected-link-indicator {
+        min-width: 10px;
+        align-self: stretch;
+    }
+
+    li.selected .selected-link-indicator {
+        background-color: var(--theme-color-tertiary-lighter);
+    }
+
+    a, a .icon {
+        color: var(--theme-color-secondary-darkest);
+        stroke: var(--theme-color-secondary-darkest);
+    }
+
+        a:hover, a:hover .icon {
+            color: var(--theme-color-secondary-lightest);
+            stroke: var(--theme-color-secondary-lightest);
+            transition-duration: 0.1s;
+        }
+
+    @media (max-width: 768px) {
+        .link-text {
+            display: none;
+        }
+    }
+}

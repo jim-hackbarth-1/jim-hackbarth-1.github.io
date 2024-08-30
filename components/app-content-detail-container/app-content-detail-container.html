@@ -1,0 +1,9 @@
+﻿
+<section>
+    <kit-if data-kit-condition="!#model.routeName || (#model.routeName === '#home')">
+        <kit-component data-kit-template-path="/components/app-home/app-home.html"></kit-component>
+    </kit-if>
+    <kit-if data-kit-condition="#model.routeName === '#settings'">
+        <kit-component data-kit-template-path="/components/app-settings/app-settings.html"></kit-component>
+    </kit-if>
+</section>

@@ -10,7 +10,7 @@
         display: flex;
         align-items: center;
         background: linear-gradient(90deg, var(--theme-color-primary) var(--app-nav-width-expanded), var(--theme-color-primary-lightest) 75%);
-        box-shadow: 0px 5px 5px 0px var(--theme-color-primary-darkest-fixed);
+        box-shadow: 0px 2px 2px 0px var(--theme-color-primary-darkest-fixed);
         color: var(--theme-color-primary-darkest);
     }
 

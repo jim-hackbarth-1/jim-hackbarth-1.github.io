@@ -6,11 +6,11 @@ export function createModel() {
     return new AppHeadingModel();
 }
 
-export class AppHeadingModel {
+class AppHeadingModel {
 
     displayNav = true;
 
-    async initialize(componentId) {
+    async onRenderStart(componentId) {
         this.componentId = componentId;
 
         // set theme

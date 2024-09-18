@@ -6,7 +6,7 @@ export function createModel() {
     return new AppSettingsModel();
 }
 
-export class AppSettingsModel {
+class AppSettingsModel {
 
     getThemes() {
         let theme = LocalStorage.getTheme();

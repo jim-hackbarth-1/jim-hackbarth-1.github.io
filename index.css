@@ -71,7 +71,9 @@ body {
     color: var(--theme-color-primary-darkest);
 }
 
-kit-component:not([data-kit-component-id]), kit-if:not([data-kit-component-id]), kit-array:not([data-kit-component-id]) {
+kit-array:not([data-kit-component-id]),
+kit-component:not([data-kit-component-id]),
+kit-if:not([data-kit-component-id]) {
     display: none;
 }
 

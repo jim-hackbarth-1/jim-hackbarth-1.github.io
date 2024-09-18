@@ -5,17 +5,17 @@ export function createModel() {
     return new AppNavigationModel();
 }
 
-export class AppNavigationModel {
+class AppNavigationModel {
 
     componentId;
 
-    async initialize(componentId) {
+    async onRenderStart(componentId) {
         this.componentId = componentId;
         this.routeName = KitNavigator.getCurrentUrlFragment();
         KitMessenger.subscribe(KitNavigator.navTopicName, this.componentId, this.onNavigation.name);
     }
 
-    async onLoadedInDocument() {
+    async onRenderComplete() {
         this.setSelectedLink();
     }
 

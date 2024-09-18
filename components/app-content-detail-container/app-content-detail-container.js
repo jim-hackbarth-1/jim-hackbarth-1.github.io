@@ -6,7 +6,7 @@ export function createModel() {
 }
 
 class AppContentDetailContainer {
-    async initialize(componentId) {
+    async onRenderStart(componentId) {
         this.componentId = componentId;
         this.routeName = KitNavigator.getCurrentUrlFragment();
         KitMessenger.subscribe(KitNavigator.navTopicName, this.componentId, this.onNavigation.name);

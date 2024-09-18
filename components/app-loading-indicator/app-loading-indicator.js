@@ -5,9 +5,9 @@ export function createModel() {
     return new AppLoadingIndicatorModel();
 }
 
-export class AppLoadingIndicatorModel {
+class AppLoadingIndicatorModel {
 
-    async initialize(componentId) {
+    async onRenderStart(componentId) {
 
         // initialize
         this.componentId = componentId;

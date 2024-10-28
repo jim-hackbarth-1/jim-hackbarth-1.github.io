@@ -5,8 +5,9 @@ export class BuiltInTools {
 
     static #tools = null;
 
-    static async getTools() {
+    static async getTools(baseUrl) {
         if (!BuiltInTools.#tools) {
+            const moduleSrc = `${baseUrl}/domain/tools/draw-path.js`;
             BuiltInTools.#tools = [];
             const toolData = {
                 ref: {
@@ -14,7 +15,7 @@ export class BuiltInTools {
                     isBuiltIn: true,
                     name: "Draw Path"
                 },
-                moduleSrc: "http://localhost:63743/domain/tools/draw-path.js",  // TODO: base path from config
+                moduleSrc: moduleSrc,  // TODO: base path from config
                 thumbnailSrc: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAFRSURBVEhLYxgFo2AUDDrg7u5eqaGh+b+gqPjPo0ePOKHCtAV6utoXN27e+v/Zi1f/S8rK/8fExv3/9+8fN1SaNkBNSfSrrrrk/4N7N/z//utP2uOnz/+DfA5k/4cqoT5QUxL7sGJizP89i9L+wyzfun3nf29vH9pZDPTpd5Cl7841gTHMcj1dnf+Hjx7///3nn9NQpdQDqopiv5AthVmsriT2f/vm5f+//fz9D6qUegBo6W9clq5ZPo02lgLj9B8+S0HxCgSMUOXUAURaygxVTh0AtPT/QAQvXktpkm3CfK1bpjcH09dSEFBTFP3/6nQDTkupnpBgIC3CAm7p+unxtPcpCCREuMwvSLT9X57u+N9EV/a/uaHS/11bl8N8ygZVRn1gZ67208fV6H9XY+7/k0d3gS2kafDCALCsPQSzDJRdvv36UwWVGgWjYBRgAQwMAGLzbRR/6RRMAAAAAElFTkSuQmCC",
                 toolType: ToolType.DrawingTool
             };
@@ -23,8 +24,8 @@ export class BuiltInTools {
         return BuiltInTools.#tools;
     }
 
-    static getTool(toolRef) {
-        return BuiltInTools.getTools.find(t => EntityReference.areEqual(t.ref, toolRef));
+    static getTool(baseUrl, toolRef) {
+        return BuiltInTools.getTools(baseUrl).find(t => EntityReference.areEqual(t.ref, toolRef));
     }
 }
 

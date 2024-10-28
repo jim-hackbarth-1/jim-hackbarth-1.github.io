@@ -43,7 +43,7 @@ export class EditorModel {
 
         // initialize map worker
         const canvas = element.querySelector("#map-canvas");
-        MapWorkerClient.initializeWorker(canvas, this.onMapChanged);
+        MapWorkerClient.initializeWorker(canvas, this.onMapChanged, EditorModel.getBaseUrl());
     }
 
     async onMapChanged(message) {
@@ -270,7 +270,7 @@ export class EditorModel {
         if (!mapData.tools) {
             mapData.tools = [];
         }
-        const builtInTools = await BuiltInTools.getTools();
+        const builtInTools = await BuiltInTools.getTools(EditorModel.getBaseUrl());
         for (const builtInTool of builtInTools) {
             const data = builtInTool.getData();
             mapData.toolRefs.push(data.ref);
@@ -308,6 +308,11 @@ export class EditorModel {
         const map = new Map(mapData);
         await MapWorkerClient.setMap(map);
         KitRenderer.renderComponent(this.componentId);
+    }
+
+    static getBaseUrl() {
+        const appWindow = KitDependencyManager.getWindow();
+        return `${appWindow.location.protocol}//${appWindow.location.host}`;
     }
 
     static #mapToJson(map) {

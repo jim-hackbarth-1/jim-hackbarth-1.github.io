@@ -20,7 +20,7 @@ export class MapWorkerClient {
     }
 
     // methods
-    static initializeWorker(canvas, mapChangeListener) {
+    static initializeWorker(canvas, mapChangeListener, baseUrl) {
         MapWorkerClient.#addCanvasEventHandlers(canvas);
         MapWorkerClient.#mapChangeListener = mapChangeListener;
         MapWorkerClient.#mapWorker = new Worker("../../domain/utilities/map-worker.js", { type: "module" }); 
@@ -29,7 +29,8 @@ export class MapWorkerClient {
         const offscreenCanvas = canvas.transferControlToOffscreen();
         const message = {
             messageType: MapWorkerInputMessageType.Initialize,
-            canvas: offscreenCanvas
+            canvas: offscreenCanvas,
+            baseUrl: baseUrl
         };
         MapWorkerClient.#mapWorker.postMessage(message, [offscreenCanvas, MapWorkerClient.#channel.port2]);
     }

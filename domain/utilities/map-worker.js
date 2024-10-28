@@ -35,6 +35,11 @@ export class MapWorker {
         return MapWorker.#canvas;
     }
 
+    static #baseUrl;
+    static get baseUrl() {
+        return MapWorker.#baseUrl;
+    }
+
     static #map;
     static get map() {
         return MapWorker.#map;
@@ -66,7 +71,7 @@ export class MapWorker {
             const messageType = message?.data?.messageType;
             switch (messageType) {
                 case MapWorkerInputMessageType.Initialize:
-                    await MapWorker.#initialize(message.ports, message.data.canvas);
+                    await MapWorker.#initialize(message.ports, message.data.canvas, message.data.baseUrl);
                     break;
                 case MapWorkerInputMessageType.LoadMap:
                     await MapWorker.#loadMap();
@@ -113,11 +118,12 @@ export class MapWorker {
     }
 
     // helpers
-    static async #initialize(ports, canvas) {
+    static async #initialize(ports, canvas, baseUrl) {
         MapWorker.#messagePort = ports[0];
         MapWorker.#canvas = canvas;
         MapWorker.#renderingContext = MapWorker.canvas.getContext("2d");
         MapWorker.renderingContext.save();
+        MapWorker.#baseUrl = baseUrl;
         await MapWorker.#loadMap();
     }
 
@@ -148,7 +154,7 @@ export class MapWorker {
             MapWorker.#activeTool = tool;
             MapWorker.#activeToolModel = toolModule.createToolModel();
             if (MapWorker.activeToolModel && MapWorker.activeToolModel.onActivate) {
-                return await MapWorker.activeToolModel.onActivate();
+                return await MapWorker.activeToolModel.onActivate(MapWorker.baseUrl);
             }
         }
     }

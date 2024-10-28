@@ -1,5 +1,5 @@
 ﻿
-import { MapItem, MapWorker } from "http://localhost:63743/domain/references.js";
+//import { MapItem, MapWorker } from "http://localhost:63743/domain/references.js";
 
 export function createToolModel() {
     return new DrawPathTool();
@@ -7,6 +7,10 @@ export function createToolModel() {
 
 class DrawPathTool {
 
+    static #baseUrl;
+    static #references;
+    static MapItem;
+    static MapWorker;
     xStart = null;
     x = null;
     yStart = null;
@@ -16,7 +20,16 @@ class DrawPathTool {
     pathLight = null;
     pts = [];
 
+    async onActivate(baseUrl) {
+        DrawPathTool.#baseUrl = baseUrl;
+    }
+
     async handleCanvasEvent(canvasEvent) {
+        if (!DrawPathTool.#references) {
+            const { MapItem, MapWorker } = await import(`${DrawPathTool.#baseUrl}/domain/references.js`);
+            DrawPathTool.MapItem = MapItem;
+            DrawPathTool.MapWorker = MapWorker;
+        }
         const eventData = canvasEvent?.eventData;
         switch (canvasEvent?.canvasEventType) {
             case "mousedown":
@@ -77,8 +90,8 @@ class DrawPathTool {
     }
 
     drawStart(eventData) {
-        MapWorker.renderingContext.restore();
-        MapWorker.renderingContext.setLineDash([5, 10]);
+        DrawPathTool.MapWorker.renderingContext.restore();
+        DrawPathTool.MapWorker.renderingContext.setLineDash([5, 10]);
         this.xStart = eventData.offsetX;
         this.yStart = eventData.offsetY;
         this.x = eventData.offsetX;
@@ -109,36 +122,36 @@ class DrawPathTool {
     drawLine(x, y) {
         this.setDarkLineStyle();
         this.pathDark.lineTo(x, y);
-        MapWorker.renderingContext.stroke(this.pathDark);
+        DrawPathTool.MapWorker.renderingContext.stroke(this.pathDark);
         this.setLightLineStyle();
         this.pathLight.lineTo(x, y);
-        MapWorker.renderingContext.stroke(this.pathLight);
+        DrawPathTool.MapWorker.renderingContext.stroke(this.pathLight);
     }
 
     setDarkLineStyle() {
-        MapWorker.renderingContext.strokeStyle = "darkgray";
-        MapWorker.renderingContext.lineWidth = 3;
+        DrawPathTool.MapWorker.renderingContext.strokeStyle = "darkgray";
+        DrawPathTool.MapWorker.renderingContext.lineWidth = 3;
     }
 
     setLightLineStyle() {
-        MapWorker.renderingContext.strokeStyle = "white";
-        MapWorker.renderingContext.lineWidth = 1;
+        DrawPathTool.MapWorker.renderingContext.strokeStyle = "white";
+        DrawPathTool.MapWorker.renderingContext.lineWidth = 1;
     }
 
     async addMapItem() {  
-        if (MapWorker.map && MapWorker.activeMapItemTemplate) {
+        if (DrawPathTool.MapWorker.map && DrawPathTool.MapWorker.activeMapItemTemplate) {
             let pathData = `M ${this.xStart},${this.yStart} l ${this.pts.join(" ")}`;
-            if (MapWorker.activeMapItemTemplate.fills.length > 0) {
+            if (DrawPathTool.MapWorker.activeMapItemTemplate.fills.length > 0) {
                 pathData += " z";
             }
             const data = {
-                mapItemTemplateRef: MapWorker.activeMapItemTemplate.ref.getData(),
+                mapItemTemplateRef: DrawPathTool.MapWorker.activeMapItemTemplate.ref.getData(),
                 pathData: pathData
             };
-            const mapItem = new MapItem(data);
-            MapWorker.map.getActiveLayer().addMapItem(mapItem);
+            const mapItem = new DrawPathTool.MapItem(data);
+            DrawPathTool.MapWorker.map.getActiveLayer().addMapItem(mapItem);
         }
-        MapWorker.renderMap();
+        DrawPathTool.MapWorker.renderMap();
     }
 }
 

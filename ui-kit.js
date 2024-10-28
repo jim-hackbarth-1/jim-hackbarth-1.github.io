@@ -536,7 +536,7 @@ export class KitRenderer {
 
     /** Renders the document body */
     static async renderDocument() {
-        const appDocument = KitDependencyManager.getDocument();
+        const appDocument = KitDependencyManager.getDocument(); 
         const options = {
             template: appDocument.body.innerHTML
         };
@@ -611,16 +611,20 @@ export class KitRenderer {
         component.onRenderComplete();
 
         // render child components
-        let itemIndex = 0;
+        /*let itemIndex = 0;*/
         for (const childComponent of component.children) {
             switch (childComponent.componentType) {
             case KitComponentType.ConditionalComponent:
                 if (childComponent.model) {
                     KitRenderer.renderComponent(childComponent.id);
                 }
+                else {
+                    childComponent.onRenderComplete();
+                }
                 break;
             case KitComponentType.ArrayComponent:
                 childComponent.children = [];
+                let itemIndex = 0;
                 for (const arrayItem of childComponent.model) {
                     const options = {
                         template: childComponent.template,
@@ -652,7 +656,7 @@ export class KitRenderer {
             }
         }
     }
-
+ 
     /**
      * Gets the element associated with a component
      * @param {number} componentId - The id of the component
@@ -707,6 +711,31 @@ export class KitRenderer {
 
     /** @type {{path: string, template: string}[]} */
     static #templateCache = [];
+
+    /**
+     * Callback function that runs when a mutation occurs
+     * @param {MutationRecord[]} mutationsList
+     */
+    static #mutationCallback(mutationsList) {
+        let renderedComponentIds = mutationsList
+            .filter(m =>
+                m.target.hasAttribute("data-kit-component-id")
+                && m.type === "childList"
+                && m.addedNodes.length > 0)
+            .map(m => m.target.getAttribute("data-kit-component-id"));
+        renderedComponentIds = [...new Set(renderedComponentIds)];
+        for (const componentId of renderedComponentIds) {
+            const component = KitComponent.find(componentId);
+            if (component && component.model && typeof component.model.onLoadedInDocument === "function") {
+                if (component.model.onLoadedInDocument.constructor.name !== "AsyncFunction") {
+                    const modelName = component.model.constructor.name;
+                    const msg = `onLoadedInDocument() function must be async. model: ${modelName}, component id: ${componentId}`;
+                    throw new Error(msg);
+                }
+                component.model.onLoadedInDocument();
+            }
+        }
+    }
 
     /**
      * Creates a new KitComponent for an element
@@ -1067,7 +1096,7 @@ export class KitRenderer {
             eval(`(async () => { result = ${input}; })();`);
         }
         return await result;
-    }
+    } 
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

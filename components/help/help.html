@@ -1,0 +1,123 @@
+﻿<section class="help-component">
+    <style>
+        @scope (.help-component) {
+            :scope {
+                padding: 10px;
+            }
+
+            .color-level {
+                display: flex;
+                flex-direction: column;
+                flex-basis: 0px;
+            }
+
+            .color-level div {
+            }
+
+            .color-level-other {
+                display: flex;
+            }
+
+            .color-main {
+                width: 800px;
+                border: 1px solid var(--theme-color-primary-darkest-fixed);
+                height: 50px;
+            }
+
+            .color {
+                width: 400px;
+                border: 1px solid var(--theme-color-primary-darkest-fixed);
+                height: 50px;
+            }
+        }
+    </style>
+    <h1>help</h1>
+    <h2 style="padding:10px;">primary</h2>
+    <div class="color-level">
+        <div class="color-main" style="background-color: var(--theme-color-primary); color: var(--theme-color-primary-darkest);">
+            --theme-color-primary;
+        </div>
+        <div class="color-level-other">
+            <div class="color" style="background-color: var(--theme-color-primary-lighter); color: var(--theme-color-primary-darkest);">
+                --theme-color-primary-lighter;
+            </div>
+            <div class="color" style="background-color: var(--theme-color-primary-lightest); color: var(--theme-color-primary-darkest);">
+                --theme-color-primary-lightest;
+            </div>
+        </div>
+        <div class="color-level-other">
+            <div class="color" style="background-color: var(--theme-color-primary-darker); color: var(--theme-color-primary-lightest);">
+                --theme-color-primary-darker;
+            </div>
+            <div class="color" style="background-color: var(--theme-color-primary-darkest); color: var(--theme-color-primary-lightest);">
+                --theme-color-primary-darkest;
+            </div>
+        </div>
+    </div>
+    <h2 style="padding:10px;">secondary</h2>
+    <div class="color-level">
+        <div class="color-main" style="background-color: var(--theme-color-secondary); color: var(--theme-color-secondary-darkest); ">
+            --theme-color-secondary;
+        </div>
+        <div class="color-level-other">
+            <div class="color" style="background-color: var(--theme-color-secondary-lighter); color: var(--theme-color-secondary-darkest);">
+                --theme-color-secondary-lighter;
+            </div>
+            <div class="color" style="background-color: var(--theme-color-secondary-lightest); color: var(--theme-color-secondary-darkest);">
+                --theme-color-secondary-lightest;
+            </div>
+        </div>
+        <div class="color-level-other">
+            <div class="color" style="background-color: var(--theme-color-secondary-darker); color: var(--theme-color-secondary-lightest);">
+                --theme-color-secondary-darker;
+            </div>
+            <div class="color" style="background-color: var(--theme-color-secondary-darkest); color: var(--theme-color-secondary-lightest);">
+                --theme-color-secondary-darkest;
+            </div>
+        </div>
+    </div>
+    <h2 style="padding:10px;">tertiary</h2>
+    <div class="color-level">
+        <div class="color-main" style="background-color: var(--theme-color-tertiary); color: var(--theme-color-tertiary-darkest); ">
+            --theme-color-tertiary;
+        </div>
+        <div class="color-level-other">
+            <div class="color" style="background-color: var(--theme-color-tertiary-lighter); color: var(--theme-color-tertiary-darkest);">
+                --theme-color-tertiary-lighter;
+            </div>
+            <div class="color" style="background-color: var(--theme-color-tertiary-lightest); color: var(--theme-color-tertiary-darkest);">
+                --theme-color-tertiary-lightest;
+            </div>
+        </div>
+        <div class="color-level-other">
+            <div class="color" style="background-color: var(--theme-color-tertiary-darker); color: var(--theme-color-tertiary-lightest);">
+                --theme-color-tertiary-darker;
+            </div>
+            <div class="color" style="background-color: var(--theme-color-tertiary-darkest); color: var(--theme-color-tertiary-lightest);">
+                --theme-color-tertiary-darkest;
+            </div>
+        </div>
+    </div>
+    <h2 style="padding:10px;">complementary</h2>
+    <div class="color-level">
+        <div class="color-main" style="background-color: var(--theme-color-complementary); color: var(--theme-color-complementary-darkest); ">
+            --theme-color-complementary;
+        </div>
+        <div class="color-level-other">
+            <div class="color" style="background-color: var(--theme-color-complementary-lighter); color: var(--theme-color-complementary-darkest);">
+                --theme-color-complementary-lighter;
+            </div>
+            <div class="color" style="background-color: var(--theme-color-complementary-lightest); color: var(--theme-color-complementary-darkest);">
+                --theme-color-complementary-lightest;
+            </div>
+        </div>
+        <div class="color-level-other">
+            <div class="color" style="background-color: var(--theme-color-complementary-darker); color: var(--theme-color-complementary-lightest);">
+                --theme-color-complementary-darker;
+            </div>
+            <div class="color" style="background-color: var(--theme-color-complementary-darkest); color: var(--theme-color-complementary-lightest);">
+                --theme-color-complementary-darkest;
+            </div>
+        </div>
+    </div>
+</section>

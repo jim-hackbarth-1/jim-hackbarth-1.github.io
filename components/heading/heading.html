@@ -1,0 +1,60 @@
+﻿
+<header class="heading-component surface-primary">
+    <style>
+        @scope (.heading-component) {
+            :scope {
+                position: fixed;
+                width: 100vw;
+                height: 60px;
+                top: 0;
+                left: 0;
+                display: flex;
+                align-items: center;
+                background: linear-gradient(90deg, var(--theme-color-primary) var(--app-nav-width-expanded), var(--theme-color-primary-lightest) 75%);
+                box-shadow: 0px 2px 2px 0px var(--theme-color-primary-darkest-fixed);
+            }
+
+            #nav-toggle-button {
+                height: 30px;
+                width: 30px;
+                margin: 10px 10px 0px 15px;
+            }
+
+            #logo-container {
+                height: 60px;
+                width: 60px;
+            }
+
+            #title-container {
+                white-space: nowrap;
+                overflow: hidden;
+            }
+
+            h1 {
+                padding-left: 10px;
+                padding-right: 10px;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+
+            #spacer {
+                flex-grow: 4;
+            }
+        }
+    </style>
+    <div>
+        <button id="nav-toggle-button" class="action-text" onclick="#model.toggleNav()" title="Toggle navigation panel">
+            <kit-component data-kit-template-path="/resources/icons/nav-toggle.html" data-kit-model="null"></kit-component>
+        </button>
+    </div>
+    <div>
+        <div id="logo-container" title="Atlas Cooperative">
+            <kit-component data-kit-template-path="/resources/icons/logo.html" data-kit-model="null"></kit-component>
+        </div>
+    </div>
+    <div id="title-container">
+        <h1 title="Atlas Cooperative">Atlas Cooperative</h1>
+    </div>
+    <div id="spacer"></div>
+</header>

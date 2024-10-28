@@ -6,11 +6,12 @@
 }
 
 :scope {
+    --app-font-family: "Ubuntu Sans Mono", Arial, sans-serif;
     --app-nav-width-expanded: 150px;
     --app-nav-width: var(--app-nav-width-expanded);
     --app-nav-left: 0px;
     --theme-dark-mode: 0;
-    --theme-hue-primary: 300; /* pink (default spring) */
+    --theme-hue-primary: 30; /* 300 pink (default spring) */
 }
 
 :scope[data-app-theme="summer"] {
@@ -39,24 +40,28 @@
     --theme-color-primary-darker: hsl(var(--theme-hue-primary) 75% var(--theme-darker));
     --theme-color-primary-darkest: hsl(var(--theme-hue-primary) 100% var(--theme-darkest));
     --theme-color-primary-darkest-fixed: hsl(var(--theme-hue-primary) 100% 10%);
-    --theme-color-secondary: hsl(var(--theme-hue-secondary) 50% 50%);
+    --theme-color-secondary: hsl(var(--theme-hue-secondary) 30% 70%);
     --theme-color-secondary-lighter: hsl(var(--theme-hue-secondary) 75% var(--theme-lighter));
     --theme-color-secondary-lightest: hsl(var(--theme-hue-secondary) 100% var(--theme-lightest));
     --theme-color-secondary-darker: hsl(var(--theme-hue-secondary) 75% var(--theme-darker));
     --theme-color-secondary-darkest: hsl(var(--theme-hue-secondary) 100% var(--theme-darkest));
     --theme-color-secondary-darkest-fixed: hsl(var(--theme-hue-secondary) 100% 10%);
-    --theme-color-tertiary: hsl(var(--theme-hue-tertiary) 50% 50%);
+    --theme-color-tertiary: hsl(var(--theme-hue-tertiary) 30% 70%);
     --theme-color-tertiary-lighter: hsl(var(--theme-hue-tertiary) 75% var(--theme-lighter));
     --theme-color-tertiary-lightest: hsl(var(--theme-hue-tertiary) 100% var(--theme-lightest));
     --theme-color-tertiary-darker: hsl(var(--theme-hue-tertiary) 75% var(--theme-darker));
     --theme-color-tertiary-darkest: hsl(var(--theme-hue-tertiary) 100% var(--theme-darkest));
     --theme-color-tertiary-darkest-fixed: hsl(var(--theme-hue-tertiary) 100% 10%);
-    --theme-color-complementary: hsl(var(--theme-hue-complementary) 50% 50%);
+    --theme-color-complementary: hsl(var(--theme-hue-complementary) 30% 70%);
     --theme-color-complementary-lighter: hsl(var(--theme-hue-complementary) 75% var(--theme-lighter));
     --theme-color-complementary-lightest: hsl(var(--theme-hue-complementary) 100% var(--theme-lightest));
     --theme-color-complementary-darker: hsl(var(--theme-hue-complementary) 75% var(--theme-darker));
     --theme-color-complementary-darkest: hsl(var(--theme-hue-complementary) 100% var(--theme-darkest));
     --theme-color-complementary-darkest-fixed: hsl(var(--theme-hue-complementary) 100% 10%);
+}
+
+:scope {
+    scrollbar-color: var(--theme-color-primary) var(--theme-color-primary-lightest);
 }
 
 @media (max-width: 768px) {
@@ -66,9 +71,8 @@
 }
 
 body {
-    font-family: "Ubuntu Sans Mono", Arial, sans-serif;
+    font-family: var(--app-font-family);
     background-color: var(--theme-color-primary-lightest);
-    color: var(--theme-color-primary-darkest);
 }
 
 kit-array:not([data-kit-component-id]),
@@ -77,23 +81,515 @@ kit-if:not([data-kit-component-id]) {
     display: none;
 }
 
-#app-content-container {
-    display: flex;
-    margin-top:60px;
-}
-
-#app-content-detail-container {
-    padding:10px;
-    width:100%;
-    margin:auto;
-}
-
-a {
+.action-text {
     text-decoration: none;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+    outline: none;
+    font-family: var(--app-font-family);
+}
+
+.action-control {
+    cursor: pointer;
+    font-family: var(--app-font-family);
+    outline: none;
+    padding: 8px;
+    border-radius: 3px;
+    border: 1px solid;
+}
+
+.action-control[disabled] {
+    cursor: default;
 }
 
 .icon {
     fill: none;
-    stroke: var(--app-theme-background-text-color);
     stroke-width: 8px;
 }
+
+/* primary surface */
+.surface-primary {
+    background-color: var(--theme-color-primary);
+    color: var(--theme-color-primary-darkest);
+    border-color: var(--theme-color-primary-darkest-fixed);
+}
+
+.surface-primary.background {
+    background-color: var(--theme-color-primary-lightest);
+}
+
+.surface-primary .icon {
+    stroke: var(--theme-color-primary-darkest);
+}
+
+.surface-primary .icon-text {
+    fill: var(--theme-color-primary-darkest);
+}
+
+.surface-primary .action-text {
+    color: var(--theme-color-primary-darkest);
+}
+
+.surface-primary .action-control {
+    background-color: var(--theme-color-primary-lighter);
+    color: var(--theme-color-primary-darkest);
+    border-color: var(--theme-color-primary-darkest-fixed);
+}
+
+.surface-primary .action-control[disabled] {
+    background-color: rgba(from var(--theme-color-primary-lighter) r g b / 25%);
+    color: rgba(from var(--theme-color-primary-darkest) r g b / 25%);
+    border-color: rgba(from var(--theme-color-primary-darkest-fixed) r g b / 25%);
+}
+
+.surface-primary .action-text:hover {
+    color: var(--theme-color-primary-lightest);
+}
+
+.surface-primary .action-control:not([disabled]):hover {
+    background-color: var(--theme-color-primary-darker);
+    color: var(--theme-color-primary-lightest);
+    box-shadow: var(--theme-color-primary-lightest) 1px 1px 3px 0 inset, var(--theme-color-primary-lightest) -1px -1px 3px 0 inset;
+}
+
+.surface-primary .action-text .icon,
+.surface-primary .action-control .icon {
+    stroke: var(--theme-color-primary-darkest);
+}
+
+.surface-primary .action-control[disabled] .icon {
+    stroke: rgba(from var(--theme-color-primary-darkest) r g b / 25%);
+}
+
+.surface-primary .action-text:hover .icon,
+.surface-primary .action-control:not([disabled]):hover .icon {
+    stroke: var(--theme-color-primary-lightest);
+}
+
+.surface-primary .action-text .icon-text,
+.surface-primary .action-control .icon-text {
+    fill: var(--theme-color-primary-darkest);
+}
+
+.surface-primary .action-control[disabled] .icon-text {
+    fill: rgba(from var(--theme-color-primary-darkest) r g b / 25%);
+}
+
+.surface-primary .action-text:hover .icon-text,
+.surface-primary .action-control:not([disabled]):hover .icon-text {
+    fill: var(--theme-color-primary-lightest);
+}
+
+/* secondary surface */
+.surface-secondary {
+    background-color: var(--theme-color-secondary);
+    color: var(--theme-color-secondary-darkest);
+    border-color: var(--theme-color-secondary-darkest-fixed);
+}
+
+.surface-secondary.background {
+    background-color: var(--theme-color-secondary-lightest);
+}
+
+.surface-secondary .icon {
+    stroke: var(--theme-color-secondary-darkest);
+}
+
+.surface-secondary .icon-text {
+    fill: var(--theme-color-secondary-darkest);
+}
+
+.surface-secondary .action-text {
+    color: var(--theme-color-secondary-darkest);
+}
+
+.surface-secondary .action-control {
+    background-color: var(--theme-color-secondary-lighter);
+    color: var(--theme-color-secondary-darkest);
+    border-color: var(--theme-color-secondary-darkest-fixed);
+}
+
+.surface-secondary .action-control[disabled] {
+    background-color: rgba(from var(--theme-color-secondary-lighter) r g b / 25%);
+    color: rgba(from var(--theme-color-secondary-darkest) r g b / 25%);
+    border-color: rgba(from var(--theme-color-secondary-darkest-fixed) r g b / 25%);
+}
+
+.surface-secondary .action-text:hover {
+    color: var(--theme-color-secondary-lightest);
+}
+
+.surface-secondary .action-control:not([disabled]):hover {
+    background-color: var(--theme-color-secondary-darker);
+    color: var(--theme-color-secondary-lightest);
+    box-shadow: var(--theme-color-secondary-lightest) 1px 1px 3px 0 inset, var(--theme-color-secondary-lightest) -1px -1px 3px 0 inset;
+}
+
+.surface-secondary .action-text .icon,
+.surface-secondary .action-control .icon {
+    stroke: var(--theme-color-secondary-darkest);
+}
+
+.surface-secondary .action-control[disabled] .icon {
+    stroke: rgba(from var(--theme-color-secondary-darkest) r g b / 25%);
+}
+
+.surface-secondary .action-text:hover .icon,
+.surface-secondary .action-control:not([disabled]):hover .icon {
+    stroke: var(--theme-color-secondary-lightest);
+}
+
+.surface-secondary .action-text .icon-text,
+.surface-secondary .action-control .icon-text {
+    fill: var(--theme-color-secondary-darkest);
+}
+
+.surface-secondary .action-control[disabled] .icon-text {
+    fill: rgba(from var(--theme-color-secondary-darkest) r g b / 25%);
+}
+
+.surface-secondary .action-text:hover .icon-text,
+.surface-secondary .action-control:not([disabled]):hover .icon-text {
+    fill: var(--theme-color-secondary-lightest);
+}
+
+/* tertiary surface */
+.surface-tertiary {
+    background-color: var(--theme-color-tertiary);
+    color: var(--theme-color-tertiary-darkest);
+    border-color: var(--theme-color-tertiary-darkest-fixed);
+}
+
+.surface-tertiary.background {
+    background-color: var(--theme-color-tertiary-lightest);
+}
+
+.surface-tertiary .icon {
+    stroke: var(--theme-color-tertiary-darkest);
+}
+
+.surface-tertiary .icon-text {
+    fill: var(--theme-color-tertiary-darkest);
+}
+
+.surface-tertiary .action-text {
+    color: var(--theme-color-tertiary-darkest);
+}
+
+.surface-tertiary .action-control {
+    background-color: var(--theme-color-tertiary-lighter);
+    color: var(--theme-color-tertiary-darkest);
+    border-color: var(--theme-color-tertiary-darkest-fixed);
+}
+
+.surface-tertiary .action-control[disabled] {
+    background-color: rgba(from var(--theme-color-tertiary-lighter) r g b / 25%);
+    color: rgba(from var(--theme-color-tertiary-darkest) r g b / 25%);
+    border-color: rgba(from var(--theme-color-tertiary-darkest-fixed) r g b / 25%);
+}
+
+.surface-tertiary .action-text:hover {
+    color: var(--theme-color-tertiary-lightest);
+}
+
+.surface-tertiary .action-control:not([disabled]):hover,
+.surface-tertiary .action-control.active {
+    background-color: var(--theme-color-tertiary-darker);
+    color: var(--theme-color-tertiary-lightest);
+    box-shadow: var(--theme-color-tertiary-lightest) 1px 1px 3px 0 inset, var(--theme-color-tertiary-lightest) -1px -1px 3px 0 inset;
+}
+
+.surface-tertiary .action-text .icon,
+.surface-tertiary .action-control .icon {
+    stroke: var(--theme-color-tertiary-darkest);
+}
+
+.surface-tertiary .action-control[disabled] .icon {
+    stroke: rgba(from var(--theme-color-tertiary-darkest) r g b / 25%);
+}
+
+.surface-tertiary .action-text:hover .icon,
+.surface-tertiary .action-control:not([disabled]):hover .icon {
+    stroke: var(--theme-color-tertiary-lightest);
+}
+
+.surface-tertiary .action-text .icon-text,
+.surface-tertiary .action-control .icon-text {
+    fill: var(--theme-color-tertiary-darkest);
+}
+
+.surface-tertiary .action-control[disabled] .icon-text {
+    fill: rgba(from var(--theme-color-tertiary-darkest) r g b / 25%);
+}
+
+.surface-tertiary .action-text:hover .icon-text,
+.surface-tertiary .action-control:not([disabled]):hover .icon-text {
+    fill: var(--theme-color-tertiary-lightest);
+}
+
+/* complementary surface */
+.surface-complementary {
+    background-color: var(--theme-color-complementary);
+    color: var(--theme-color-complementary-darkest);
+    border-color: var(--theme-color-complementary-darkest-fixed);
+}
+
+.surface-complementary.background {
+    background-color: var(--theme-color-complementary-lightest);
+}
+
+.surface-complementary .icon {
+    stroke: var(--theme-color-complementary-darkest);
+}
+
+.surface-complementary .icon-text {
+    fill: var(--theme-color-complementary-darkest);
+}
+
+.surface-complementary .action-text {
+    color: var(--theme-color-complementary-darkest);
+}
+
+.surface-complementary .action-control {
+    background-color: var(--theme-color-complementary-lighter);
+    color: var(--theme-color-complementary-darkest);
+    border-color: var(--theme-color-complementary-darkest-fixed);
+}
+
+.surface-complementary .action-control[disabled] {
+    background-color: rgba(from var(--theme-color-complementary-lighter) r g b / 25%);
+    color: rgba(from var(--theme-color-complementary-darkest) r g b / 25%);
+    border-color: rgba(from var(--theme-color-complementary-darkest-fixed) r g b / 25%);
+}
+
+.surface-complementary .action-text:hover {
+    color: var(--theme-color-complementary-lightest);
+}
+
+.surface-complementary .action-control:not([disabled]):hover {
+    background-color: var(--theme-color-complementary-darker);
+    color: var(--theme-color-complementary-lightest);
+    box-shadow: var(--theme-color-complementary-lightest) 1px 1px 3px 0 inset, var(--theme-color-complementary-lightest) -1px -1px 3px 0 inset;
+}
+
+.surface-complementary .action-text .icon,
+.surface-complementary .action-control .icon {
+    stroke: var(--theme-color-complementary-darkest);
+}
+
+.surface-complementary .action-control[disabled] .icon {
+    stroke: rgba(from var(--theme-color-complementary-darkest) r g b / 25%);
+}
+
+.surface-complementary .action-text:hover .icon,
+.surface-complementary .action-control:not([disabled]):hover .icon {
+    stroke: var(--theme-color-complementary-lightest);
+}
+
+.surface-complementary .action-text .icon-text,
+.surface-complementary .action-control .icon-text {
+    fill: var(--theme-color-complementary-darkest);
+}
+
+.surface-complementary .action-control[disabled] .icon-text {
+    fill: rgba(from var(--theme-color-complementary-darkest) r g b / 25%);
+}
+
+.surface-complementary .action-text:hover .icon-text,
+.surface-complementary .action-control:not([disabled]):hover .icon-text {
+    fill: var(--theme-color-complementary-lightest);
+}
+
+/* Radio button - start */
+.radio-button {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding-left: 30px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.radio-button input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: var(--theme-color-primary-lightest);
+    border-radius: 50%;
+    border: 1px solid;
+    border-color: var(--theme-color-primary-darkest);
+}
+
+.surface-secondary .checkmark {
+    background-color: var(--theme-color-secondary-lightest);
+    border-color: var(--theme-color-secondary-darkest);
+}
+
+.surface-tertiary .checkmark {
+    background-color: var(--theme-color-tertiary-lightest);
+    border-color: var(--theme-color-tertiary-darkest);
+}
+
+.surface-complementary .checkmark {
+    background-color: var(--theme-color-complementary-lightest);
+    border-color: var(--theme-color-complementary-darkest);
+}
+
+.radio-button:hover input ~ .checkmark {
+    background-color: var(--theme-color-primary-lighter);
+    border-color: var(--theme-color-primary-lightest);
+    box-shadow: var(--theme-color-primary-lightest) 1px 1px 3px 0, var(--theme-color-primary-lightest) -1px -1px 3px 0;
+}
+
+.surface-secondary .radio-button:hover input ~ .checkmark {
+    background-color: var(--theme-color-secondary-lighter);
+    border-color: var(--theme-color-secondary-lightest);
+    box-shadow: var(--theme-color-secondary-lightest) 1px 1px 3px 0, var(--theme-color-secondary-lightest) -1px -1px 3px 0;
+}
+
+.surface-tertiary .radio-button:hover input ~ .checkmark {
+    background-color: var(--theme-color-tertiary-lighter);
+    border-color: var(--theme-color-tertiary-lightest);
+    box-shadow: var(--theme-color-tertiary-lightest) 1px 1px 3px 0, var(--theme-color-tertiary-lightest) -1px -1px 3px 0;
+}
+
+.surface-complementary .radio-button:hover input ~ .checkmark {
+    background-color: var(--theme-color-complementary-lighter);
+    border-color: var(--theme-color-complementary-lightest);
+    box-shadow: var(--theme-color-complementary-lightest) 1px 1px 3px 0, var(--theme-color-complementary-lightest) -1px -1px 3px 0;
+}
+
+.radio-button input:checked ~ .checkmark {
+    background-color: var(--theme-color-primary-lighter);
+}
+
+.surface-secondary .radio-button input:checked ~ .checkmark {
+    background-color: var(--theme-color-secondary-lighter);
+}
+
+.surface-tertiary .radio-button input:checked ~ .checkmark {
+    background-color: var(--theme-color-tertiary-lighter);
+}
+
+.surface-complementary .radio-button input:checked ~ .checkmark {
+    background-color: var(--theme-color-complementary-lighter);
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.radio-button input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.radio-button .checkmark:after {
+    top: 5px;
+    left: 5px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--theme-color-primary-darkest);
+}
+
+.surface-secondary .radio-button .checkmark:after {
+    background-color: var(--theme-color-secondary-darkest);
+}
+
+.surface-tertiary .radio-button .checkmark:after {
+    background-color: var(--theme-color-tertiary-darkest);
+}
+
+.surface-complementary .radio-button .checkmark:after {
+    background-color: var(--theme-color-complementary -darkest);
+}
+
+/* Radio button - end */
+
+/* Dialog - start */
+
+dialog {
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    overflow: auto;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    border-radius: 3px;
+    opacity: 0;
+    transition: opacity 0.25s ease-out, overlay 0.25s ease-out allow-discrete, display 0.25s ease-out allow-discrete;
+}
+
+dialog[open] {
+    opacity: 1;
+}
+
+@starting-style {
+
+    dialog[open] {
+        opacity: 0;
+    }
+
+    dialog[open]::backdrop {
+        background-color: rgb(0 0 0 / 0%);
+    }
+}
+
+dialog::backdrop {
+    background-color: rgb(0 0 0 / 0%);
+    transition: display 0.25s allow-discrete, overlay 0.25s allow-discrete, background-color 0.25s;
+}
+
+dialog[open]::backdrop {
+    background-color: rgb(0 0 0 / 25%);
+}
+
+dialog header {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    padding: 5px;
+    border-bottom: 1px solid;
+}
+
+dialog header h1 {
+    margin-top: 2px;
+    padding-left: 5px;
+}
+
+dialog .spacer {
+    flex-grow: 4;
+}
+
+dialog section {
+    padding: 20px 20px 0 20px;
+}
+
+dialog section div {
+    margin-bottom: 10px;
+}
+
+dialog section label {
+    font-weight: bold;
+}
+
+/* Dialog - end */

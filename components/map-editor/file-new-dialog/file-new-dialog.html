@@ -1,0 +1,72 @@
+﻿
+<dialog class="file-new-dialog-component surface-tertiary background">
+    <style>
+        @scope (.file-new-dialog-component) {
+            :scope {
+                height: 400px;
+                width: 600px;
+                border: 1px solid var(--theme-color-secondary-darkest);
+            }
+
+            #template-list {
+                height: 240px;
+                overflow-y: auto;
+                padding: 2px;
+                border: 1px solid var(--theme-color-tertiary-darkest-fixed);
+                border-radius: 3px;
+            }
+
+            .template-item {
+                margin: 0 0 2px 0;
+            }
+
+            .template-item img {
+                height: 30px;
+                width: 30px;
+                margin-right: 5px;
+                border: 1px solid var(--theme-color-tertiary-darkest);
+                border-radius: 3px;
+            }
+
+            .template-item:hover img {
+                border-color: var(--theme-color-tertiary-lightest);
+            }
+        }
+    </style>
+    <header class="surface-tertiary">
+        <div class="icon-container">
+            <kit-component data-kit-template-path="/resources/icons/file-new.html" data-kit-model="null"></kit-component>
+        </div>
+        <div>
+            <h1>New map</h1>
+        </div>
+        <div class="spacer"></div>
+        <div>
+            <button title="Close" class="action-text" onclick="#model.closeDialog();">
+                <div class="icon-container">
+                    <kit-component data-kit-template-path="/resources/icons/file-close.html" data-kit-model="null"></kit-component>
+                </div>
+            </button>
+        </div>
+    </header>
+    <section>
+        <div>
+            <label>Choose template:</label>
+        </div>
+        <div id="template-list" class="surface-tertiary">
+            <kit-array data-kit-array="#model.getTemplates()" data-kit-item-ref="template">
+                <div class="action-control template-item" title="%{#template.ref.name}%">
+                    <label class="radio-button">
+                        <input type="radio" name="template" onclick="#model.templateSelected(#template.ref)" />
+                        <span class="checkmark"></span>
+                        <span><img data-src="%{#template.thumbnailSrc}%" /></span>
+                        <span>%{#template.ref.name}%</span>
+                    </label>
+                </div>
+            </kit-array>
+        </div>
+        <div>
+            <button id="button-ok" class="action-control" title="OK" onclick="#model.buttonOkClicked();" disabled>OK</button>
+        </div>
+    </section>
+</dialog>

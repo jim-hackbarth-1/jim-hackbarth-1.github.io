@@ -1,0 +1,84 @@
+﻿
+<dialog class="file-open-dialog-component surface-tertiary background">
+    <style>
+        @scope (.file-open-dialog-component) {
+            :scope {
+                height: 200px;
+                width: 600px;
+                border: 1px solid var(--theme-color-secondary-darkest);
+            }
+
+            #file-container {
+                display: flex;
+            }
+
+            #file-name {
+                flex-grow: 4;
+            }
+
+            #browse {
+                margin-left: 5px;
+            }
+
+            input[type="text"] {
+                border: 1px solid var(--theme-color-tertiary-darkest);
+                border-radius: 3px;
+                height: 35px;
+                color: var(--theme-color-tertiary-darkest);
+                background-color: var(--theme-color-tertiary-lighter);
+                display: block;
+                padding: 0 5px 0 5px;
+            }
+
+            input[type="text"][disabled] {
+                background-color: rgba(from var(--theme-color-tertiary-lighter) r g b / 25%);
+                border-color: rgba(from var(--theme-color-tertiary-darkest) r g b / 25%);
+            }
+
+            input[type="text"]::placeholder {
+                color: var(--theme-color-tertiary-darker);
+            }
+
+            input[type="text"][disabled]::placeholder {
+                color: rgba(from var(--theme-color-tertiary-darker) r g b / 25%);
+            }
+
+            input[type="text"]:focus {
+                background-color: var(--theme-color-tertiary-lightest);
+                border: 1px solid var(--theme-color-tertiary-darkest);
+            }
+
+            input[type="text"]:not([disabled]):hover {
+                box-shadow: var(--theme-color-tertiary-lightest) 1px 1px 3px 0 inset, var(--theme-color-tertiary-lightest) -1px -1px 3px 0 inset;
+            }
+        }
+    </style>
+    <header class="surface-tertiary">
+        <div class="icon-container">
+            <kit-component data-kit-template-path="/resources/icons/file-open.html" data-kit-model="null"></kit-component>
+        </div>
+        <div>
+            <h1>Open map</h1>
+        </div>
+        <div class="spacer"></div>
+        <div>
+            <button title="Close" class="action-text" onclick="#model.closeDialog();">
+                <div class="icon-container">
+                    <kit-component data-kit-template-path="/resources/icons/file-close.html" data-kit-model="null"></kit-component>
+                </div>
+            </button>
+        </div>
+    </header>
+    <section>
+        <div>
+            <label>Choose file path:</label>
+        </div>
+        <div id="file-container">
+            <input id="file-name" type="text" placeholder="file name" disabled />
+            <button id="browse" class="action-control" title="browse" onclick="#model.browse()">...</button>
+        </div>
+        <div>
+            <button id="button-ok" class="action-control" title="OK" onclick="#model.buttonOkClicked();" disabled>OK</button>
+        </div>
+    </section>
+</dialog>

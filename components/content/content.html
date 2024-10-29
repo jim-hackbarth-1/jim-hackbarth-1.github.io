@@ -11,6 +11,7 @@
                 right: 0;
                 top: 3px;
                 bottom: 0;
+                overflow:auto;
             }
 
             .hide {
@@ -34,6 +35,6 @@
         <kit-component data-kit-template-path="/components/account/account.html"></kit-component>
     </kit-if>
     <kit-if data-kit-condition="#model.routeName.startsWith('#help')">
-        <kit-component data-kit-template-path="/components/help/help.html" data-kit-model="null"></kit-component>
+        <kit-component data-kit-template-path="/components/help/help.html"></kit-component>
     </kit-if>
 </section>

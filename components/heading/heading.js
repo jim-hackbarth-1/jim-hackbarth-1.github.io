@@ -11,6 +11,7 @@ class HeadingModel {
 
     async onRenderStart(componentId) {
         this.componentId = componentId;
+        KitDependencyManager.setConsole(new DebugConsole());
     }
 
     async toggleNav() {
@@ -24,4 +25,42 @@ class HeadingModel {
         element.style.setProperty("--app-nav-left", appNavLeft);
     }
    
+}
+
+export class DebugConsole {
+
+    static #debugItems;
+    static get debugItems() {
+        if (!DebugConsole.#debugItems) {
+            DebugConsole.#debugItems = [];
+        }
+        return DebugConsole.#debugItems;
+    }
+
+    constructor() {
+        const appWindow = KitDependencyManager.getWindow();
+        appWindow.addEventListener("error", (event) => {
+            this.error(`Uncaught ${event.error.stack}`, true);
+        });
+        appWindow.addEventListener("unhandledrejection", (event) => {
+            this.error(`Uncaught (in promise) ${event.reason.stack}`, true);
+        });
+    }
+
+    log(data) {
+        console.log(data);
+        DebugConsole.debugItems.push({ itemType: "info", data: data });
+    }
+
+    warn(data) {
+        console.warn(data);
+        DebugConsole.debugItems.push({ itemType: "warning", data: data });
+    }
+
+    error(data, isUnhandled) {
+        if (!isUnhandled) {
+            console.error(data);
+        }
+        DebugConsole.debugItems.push({ itemType: "error", data: data });
+    }
 }

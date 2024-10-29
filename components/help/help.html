@@ -29,6 +29,29 @@
                 border: 1px solid var(--theme-color-primary-darkest-fixed);
                 height: 50px;
             }
+
+            #debug-console {
+                border: 1px solid var(--theme-color-primary-darkest-fixed);
+                border-radius: 3px;
+                padding-bottom: 5px;
+            }
+
+            .debug-console-item {
+                padding: 5px;
+                border-bottom: 1px dotted var(--theme-color-primary-darker);
+            }
+
+            .info {
+                color: var(--theme-color-primary);
+            }
+
+            .warning {
+                color: var(--theme-color-complementary);
+            }
+
+            .error {
+                color: var(--theme-color-complementary-darker);
+            }
         }
     </style>
     <h1>help</h1>
@@ -119,5 +142,22 @@
                 --theme-color-complementary-darkest;
             </div>
         </div>
+    </div>
+    <h2 style="padding:10px;">Debug console</h2>
+    <div id="debug-console">
+        <kit-array data-kit-array="#model.getDebugConsoleItems()" data-kit-item-ref="item">
+            <div class="debug-console-item %{#item.itemType}%">
+                <kit-if data-kit-condition="#item.itemType === 'info'">
+                    <span>&#9432;</span>
+                </kit-if>
+                <kit-if data-kit-condition="#item.itemType === 'warning'">
+                    <span>&#9888;</span>
+                </kit-if>
+                <kit-if data-kit-condition="#item.itemType === 'error'">
+                    <span>&#10539;</span>
+                </kit-if>
+                <pre>%{#item.data}%</pre>
+            </div>
+        </kit-array>
     </div>
 </section>

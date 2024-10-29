@@ -1,4 +1,5 @@
 ﻿
+import { KitDependencyManager } from "../../ui-kit.js";
 import { DbManager, Map, MapWorkerInputMessageType, MapWorkerOutputMessageType } from "../references.js";
 
 export class MapWorkerClient {
@@ -63,6 +64,9 @@ export class MapWorkerClient {
     }
 
     static async handleWorkerMessage(message) {
+        if (message?.data?.messageType === MapWorkerOutputMessageType.Error) {
+            KitDependencyManager.getConsole().error(message.data.error);
+        }
         if (message?.data?.messageType === MapWorkerOutputMessageType.MapUpdated && MapWorkerClient.mapChangeListener) {
             const mapData = await DbManager.getMap();
             MapWorkerClient.#map = mapData ? new Map(mapData) : null;

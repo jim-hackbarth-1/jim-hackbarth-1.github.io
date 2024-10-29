@@ -15,6 +15,7 @@ export const MapWorkerInputMessageType = {
 };
 
 export const MapWorkerOutputMessageType = {
+    Error: "Error",
     MapUpdated: "MapUpdated"
 }
 
@@ -182,7 +183,10 @@ export class MapWorker {
 
     static #handleError(error, data) {
         try {
-            console.error(new Error("MapWorker error", { cause: error }), data);
+            MapWorker.postMessage({
+                messageType: MapWorkerOutputMessageType.Error,
+                error: `Uncaught ${error.stack}\n ${JSON.stringify(data, null, 2)}`
+            });
         }
         catch { }
     }

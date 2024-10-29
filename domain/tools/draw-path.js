@@ -60,9 +60,9 @@ class DrawPathTool {
     }
 
     async onTouchStart(eventData) {
-        //if (eventData) {
-        //    this.drawStart(eventData);
-        //}
+        if (eventData) {
+            this.drawStart(eventData);
+        }
     }
 
     async onMouseMove(eventData) {

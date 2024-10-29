@@ -15,6 +15,7 @@ export const MapWorkerInputMessageType = {
 };
 
 export const MapWorkerOutputMessageType = {
+    DebugInfo: "DebugInfo",
     Error: "Error",
     MapUpdated: "MapUpdated"
 }

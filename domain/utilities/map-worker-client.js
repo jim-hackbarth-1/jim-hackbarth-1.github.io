@@ -64,6 +64,9 @@ export class MapWorkerClient {
     }
 
     static async handleWorkerMessage(message) {
+        if (message?.data?.messageType === MapWorkerOutputMessageType.DebugInfo) {
+            KitDependencyManager.getConsole().log(message.data.data);
+        }
         if (message?.data?.messageType === MapWorkerOutputMessageType.Error) {
             KitDependencyManager.getConsole().error(message.data.error);
         }

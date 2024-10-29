@@ -93,6 +93,7 @@ class DrawPathTool {
         const context = DrawPathTool?.MapWorker?.renderingContext;
         const debugMsg = `hasContext: ${context ? "yes" : "no"}`;
         DrawPathTool.MapWorker.postMessage({ messageType: "DebugInfo", data: debugMsg });
+        return;
         DrawPathTool.MapWorker.renderingContext.restore();
         DrawPathTool.MapWorker.renderingContext.setLineDash([5, 10]);
         this.xStart = eventData.offsetX;

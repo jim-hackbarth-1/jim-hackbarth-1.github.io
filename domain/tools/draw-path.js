@@ -60,9 +60,9 @@ class DrawPathTool {
     }
 
     async onTouchStart(eventData) {
-        if (eventData) {
-            this.drawStart(eventData);
-        }
+        //if (eventData) {
+        //    this.drawStart(eventData);
+        //}
     }
 
     async onMouseMove(eventData) {
@@ -90,11 +90,6 @@ class DrawPathTool {
     }
 
     drawStart(eventData) {
-        //const context = DrawPathTool?.MapWorker?.renderingContext;
-        //const debugMsg = `hasContext: ${context ? "yes" : "no"}`;
-        //DrawPathTool.MapWorker.postMessage({ messageType: "DebugInfo", data: debugMsg });
-        console.log("temp");
-        return;
         DrawPathTool.MapWorker.renderingContext.restore();
         DrawPathTool.MapWorker.renderingContext.setLineDash([5, 10]);
         this.xStart = eventData.offsetX;

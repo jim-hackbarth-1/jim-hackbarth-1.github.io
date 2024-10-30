@@ -196,7 +196,7 @@
                         <div class="button-text">New ...</div>
                     </div>
                 </button>
-                <button title="Open map" class="action-text" onclick="#model.showDialog('file-open-dialog-component')">
+                <button title="Open map" class="action-text" onclick="#model.showDialog('file-open-dialog-component')" data-kit-add-attributes="%{#model.isOpenDisabled()}%">
                     <div class="button-content">
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/file-open.html" data-kit-model="null"></kit-component>
@@ -213,7 +213,7 @@
                     </div>
                 </button>
                 <hr />
-                <button title="Save map" class="action-text" onclick="#model.saveMap()">
+                <button title="Save map" class="action-text" onclick="#model.saveMap()" data-kit-add-attributes="%{#model.isSaveDisabled()}%">
                     <div class="button-content">
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/file-save.html" data-kit-model="null"></kit-component>
@@ -260,14 +260,14 @@
                     </div>
                 </div>
             </button>
-            <button title="Open map" class="action-text" onclick="#model.showDialog('file-open-dialog-component')">
+            <button title="Open map" class="action-text" onclick="#model.showDialog('file-open-dialog-component')" data-kit-add-attributes="%{#model.isOpenDisabled()}%">
                 <div class="button-content">
                     <div class="icon-container">
                         <kit-component data-kit-template-path="/resources/icons/file-open.html" data-kit-model="null"></kit-component>
                     </div>
                 </div>
             </button>
-            <button title="Save map" class="action-text" onclick="#model.saveMap()">
+            <button title="Save map" class="action-text" onclick="#model.saveMap()" data-kit-add-attributes="%{#model.isSaveDisabled()}%">
                 <div class="button-content">
                     <div class="icon-container">
                         <kit-component data-kit-template-path="/resources/icons/file-save.html" data-kit-model="null"></kit-component>

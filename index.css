@@ -144,7 +144,11 @@ kit-if:not([data-kit-component-id]) {
     border-color: rgba(from var(--theme-color-primary-darkest-fixed) r g b / 25%);
 }
 
-.surface-primary .action-text:hover {
+.surface-primary .action-text[disabled] {
+    color: rgba(from var(--theme-color-primary-darkest) r g b / 25%);
+}
+
+.surface-primary .action-text:not([disabled]):hover {
     color: var(--theme-color-primary-lightest);
 }
 
@@ -159,11 +163,12 @@ kit-if:not([data-kit-component-id]) {
     stroke: var(--theme-color-primary-darkest);
 }
 
-.surface-primary .action-control[disabled] .icon {
+.surface-primary .action-control[disabled] .icon,
+.surface-primary .action-text[disabled] .icon {
     stroke: rgba(from var(--theme-color-primary-darkest) r g b / 25%);
 }
 
-.surface-primary .action-text:hover .icon,
+.surface-primary .action-text:not([disabled]):hover .icon,
 .surface-primary .action-control:not([disabled]):hover .icon {
     stroke: var(--theme-color-primary-lightest);
 }
@@ -173,11 +178,12 @@ kit-if:not([data-kit-component-id]) {
     fill: var(--theme-color-primary-darkest);
 }
 
-.surface-primary .action-control[disabled] .icon-text {
+.surface-primary .action-control[disabled] .icon-text,
+.surface-primary .action-text[disabled] .icon-text {
     fill: rgba(from var(--theme-color-primary-darkest) r g b / 25%);
 }
 
-.surface-primary .action-text:hover .icon-text,
+.surface-primary .action-text:not([disabled]):hover .icon-text,
 .surface-primary .action-control:not([disabled]):hover .icon-text {
     fill: var(--theme-color-primary-lightest);
 }
@@ -217,7 +223,11 @@ kit-if:not([data-kit-component-id]) {
     border-color: rgba(from var(--theme-color-secondary-darkest-fixed) r g b / 25%);
 }
 
-.surface-secondary .action-text:hover {
+.surface-secondary .action-text[disabled] {
+    color: rgba(from var(--theme-color-secondary-darkest) r g b / 25%);
+}
+
+.surface-secondary .action-text:not([disabled]):hover {
     color: var(--theme-color-secondary-lightest);
 }
 
@@ -232,11 +242,12 @@ kit-if:not([data-kit-component-id]) {
     stroke: var(--theme-color-secondary-darkest);
 }
 
-.surface-secondary .action-control[disabled] .icon {
+.surface-secondary .action-control[disabled] .icon,
+.surface-secondary .action-text[disabled] .icon {
     stroke: rgba(from var(--theme-color-secondary-darkest) r g b / 25%);
 }
 
-.surface-secondary .action-text:hover .icon,
+.surface-secondary .action-text:not([disabled]):hover .icon,
 .surface-secondary .action-control:not([disabled]):hover .icon {
     stroke: var(--theme-color-secondary-lightest);
 }
@@ -246,11 +257,12 @@ kit-if:not([data-kit-component-id]) {
     fill: var(--theme-color-secondary-darkest);
 }
 
-.surface-secondary .action-control[disabled] .icon-text {
+.surface-secondary .action-control[disabled] .icon-text,
+.surface-secondary .action-text[disabled] .icon-text {
     fill: rgba(from var(--theme-color-secondary-darkest) r g b / 25%);
 }
 
-.surface-secondary .action-text:hover .icon-text,
+.surface-secondary .action-text:not([disabled]):hover .icon-text,
 .surface-secondary .action-control:not([disabled]):hover .icon-text {
     fill: var(--theme-color-secondary-lightest);
 }
@@ -290,7 +302,11 @@ kit-if:not([data-kit-component-id]) {
     border-color: rgba(from var(--theme-color-tertiary-darkest-fixed) r g b / 25%);
 }
 
-.surface-tertiary .action-text:hover {
+.surface-tertiary .action-text[disabled] {
+    color: rgba(from var(--theme-color-tertiary-darkest) r g b / 25%);
+}
+
+.surface-tertiary .action-text:not([disabled]):hover {
     color: var(--theme-color-tertiary-lightest);
 }
 
@@ -306,11 +322,12 @@ kit-if:not([data-kit-component-id]) {
     stroke: var(--theme-color-tertiary-darkest);
 }
 
-.surface-tertiary .action-control[disabled] .icon {
+.surface-tertiary .action-control[disabled] .icon,
+.surface-tertiary .action-text[disabled] .icon {
     stroke: rgba(from var(--theme-color-tertiary-darkest) r g b / 25%);
 }
 
-.surface-tertiary .action-text:hover .icon,
+.surface-tertiary .action-text:not([disabled]):hover .icon,
 .surface-tertiary .action-control:not([disabled]):hover .icon {
     stroke: var(--theme-color-tertiary-lightest);
 }
@@ -320,11 +337,12 @@ kit-if:not([data-kit-component-id]) {
     fill: var(--theme-color-tertiary-darkest);
 }
 
-.surface-tertiary .action-control[disabled] .icon-text {
+.surface-tertiary .action-control[disabled] .icon-text,
+.surface-tertiary .action-text[disabled] .icon-text {
     fill: rgba(from var(--theme-color-tertiary-darkest) r g b / 25%);
 }
 
-.surface-tertiary .action-text:hover .icon-text,
+.surface-tertiary .action-text:not([disabled]):hover .icon-text,
 .surface-tertiary .action-control:not([disabled]):hover .icon-text {
     fill: var(--theme-color-tertiary-lightest);
 }
@@ -364,7 +382,11 @@ kit-if:not([data-kit-component-id]) {
     border-color: rgba(from var(--theme-color-complementary-darkest-fixed) r g b / 25%);
 }
 
-.surface-complementary .action-text:hover {
+.surface-complementary .action-text[disabled] {
+    color: rgba(from var(--theme-color-complementary-darkest) r g b / 25%);
+}
+
+.surface-complementary .action-text:not([disabled]):hover {
     color: var(--theme-color-complementary-lightest);
 }
 
@@ -379,11 +401,12 @@ kit-if:not([data-kit-component-id]) {
     stroke: var(--theme-color-complementary-darkest);
 }
 
-.surface-complementary .action-control[disabled] .icon {
+.surface-complementary .action-control[disabled] .icon,
+.surface-complementary .action-text[disabled] .icon {
     stroke: rgba(from var(--theme-color-complementary-darkest) r g b / 25%);
 }
 
-.surface-complementary .action-text:hover .icon,
+.surface-complementary .action-text:not([disabled]):hover .icon,
 .surface-complementary .action-control:not([disabled]):hover .icon {
     stroke: var(--theme-color-complementary-lightest);
 }
@@ -393,11 +416,12 @@ kit-if:not([data-kit-component-id]) {
     fill: var(--theme-color-complementary-darkest);
 }
 
-.surface-complementary .action-control[disabled] .icon-text {
+.surface-complementary .action-control[disabled] .icon-text,
+.surface-complementary .action-text[disabled] .icon-text {
     fill: rgba(from var(--theme-color-complementary-darkest) r g b / 25%);
 }
 
-.surface-complementary .action-text:hover .icon-text,
+.surface-complementary .action-text:not([disabled]):hover .icon-text,
 .surface-complementary .action-control:not([disabled]):hover .icon-text {
     fill: var(--theme-color-complementary-lightest);
 }

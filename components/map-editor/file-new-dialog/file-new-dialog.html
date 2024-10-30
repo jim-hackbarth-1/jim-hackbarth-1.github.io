@@ -8,6 +8,19 @@
                 border: 1px solid var(--theme-color-secondary-darkest);
             }
 
+            @media (max-width: 768px) {
+                :scope {
+                    position: fixed;
+                    height: 100%;
+                    width: 100%;
+                    transform: unset;
+                    top: 0;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                }
+            }
+
             #template-list {
                 height: 240px;
                 overflow-y: auto;
@@ -53,7 +66,7 @@
         <div>
             <label>Choose template:</label>
         </div>
-        <div id="template-list" class="surface-tertiary">
+        <div id="template-list" class="surface-tertiary background">
             <kit-array data-kit-array="#model.getTemplates()" data-kit-item-ref="template">
                 <div class="action-control template-item" title="%{#template.ref.name}%">
                     <label class="radio-button">

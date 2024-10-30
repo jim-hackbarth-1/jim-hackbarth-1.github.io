@@ -62,6 +62,24 @@ export class EditorModel {
         model.showDialog();
     }
 
+    isSaveDisabled() {
+        if ('showSaveFilePicker' in KitDependencyManager.getWindow()) {
+            return null;
+        }
+        else {
+            return "disabled";
+        }
+    }
+
+    isOpenDisabled() {
+        if ('showOpenFilePicker' in KitDependencyManager.getWindow()) {
+            return null;
+        }
+        else {
+            return "disabled";
+        }
+    }
+
     async saveMap() {
         if (FileManager.fileHandle) {
             const map = await MapWorkerClient.getMap();

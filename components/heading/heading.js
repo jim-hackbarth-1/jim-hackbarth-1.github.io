@@ -40,10 +40,10 @@ export class DebugConsole {
     constructor() {
         const appWindow = KitDependencyManager.getWindow();
         appWindow.addEventListener("error", (event) => {
-            this.error(`Uncaught ${event.error.stack}`, true);
+            this.error(`Uncaught ${event.error.message}\n ${event.error.stack}`, true);
         });
         appWindow.addEventListener("unhandledrejection", (event) => {
-            this.error(`Uncaught (in promise) ${event.reason.stack}`, true);
+            this.error(`Uncaught (in promise) ${event.reason.message}\n ${event.reason.stack}`, true);
         });
     }
 

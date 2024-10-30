@@ -163,6 +163,13 @@
                 /*cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"><g fill="none" stroke="%23000" stroke-width="2"><circle cx="12" cy="12" r="8.5"></circle><path d="M1 12h5M18 12h5M12 6V1.04M12 23v-4.96M11.95 11.95h.1v.1h-.1z"></path></g></svg>') 21 21, progress;*/
             }
 
+            @media (max-width: 768px), (max-height: 768px) {
+                #map-canvas {
+                    top: 40px;
+                    left: 40px;
+                }
+            }
+
             #no-map {
                 position: absolute;
                 display: block;
@@ -347,7 +354,7 @@
         </section>
     </div>
     <div id="map-container" class="surface-secondary background no-map">
-        <canvas id="map-canvas" width="1200" height="740"></canvas>
+        <canvas id="map-canvas" width="1200" height="750"></canvas>
         <div id="no-map" class="no-map">[No map]</div>
     </div>
     <kit-component id="file-new-dialog-component" data-kit-template-path="/components/map-editor/file-new-dialog/file-new-dialog.html"></kit-component>

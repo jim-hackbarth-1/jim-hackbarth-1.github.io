@@ -218,13 +218,13 @@ kit-if:not([data-kit-component-id]) {
 }
 
 .surface-secondary .action-control[disabled] {
-    background-color: rgba(from var(--theme-color-secondary-lighter) r g b / 0.25);
-    color: rgba(from var(--theme-color-secondary-darkest) r g b / 0.25);
-    border-color: rgba(from var(--theme-color-secondary-darkest-fixed) r g b / 0.25);
+    background-color: rgb(from var(--theme-color-secondary-lighter) r g b / 25%);
+    color: rgb(from var(--theme-color-secondary-darkest) r g b / 25%);
+    border-color: rgb(from var(--theme-color-secondary-darkest-fixed) r g b / 25%);
 }
 
 .surface-secondary .action-text[disabled] {
-    color: rgba(from var(--theme-color-secondary-darkest) r g b / 0.25);
+    color: rgb(from var(--theme-color-secondary-darkest) r g b / 25%);
 }
 
 .surface-secondary .action-text:not([disabled]):hover {
@@ -244,7 +244,7 @@ kit-if:not([data-kit-component-id]) {
 
 .surface-secondary .action-control[disabled] .icon,
 .surface-secondary .action-text[disabled] .icon {
-    stroke: rgba(from var(--theme-color-secondary-darkest) r g b / 0.25);
+    stroke: rgb(from var(--theme-color-secondary-darkest) r g b / 25%);
 }
 
 .surface-secondary .action-text:not([disabled]):hover .icon,
@@ -259,7 +259,7 @@ kit-if:not([data-kit-component-id]) {
 
 .surface-secondary .action-control[disabled] .icon-text,
 .surface-secondary .action-text[disabled] .icon-text {
-    fill: rgba(from var(--theme-color-secondary-darkest) r g b / 0.25);
+    fill: rgb(from var(--theme-color-secondary-darkest) r g b / 25%);
 }
 
 .surface-secondary .action-text:not([disabled]):hover .icon-text,

@@ -1,5 +1,5 @@
 ﻿
-import { ChangeEventType, DbManager, EntityReference, Map } from "../references.js";
+import { ChangeEventType, DbManager, EntityReference, Map, MapItem } from "../references.js";
 
 /**
  * @readonly
@@ -21,170 +21,182 @@ export const MapWorkerOutputMessageType = {
 }
 
 onmessage = (message) => {
-    MapWorker.handleClientMessage(message);
+    MapWorker.instance.handleClientMessage(message);
 };
 
 export class MapWorker {
 
     // properties
-    static #messagePort;
-    static get messagePort() {
-        return MapWorker.#messagePort;
+    static #instance;
+    static get instance() {
+        if (!MapWorker.#instance) {
+            MapWorker.#instance = new MapWorker();
+        }
+        return MapWorker.#instance;
     }
 
-    static #canvas;
-    static get canvas() {
-        return MapWorker.#canvas;
+    #messagePort;
+    get messagePort() {
+        return this.#messagePort;
     }
 
-    static #baseUrl;
-    static get baseUrl() {
-        return MapWorker.#baseUrl;
+    #canvas;
+    get canvas() {
+        return this.#canvas;
     }
 
-    static #map;
-    static get map() {
-        return MapWorker.#map;
+    #baseUrl;
+    get baseUrl() {
+        return this.#baseUrl;
     }
 
-    static #renderingContext;
-    static get renderingContext() {
-        return MapWorker.#renderingContext;
+    #map;
+    get map() {
+        return this.#map;
     }
 
-    static #activeTool;
-    static get activeTool() {
-        return MapWorker.#activeTool;
+    #renderingContext;
+    get renderingContext() {
+        return this.#renderingContext;
     }
 
-    static #activeToolModel;
-    static get activeToolModel() {
-        return MapWorker.#activeToolModel;
+    #activeTool;
+    get activeTool() {
+        return this.#activeTool;
     }
 
-    static #activeMapItemTemplate;
-    static get activeMapItemTemplate() {
-        return MapWorker.#activeMapItemTemplate;
+    #activeToolModel;
+    get activeToolModel() {
+        return this.#activeToolModel;
+    }
+
+    #activeMapItemTemplate;
+    get activeMapItemTemplate() {
+        return this.#activeMapItemTemplate;
     }
 
     // methods
-    static async handleClientMessage(message) {
+    async handleClientMessage(message) {
         try {
             const messageType = message?.data?.messageType;
             switch (messageType) {
                 case MapWorkerInputMessageType.Initialize:
-                    await MapWorker.#initialize(message.ports, message.data.canvas, message.data.baseUrl);
+                    await this.#initialize(message.ports, message.data.canvas, message.data.baseUrl);
                     break;
                 case MapWorkerInputMessageType.LoadMap:
-                    await MapWorker.#loadMap();
+                    await this.#loadMap();
                     break;
                 case MapWorkerInputMessageType.UpdateMap:
                     // TODO
                     break;
                 case MapWorkerInputMessageType.SetActiveTool:
-                    await MapWorker.#setActiveTool(message.data.toolRefData);
+                    await this.#setActiveTool(message.data.toolRefData);
                     break;
                 case MapWorkerInputMessageType.SetActiveMapItemTemplate:
-                    await MapWorker.#setActiveMapItemTemplate(message.data.mapItemTemplateRefData);
+                    await this.#setActiveMapItemTemplate(message.data.mapItemTemplateRefData);
                     break;
                 case MapWorkerInputMessageType.CanvasEvent:
-                    await MapWorker.#canvasEvent(message.data.canvasEventType, message.data.canvasEventData);
+                    await this.#canvasEvent(message.data.canvasEventType, message.data.canvasEventData);
                     break;
                 default:
                     throw new Error(`Unexpected worker request type: ${messageType ?? "(null)"}`);
             }
         }
         catch (error) {
-            MapWorker.#handleError(error, { messageData: message?.data });
+            this.#handleError(error, { messageData: message?.data });
         }
     }
 
-    static postMessage(message) {
-        if (MapWorker.messagePort) {
-            MapWorker.messagePort.postMessage(message);
+    postMessage(message) {
+        if (this.messagePort) {
+            this.messagePort.postMessage(message);
         }
     }
 
-    static async handleMapChange(change) {
-        if (MapWorker.map) {
-            await DbManager.setMap(MapWorker.map.getData());
-            const message = { messageType: MapWorkerOutputMessageType.MapUpdated, data: { hasUnsavedChanges: MapWorker.map.hasUnsavedChanges, change: change } };
-            MapWorker.postMessage(message);
+    handleMapChange = async (change) => {
+        if (this.map) {
+            await DbManager.setMap(this.map.getData());
+            const message = { messageType: MapWorkerOutputMessageType.MapUpdated, data: { hasUnsavedChanges: this.map.hasUnsavedChanges, change: change } };
+            this.postMessage(message);
         }
     }
 
-    static renderMap() {
-        if (MapWorker.canvas && MapWorker.renderingContext && MapWorker.map) {
-            MapWorker.map.render(MapWorker.canvas, MapWorker.renderingContext);
+    createMapItem(data) {
+        return new MapItem(data);
+    }
+
+    renderMap() {
+        if (this.canvas && this.renderingContext && this.map) {
+            this.map.render(this.canvas, this.renderingContext);
         }
     }
 
     // helpers
-    static async #initialize(ports, canvas, baseUrl) {
-        MapWorker.#messagePort = ports[0];
-        MapWorker.#canvas = canvas;
-        MapWorker.#renderingContext = MapWorker.canvas.getContext("2d");
-        MapWorker.renderingContext.save();
-        MapWorker.#baseUrl = baseUrl;
-        await MapWorker.#loadMap();
+    async #initialize(ports, canvas, baseUrl) {
+        this.#messagePort = ports[0];
+        this.#canvas = canvas;
+        this.#renderingContext = this.canvas.getContext("2d");
+        this.renderingContext.save();
+        this.#baseUrl = baseUrl;
+        await this.#loadMap();
     }
 
-    static async #loadMap() {
+    async #loadMap() {
         const mapData = await DbManager.getMap();
-        MapWorker.#map = mapData ? new Map(mapData) : null;
-        MapWorker.#activeTool = null;
-        MapWorker.#activeToolModel = null;
-        MapWorker.#activeMapItemTemplate = null;
-        if (MapWorker.canvas && MapWorker.renderingContext) {
-            if (MapWorker.map) {
-                MapWorker.map.addEventListener(ChangeEventType.afterChangeEvent, MapWorker.handleMapChange);
-                MapWorker.map.render(MapWorker.canvas, MapWorker.renderingContext);
+        this.#map = mapData ? new Map(mapData) : null;
+        this.#activeTool = null;
+        this.#activeToolModel = null;
+        this.#activeMapItemTemplate = null;
+        if (this.canvas && this.renderingContext) {
+            if (this.map) {
+                this.map.addEventListener(ChangeEventType.afterChangeEvent, this.handleMapChange);
+                this.map.render(this.canvas, this.renderingContext);
             }
             else {
-                MapWorker.renderingContext.clearRect(0, 0, MapWorker.canvas.width, MapWorker.canvas.height);
+                this.renderingContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
             }
         }
     }
 
-    static async #setActiveTool(toolRefData) {
-        MapWorker.#activeTool = null;
-        MapWorker.#activeToolModel = null;
-        if (toolRefData && MapWorker.map) {
+    async #setActiveTool(toolRefData) {
+        this.#activeTool = null;
+        this.#activeToolModel = null;
+        if (toolRefData && this.map) {
             const toolRef = new EntityReference(toolRefData);
-            const tool = MapWorker.map.tools.find(t => EntityReference.areEqual(t.ref, toolRef));
+            const tool = this.map.tools.find(t => EntityReference.areEqual(t.ref, toolRef));
             const toolModule = await import(tool.moduleSrc);
-            MapWorker.#activeTool = tool;
-            MapWorker.#activeToolModel = toolModule.createToolModel();
-            if (MapWorker.activeToolModel && MapWorker.activeToolModel.onActivate) {
-                return await MapWorker.activeToolModel.onActivate(MapWorker.baseUrl);
+            this.#activeTool = tool;
+            this.#activeToolModel = toolModule.createToolModel();
+            if (this.activeToolModel && this.activeToolModel.onActivate) {
+                return await this.activeToolModel.onActivate(this);
             }
         }
     }
 
-    static async #setActiveMapItemTemplate(mapItemTemplateRefData) {
-        MapWorker.#activeMapItemTemplate = null;
-        if (mapItemTemplateRefData && MapWorker.map) {
+    async #setActiveMapItemTemplate(mapItemTemplateRefData) {
+        this.#activeMapItemTemplate = null;
+        if (mapItemTemplateRefData && this.map) {
             const mapItemTemplateRef = new EntityReference(mapItemTemplateRefData);
-            const mapItemTemplate = MapWorker.map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, mapItemTemplateRef));
-            MapWorker.#activeMapItemTemplate = mapItemTemplate;
-            if (MapWorker.activeToolModel && MapWorker.activeToolModel.onMapItemTemplateActivated) {
-                return await MapWorker.activeToolModel.onMapItemTemplateActivated();
+            const mapItemTemplate = this.map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, mapItemTemplateRef));
+            this.#activeMapItemTemplate = mapItemTemplate;
+            if (this.activeToolModel && this.activeToolModel.onMapItemTemplateActivated) {
+                return await this.activeToolModel.onMapItemTemplateActivated();
             }
         }
     }
 
-    static async #canvasEvent(canvasEventType, eventData) {
-        if (MapWorker.activeToolModel && MapWorker.activeToolModel.handleCanvasEvent) {
-            await MapWorker.activeToolModel.handleCanvasEvent({
+    async #canvasEvent(canvasEventType, eventData) {
+        if (this.activeToolModel && this.activeToolModel.handleCanvasEvent) {
+            await this.activeToolModel.handleCanvasEvent({
                 canvasEventType: canvasEventType,
                 eventData: eventData
             });
         }
     }
 
-    static #handleError(error, data) {
+    #handleError(error, data) {
         try {
-            MapWorker.postMessage({
+            this.postMessage({
                 messageType: MapWorkerOutputMessageType.Error,
                 error: `Uncaught error: ${error.message}\n ${error.stack}\n ${JSON.stringify(data, null, 2)}`
             });

@@ -186,7 +186,7 @@ export class MapWorker {
         try {
             MapWorker.postMessage({
                 messageType: MapWorkerOutputMessageType.Error,
-                error: `Uncaught ${error.stack}\n ${JSON.stringify(data, null, 2)}`
+                error: `Uncaught error: ${error.message}\n ${error.stack}\n ${JSON.stringify(data, null, 2)}`
             });
         }
         catch { }

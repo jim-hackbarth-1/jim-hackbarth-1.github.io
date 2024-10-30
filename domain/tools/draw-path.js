@@ -32,60 +32,33 @@ class DrawPathTool {
         }
         const eventData = canvasEvent?.eventData;
         switch (canvasEvent?.canvasEventType) {
-            case "mousedown":
-                await this.onMouseDown(eventData);
+            case "pointerdown":
+                await this.onPointerDown(eventData);
                 break;
-            case "touchstart":
-                await this.onTouchStart(eventData);
+            case "pointermove":
+                await this.onPointerMove(eventData);
                 break;
-            case "mousemove":
-                await this.onMouseMove(eventData);
-                break;
-            case "touchmove":
-                await this.onTouchMove(eventData);
-                break;
-            case "mouseup":
-                await this.onMouseUp(eventData);
-                break;
-            case "touchend":
-                await this.onTouchEnd(eventData);
+            case "pointerup":
+                await this.onPointerUp(eventData);
                 break;
         }
     }
 
-    async onMouseDown(eventData) {
-        if (eventData && eventData.buttons == 1) {
+    async onPointerDown(eventData) {
+        if (eventData && eventData.button === 0) {
             this.drawStart(eventData);
         }
     }
 
-    async onTouchStart(eventData) {
-        if (eventData) {
-            this.drawStart(eventData);
-        }
-    }
-
-    async onMouseMove(eventData) {
+    async onPointerMove(eventData) {
         if (eventData && this.isDrawing) {
             this.draw(eventData);
         }
     }
 
-    async onTouchMove(eventData) {
-        if (eventData && this.isDrawing) {
-            this.draw(eventData);
-        }
-    }
-
-    async onMouseUp(eventData) {
+    async onPointerUp(eventData) {
         if (eventData && this.isDrawing) {
             await this.drawEnd(eventData);     
-        }
-    }
-
-    async onTouchEnd(eventData) {
-        if (eventData && this.isDrawing) {
-            await this.drawEnd(eventData);
         }
     }
 

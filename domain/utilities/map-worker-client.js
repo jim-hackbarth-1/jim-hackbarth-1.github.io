@@ -79,12 +79,9 @@ export class MapWorkerClient {
 
     // helpers
     static #addCanvasEventHandlers(canvas) {
-        MapWorkerClient.#addCanvasEventHandler(canvas, "mousedown");
-        MapWorkerClient.#addCanvasEventHandler(canvas, "touchstart");
-        MapWorkerClient.#addCanvasEventHandler(canvas, "mousemove");
-        MapWorkerClient.#addCanvasEventHandler(canvas, "touchmove");
-        MapWorkerClient.#addCanvasEventHandler(canvas, "mouseup");
-        MapWorkerClient.#addCanvasEventHandler(canvas, "touchend");
+        MapWorkerClient.#addCanvasEventHandler(canvas, "pointerdown");
+        MapWorkerClient.#addCanvasEventHandler(canvas, "pointermove");
+        MapWorkerClient.#addCanvasEventHandler(canvas, "pointerup");
     }
 
     static #addCanvasEventHandler(canvas, canvasEventType) {

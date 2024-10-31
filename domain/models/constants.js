@@ -27,6 +27,7 @@ export const ChangeType = {
     MapInsertMapItemTemplateRef: "MapInsertMapItemTemplateRef",
     MapInsertTool: "MapInsertTool",
     MapInsertToolRef: "MapInsertToolRef",
+    MapPan: "MapPan",
     MapRemoveLayer: "MapRemoveLayer",
     MapRemoveMapItemTemplate: "MapRemoveMapItemTemplate",
     MapRemoveMapItemTemplateRef: "MapRemoveMapItemTemplateRef",

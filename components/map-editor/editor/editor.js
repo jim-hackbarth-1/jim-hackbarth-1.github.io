@@ -40,12 +40,9 @@ export class EditorModel {
         }
         toolsElement.addEventListener("mouseleave", (event) => this.#slideTools());
         toolsElement.addEventListener("mouseenter", (event) => this.#slideTools(true));
-
-        // get tool images
-        const imgs = element.querySelectorAll(".tool-button img");
-        for (const img of imgs) {
-            img.setAttribute("src", img.getAttribute("data-src"));
-            img.removeAttribute("data-src");
+        if (map) {
+            this.#toolsPinned = false;
+            this.toggleToolsPinned();
         }
 
         // initialize map worker
@@ -95,6 +92,16 @@ export class EditorModel {
         }
         else {
             this.showDialog("file-save-dialog-component");
+        }
+    }
+
+    async isCloseDisabled() {
+        const map = await MapWorkerClient.getMap();
+        if (map) {
+            return null;
+        }
+        else {
+            return "disabled";
         }
     }
 

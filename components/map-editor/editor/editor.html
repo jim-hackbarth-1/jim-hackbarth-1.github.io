@@ -222,7 +222,7 @@
                         <div class="button-text">Open ...</div>
                     </div>
                 </button>
-                <button title="Close map" class="action-text" onclick="#model.closeMap()">
+                <button title="Close map" class="action-text" onclick="#model.closeMap()" data-kit-add-attributes="%{#model.isCloseDisabled()}%">
                     <div class="button-content">
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/file-close.html" data-kit-model="null"></kit-component>

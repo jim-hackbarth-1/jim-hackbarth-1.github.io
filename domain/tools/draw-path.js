@@ -54,6 +54,7 @@ class DrawPathTool {
 
     drawStart(eventData) {
         this.mapWorker.renderingContext.restore();
+        this.mapWorker.renderingContext.setTransform(1, 0, 0, 1, 0, 0);
         this.mapWorker.renderingContext.setLineDash([5, 10]);
         this.xStart = eventData.offsetX;
         this.yStart = eventData.offsetY;
@@ -103,7 +104,8 @@ class DrawPathTool {
 
     async addMapItem() {  
         if (this.mapWorker.map && this.mapWorker.activeMapItemTemplate) {
-            let pathData = `M ${this.xStart},${this.yStart} l ${this.pts.join(" ")}`;
+            const mapPoint = this.mapWorker.map.getPoint(this.xStart, this.yStart);
+            let pathData = `M ${mapPoint.x},${mapPoint.y} l ${this.pts.join(" ")}`;
             if (this.mapWorker.activeMapItemTemplate.fills.length > 0) {
                 pathData += " z";
             }

@@ -28,8 +28,9 @@ class FileOpenDialogModel {
     }
 
     async browse() {
+        let fileHandles = null;
         try {
-            const fileHandles = await window.showOpenFilePicker({
+            fileHandles = await window.showOpenFilePicker({
                 types: [
                     {
                         description: 'Json Files',

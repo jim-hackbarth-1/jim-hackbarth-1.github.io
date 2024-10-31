@@ -29,6 +29,7 @@ export class Map {
         this.#toolRefs = [];
         this.#tools = [];
         this.#toolPalette = new ToolPalette(data?.toolPalette);
+        this.#pan = { x: 0, y: 0 };
         if (data) {
             if (data.templateRef) {
                 this.#templateRef = new EntityReference(data.templateRef);
@@ -57,6 +58,9 @@ export class Map {
                     this.#tools.push(tool);
                     this.#addChangeEventListeners(tool);
                 }
+            }
+            if (data.pan) {
+                this.#pan = data.pan;
             }
         }
         this.#eventListeners = {};
@@ -204,6 +208,17 @@ export class Map {
         this.#hasUnsavedChanges = hasUnsavedChanges;
     }
 
+    /** @type {{x: number, y: number}} */
+    #pan;
+    get pan() {
+        return this.#pan;
+    }
+    set pan(pan) {
+        this.#beforeChange({ changeType: ChangeType.MapProperty, changeData: { propertyName: "pan", propertyValue: this.pan } });
+        this.#pan = pan;
+        this.#afterChange({ changeType: ChangeType.MapProperty, changeData: { propertyName: "pan", propertyValue: this.pan } });
+    }
+
     // methods
     getData() {
         const layers = [];
@@ -228,7 +243,8 @@ export class Map {
             mapItemTemplates: mapItemTemplates,
             toolRefs: this.#getRefsData(this.#toolRefs),
             tools: tools,
-            toolPalette: this.#toolPalette ? this.#toolPalette.getData() : null
+            toolPalette: this.#toolPalette ? this.#toolPalette.getData() : null,
+            pan: this.#pan
         };
     }
 
@@ -416,17 +432,34 @@ export class Map {
     }
 
     render(canvas, context) {
+        context.restore();
+        context.setTransform(1, 0, 0, 1, 0, 0);
         context.clearRect(0, 0, canvas.width, canvas.height);
+        context.translate(this.#pan.x, this.#pan.y);
         for (const layer of this.layers) {
             layer.render(canvas, context, this);
         }
+    }
+
+    getPoint(canvasX, canvasY) {
+        return { x: canvasX - this.#pan.x, y: canvasY - this.#pan.y };
+    }
+
+    #startedChange
+    startChange(change) {
+        this.#beforeChange(change);
+        this.#startedChange = change;
+    }
+    completeChange(change) {
+        this.#startedChange = null;
+        this.#afterChange(change);
     }
 
     // helpers
     #eventListeners;
 
     #beforeChange = (change) => {
-        if (this.#eventListeners[ChangeEventType.beforeChangeEvent]) {
+        if (!this.#startedChange && this.#eventListeners[ChangeEventType.beforeChangeEvent]) {
             for (const listener of this.#eventListeners[ChangeEventType.beforeChangeEvent]) {
                 listener(change);
             }
@@ -434,10 +467,12 @@ export class Map {
     }
 
     #afterChange = (change) => {
-        this.#hasUnsavedChanges = true;
-        if (this.#eventListeners[ChangeEventType.afterChangeEvent]) {
-            for (const listener of this.#eventListeners[ChangeEventType.afterChangeEvent]) {
-                listener(change);
+        if (!this.#startedChange) {
+            this.#hasUnsavedChanges = true;
+            if (this.#eventListeners[ChangeEventType.afterChangeEvent]) {
+                for (const listener of this.#eventListeners[ChangeEventType.afterChangeEvent]) {
+                    listener(change);
+                }
             }
         }
     }

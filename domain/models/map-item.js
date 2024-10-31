@@ -152,7 +152,6 @@ export class MapItem {
                 context.stroke(path);
                 context.fillStyle = mapItemTemplate.fills[0].color;
                 context.fill(path);
-                context.restore();
             }
         }
     }

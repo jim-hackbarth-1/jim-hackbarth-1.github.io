@@ -7,21 +7,31 @@ export class BuiltInTools {
 
     static async getTools(baseUrl) {
         if (!BuiltInTools.#tools) {
-            const moduleSrc = `${baseUrl}/domain/tools/draw-path.js`;
             BuiltInTools.#tools = [];
-            const toolData = {
+            BuiltInTools.#tools.push(new Tool({
                 ref: {
                     versionId: 1,
                     isBuiltIn: true,
-                    name: "Draw Path"
+                    name: "Pan"
                 },
-                moduleSrc: moduleSrc,
-                thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><g class="icon" fill="none"><circle cx="25" cy="25" r="10"></circle><line x1="25" y1="10" x2="25" y2="20" /><line x1="25" y1="30" x2="25" y2="40" /><line x1="10" y1="25" x2="20" y2="25" /><line x1="30" y1="25" x2="40" y2="25" /><path stroke-dasharray="4" d="M 25,25 l 10,10 15,15 -10,15, 10,15 20,10"></path></g></svg>',
+                moduleSrc: `${baseUrl}/domain/tools/pan.js`,
+                thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><g class="icon"><path d="M 50,10 L 35,20 45,20 45,45 20,45 20,35 10,50 20,65 20,55 45,55 45,80 35,80 50,90 65,80 55,80 55,55 80,55 80,65 90,50 80,35 80,45 55,45 55,20 65,20z"></path></g></svg>',
+                cursorSrc: `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g fill="none" stroke="black" stroke-width="2"><path d="M 50,10 L 35,20 45,20 45,45 20,45 20,35 10,50 20,65 20,55 45,55 45,80 35,80 50,90 65,80 55,80 55,55 80,55 80,65 90,50 80,35 80,45 55,45 55,20 65,20z"></path></g></svg>')}`,
+                cursorHotspot: { x: 15, y: 15 },
+                toolType: ToolType.EditingTool
+            }));
+            BuiltInTools.#tools.push(new Tool({
+                ref: {
+                    versionId: 1,
+                    isBuiltIn: true,
+                    name: "Draw path"
+                },
+                moduleSrc: `${baseUrl}/domain/tools/draw-path.js`,
+                thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><g class="icon"><circle cx="25" cy="25" r="10"></circle><line x1="25" y1="10" x2="25" y2="20" /><line x1="25" y1="30" x2="25" y2="40" /><line x1="10" y1="25" x2="20" y2="25" /><line x1="30" y1="25" x2="40" y2="25" /><path stroke-dasharray="4" d="M 25,25 l 10,10 15,15 -10,15, 10,15 20,10"></path></g></svg>',
                 cursorSrc: `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g fill="none" stroke="black" stroke-width="2"><circle cx="50" cy="50" r="20"></circle><line x1="50" y1="20" x2="50" y2="40" /><line x1="50" y1="60" x2="50" y2="80" /><line x1="20" y1="50" x2="40" y2="50" /><line x1="60" y1="50" x2="80" y2="50" /></g></svg>')}`,
                 cursorHotspot: { x: 15, y: 15 },
                 toolType: ToolType.DrawingTool
-            };
-            BuiltInTools.#tools.push(new Tool(toolData));
+            }));
         }
         return BuiltInTools.#tools;
     }

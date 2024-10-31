@@ -15,8 +15,10 @@ export class BuiltInTools {
                     isBuiltIn: true,
                     name: "Draw Path"
                 },
-                moduleSrc: moduleSrc,  // TODO: base path from config
-                thumbnailSrc: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAFRSURBVEhLYxgFo2AUDDrg7u5eqaGh+b+gqPjPo0ePOKHCtAV6utoXN27e+v/Zi1f/S8rK/8fExv3/9+8fN1SaNkBNSfSrrrrk/4N7N/z//utP2uOnz/+DfA5k/4cqoT5QUxL7sGJizP89i9L+wyzfun3nf29vH9pZDPTpd5Cl7841gTHMcj1dnf+Hjx7///3nn9NQpdQDqopiv5AthVmsriT2f/vm5f+//fz9D6qUegBo6W9clq5ZPo02lgLj9B8+S0HxCgSMUOXUAURaygxVTh0AtPT/QAQvXktpkm3CfK1bpjcH09dSEFBTFP3/6nQDTkupnpBgIC3CAm7p+unxtPcpCCREuMwvSLT9X57u+N9EV/a/uaHS/11bl8N8ygZVRn1gZ67208fV6H9XY+7/k0d3gS2kafDCALCsPQSzDJRdvv36UwWVGgWjYBRgAQwMAGLzbRR/6RRMAAAAAElFTkSuQmCC",
+                moduleSrc: moduleSrc,
+                thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><g class="icon" fill="none"><circle cx="25" cy="25" r="10"></circle><line x1="25" y1="10" x2="25" y2="20" /><line x1="25" y1="30" x2="25" y2="40" /><line x1="10" y1="25" x2="20" y2="25" /><line x1="30" y1="25" x2="40" y2="25" /><path stroke-dasharray="4" d="M 25,25 l 10,10 15,15 -10,15, 10,15 20,10"></path></g></svg>',
+                cursorSrc: `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g fill="none" stroke="black" stroke-width="2"><circle cx="50" cy="50" r="20"></circle><line x1="50" y1="20" x2="50" y2="40" /><line x1="50" y1="60" x2="50" y2="80" /><line x1="20" y1="50" x2="40" y2="50" /><line x1="60" y1="50" x2="80" y2="50" /></g></svg>')}`,
+                cursorHotspot: { x: 15, y: 15 },
                 toolType: ToolType.DrawingTool
             };
             BuiltInTools.#tools.push(new Tool(toolData));
@@ -37,6 +39,8 @@ export class Tool {
         if (data) {
             this.#moduleSrc = data.moduleSrc;
             this.#thumbnailSrc = data.thumbnailSrc;
+            this.#cursorSrc = data.cursorSrc,
+            this.#cursorHotspot = data.cursorHotspot,
             this.#toolType = data.toolType;
         }
         this.#eventListeners = {};
@@ -71,6 +75,28 @@ export class Tool {
         this.#afterChange({ changeType: ChangeType.ToolProperty, changeData: { propertyName: "thumbnailSrc", propertyValue: this.thumbnailSrc } });
     }
 
+    /** @type {string}  */
+    #cursorSrc;
+    get cursorSrc() {
+        return this.#cursorSrc;
+    }
+    set cursorSrc(cursorSrc) {
+        this.#beforeChange({ changeType: ChangeType.ToolProperty, changeData: { propertyName: "cursorSrc", propertyValue: this.cursorSrc } });
+        this.#cursorSrc = cursorSrc;
+        this.#afterChange({ changeType: ChangeType.ToolProperty, changeData: { propertyName: "cursorSrc", propertyValue: this.cursorSrc } });
+    }
+
+    /** @type {{x: number, y: number}} */
+    #cursorHotspot;
+    get cursorHotspot() {
+        return this.#cursorHotspot;
+    }
+    set cursorHotspot(cursorHotspot) {
+        this.#beforeChange({ changeType: ChangeType.MapItemProperty, changeData: { propertyName: "cursorHotspot", propertyValue: this.cursorHotspot } });
+        this.#cursorHotspot = cursorHotspot;
+        this.#afterChange({ changeType: ChangeType.MapItemProperty, changeData: { propertyName: "cursorHotspot", propertyValue: this.cursorHotspot } });
+    }
+
     /** @type {ToolType}  */
     #toolType;
     get toolType() {
@@ -91,6 +117,8 @@ export class Tool {
             ref: this.#ref ? this.#ref.getData() : null,
             moduleSrc: this.#moduleSrc,
             thumbnailSrc: this.#thumbnailSrc,
+            cursorSrc: this.#cursorSrc,
+            cursorHotspot: this.#cursorHotspot,
             toolType: this.#toolType
         };
     }

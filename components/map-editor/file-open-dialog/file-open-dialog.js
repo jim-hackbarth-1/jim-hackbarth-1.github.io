@@ -28,16 +28,21 @@ class FileOpenDialogModel {
     }
 
     async browse() {
-        const fileHandles = await window.showOpenFilePicker({
-            types: [
-                {
-                    description: 'Json Files',
-                    accept: {
-                        'text/plain': ['.json'],
+        try {
+            const fileHandles = await window.showOpenFilePicker({
+                types: [
+                    {
+                        description: 'Json Files',
+                        accept: {
+                            'text/plain': ['.json'],
+                        },
                     },
-                },
-            ],
-        });
+                ],
+            });
+        }
+        catch {
+            return;
+        }
         this.#fileHandle = fileHandles[0];
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         const fileNameElement = componentElement.querySelector("#file-name");

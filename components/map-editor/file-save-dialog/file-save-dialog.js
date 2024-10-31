@@ -28,14 +28,19 @@ class FileSaveDialogModel {
     }
 
     async browse() {
-        this.#fileHandle = await window.showSaveFilePicker({
-            types: [
-                {
-                    description: "Json Files",
-                    accept: { "text/plain": [".json"] }
-                }
-            ]
-        });
+        try {
+            this.#fileHandle = await window.showSaveFilePicker({
+                types: [
+                    {
+                        description: "Json Files",
+                        accept: { "text/plain": [".json"] }
+                    }
+                ]
+            });
+        }
+        catch {
+            return;
+        }
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         const fileNameElement = componentElement.querySelector("#file-name");
         fileNameElement.value = this.#fileHandle.name;

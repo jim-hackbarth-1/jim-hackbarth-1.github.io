@@ -4,7 +4,7 @@ import { Map } from "../references.js";
 export function getOverlandTemplate() {
     const blueRegion = {
         ref: { name: "Blue Region" },
-        thumbnailSrc: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAFgSURBVEhL7ZWxSsRAFEXzK0mx1YKN+BOTTrS3EgTt9xMEC1tLEdFCJLG08zP8BQvZxRWLXY33sTfwdniZzJKVWOTArTLv3JlkIMnAwL8gfXR7WemWWZHP09J9ZGU+zQr3WVXVAZdsFxRdID8oqhqD5+CWI92A7Ky10M9qAzdUbM7qta5Lr17fzPjrJCgfURUPvt+9L7IKdfz1EpRfUxkHXte8HrZKQtHFApXt4JY+62FLHoqeleDUE6rD6MtkiWOii6NOnT7l+11L6+hynPqYFTZpkS/+orj11Cie9VKM7/veS3GfJ/7qpRi371APWMKYaIcA7wMrmpHfnB60xKHoWYlAdRjs7lQPWvJQ9KwA3wvV7fAnvyaxSnT89RKByjiwy3NLZBVKrLUCPHdUxoMhZwljwtIxVZuD4V1kacmtsPAbuaSiGxDthDbAwgVywpHtAvEYEeRUdYQjLhloIEl+AUr0tlh60OIdAAAAAElFTkSuQmCC",
+        thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" stroke="green" stroke-width="2" fill="lightblue" rx="10" /></svg>',
         fills: [{ color: "lightblue" }],
         strokes: [{ color: "green", width: 3 }],
     };

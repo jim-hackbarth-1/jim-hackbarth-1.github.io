@@ -10,7 +10,6 @@
                 right: 0;
                 top: 0;
                 bottom: 0;
-                --editor-tool-width: 200px;
             }
 
             .button-content {
@@ -98,6 +97,23 @@
                 width: var(--editor-tool-width);
                 height: 100%;
                 border-right: 1px solid var(--theme-color-secondary-darkest-fixed);
+                display: none;
+                margin-left: var(--editor-tool-left);
+                transition: margin-left 0.5s;
+            }
+
+            #pinned-icon.pinned {
+                border-bottom: 1px solid var(--theme-color-secondary-darker);
+                
+            }
+
+            #tools .icon-container {
+                margin: 0;
+                margin: 2px 2px 2px 2px;
+            }
+
+            #tools.has-map {
+                display: block;
             }
 
             #tools header {
@@ -126,17 +142,12 @@
                 padding: 4px 4px 2px 4px;
             }
 
-            .tool-button img {
-                height: 25px;
-                width: 25px;
-                border: 1px solid var(--theme-color-secondary-darkest-fixed);
-                border-radius: 3px;
+            .tool-button.active {
+                box-shadow: var(--theme-color-secondary-darkest) 1px 1px 3px 0 inset, var(--theme-color-secondary-darkest) -1px -1px 3px 0 inset;
             }
 
-            .tool-button.active {
-                background-color: var(--theme-color-tertiary-lighter);
-                color: var(--theme-color-tertiary-darkest);
-                border-color: var(--theme-color-tertiary-darkest-fixed);
+            #tools .icon {
+                stroke-width: 2px;
             }
             /* tools - end */
             /* canvas - start */
@@ -150,6 +161,8 @@
                 justify-content: center;
                 align-items: center;
                 overflow: auto;
+                margin-left: var(--editor-tool-left);
+                transition: margin-left 0.5s;
             }
 
             #map-canvas {
@@ -158,12 +171,10 @@
                 top: 0;
                 left: 0;
                 border: 1px solid var(--theme-color-secondary);
-                cursor: crosshair;
                 touch-action: none;
-                /*cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"><g fill="none" stroke="%23000" stroke-width="2"><circle cx="12" cy="12" r="8.5"></circle><path d="M1 12h5M18 12h5M12 6V1.04M12 23v-4.96M11.95 11.95h.1v.1h-.1z"></path></g></svg>') 21 21, progress;*/
             }
 
-            @media (max-width: 768px), (max-height: 768px) {
+            @media (max-width: 768px), (max-height: 500px) {
                 #map-canvas {
                     top: 40px;
                     left: 40px;
@@ -283,20 +294,29 @@
             </button>
         </div>
     </div>
-    <div id="tools" class="surface-secondary background no-map">
+    <div id="tools" class="surface-secondary background">
         <header id="tools-header" class="surface-secondary">
             <div>Tools</div>
             <div class="spacer"></div>
-            <div>
-                <button title="Edit tools" class="action-text">
-                    <div>...</div>
-                </button>
-            </div>
+            <button title="Edit tools" class="action-text">
+                <div>...</div>
+            </button>
+            <button title="Pin tool palette" class="action-text" onclick="#model.toggleToolsPinned()">
+                <div id="pinned-icon" class="icon-container">
+                    <kit-component data-kit-template-path="/resources/icons/pin.html" data-kit-model="null"></kit-component>
+                </div>
+            </button>
         </header>
         <section>
             <div class="surface-secondary background tool-types">
                 <header class="surface-secondary">
                     <div>Editing tools</div>
+                    <div class="spacer"></div>
+                    <button title="Reset tools" class="action-text" onclick="#model.onToolReset()">
+                        <div class="icon-container">
+                            <kit-component data-kit-template-path="/resources/icons/reset.html" data-kit-model="null"></kit-component>
+                        </div>
+                    </button>
                 </header>
                 <section>
                     <kit-array data-kit-array="#model.getToolPalettes('EditingTools')" data-kit-array-ref="palettes" data-kit-item-index-ref="paletteIndex">
@@ -306,7 +326,7 @@
                                         onclick="#model.onToolSelected(#tool.id, #tool.data.ref)"
                                         class="tool-button action-control editing-tool-button"
                                         title="%{#tool.data.ref.name}%">
-                                    <img data-src="%{#tool.data.thumbnailSrc}%" />
+                                    %{#tool.data.thumbnailSrc}%
                                 </button>
                             </kit-array>
                         </div>
@@ -316,6 +336,12 @@
             <div id="drawing-tools" class="surface-secondary background tool-types">
                 <header class="surface-secondary">
                     <div>Drawing tools</div>
+                    <div class="spacer"></div>
+                    <button title="Reset tools" class="action-text" onclick="#model.onToolReset()">
+                        <div class="icon-container">
+                            <kit-component data-kit-template-path="/resources/icons/reset.html" data-kit-model="null"></kit-component>
+                        </div>
+                    </button>
                 </header>
                 <section>
                     <kit-array data-kit-array="#model.getToolPalettes('DrawingTools')" data-kit-item-index-ref="paletteIndex">
@@ -325,7 +351,7 @@
                                         onclick="#model.onToolSelected(#tool.id, #tool.data.ref)"
                                         class="tool-button action-control drawing-tool-button"
                                         title="%{#tool.data.ref.name}%">
-                                    <img data-src="%{#tool.data.thumbnailSrc}%" />
+                                    %{#tool.data.thumbnailSrc}%
                                 </button>
                             </kit-array>
                         </div>
@@ -335,6 +361,12 @@
             <div id="map-item-templates" class="surface-secondary background tool-types">
                 <header class="surface-secondary">
                     <div>Map item templates</div>
+                    <div class="spacer"></div>
+                    <button title="Reset map item templates" class="action-text" onclick="#model.onMapItemTemplateReset()">
+                        <div class="icon-container">
+                            <kit-component data-kit-template-path="/resources/icons/reset.html" data-kit-model="null"></kit-component>
+                        </div>
+                    </button>
                 </header>
                 <section>
                     <kit-array data-kit-array="#model.getToolPalettes('MapItemTemplates')" data-kit-item-index-ref="paletteIndex">
@@ -344,7 +376,7 @@
                                         onclick="#model.onMapItemTemplateSelected(#mapItemTemplate.id, #mapItemTemplate.data.ref)"
                                         class="tool-button action-control map-item-template-button"
                                         title="%{#mapItemTemplate.data.ref.name}%">
-                                    <img data-src="%{#mapItemTemplate.data.thumbnailSrc}%" />
+                                    %{#mapItemTemplate.data.thumbnailSrc}%
                                 </button>
                             </kit-array>
                         </div>
@@ -353,9 +385,9 @@
             </div>
         </section>
     </div>
-    <div id="map-container" class="surface-secondary background no-map">
+    <div id="map-container" class="surface-secondary background">
         <canvas id="map-canvas" width="1200" height="750"></canvas>
-        <div id="no-map" class="no-map">[No map]</div>
+        <div id="no-map">[No map]</div>
     </div>
     <kit-component id="file-new-dialog-component" data-kit-template-path="/components/map-editor/file-new-dialog/file-new-dialog.html"></kit-component>
     <kit-component id="file-save-dialog-component" data-kit-template-path="/components/map-editor/file-save-dialog/file-save-dialog.html"></kit-component>

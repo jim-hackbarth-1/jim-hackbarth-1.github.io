@@ -15,6 +15,7 @@ export class EditorModel {
 
     // instance fields
     #initialized = false;
+    #toolsPinned = true;
 
     // methods
     async onRenderStart(componentId) {
@@ -27,12 +28,18 @@ export class EditorModel {
         // toggle tools and canvas
         const map = await MapWorkerClient.getMap();
         const element = KitRenderer.getComponentElement(this.componentId);
+        const toolsElement = element.querySelector("#tools");
+        const mapContainerElement = element.querySelector("#map-container");
         if (map) {
-            element.querySelector("#map-container").classList.add("has-map");
+            toolsElement.classList.add("has-map");
+            mapContainerElement.classList.add("has-map");
         }
         else {
-            element.querySelector("#map-container").classList.remove("has-map");
+            toolsElement.classList.remove("has-map");
+            mapContainerElement.classList.remove("has-map");
         }
+        toolsElement.addEventListener("mouseleave", (event) => this.#slideTools());
+        toolsElement.addEventListener("mouseenter", (event) => this.#slideTools(true));
 
         // get tool images
         const imgs = element.querySelectorAll(".tool-button img");
@@ -97,6 +104,19 @@ export class EditorModel {
         KitRenderer.renderComponent(this.componentId);
     }
 
+    async toggleToolsPinned() {
+        this.#toolsPinned = !this.#toolsPinned;
+        const element = KitRenderer.getComponentElement(this.componentId);
+        const pinnedIcon = element.querySelector("#pinned-icon");
+        if (this.#toolsPinned) {
+            pinnedIcon.classList.add("pinned");
+        }
+        else {
+            pinnedIcon.classList.remove("pinned");
+        }
+        this.#slideTools();
+    }
+
     async getToolPalettes(paletteType) {
         let palettes = [];
         const map = await MapWorkerClient.getMap();
@@ -145,6 +165,17 @@ export class EditorModel {
         return items;
     }
 
+    async onToolReset() {
+        const element = KitRenderer.getComponentElement(this.componentId);
+        let buttons = element.querySelectorAll(".editing-tool-button, .drawing-tool-button");
+        for (const button of buttons) {
+            button.classList.remove("active");
+        }
+        const canvas = element.querySelector("#map-canvas");
+        canvas.style.cursor = "default";
+        await MapWorkerClient.postWorkerMessage({ messageType: MapWorkerInputMessageType.SetActiveTool, toolRefData: null });
+    }
+
     async onToolSelected(id, ref) {
         const element = KitRenderer.getComponentElement(this.componentId);
         let buttons = element.querySelectorAll(".editing-tool-button, .drawing-tool-button");
@@ -154,14 +185,19 @@ export class EditorModel {
         element.querySelector(`#${id}`).classList.add("active");
         const map = await MapWorkerClient.getMap();
         const tool = map.tools.find(t => EntityReference.areEqual(t.ref, ref));
-        if (tool.toolType === ToolType.DrawingTool) {
-            buttons = element.querySelectorAll(".map-item-template-button");
-            for (const button of buttons) {
-                button.classList.remove("active");
-            }
-        }
+        const canvas = element.querySelector("#map-canvas");
+        canvas.style.cursor = `url(${tool.cursorSrc}) ${tool.cursorHotspot.x} ${tool.cursorHotspot.y}, crosshair`;
         const refData = tool?.ref ? tool.ref.getData() : null;
         await MapWorkerClient.postWorkerMessage({ messageType: MapWorkerInputMessageType.SetActiveTool, toolRefData: refData });
+    }
+
+    async onMapItemTemplateReset() {
+        const element = KitRenderer.getComponentElement(this.componentId);
+        let buttons = element.querySelectorAll(".map-item-template-button");
+        for (const button of buttons) {
+            button.classList.remove("active");
+        }
+        await MapWorkerClient.postWorkerMessage({ messageType: MapWorkerInputMessageType.SetActiveMapItemTemplate, mapItemTemplateRefData: null });
     }
 
     async onMapItemTemplateSelected(id, ref) {
@@ -252,6 +288,16 @@ export class EditorModel {
             // mark as initialized
             this.#initialized = true;
         }
+    }
+
+    #slideTools = (slideOpen) => {
+        let toolsLeft = "0px";
+        if (!this.#toolsPinned && !slideOpen) {
+            toolsLeft = "-170px";
+        }
+        const appDocument = KitDependencyManager.getDocument();
+        const documentElement = appDocument.documentElement;
+        documentElement.style.setProperty("--editor-tool-left", toolsLeft);
     }
 
     async #openMap(mapData, template) {

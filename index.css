@@ -10,6 +10,8 @@
     --app-nav-width-expanded: 150px;
     --app-nav-width: var(--app-nav-width-expanded);
     --app-nav-left: 0px;
+    --editor-tool-width: 200px;
+    --editor-tool-left: 0px;
     --theme-dark-mode: 0;
     --theme-hue-primary: 30; /* 300 pink (default spring) */
 }
@@ -139,13 +141,13 @@ kit-if:not([data-kit-component-id]) {
 }
 
 .surface-primary .action-control[disabled] {
-    background-color: rgba(from var(--theme-color-primary-lighter) r g b / 25%);
-    color: rgba(from var(--theme-color-primary-darkest) r g b / 25%);
-    border-color: rgba(from var(--theme-color-primary-darkest-fixed) r g b / 25%);
+    background-color: rgb(from var(--theme-color-primary-lighter) r g b / 25%);
+    color: rgb(from var(--theme-color-primary-darkest) r g b / 25%);
+    border-color: rgb(from var(--theme-color-primary-darkest-fixed) r g b / 25%);
 }
 
 .surface-primary .action-text[disabled] {
-    color: rgba(from var(--theme-color-primary-darkest) r g b / 25%);
+    color: rgb(from var(--theme-color-primary-darkest) r g b / 25%);
 }
 
 .surface-primary .action-text:not([disabled]):hover {
@@ -165,7 +167,7 @@ kit-if:not([data-kit-component-id]) {
 
 .surface-primary .action-control[disabled] .icon,
 .surface-primary .action-text[disabled] .icon {
-    stroke: rgba(from var(--theme-color-primary-darkest) r g b / 25%);
+    stroke: rgb(from var(--theme-color-primary-darkest) r g b / 25%);
 }
 
 .surface-primary .action-text:not([disabled]):hover .icon,
@@ -180,7 +182,7 @@ kit-if:not([data-kit-component-id]) {
 
 .surface-primary .action-control[disabled] .icon-text,
 .surface-primary .action-text[disabled] .icon-text {
-    fill: rgba(from var(--theme-color-primary-darkest) r g b / 25%);
+    fill: rgb(from var(--theme-color-primary-darkest) r g b / 25%);
 }
 
 .surface-primary .action-text:not([disabled]):hover .icon-text,
@@ -297,13 +299,13 @@ kit-if:not([data-kit-component-id]) {
 }
 
 .surface-tertiary .action-control[disabled] {
-    background-color: rgba(from var(--theme-color-tertiary-lighter) r g b / 25%);
-    color: rgba(from var(--theme-color-tertiary-darkest) r g b / 25%);
-    border-color: rgba(from var(--theme-color-tertiary-darkest-fixed) r g b / 25%);
+    background-color: rgb(from var(--theme-color-tertiary-lighter) r g b / 25%);
+    color: rgb(from var(--theme-color-tertiary-darkest) r g b / 25%);
+    border-color: rgb(from var(--theme-color-tertiary-darkest-fixed) r g b / 25%);
 }
 
 .surface-tertiary .action-text[disabled] {
-    color: rgba(from var(--theme-color-tertiary-darkest) r g b / 25%);
+    color: rgb(from var(--theme-color-tertiary-darkest) r g b / 25%);
 }
 
 .surface-tertiary .action-text:not([disabled]):hover {
@@ -324,7 +326,7 @@ kit-if:not([data-kit-component-id]) {
 
 .surface-tertiary .action-control[disabled] .icon,
 .surface-tertiary .action-text[disabled] .icon {
-    stroke: rgba(from var(--theme-color-tertiary-darkest) r g b / 25%);
+    stroke: rgb(from var(--theme-color-tertiary-darkest) r g b / 25%);
 }
 
 .surface-tertiary .action-text:not([disabled]):hover .icon,
@@ -339,7 +341,7 @@ kit-if:not([data-kit-component-id]) {
 
 .surface-tertiary .action-control[disabled] .icon-text,
 .surface-tertiary .action-text[disabled] .icon-text {
-    fill: rgba(from var(--theme-color-tertiary-darkest) r g b / 25%);
+    fill: rgb(from var(--theme-color-tertiary-darkest) r g b / 25%);
 }
 
 .surface-tertiary .action-text:not([disabled]):hover .icon-text,
@@ -377,13 +379,13 @@ kit-if:not([data-kit-component-id]) {
 }
 
 .surface-complementary .action-control[disabled] {
-    background-color: rgba(from var(--theme-color-complementary-lighter) r g b / 25%);
-    color: rgba(from var(--theme-color-complementary-darkest) r g b / 25%);
-    border-color: rgba(from var(--theme-color-complementary-darkest-fixed) r g b / 25%);
+    background-color: rgb(from var(--theme-color-complementary-lighter) r g b / 25%);
+    color: rgb(from var(--theme-color-complementary-darkest) r g b / 25%);
+    border-color: rgb(from var(--theme-color-complementary-darkest-fixed) r g b / 25%);
 }
 
 .surface-complementary .action-text[disabled] {
-    color: rgba(from var(--theme-color-complementary-darkest) r g b / 25%);
+    color: rgb(from var(--theme-color-complementary-darkest) r g b / 25%);
 }
 
 .surface-complementary .action-text:not([disabled]):hover {
@@ -403,7 +405,7 @@ kit-if:not([data-kit-component-id]) {
 
 .surface-complementary .action-control[disabled] .icon,
 .surface-complementary .action-text[disabled] .icon {
-    stroke: rgba(from var(--theme-color-complementary-darkest) r g b / 25%);
+    stroke: rgb(from var(--theme-color-complementary-darkest) r g b / 25%);
 }
 
 .surface-complementary .action-text:not([disabled]):hover .icon,
@@ -418,7 +420,7 @@ kit-if:not([data-kit-component-id]) {
 
 .surface-complementary .action-control[disabled] .icon-text,
 .surface-complementary .action-text[disabled] .icon-text {
-    fill: rgba(from var(--theme-color-complementary-darkest) r g b / 25%);
+    fill: rgb(from var(--theme-color-complementary-darkest) r g b / 25%);
 }
 
 .surface-complementary .action-text:not([disabled]):hover .icon-text,
@@ -593,6 +595,7 @@ dialog header {
     display: flex;
     padding: 5px;
     border-bottom: 1px solid;
+    z-index:10;
 }
 
 dialog header h1 {

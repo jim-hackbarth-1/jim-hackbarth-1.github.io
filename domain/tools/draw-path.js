@@ -1,6 +1,4 @@
 ﻿
-//import { MapItem, MapWorker } from "http://localhost:63743/domain/references.js";
-
 export function createToolModel() {
     return new DrawPathTool();
 }
@@ -37,7 +35,7 @@ class DrawPathTool {
     }
 
     async onPointerDown(eventData) {
-        if (eventData && eventData.button === 0) {
+        if (eventData && eventData.button === 0 && this.mapWorker.activeMapItemTemplate) {
             this.drawStart(eventData);
         }
     }

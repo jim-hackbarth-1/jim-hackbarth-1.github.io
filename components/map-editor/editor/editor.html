@@ -190,8 +190,8 @@
     </style>
     <div id="menu" class="surface-secondary">
         <div>
-            <button onclick="#model.toggleDropdown('dropdown1')" class="dropbtn top-menu-item action-text" data-dropdown-id="dropdown1">File</button>
-            <div id="dropdown1" class="dropdown-content surface-secondary">
+            <button onclick="#model.toggleDropdown('menu-file')" class="dropbtn top-menu-item action-text" data-dropdown-id="menu-file">File</button>
+            <div id="menu-file" class="dropdown-content surface-secondary">
                 <button title="New map" class="action-text" onclick="#model.showDialog('file-new-dialog-component')">
                     <div class="button-content">
                         <div class="icon-container">
@@ -244,8 +244,8 @@
             </div>
         </div>
         <div>
-            <button onclick="#model.toggleDropdown('dropdown2')" class="dropbtn top-menu-item action-text" data-dropdown-id="dropdown2">Edit</button>
-            <div id="dropdown2" class="dropdown-content surface-secondary">
+            <button onclick="#model.toggleDropdown('menu-edit')" class="dropbtn top-menu-item action-text" data-dropdown-id="menu-edit">Edit</button>
+            <div id="menu-edit" class="dropdown-content surface-secondary">
                 <button title="Undo" class="action-text" data-kit-add-attributes="%{#model.isUndoDisabled()}%">
                     <div class="button-content">
                         <div class="icon-container">
@@ -307,8 +307,8 @@
             </div>
         </div>
         <div>
-            <button onclick="#model.toggleDropdown('dropdown3')" class="dropbtn top-menu-item action-text" data-dropdown-id="dropdown3">View</button>
-            <div id="dropdown3" class="dropdown-content surface-secondary">
+            <button onclick="#model.toggleDropdown('menu-view')" class="dropbtn top-menu-item action-text" data-dropdown-id="menu-view">View</button>
+            <div id="menu-view" class="dropdown-content surface-secondary">
                 <button title="Zoom" class="action-text" data-kit-add-attributes="%{#model.isZoomDisabled()}%">
                     <div class="button-content">
                         <div class="icon-container">

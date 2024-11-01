@@ -285,6 +285,9 @@ export class KitMessenger {
         if (!topic.subscribers) {
             topic.subscribers = [];
         }
+        if (topic.subscribers.find(s => s.componentId === componentId && s.callback === callback)) {
+            return;
+        }
         topic.subscribers.push({
             componentId: componentId,
             callback: callback

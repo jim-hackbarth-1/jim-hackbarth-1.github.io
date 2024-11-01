@@ -1,5 +1,5 @@
 ﻿
-import { BuiltInTemplates, BuiltInTools, EntityReference, FileManager, Map, MapWorkerClient, MapWorkerInputMessageType, ToolType } from "../../../domain/references.js";
+import { BuiltInTemplates, BuiltInTools, EntityReference, FileManager, Map, MapWorkerClient, MapWorkerInputMessageType } from "../../../domain/references.js";
 import { KitComponent, KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
 
 export function createModel() {
@@ -14,40 +14,21 @@ export class EditorModel {
     static OpenFileRequestTopic = "OpenFileRequestTopic";
 
     // instance fields
-    #initialized = false;
-    #toolsPinned = true;
+    #componentId;
+    #componentElement;
+    #toolsPinned;
 
     // methods
     async onRenderStart(componentId) {
-        this.componentId = componentId;
-        this.#initialize();
+        this.#componentId = componentId;
     }
 
     async onRenderComplete() {
-
-        // toggle tools and canvas
-        const map = await MapWorkerClient.getMap();
-        const element = KitRenderer.getComponentElement(this.componentId);
-        const toolsElement = element.querySelector("#tools");
-        const mapContainerElement = element.querySelector("#map-container");
-        if (map) {
-            toolsElement.classList.add("has-map");
-            mapContainerElement.classList.add("has-map");
-        }
-        else {
-            toolsElement.classList.remove("has-map");
-            mapContainerElement.classList.remove("has-map");
-        }
-        toolsElement.addEventListener("mouseleave", (event) => this.#slideTools());
-        toolsElement.addEventListener("mouseenter", (event) => this.#slideTools(true));
-        if (map) {
-            this.#toolsPinned = false;
-            this.toggleToolsPinned();
-        }
-
-        // initialize map worker
-        const canvas = element.querySelector("#map-canvas");
-        MapWorkerClient.initializeWorker(canvas, this.onMapChanged, EditorModel.getBaseUrl());
+        this.#componentElement = KitRenderer.getComponentElement(this.#componentId);
+        this.#initializeMenu();
+        this.#subscribeToTopics();
+        await this.#initializeToolsAndCanvas();
+        this.#initializeMapWorker();
     }
 
     async onMapChanged(message) {
@@ -60,8 +41,7 @@ export class EditorModel {
     }
 
     showDialog(dialogId) {
-        const element = KitRenderer.getComponentElement(this.componentId);
-        const dialogComponentId = element.querySelector(`#${dialogId}`).getAttribute("data-kit-component-id");
+        const dialogComponentId = this.#componentElement.querySelector(`#${dialogId}`).getAttribute("data-kit-component-id");
         const model = KitComponent.find(dialogComponentId).model;
         model.showDialog();
     }
@@ -109,7 +89,7 @@ export class EditorModel {
     async closeMap() {
         FileManager.fileHandle = null;
         await MapWorkerClient.setMap(null);
-        KitRenderer.renderComponent(this.componentId);
+        KitRenderer.renderComponent(this.#componentId);
     }
 
     async isUndoDisabled() {
@@ -146,8 +126,7 @@ export class EditorModel {
 
     async toggleToolsPinned() {
         this.#toolsPinned = !this.#toolsPinned;
-        const element = KitRenderer.getComponentElement(this.componentId);
-        const pinnedIcon = element.querySelector("#pinned-icon");
+        const pinnedIcon = this.#componentElement.querySelector("#pinned-icon");
         if (this.#toolsPinned) {
             pinnedIcon.classList.add("pinned");
         }
@@ -206,34 +185,31 @@ export class EditorModel {
     }
 
     async onToolReset() {
-        const element = KitRenderer.getComponentElement(this.componentId);
-        let buttons = element.querySelectorAll(".editing-tool-button, .drawing-tool-button");
+        let buttons = this.#componentElement.querySelectorAll(".editing-tool-button, .drawing-tool-button");
         for (const button of buttons) {
             button.classList.remove("active");
         }
-        const canvas = element.querySelector("#map-canvas");
+        const canvas = this.#componentElement.querySelector("#map-canvas");
         canvas.style.cursor = "default";
         await MapWorkerClient.postWorkerMessage({ messageType: MapWorkerInputMessageType.SetActiveTool, toolRefData: null });
     }
 
     async onToolSelected(id, ref) {
-        const element = KitRenderer.getComponentElement(this.componentId);
-        let buttons = element.querySelectorAll(".editing-tool-button, .drawing-tool-button");
+        let buttons = this.#componentElement.querySelectorAll(".editing-tool-button, .drawing-tool-button");
         for (const button of buttons) {
             button.classList.remove("active");
         }
-        element.querySelector(`#${id}`).classList.add("active");
+        this.#componentElement.querySelector(`#${id}`).classList.add("active");
         const map = await MapWorkerClient.getMap();
         const tool = map.tools.find(t => EntityReference.areEqual(t.ref, ref));
-        const canvas = element.querySelector("#map-canvas");
+        const canvas = this.#componentElement.querySelector("#map-canvas");
         canvas.style.cursor = `url(${tool.cursorSrc}) ${tool.cursorHotspot.x} ${tool.cursorHotspot.y}, crosshair`;
         const refData = tool?.ref ? tool.ref.getData() : null;
         await MapWorkerClient.postWorkerMessage({ messageType: MapWorkerInputMessageType.SetActiveTool, toolRefData: refData });
     }
 
     async onMapItemTemplateReset() {
-        const element = KitRenderer.getComponentElement(this.componentId);
-        let buttons = element.querySelectorAll(".map-item-template-button");
+        let buttons = this.#componentElement.querySelectorAll(".map-item-template-button");
         for (const button of buttons) {
             button.classList.remove("active");
         }
@@ -241,12 +217,11 @@ export class EditorModel {
     }
 
     async onMapItemTemplateSelected(id, ref) {
-        const element = KitRenderer.getComponentElement(this.componentId);
-        let buttons = element.querySelectorAll(".map-item-template-button");
+        let buttons = this.#componentElement.querySelectorAll(".map-item-template-button");
         for (const button of buttons) {
             button.classList.remove("active");
         }
-        element.querySelector(`#${id}`).classList.add("active");
+        this.#componentElement.querySelector(`#${id}`).classList.add("active");
         const map = await MapWorkerClient.getMap();
         const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, ref));
         const mapItemTemplateRefData = mapItemTemplate?.ref ? mapItemTemplate.ref.getData() : null;
@@ -300,34 +275,52 @@ export class EditorModel {
     }
 
     // helpers
-    #initialize() {
-        if (!this.#initialized) {
-
-            // initialize menu
-            const appWindow = KitDependencyManager.getWindow();
-            const appDocument = KitDependencyManager.getDocument();
-            appWindow.onclick = function (event) {
-                const dropDownId = event.target.getAttribute("data-dropdown-id");
-                const dropdowns = appDocument.getElementsByClassName("dropdown-content");
-                var i;
-                for (i = 0; i < dropdowns.length; i++) {
-                    if (dropdowns[i].id != dropDownId) {
-                        var openDropdown = dropdowns[i];
-                        if (openDropdown.classList.contains('show')) {
-                            openDropdown.classList.remove('show');
-                        }
+    #initializeMenu() {
+        const appDocument = KitDependencyManager.getDocument();
+        appDocument.addEventListener('click', (event) => {
+            const dropDownId = event.target.getAttribute("data-dropdown-id");
+            const dropdowns = appDocument.getElementsByClassName("dropdown-content");
+            var i;
+            for (i = 0; i < dropdowns.length; i++) {
+                if (dropdowns[i].id != dropDownId) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
                     }
                 }
             }
+        });
+    }
 
-            // subscribe to topics
-            KitMessenger.subscribe(EditorModel.NewFileRequestTopic, this.componentId, this.onNewFileRequested.name);
-            KitMessenger.subscribe(EditorModel.SaveFileRequestTopic, this.componentId, this.onSaveFileRequested.name);
-            KitMessenger.subscribe(EditorModel.OpenFileRequestTopic, this.componentId, this.onOpenFileRequested.name);
+    #subscribeToTopics() {
+        KitMessenger.subscribe(EditorModel.NewFileRequestTopic, this.#componentId, this.onNewFileRequested.name);
+        KitMessenger.subscribe(EditorModel.SaveFileRequestTopic, this.#componentId, this.onSaveFileRequested.name);
+        KitMessenger.subscribe(EditorModel.OpenFileRequestTopic, this.#componentId, this.onOpenFileRequested.name);
+    }
 
-            // mark as initialized
-            this.#initialized = true;
+    async #initializeToolsAndCanvas() {
+        const map = await MapWorkerClient.getMap();
+        const toolsElement = this.#componentElement.querySelector("#tools");
+        const mapContainerElement = this.#componentElement.querySelector("#map-container");
+        if (map) {
+            toolsElement.classList.add("has-map");
+            mapContainerElement.classList.add("has-map");
         }
+        else {
+            toolsElement.classList.remove("has-map");
+            mapContainerElement.classList.remove("has-map");
+        }
+        toolsElement.addEventListener("mouseleave", (event) => this.#slideTools());
+        toolsElement.addEventListener("mouseenter", (event) => this.#slideTools(true));
+        if (map) {
+            this.#toolsPinned = false;
+            this.toggleToolsPinned();
+        }
+    }
+
+    #initializeMapWorker() {
+        const canvas = this.#componentElement.querySelector("#map-canvas");
+        MapWorkerClient.initializeWorker(canvas, this.onMapChanged, EditorModel.#getBaseUrl());
     }
 
     #slideTools = (slideOpen) => {
@@ -374,7 +367,7 @@ export class EditorModel {
         if (!mapData.tools) {
             mapData.tools = [];
         }
-        const builtInTools = await BuiltInTools.getTools(EditorModel.getBaseUrl());
+        const builtInTools = await BuiltInTools.getTools(EditorModel.#getBaseUrl());
         for (const builtInTool of builtInTools) {
             const data = builtInTool.getData();
             mapData.toolRefs.push(data.ref);
@@ -411,10 +404,10 @@ export class EditorModel {
         // display
         const map = new Map(mapData);
         await MapWorkerClient.setMap(map);
-        KitRenderer.renderComponent(this.componentId);
+        KitRenderer.renderComponent(this.#componentId);
     }
 
-    static getBaseUrl() {
+    static #getBaseUrl() {
         const appWindow = KitDependencyManager.getWindow();
         return `${appWindow.location.protocol}//${appWindow.location.host}`;
     }

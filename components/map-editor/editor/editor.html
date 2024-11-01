@@ -93,8 +93,12 @@
             }
             /* toolbar - end */
             /* tools - start */
+            #tools-and-map {
+                display: flex;
+            }
+
             #tools {
-                width: var(--editor-tool-width);
+                flex: 0 0 var(--editor-tool-width);
                 height: 100%;
                 border-right: 1px solid var(--theme-color-secondary-darkest-fixed);
                 display: none;
@@ -104,7 +108,6 @@
 
             #pinned-icon.pinned {
                 border-bottom: 1px solid var(--theme-color-secondary-darker);
-                
             }
 
             #tools .icon-container {
@@ -152,44 +155,27 @@
             /* tools - end */
             /* canvas - start */
             #map-container {
-                position: absolute;
-                top: 72px;
-                left: 0;
-                bottom: 0;
-                right: 0;
-                display: flex;
-                justify-content: center;
-                align-items: center;
                 overflow: auto;
-                margin-left: var(--editor-tool-left);
-                transition: margin-left 0.5s;
             }
 
             #map-canvas {
-                position: absolute;
                 display: none;
-                top: 0;
-                left: 0;
                 border: 1px solid var(--theme-color-secondary);
                 touch-action: none;
             }
 
             @media (max-width: 768px), (max-height: 500px) {
                 #map-canvas {
-                    top: 40px;
-                    left: 40px;
+
+                    margin-top: 40px;
+                    margin-left: 40px;
                 }
             }
 
             #no-map {
-                position: absolute;
                 display: block;
-                top: 40px;
-                left: 40px;
-            }
-
-            #map-container.has-map {
-                left: var(--editor-tool-width);
+                margin-top: 40px;
+                margin-left: 40px;
             }
 
             #map-container.has-map #map-canvas {
@@ -239,6 +225,14 @@
                         <div class="button-text">Save</div>
                     </div>
                 </button>
+                <button title="Save map as" class="action-text" data-kit-add-attributes="%{#model.isSaveDisabled()}%">
+                    <div class="button-content">
+                        <div class="icon-container">
+                            <kit-component data-kit-template-path="/resources/icons/file-save-as.html" data-kit-model="null"></kit-component>
+                        </div>
+                        <div class="button-text">Save as ...</div>
+                    </div>
+                </button>
                 <button title="Publish file" class="action-text">
                     <div class="button-content">
                         <div class="icon-container">
@@ -252,19 +246,102 @@
         <div>
             <button onclick="#model.toggleDropdown('dropdown2')" class="dropbtn top-menu-item action-text" data-dropdown-id="dropdown2">Edit</button>
             <div id="dropdown2" class="dropdown-content surface-secondary">
-                <a href="#" class="action-text">Undo</a>
-                <a href="#" class="action-text">Redo</a>
+                <button title="Undo" class="action-text" data-kit-add-attributes="%{#model.isUndoDisabled()}%">
+                    <div class="button-content">
+                        <div class="icon-container">
+                            <kit-component data-kit-template-path="/resources/icons/edit-undo.html" data-kit-model="null"></kit-component>
+                        </div>
+                        <div class="button-text">Undo</div>
+                    </div>
+                </button>
+                <button title="Redo" class="action-text" data-kit-add-attributes="%{#model.isRedoDisabled()}%">
+                    <div class="button-content">
+                        <div class="icon-container">
+                            <kit-component data-kit-template-path="/resources/icons/edit-redo.html" data-kit-model="null"></kit-component>
+                        </div>
+                        <div class="button-text">Redo</div>
+                    </div>
+                </button>
                 <hr />
-                <a href="#" class="action-text">Cut</a>
-                <a href="#" class="action-text">Copy</a>
-                <a href="#" class="action-text">Paste</a>
-                <a href="#" class="action-text">Delete</a>
+                <button title="Cut" class="action-text" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
+                    <div class="button-content">
+                        <div class="icon-container">
+                            <kit-component data-kit-template-path="/resources/icons/edit-cut.html" data-kit-model="null"></kit-component>
+                        </div>
+                        <div class="button-text">Cut</div>
+                    </div>
+                </button>
+                <button title="Copy" class="action-text" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
+                    <div class="button-content">
+                        <div class="icon-container">
+                            <kit-component data-kit-template-path="/resources/icons/edit-copy.html" data-kit-model="null"></kit-component>
+                        </div>
+                        <div class="button-text">Copy</div>
+                    </div>
+                </button>
+                <button title="Paste" class="action-text" data-kit-add-attributes="%{#model.isPasteDisabled()}%">
+                    <div class="button-content">
+                        <div class="icon-container">
+                            <kit-component data-kit-template-path="/resources/icons/edit-paste.html" data-kit-model="null"></kit-component>
+                        </div>
+                        <div class="button-text">Paste</div>
+                    </div>
+                </button>
+                <button title="Delete" class="action-text" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
+                    <div class="button-content">
+                        <div class="icon-container">
+                            <kit-component data-kit-template-path="/resources/icons/edit-delete.html" data-kit-model="null"></kit-component>
+                        </div>
+                        <div class="button-text">Delete</div>
+                    </div>
+                </button>
+                <hr />
+                <button title="Edit selections" class="action-text" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
+                    <div class="button-content">
+                        <div class="icon-container">
+                            <kit-component data-kit-template-path="/resources/icons/edit-edit-selections.html" data-kit-model="null"></kit-component>
+                        </div>
+                        <div class="button-text">Edit selections ...</div>
+                    </div>
+                </button>
             </div>
         </div>
         <div>
             <button onclick="#model.toggleDropdown('dropdown3')" class="dropbtn top-menu-item action-text" data-dropdown-id="dropdown3">View</button>
             <div id="dropdown3" class="dropdown-content surface-secondary">
-                <a href="#" class="action-text">Read-Only View</a>
+                <button title="Zoom" class="action-text" data-kit-add-attributes="%{#model.isZoomDisabled()}%">
+                    <div class="button-content">
+                        <div class="icon-container">
+                            <kit-component data-kit-template-path="/resources/icons/view-zoom.html" data-kit-model="null"></kit-component>
+                        </div>
+                        <div class="button-text">Zoom ...</div>
+                    </div>
+                </button>
+                <button title="Resize canvas" class="action-text" data-kit-add-attributes="%{#model.isResizeCanvasDisabled()}%">
+                    <div class="button-content">
+                        <div class="icon-container">
+                            <kit-component data-kit-template-path="/resources/icons/view-resize-canvas.html" data-kit-model="null"></kit-component>
+                        </div>
+                        <div class="button-text">Resize canvas ...</div>
+                    </div>
+                </button>
+                <button title="Overlay" class="action-text" data-kit-add-attributes="%{#model.isOverlayDisabled()}%">
+                    <div class="button-content">
+                        <div class="icon-container">
+                            <kit-component data-kit-template-path="/resources/icons/view-overlay.html" data-kit-model="null"></kit-component>
+                        </div>
+                        <div class="button-text">Overlay ...</div>
+                    </div>
+                </button>
+                <hr />
+                <button title="Read-only viewer" class="action-text" data-kit-add-attributes="%{#model.isReadOnlyViewerDisabled()}%">
+                    <div class="button-content">
+                        <div class="icon-container">
+                            <kit-component data-kit-template-path="/resources/icons/view-read-only-viewer.html" data-kit-model="null"></kit-component>
+                        </div>
+                        <div class="button-text">Read-only viewer ...</div>
+                    </div>
+                </button>
             </div>
         </div>
     </div>
@@ -293,101 +370,179 @@
                 </div>
             </button>
         </div>
-    </div>
-    <div id="tools" class="surface-secondary background">
-        <header id="tools-header" class="surface-secondary">
-            <div>Tools</div>
-            <div class="spacer"></div>
-            <button title="Edit tools" class="action-text">
-                <div>...</div>
-            </button>
-            <button title="Pin tool palette" class="action-text" onclick="#model.toggleToolsPinned()">
-                <div id="pinned-icon" class="icon-container">
-                    <kit-component data-kit-template-path="/resources/icons/pin.html" data-kit-model="null"></kit-component>
+        <div class="toolbar-group">
+            <div class="group-divider"></div>
+            <button title="Undo" class="action-text" data-kit-add-attributes="%{#model.isUndoDisabled()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component data-kit-template-path="/resources/icons/edit-undo.html" data-kit-model="null"></kit-component>
+                    </div>
                 </div>
             </button>
-        </header>
-        <section>
-            <div class="surface-secondary background tool-types">
-                <header class="surface-secondary">
-                    <div>Editing tools</div>
-                    <div class="spacer"></div>
-                    <button title="Reset tools" class="action-text" onclick="#model.onToolReset()">
-                        <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/reset.html" data-kit-model="null"></kit-component>
-                        </div>
-                    </button>
-                </header>
-                <section>
-                    <kit-array data-kit-array="#model.getToolPalettes('EditingTools')" data-kit-array-ref="palettes" data-kit-item-index-ref="paletteIndex">
-                        <div>
-                            <kit-array data-kit-array="#model.getToolPaletteItems('EditingTools', #paletteIndex)" data-kit-item-ref="tool">
-                                <button id="%{#tool.id}%"
-                                        onclick="#model.onToolSelected(#tool.id, #tool.data.ref)"
-                                        class="tool-button action-control editing-tool-button"
-                                        title="%{#tool.data.ref.name}%">
-                                    %{#tool.data.thumbnailSrc}%
-                                </button>
-                            </kit-array>
-                        </div>
-                    </kit-array>
-                </section>
-            </div>
-            <div id="drawing-tools" class="surface-secondary background tool-types">
-                <header class="surface-secondary">
-                    <div>Drawing tools</div>
-                    <div class="spacer"></div>
-                    <button title="Reset tools" class="action-text" onclick="#model.onToolReset()">
-                        <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/reset.html" data-kit-model="null"></kit-component>
-                        </div>
-                    </button>
-                </header>
-                <section>
-                    <kit-array data-kit-array="#model.getToolPalettes('DrawingTools')" data-kit-item-index-ref="paletteIndex">
-                        <div>
-                            <kit-array data-kit-array="#model.getToolPaletteItems('DrawingTools', #paletteIndex)" data-kit-item-ref="tool">
-                                <button id="%{#tool.id}%"
-                                        onclick="#model.onToolSelected(#tool.id, #tool.data.ref)"
-                                        class="tool-button action-control drawing-tool-button"
-                                        title="%{#tool.data.ref.name}%">
-                                    %{#tool.data.thumbnailSrc}%
-                                </button>
-                            </kit-array>
-                        </div>
-                    </kit-array>
-                </section>
-            </div>
-            <div id="map-item-templates" class="surface-secondary background tool-types">
-                <header class="surface-secondary">
-                    <div>Map item templates</div>
-                    <div class="spacer"></div>
-                    <button title="Reset map item templates" class="action-text" onclick="#model.onMapItemTemplateReset()">
-                        <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/reset.html" data-kit-model="null"></kit-component>
-                        </div>
-                    </button>
-                </header>
-                <section>
-                    <kit-array data-kit-array="#model.getToolPalettes('MapItemTemplates')" data-kit-item-index-ref="paletteIndex">
-                        <div>
-                            <kit-array data-kit-array="#model.getToolPaletteItems('MapItemTemplates', #paletteIndex)" data-kit-item-ref="mapItemTemplate">
-                                <button id="%{#mapItemTemplate.id}%"
-                                        onclick="#model.onMapItemTemplateSelected(#mapItemTemplate.id, #mapItemTemplate.data.ref)"
-                                        class="tool-button action-control map-item-template-button"
-                                        title="%{#mapItemTemplate.data.ref.name}%">
-                                    %{#mapItemTemplate.data.thumbnailSrc}%
-                                </button>
-                            </kit-array>
-                        </div>
-                    </kit-array>
-                </section>
-            </div>
-        </section>
+            <button title="Redo" class="action-text" data-kit-add-attributes="%{#model.isRedoDisabled()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component data-kit-template-path="/resources/icons/edit-redo.html" data-kit-model="null"></kit-component>
+                    </div>
+                </div>
+            </button>
+            <button title="Cut" class="action-text" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component data-kit-template-path="/resources/icons/edit-cut.html" data-kit-model="null"></kit-component>
+                    </div>
+                </div>
+            </button>
+            <button title="Copy" class="action-text" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component data-kit-template-path="/resources/icons/edit-copy.html" data-kit-model="null"></kit-component>
+                    </div>
+                </div>
+            </button>
+            <button title="Paste" class="action-text" data-kit-add-attributes="%{#model.isPasteDisabled()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component data-kit-template-path="/resources/icons/edit-paste.html" data-kit-model="null"></kit-component>
+                    </div>
+                </div>
+            </button>
+            <button title="Delete" class="action-text" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component data-kit-template-path="/resources/icons/edit-delete.html" data-kit-model="null"></kit-component>
+                    </div>
+                </div>
+            </button>
+            <button title="Edit selections" class="action-text" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component data-kit-template-path="/resources/icons/edit-edit-selections.html" data-kit-model="null"></kit-component>
+                    </div>
+                </div>
+            </button>
+        </div>
+        <div class="toolbar-group">
+            <div class="group-divider"></div>
+            <button title="Zoom" class="action-text" data-kit-add-attributes="%{#model.isZoomDisabled()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component data-kit-template-path="/resources/icons/view-zoom.html" data-kit-model="null"></kit-component>
+                    </div>
+                </div>
+            </button>
+            <button title="Resize canvas" class="action-text" data-kit-add-attributes="%{#model.isResizeCanvasDisabled()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component data-kit-template-path="/resources/icons/view-resize-canvas.html" data-kit-model="null"></kit-component>
+                    </div>
+                </div>
+            </button>
+            <button title="Overlay" class="action-text" data-kit-add-attributes="%{#model.isOverlayDisabled()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component data-kit-template-path="/resources/icons/view-overlay.html" data-kit-model="null"></kit-component>
+                    </div>
+                </div>
+            </button>
+        </div>
     </div>
-    <div id="map-container" class="surface-secondary background">
-        <canvas id="map-canvas" width="1200" height="750"></canvas>
-        <div id="no-map">[No map]</div>
+    <div id="tools-and-map">
+        <div id="tools" class="surface-secondary background">
+            <header id="tools-header" class="surface-secondary">
+                <div>Tools</div>
+                <div class="spacer"></div>
+                <button title="Edit tools" class="action-text">
+                    <div>...</div>
+                </button>
+                <button title="Pin tool palette" class="action-text" onclick="#model.toggleToolsPinned()">
+                    <div id="pinned-icon" class="icon-container">
+                        <kit-component data-kit-template-path="/resources/icons/pin.html" data-kit-model="null"></kit-component>
+                    </div>
+                </button>
+            </header>
+            <section>
+                <div class="surface-secondary background tool-types">
+                    <header class="surface-secondary">
+                        <div>Editing tools</div>
+                        <div class="spacer"></div>
+                        <button title="Reset tools" class="action-text" onclick="#model.onToolReset()">
+                            <div class="icon-container">
+                                <kit-component data-kit-template-path="/resources/icons/reset.html" data-kit-model="null"></kit-component>
+                            </div>
+                        </button>
+                    </header>
+                    <section>
+                        <kit-array data-kit-array="#model.getToolPalettes('EditingTools')" data-kit-array-ref="palettes" data-kit-item-index-ref="paletteIndex">
+                            <div>
+                                <kit-array data-kit-array="#model.getToolPaletteItems('EditingTools', #paletteIndex)" data-kit-item-ref="tool">
+                                    <button id="%{#tool.id}%"
+                                            onclick="#model.onToolSelected(#tool.id, #tool.data.ref)"
+                                            class="tool-button action-control editing-tool-button"
+                                            title="%{#tool.data.ref.name}%">
+                                        %{#tool.data.thumbnailSrc}%
+                                    </button>
+                                </kit-array>
+                            </div>
+                        </kit-array>
+                    </section>
+                </div>
+                <div id="drawing-tools" class="surface-secondary background tool-types">
+                    <header class="surface-secondary">
+                        <div>Drawing tools</div>
+                        <div class="spacer"></div>
+                        <button title="Reset tools" class="action-text" onclick="#model.onToolReset()">
+                            <div class="icon-container">
+                                <kit-component data-kit-template-path="/resources/icons/reset.html" data-kit-model="null"></kit-component>
+                            </div>
+                        </button>
+                    </header>
+                    <section>
+                        <kit-array data-kit-array="#model.getToolPalettes('DrawingTools')" data-kit-item-index-ref="paletteIndex">
+                            <div>
+                                <kit-array data-kit-array="#model.getToolPaletteItems('DrawingTools', #paletteIndex)" data-kit-item-ref="tool">
+                                    <button id="%{#tool.id}%"
+                                            onclick="#model.onToolSelected(#tool.id, #tool.data.ref)"
+                                            class="tool-button action-control drawing-tool-button"
+                                            title="%{#tool.data.ref.name}%">
+                                        %{#tool.data.thumbnailSrc}%
+                                    </button>
+                                </kit-array>
+                            </div>
+                        </kit-array>
+                    </section>
+                </div>
+                <div id="map-item-templates" class="surface-secondary background tool-types">
+                    <header class="surface-secondary">
+                        <div>Map item templates</div>
+                        <div class="spacer"></div>
+                        <button title="Reset map item templates" class="action-text" onclick="#model.onMapItemTemplateReset()">
+                            <div class="icon-container">
+                                <kit-component data-kit-template-path="/resources/icons/reset.html" data-kit-model="null"></kit-component>
+                            </div>
+                        </button>
+                    </header>
+                    <section>
+                        <kit-array data-kit-array="#model.getToolPalettes('MapItemTemplates')" data-kit-item-index-ref="paletteIndex">
+                            <div>
+                                <kit-array data-kit-array="#model.getToolPaletteItems('MapItemTemplates', #paletteIndex)" data-kit-item-ref="mapItemTemplate">
+                                    <button id="%{#mapItemTemplate.id}%"
+                                            onclick="#model.onMapItemTemplateSelected(#mapItemTemplate.id, #mapItemTemplate.data.ref)"
+                                            class="tool-button action-control map-item-template-button"
+                                            title="%{#mapItemTemplate.data.ref.name}%">
+                                        %{#mapItemTemplate.data.thumbnailSrc}%
+                                    </button>
+                                </kit-array>
+                            </div>
+                        </kit-array>
+                    </section>
+                </div>
+            </section>
+        </div>
+        <div id="map-container" class="surface-secondary background">
+            <canvas id="map-canvas" width="1200" height="750"></canvas>
+            <div id="no-map">[No map]</div>
+        </div>
     </div>
     <kit-component id="file-new-dialog-component" data-kit-template-path="/components/map-editor/file-new-dialog/file-new-dialog.html"></kit-component>
     <kit-component id="file-save-dialog-component" data-kit-template-path="/components/map-editor/file-save-dialog/file-save-dialog.html"></kit-component>

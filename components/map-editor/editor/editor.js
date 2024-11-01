@@ -66,8 +66,9 @@ export class EditorModel {
         model.showDialog();
     }
 
-    isSaveDisabled() {
-        if ('showSaveFilePicker' in KitDependencyManager.getWindow()) {
+    async isSaveDisabled() {
+        const map = await MapWorkerClient.getMap();
+        if (map && 'showSaveFilePicker' in KitDependencyManager.getWindow()) {
             return null;
         }
         else {
@@ -109,6 +110,38 @@ export class EditorModel {
         FileManager.fileHandle = null;
         await MapWorkerClient.setMap(null);
         KitRenderer.renderComponent(this.componentId);
+    }
+
+    async isUndoDisabled() {
+        return "disabled";
+    }
+
+    async isRedoDisabled() {
+        return "disabled";
+    }
+
+    async isEditSelectionDisabled() {
+        return "disabled";
+    }
+
+    async isPasteDisabled() {
+        return "disabled";
+    }
+
+    async isZoomDisabled() {
+        return "disabled";
+    }
+
+    async isResizeCanvasDisabled() {
+        return "disabled";
+    }
+
+    async isOverlayDisabled() {
+        return "disabled";
+    }
+
+    async isReadOnlyViewerDisabled() {
+        return "disabled";
     }
 
     async toggleToolsPinned() {

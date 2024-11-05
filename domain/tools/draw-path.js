@@ -70,7 +70,8 @@ class DrawPathTool {
 
     draw(eventData) {
         this.drawLine(eventData.offsetX, eventData.offsetY);
-        this.pts.push(`${eventData.offsetX - this.x},${eventData.offsetY - this.y}`);
+        const zoom = this.mapWorker.map.zoom;
+        this.pts.push(`${(eventData.offsetX - this.x)/zoom},${(eventData.offsetY - this.y)/zoom}`);
         this.x = eventData.offsetX;
         this.y = eventData.offsetY;
     }
@@ -78,7 +79,8 @@ class DrawPathTool {
     async drawEnd(eventData) {
         this.drawLine(eventData.offsetX, eventData.offsetY);
         this.drawLine(this.xStart, this.yStart);
-        this.pts.push(`${eventData.offsetX - this.x},${eventData.offsetY - this.y}`);
+        const zoom = this.mapWorker.map.zoom;
+        this.pts.push(`${(eventData.offsetX - this.x)/zoom},${(eventData.offsetY - this.y)/zoom}`);
         this.isDrawing = false;
         await this.addMapItem();  
     }

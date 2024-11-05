@@ -30,6 +30,7 @@ export class Map {
         this.#tools = [];
         this.#toolPalette = new ToolPalette(data?.toolPalette);
         this.#pan = { x: 0, y: 0 };
+        this.#zoom = 1.00;
         if (data) {
             if (data.templateRef) {
                 this.#templateRef = new EntityReference(data.templateRef);
@@ -61,6 +62,9 @@ export class Map {
             }
             if (data.pan) {
                 this.#pan = data.pan;
+            }
+            if (data.zoom) {
+                this.#zoom = data.zoom;
             }
         }
         this.#eventListeners = {};
@@ -219,6 +223,17 @@ export class Map {
         this.#afterChange({ changeType: ChangeType.MapProperty, changeData: { propertyName: "pan", propertyValue: this.pan } });
     }
 
+    /** @type {number} */
+    #zoom;
+    get zoom() {
+        return this.#zoom ?? 1;
+    }
+    set zoom(zoom) {
+        this.#beforeChange({ changeType: ChangeType.MapProperty, changeData: { propertyName: "zoom", propertyValue: this.zoom } });
+        this.#zoom = zoom;
+        this.#afterChange({ changeType: ChangeType.MapProperty, changeData: { propertyName: "zoom", propertyValue: this.zoom } });
+    }
+
     // methods
     getData() {
         const layers = [];
@@ -244,7 +259,8 @@ export class Map {
             toolRefs: this.#getRefsData(this.#toolRefs),
             tools: tools,
             toolPalette: this.#toolPalette ? this.#toolPalette.getData() : null,
-            pan: this.#pan
+            pan: this.#pan,
+            zoom: this.#zoom
         };
     }
 
@@ -433,8 +449,9 @@ export class Map {
 
     render(canvas, context) {
         context.restore();
-        context.setTransform(1, 0, 0, 1, 0, 0);
+        context.resetTransform();
         context.clearRect(0, 0, canvas.width, canvas.height);
+        context.scale(this.zoom, this.zoom);
         context.translate(this.#pan.x, this.#pan.y);
         for (const layer of this.layers) {
             layer.render(canvas, context, this);
@@ -442,7 +459,7 @@ export class Map {
     }
 
     getPoint(canvasX, canvasY) {
-        return { x: canvasX - this.#pan.x, y: canvasY - this.#pan.y };
+        return { x: (canvasX / this.zoom) - this.#pan.x, y: (canvasY / this.zoom) - this.#pan.y };
     }
 
     #startedChange

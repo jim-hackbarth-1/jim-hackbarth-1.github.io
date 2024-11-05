@@ -166,7 +166,6 @@
 
             @media (max-width: 768px), (max-height: 500px) {
                 #map-canvas {
-
                     margin-top: 40px;
                     margin-left: 40px;
                 }
@@ -309,7 +308,7 @@
         <div>
             <button onclick="#model.toggleDropdown('menu-view')" class="dropbtn top-menu-item action-text" data-dropdown-id="menu-view">View</button>
             <div id="menu-view" class="dropdown-content surface-secondary">
-                <button title="Zoom" class="action-text" data-kit-add-attributes="%{#model.isZoomDisabled()}%">
+                <button title="Zoom" class="action-text" onclick="#model.showDialog('zoom-dialog-component')" data-kit-add-attributes="%{#model.isZoomDisabled()}%">
                     <div class="button-content">
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/view-zoom.html" data-kit-model="null"></kit-component>
@@ -424,11 +423,12 @@
         </div>
         <div class="toolbar-group">
             <div class="group-divider"></div>
-            <button title="Zoom" class="action-text" data-kit-add-attributes="%{#model.isZoomDisabled()}%">
+            <button title="Zoom" class="action-text" onclick="#model.showDialog('zoom-dialog-component')" data-kit-add-attributes="%{#model.isZoomDisabled()}%">
                 <div class="button-content">
                     <div class="icon-container">
                         <kit-component data-kit-template-path="/resources/icons/view-zoom.html" data-kit-model="null"></kit-component>
                     </div>
+                    <span id="zoom-label">%{#model.getZoom()}%</span>
                 </div>
             </button>
             <button title="Resize canvas" class="action-text" data-kit-add-attributes="%{#model.isResizeCanvasDisabled()}%">
@@ -547,4 +547,5 @@
     <kit-component id="file-new-dialog-component" data-kit-template-path="/components/map-editor/file-new-dialog/file-new-dialog.html"></kit-component>
     <kit-component id="file-save-dialog-component" data-kit-template-path="/components/map-editor/file-save-dialog/file-save-dialog.html"></kit-component>
     <kit-component id="file-open-dialog-component" data-kit-template-path="/components/map-editor/file-open-dialog/file-open-dialog.html"></kit-component>
+    <kit-component id="zoom-dialog-component" data-kit-template-path="/components/map-editor/zoom-dialog/zoom-dialog.html"></kit-component>
 </section>

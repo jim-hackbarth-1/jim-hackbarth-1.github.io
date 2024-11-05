@@ -51,14 +51,14 @@ class PanTool {
     panStart(eventData) {
         this.xStart = eventData.offsetX;
         this.yStart = eventData.offsetY;
-        this.mapStart = { x: this.mapWorker.map.pan.x, y: this.mapWorker.map.pan.y };
+        this.mapStart = this.mapWorker.map.pan;
         this.mapWorker.map.startChange({ changeType: "MapPan", changeData: { panStart: this.mapStart } });
         this.isPanning = true;
     }
 
     pan(eventData) {
-        const dx = eventData.offsetX - this.xStart;
-        const dy = eventData.offsetY - this.yStart
+        const dx = (eventData.offsetX - this.xStart) / this.mapWorker.map.zoom;
+        const dy = (eventData.offsetY - this.yStart) / this.mapWorker.map.zoom;
         this.mapWorker.map.pan = { x: this.mapStart.x + dx, y: this.mapStart.y + dy };
         this.mapWorker.renderMap();
     }

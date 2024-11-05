@@ -1,5 +1,5 @@
 ﻿
-import { ChangeEventType, DbManager, EntityReference, Map, MapItem } from "../references.js";
+import { ChangeEventType, ChangeType, DbManager, EntityReference, Map, MapItem } from "../references.js";
 
 /**
  * @readonly
@@ -87,7 +87,7 @@ export class MapWorker {
                     await this.#loadMap();
                     break;
                 case MapWorkerInputMessageType.UpdateMap:
-                    // TODO
+                    await this.#updateMap(message.data.change);
                     break;
                 case MapWorkerInputMessageType.SetActiveTool:
                     await this.#setActiveTool(message.data.toolRefData);
@@ -155,6 +155,18 @@ export class MapWorker {
             else {
                 this.renderingContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
             }
+        }
+    }
+
+    async #updateMap(change) {
+        const changeType = change?.changeType;
+        switch (changeType) {
+            case ChangeType.MapProperty:
+                this.map[change.changeData.propertyName] = change.changeData.propertyValue;
+                this.renderMap();
+                break;
+            default:
+                throw new Error(`Unexpected worker request type: ${messageType ?? "(null)"}`);
         }
     }
 

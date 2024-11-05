@@ -150,8 +150,12 @@ kit-if:not([data-kit-component-id]) {
     color: rgb(from var(--theme-color-primary-darkest) r g b / 25%);
 }
 
-.surface-primary .action-text:not([disabled]):hover {
+.surface-primary:not(.background) .action-text:not([disabled]):hover {
     color: var(--theme-color-primary-lightest);
+}
+
+.surface-primary.background .action-text:not([disabled]):hover {
+    color: var(--theme-color-primary-darker);
 }
 
 .surface-primary .action-control:not([disabled]):hover {
@@ -229,8 +233,12 @@ kit-if:not([data-kit-component-id]) {
     color: rgb(from var(--theme-color-secondary-darkest) r g b / 25%);
 }
 
-.surface-secondary .action-text:not([disabled]):hover {
+.surface-secondary:not(.background) .action-text:not([disabled]):hover {
     color: var(--theme-color-secondary-lightest);
+}
+
+.surface-secondary.background .action-text:not([disabled]):hover {
+    color: var(--theme-color-secondary-darker);
 }
 
 .surface-secondary .action-control:not([disabled]):hover {
@@ -308,8 +316,12 @@ kit-if:not([data-kit-component-id]) {
     color: rgb(from var(--theme-color-tertiary-darkest) r g b / 25%);
 }
 
-.surface-tertiary .action-text:not([disabled]):hover {
+.surface-tertiary:not(.background) .action-text:not([disabled]):hover {
     color: var(--theme-color-tertiary-lightest);
+}
+
+.surface-tertiary.background .action-text:not([disabled]):hover {
+    color: var(--theme-color-tertiary-darker);
 }
 
 .surface-tertiary .action-control:not([disabled]):hover,
@@ -388,8 +400,12 @@ kit-if:not([data-kit-component-id]) {
     color: rgb(from var(--theme-color-complementary-darkest) r g b / 25%);
 }
 
-.surface-complementary .action-text:not([disabled]):hover {
+.surface-complementary:not(.background) .action-text:not([disabled]):hover {
     color: var(--theme-color-complementary-lightest);
+}
+
+.surface-complementary.background .action-text:not([disabled]):hover {
+    color: var(--theme-color-complementary-darker);
 }
 
 .surface-complementary .action-control:not([disabled]):hover {

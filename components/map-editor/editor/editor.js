@@ -1,5 +1,5 @@
 ﻿
-import { BuiltInTemplates, BuiltInTools, EntityReference, FileManager, Map, MapWorkerClient, MapWorkerInputMessageType } from "../../../domain/references.js";
+import { BuiltInTemplates, BuiltInTools, ChangeType, EntityReference, FileManager, Map, MapWorkerClient, MapWorkerInputMessageType } from "../../../domain/references.js";
 import { KitComponent, KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
 
 export function createModel() {
@@ -31,8 +31,16 @@ export class EditorModel {
         this.#initializeMapWorker();
     }
 
-    async onMapChanged(message) {
-        //console.log("editor main onMapChanged");
+    onMapChanged = async (message) => {
+        const changeType = message?.data?.change?.changeType;
+        if (changeType === ChangeType.MapProperty) {
+            const propertyName = message?.data?.change?.changeData?.propertyName;
+            if (propertyName === "zoom") {
+                const map = await MapWorkerClient.getMap();
+                const zoomLabel = this.#componentElement.querySelector("#zoom-label");
+                zoomLabel.innerHTML = parseFloat(map.zoom * 100).toFixed(0) + "%"
+            }
+        }
     }
 
     toggleDropdown(dropdownId) {
@@ -109,7 +117,8 @@ export class EditorModel {
     }
 
     async isZoomDisabled() {
-        return "disabled";
+        const map = await MapWorkerClient.getMap();
+        return map ? null : "disabled";
     }
 
     async isResizeCanvasDisabled() {
@@ -272,6 +281,15 @@ export class EditorModel {
         const json = EditorModel.#mapToJson(map);
         FileManager.fileHandle = message.fileHandle;
         await FileManager.saveMap(json);
+    }
+
+    async getZoom() {      
+        let zoom = "";
+        const map = await MapWorkerClient.getMap();
+        if (map) {
+            zoom = parseFloat(map.zoom * 100).toFixed(0) + "%"
+        }
+        return zoom;
     }
 
     // helpers

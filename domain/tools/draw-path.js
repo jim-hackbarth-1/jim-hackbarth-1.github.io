@@ -5,120 +5,116 @@ export function createToolModel() {
 
 class DrawPathTool {
 
-    mapWorker = null;
-    xStart = null;
-    x = null;
-    yStart = null;
-    y = null;
-    isDrawing = false;
-    pathDark = null;
-    pathLight = null;
-    pts = [];
+    // fields
+    #mapWorker;
+    #xStart;
+    #yStart;
+    #xCurrent;
+    #yCurrent;
+    #isDrawing;
+    #pathDark;
+    #pathLight;
+    #points;
 
+    // methods
     async onActivate(mapWorker) {
-        this.mapWorker = mapWorker
+        this.#mapWorker = mapWorker
     }
 
     async handleCanvasEvent(canvasEvent) {
         const eventData = canvasEvent?.eventData;
         switch (canvasEvent?.canvasEventType) {
             case "pointerdown":
-                await this.onPointerDown(eventData);
+                await this.#onPointerDown(eventData);
                 break;
             case "pointermove":
-                await this.onPointerMove(eventData);
+                await this.#onPointerMove(eventData);
                 break;
             case "pointerup":
-                await this.onPointerUp(eventData);
+                await this.#onPointerUp(eventData);
                 break;
         }
     }
 
-    async onPointerDown(eventData) {
-        if (eventData && eventData.button === 0 && this.mapWorker.activeMapItemTemplate) {
-            this.drawStart(eventData);
+    // helpers
+    async #onPointerDown(eventData) {
+        if (eventData && eventData.button === 0 && this.#mapWorker.activeMapItemTemplate) {
+            this.#drawStart(eventData);
         }
     }
 
-    async onPointerMove(eventData) {
-        if (eventData && this.isDrawing) {
-            this.draw(eventData);
+    async #onPointerMove(eventData) {
+        if (eventData && this.#isDrawing) {
+            this.#draw(eventData);
         }
     }
 
-    async onPointerUp(eventData) {
-        if (eventData && this.isDrawing) {
-            await this.drawEnd(eventData);     
+    async #onPointerUp(eventData) {
+        if (eventData && this.#isDrawing) {
+            await this.#drawEnd(eventData);     
         }
     }
 
-    drawStart(eventData) {
-        this.mapWorker.renderingContext.restore();
-        this.mapWorker.renderingContext.setTransform(1, 0, 0, 1, 0, 0);
-        this.mapWorker.renderingContext.setLineDash([5, 10]);
-        this.xStart = eventData.offsetX;
-        this.yStart = eventData.offsetY;
-        this.x = eventData.offsetX;
-        this.y = eventData.offsetY;
-        this.pathDark = new Path2D();
-        this.pathLight = new Path2D();
-        this.pathDark.moveTo(this.xStart, this.yStart);
-        this.pathLight.moveTo(this.xStart, this.yStart);
-        this.pts = [];
-        this.isDrawing = true;
+    #drawStart(eventData) {
+        this.#mapWorker.renderingContext.restore();
+        this.#mapWorker.renderingContext.resetTransform();
+        this.#mapWorker.renderingContext.setLineDash([5, 10]);
+        this.#xStart = eventData.offsetX;
+        this.#yStart = eventData.offsetY;
+        this.#xCurrent = eventData.offsetX;
+        this.#yCurrent = eventData.offsetY;
+        this.#pathDark = new Path2D();
+        this.#pathLight = new Path2D();
+        this.#pathDark.moveTo(this.#xStart, this.#yStart);
+        this.#pathLight.moveTo(this.#xStart, this.#yStart);
+        this.#points = [];
+        this.#isDrawing = true;
     }
 
-    draw(eventData) {
-        this.drawLine(eventData.offsetX, eventData.offsetY);
-        const zoom = this.mapWorker.map.zoom;
-        this.pts.push(`${(eventData.offsetX - this.x)/zoom},${(eventData.offsetY - this.y)/zoom}`);
-        this.x = eventData.offsetX;
-        this.y = eventData.offsetY;
+    #draw(eventData) {
+        this.#drawLine(eventData.offsetX, eventData.offsetY);
+        this.#points.push({ x: eventData.offsetX - this.#xCurrent, y: eventData.offsetY - this.#yCurrent });
+        this.#xCurrent = eventData.offsetX;
+        this.#yCurrent = eventData.offsetY;
     }
 
-    async drawEnd(eventData) {
-        this.drawLine(eventData.offsetX, eventData.offsetY);
-        this.drawLine(this.xStart, this.yStart);
-        const zoom = this.mapWorker.map.zoom;
-        this.pts.push(`${(eventData.offsetX - this.x)/zoom},${(eventData.offsetY - this.y)/zoom}`);
-        this.isDrawing = false;
-        await this.addMapItem();  
+    async #drawEnd(eventData) {
+        this.#drawLine(eventData.offsetX, eventData.offsetY);
+        this.#drawLine(this.#xStart, this.#yStart);
+        this.#points.push({ x: eventData.offsetX - this.#xCurrent, y: eventData.offsetY - this.#yCurrent });
+        this.#isDrawing = false;
+        await this.#addMapItem();  
     }
 
-    drawLine(x, y) {
-        this.setDarkLineStyle();
-        this.pathDark.lineTo(x, y);
-        this.mapWorker.renderingContext.stroke(this.pathDark);
-        this.setLightLineStyle();
-        this.pathLight.lineTo(x, y);
-        this.mapWorker.renderingContext.stroke(this.pathLight);
+    #drawLine(x, y) {
+        this.#mapWorker.renderingContext.strokeStyle = "darkgray";
+        this.#mapWorker.renderingContext.lineWidth = 3;
+        this.#pathDark.lineTo(x, y);
+        this.#mapWorker.renderingContext.stroke(this.#pathDark);
+        this.#mapWorker.renderingContext.strokeStyle = "white";
+        this.#mapWorker.renderingContext.lineWidth = 1;
+        this.#pathLight.lineTo(x, y);
+        this.#mapWorker.renderingContext.stroke(this.#pathLight);
     }
 
-    setDarkLineStyle() {
-        this.mapWorker.renderingContext.strokeStyle = "darkgray";
-        this.mapWorker.renderingContext.lineWidth = 3;
-    }
-
-    setLightLineStyle() {
-        this.mapWorker.renderingContext.strokeStyle = "white";
-        this.mapWorker.renderingContext.lineWidth = 1;
-    }
-
-    async addMapItem() {  
-        if (this.mapWorker.map && this.mapWorker.activeMapItemTemplate) {
-            const mapPoint = this.mapWorker.map.getPoint(this.xStart, this.yStart);
-            let pathData = `M ${mapPoint.x},${mapPoint.y} l ${this.pts.join(" ")}`;
-            if (this.mapWorker.activeMapItemTemplate.fills.length > 0) {
-                pathData += " z";
-            }
+    async #addMapItem() {  
+        if (this.#mapWorker.map && this.#mapWorker.activeMapItemTemplate) {
+            const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
+            const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
+            const start = this.#mapWorker.transformPoint({ x: this.#xStart, y: this.#yStart }, scale, translation);
+            const points = this.#points.map(pt => this.#mapWorker.transformPoint(pt, scale));
             const data = {
-                mapItemTemplateRef: this.mapWorker.activeMapItemTemplate.ref.getData(),
-                pathData: pathData
+                mapItemTemplateRef: this.#mapWorker.activeMapItemTemplate.ref.getData(),
+                paths: [{
+                    pathType: "PathLines",
+                    start: start,
+                    points: points
+                }]
             };
-            const mapItem = this.mapWorker.createMapItem(data);
-            this.mapWorker.map.getActiveLayer().addMapItem(mapItem);
+            const mapItem = this.#mapWorker.createMapItem(data);
+            this.#mapWorker.map.getActiveLayer().addMapItem(mapItem);
         }
-        this.mapWorker.renderMap();
+        this.#mapWorker.renderMap();
     }
 }
 

@@ -1,5 +1,15 @@
 ﻿
-import { BuiltInTemplates, BuiltInTools, ChangeType, EntityReference, FileManager, Map, MapWorkerClient, MapWorkerInputMessageType } from "../../../domain/references.js";
+import {
+    BuiltInTemplates,
+    BuiltInTools,
+    ChangeType,
+    EntityReference,
+    FileManager,
+    Map,
+    MapWorkerClient,
+    MapWorkerInputMessageType,
+    MapWorkerOutputMessageType
+} from "../../../domain/references.js";
 import { KitComponent, KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
 
 export function createModel() {
@@ -17,6 +27,7 @@ export class EditorModel {
     #componentId;
     #componentElement;
     #toolsPinned;
+    #toolCursor;
 
     // methods
     async onRenderStart(componentId) {
@@ -32,13 +43,20 @@ export class EditorModel {
     }
 
     onMapChanged = async (message) => {
-        const changeType = message?.data?.change?.changeType;
-        if (changeType === ChangeType.MapProperty) {
-            const propertyName = message?.data?.change?.changeData?.propertyName;
-            if (propertyName === "zoom") {
-                const map = await MapWorkerClient.getMap();
-                const zoomLabel = this.#componentElement.querySelector("#zoom-label");
-                zoomLabel.innerHTML = parseFloat(map.zoom * 100).toFixed(0) + "%"
+        // TODO: move this central change management?
+        if (message?.messageType === MapWorkerOutputMessageType.ChangeCursor) {
+            this.#setMapCursor(message.data?.cursor);
+            await MapWorkerClient.postWorkerMessage({ messageType: MapWorkerInputMessageType.CursorChanged, cursor: message.data?.cursor });
+        }
+        if (message?.messageType === MapWorkerOutputMessageType.MapUpdated && message?.data?.change?.changeData) {
+            if (message?.data?.change?.changeObjectType == Map.name) {
+                for (const changeItem of message.data.change.changeData) {
+                    if (changeItem.propertyName === "zoom") {
+                        const map = await MapWorkerClient.getMap();
+                        const zoomLabel = this.#componentElement.querySelector("#zoom-label");
+                        zoomLabel.innerHTML = parseFloat(map.zoom * 100).toFixed(0) + "%"
+                    }
+                }
             }
         }
     }
@@ -198,8 +216,8 @@ export class EditorModel {
         for (const button of buttons) {
             button.classList.remove("active");
         }
-        const canvas = this.#componentElement.querySelector("#map-canvas");
-        canvas.style.cursor = "default";
+        this.#toolCursor = "default";
+        this.#setMapCursor();
         await MapWorkerClient.postWorkerMessage({ messageType: MapWorkerInputMessageType.SetActiveTool, toolRefData: null });
     }
 
@@ -211,8 +229,8 @@ export class EditorModel {
         this.#componentElement.querySelector(`#${id}`).classList.add("active");
         const map = await MapWorkerClient.getMap();
         const tool = map.tools.find(t => EntityReference.areEqual(t.ref, ref));
-        const canvas = this.#componentElement.querySelector("#map-canvas");
-        canvas.style.cursor = `url(${tool.cursorSrc}) ${tool.cursorHotspot.x} ${tool.cursorHotspot.y}, crosshair`;
+        this.#toolCursor = `url(${tool.cursorSrc}) ${tool.cursorHotspot.x} ${tool.cursorHotspot.y}, crosshair`;
+        this.#setMapCursor();
         const refData = tool?.ref ? tool.ref.getData() : null;
         await MapWorkerClient.postWorkerMessage({ messageType: MapWorkerInputMessageType.SetActiveTool, toolRefData: refData });
     }
@@ -423,6 +441,46 @@ export class EditorModel {
         const map = new Map(mapData);
         await MapWorkerClient.setMap(map);
         KitRenderer.renderComponent(this.#componentId);
+    }
+
+    #setMapCursor(cursorName) {
+        const canvas = this.#componentElement.querySelector("#map-canvas");
+        switch (cursorName) {
+            case "Rotate":
+                const cursorSrc = `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g stroke="black" stroke-width="2" fill="white" stroke-linecap="round"><path d="M 0,0 m 50,90 a 40 40 0 1 1 40 -40 l 10,0 -15,15 -15,-15 10,0 a 30 30 0 1 0 -30 30 z"></path><path d="M 0,0 m 50,45 a 5 5 0 0 0 0 10 a 5 5 0 0 0 0 -10 z"></path></g></svg>')}`;
+                const rotateCursor = `url(${cursorSrc}) 15 15, crosshair`;
+                canvas.style.cursor = rotateCursor;
+                break;
+            case "ResizeNW":
+                canvas.style.cursor = "nw-resize";
+                break;
+            case "ResizeN":
+                canvas.style.cursor = "n-resize";
+                break;
+            case "ResizeNE":
+                canvas.style.cursor = "ne-resize";
+                break;
+            case "ResizeE":
+                canvas.style.cursor = "e-resize";
+                break;
+            case "ResizeSE":
+                canvas.style.cursor = "se-resize";
+                break;
+            case "ResizeS":
+                canvas.style.cursor = "s-resize";
+                break;
+            case "ResizeSW":
+                canvas.style.cursor = "sw-resize";
+                break;
+            case "ResizeW":
+                canvas.style.cursor = "w-resize";
+                break;
+            case "Move":
+                canvas.style.cursor = "grab";
+                break;
+            default:
+                canvas.style.cursor = this.#toolCursor;
+        }
     }
 
     static #getBaseUrl() {

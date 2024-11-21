@@ -1,5 +1,5 @@
 ﻿
-import { ChangeEventType, ChangeType, DbManager, EntityReference, Map, MapItem } from "../references.js";
+import { Change, ChangeType, DbManager, EntityReference, GeometryUtilities, Map, MapItem } from "../references.js";
 
 /**
  * @readonly
@@ -11,13 +11,15 @@ export const MapWorkerInputMessageType = {
     UpdateMap: "UpdateMap", // save happened, undo, redo, set layer, set zoom, set overlay, ...
     SetActiveTool: "SetActiveTool",
     SetActiveMapItemTemplate: "SetActiveMapItemTemplate",
-    CanvasEvent: "CanvasEvent" 
+    CanvasEvent: "CanvasEvent",
+    CursorChanged: "CursorChanged"
 };
 
 export const MapWorkerOutputMessageType = {
     DebugInfo: "DebugInfo",
     Error: "Error",
-    MapUpdated: "MapUpdated"
+    MapUpdated: "MapUpdated",
+    ChangeCursor: "ChangeCursor"
 }
 
 onmessage = (message) => {
@@ -98,6 +100,9 @@ export class MapWorker {
                 case MapWorkerInputMessageType.CanvasEvent:
                     await this.#canvasEvent(message.data.canvasEventType, message.data.canvasEventData);
                     break;
+                case MapWorkerInputMessageType.CursorChanged:
+                    await this.#cursorChanged(message.data.cursor);
+                    break;
                 default:
                     throw new Error(`Unexpected worker request type: ${messageType ?? "(null)"}`);
             }
@@ -116,13 +121,21 @@ export class MapWorker {
     handleMapChange = async (change) => {
         if (this.map) {
             await DbManager.setMap(this.map.getData());
-            const message = { messageType: MapWorkerOutputMessageType.MapUpdated, data: { hasUnsavedChanges: this.map.hasUnsavedChanges, change: change } };
+            const message = { messageType: MapWorkerOutputMessageType.MapUpdated, data: { hasUnsavedChanges: this.map.hasUnsavedChanges, change: change.getData() } };
             this.postMessage(message);
         }
     }
 
+    transformPoint(point, scale, translation) {
+        return GeometryUtilities.transformPoint(point, scale, translation);
+    }
+
     createMapItem(data) {
         return new MapItem(data);
+    }
+
+    createChange(data) {
+        return new Change(data);
     }
 
     renderMap() {
@@ -149,7 +162,7 @@ export class MapWorker {
         this.#activeMapItemTemplate = null;
         if (this.canvas && this.renderingContext) {
             if (this.map) {
-                this.map.addEventListener(ChangeEventType.afterChangeEvent, this.handleMapChange);
+                this.map.addEventListener(Change.ChangeEvent, this.handleMapChange);
                 this.map.render(this.canvas, this.renderingContext);
             }
             else {
@@ -159,15 +172,19 @@ export class MapWorker {
     }
 
     async #updateMap(change) {
-        const changeType = change?.changeType;
-        switch (changeType) {
-            case ChangeType.MapProperty:
-                this.map[change.changeData.propertyName] = change.changeData.propertyValue;
-                this.renderMap();
+        const changeObjectType = change?.changeObjectType;
+        switch (changeObjectType) {
+            case Map.name:
+                if (change?.changeData && change?.changeType === ChangeType.Edit) {
+                    for (const changeItem of change.changeData) {
+                        this.map[changeItem.propertyName] = changeItem.newValue;
+                    }
+                }
                 break;
             default:
                 throw new Error(`Unexpected worker request type: ${messageType ?? "(null)"}`);
         }
+        this.renderMap();
     }
 
     async #setActiveTool(toolRefData) {
@@ -203,6 +220,12 @@ export class MapWorker {
                 canvasEventType: canvasEventType,
                 eventData: eventData
             });
+        }
+    }
+
+    async #cursorChanged(cursor) {
+        if (this.activeToolModel && this.activeToolModel.onCursorChange) {
+            return await this.activeToolModel.onCursorChange(cursor);
         }
     }
 

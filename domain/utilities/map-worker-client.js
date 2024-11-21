@@ -70,6 +70,9 @@ export class MapWorkerClient {
         if (message?.data?.messageType === MapWorkerOutputMessageType.Error) {
             KitDependencyManager.getConsole().error(message.data.error);
         }
+        if (message?.data?.messageType === MapWorkerOutputMessageType.ChangeCursor) {
+            await MapWorkerClient.mapChangeListener(message.data);
+        }
         if (message?.data?.messageType === MapWorkerOutputMessageType.MapUpdated && MapWorkerClient.mapChangeListener) {
             const mapData = await DbManager.getMap();
             MapWorkerClient.#map = mapData ? new Map(mapData) : null;

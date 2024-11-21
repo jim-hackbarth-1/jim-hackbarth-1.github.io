@@ -1,6 +1,6 @@
 ﻿
 import {
-    ChangeEventType,
+    Change,
     ChangeType,
     ColorFill,
     ColorStroke,
@@ -73,9 +73,9 @@ export class Caption {
         return this.#defaultText;
     }
     set defaultText(defaultText) {
-        this.#beforeChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "defaultText", propertyValue: this.defaultText } });
+        const change = this.#getPropertyChange("defaultText", this.#defaultText, defaultText);
         this.#defaultText = defaultText;
-        this.#afterChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "defaultText", propertyValue: this.defaultText } });
+        this.#onChange(change);
     }
 
     /** @type {number}  */
@@ -84,9 +84,9 @@ export class Caption {
         return this.#opacity;
     }
     set opacity(opacity) {
-        this.#beforeChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "opacity", propertyValue: this.opacity } });
+        const change = this.#getPropertyChange("opacity", this.#opacity, opacity);
         this.#opacity = opacity;
-        this.#afterChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "opacity", propertyValue: this.opacity } });
+        this.#onChange(change);
     }
 
     /** @type {string}  */
@@ -95,9 +95,9 @@ export class Caption {
         return this.#font;
     }
     set font(font) {
-        this.#beforeChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "font", propertyValue: this.font } });
+        const change = this.#getPropertyChange("font", this.#font, font);
         this.#font = font;
-        this.#afterChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "font", propertyValue: this.font } });
+        this.#onChange(change);
     }
 
     /** @type {number}  */
@@ -106,9 +106,9 @@ export class Caption {
         return this.#fontSize;
     }
     set fontSize(fontSize) {
-        this.#beforeChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "fontSize", propertyValue: this.fontSize } });
+        const change = this.#getPropertyChange("fontSize", this.#fontSize, fontSize);
         this.#fontSize = fontSize;
-        this.#afterChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "fontSize", propertyValue: this.fontSize } });
+        this.#onChange(change);
     }
 
     /** @type {string}  */
@@ -117,9 +117,9 @@ export class Caption {
         return this.#fontColor;
     }
     set fontColor(fontColor) {
-        this.#beforeChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "fontColor", propertyValue: this.fontColor } });
+        const change = this.#getPropertyChange("fontColor", this.#fontColor, fontColor);
         this.#fontColor = fontColor;
-        this.#afterChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "fontColor", propertyValue: this.fontColor } });
+        this.#onChange(change);
     }
 
     /** @type {string}  */
@@ -128,9 +128,9 @@ export class Caption {
         return this.#fontVariantCaps;
     }
     set fontVariantCaps(fontVariantCaps) {
-        this.#beforeChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "fontVariantCaps", propertyValue: this.fontVariantCaps } });
+        const change = this.#getPropertyChange("fontVariantCaps", this.#fontVariantCaps, fontVariantCaps);
         this.#fontVariantCaps = fontVariantCaps;
-        this.#afterChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "fontVariantCaps", propertyValue: this.fontVariantCaps } });
+        this.#onChange(change);
     }
 
     /** @type {string}  */
@@ -139,9 +139,9 @@ export class Caption {
         return this.#fontOutlineColor;
     }
     set fontOutlineColor(fontOutlineColor) {
-        this.#beforeChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "fontOutlineColor", propertyValue: this.fontOutlineColor } });
+        const change = this.#getPropertyChange("fontOutlineColor", this.#fontOutlineColor, fontOutlineColor);
         this.#fontOutlineColor = fontOutlineColor;
-        this.#afterChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "fontOutlineColor", propertyValue: this.fontOutlineColor } });
+        this.#onChange(change);
     }
 
     /** @type {Shadow}  */
@@ -150,9 +150,9 @@ export class Caption {
         return this.#fontShadow;
     }
     set fontShadow(fontShadow) {
-        this.#beforeChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "fontShadow", propertyValue: this.fontShadow } });
+        const change = this.#getPropertyChange("fontShadow", this.#fontShadow, fontShadow);
         this.#fontShadow = fontShadow;
-        this.#afterChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "fontShadow", propertyValue: this.fontShadow } });
+        this.#onChange(change);
     }
 
     /** @type {string}  */
@@ -161,9 +161,9 @@ export class Caption {
         return this.#align;
     }
     set align(align) {
-        this.#beforeChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "align", propertyValue: this.align } });
+        const change = this.#getPropertyChange("align", this.#align, align);
         this.#align = align;
-        this.#afterChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "align", propertyValue: this.align } });
+        this.#onChange(change);
     }
 
     /** @type {string}  */
@@ -172,9 +172,9 @@ export class Caption {
         return this.#baseline;
     }
     set baseline(baseline) {
-        this.#beforeChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "baseline", propertyValue: this.baseline } });
+        const change = this.#getPropertyChange("baseline", this.#baseline, baseline);
         this.#baseline = baseline;
-        this.#afterChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "baseline", propertyValue: this.baseline } });
+        this.#onChange(change);
     }
 
     /** @type {ColorFill}  */
@@ -183,9 +183,9 @@ export class Caption {
         return this.#backgroundFill;
     }
     set backgroundFill(backgroundFill) {
-        this.#beforeChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "backgroundFill", propertyValue: this.backgroundFill } });
+        const change = this.#getPropertyChange("backgroundFill", this.#backgroundFill, backgroundFill);
         this.#backgroundFill = backgroundFill;
-        this.#afterChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "backgroundFill", propertyValue: this.backgroundFill } });
+        this.#onChange(change);
     }
 
     /** @type {ColorStroke}  */
@@ -194,9 +194,9 @@ export class Caption {
         return this.#borderStroke;
     }
     set borderStroke(borderStroke) {
-        this.#beforeChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "borderStroke", propertyValue: this.borderStroke } });
+        const change = this.#getPropertyChange("borderStroke", this.#borderStroke, borderStroke);
         this.#borderStroke = borderStroke;
-        this.#afterChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "borderStroke", propertyValue: this.borderStroke } });
+        this.#onChange(change);
     }
 
     /** @type {Shadow}  */
@@ -205,9 +205,9 @@ export class Caption {
         return this.#shadow;
     }
     set shadow(shadow) {
-        this.#beforeChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "shadow", propertyValue: this.shadow } });
+        const change = this.#getPropertyChange("shadow", this.#shadow, shadow);
         this.#shadow = shadow;
-        this.#afterChange({ changeType: ChangeType.CaptionProperty, changeData: { propertyName: "shadow", propertyValue: this.shadow } });
+        this.#onChange(change);
     }
 
     // methods
@@ -246,19 +246,25 @@ export class Caption {
     // helpers
     #eventListeners;
 
-    #beforeChange(change) {
-        if (this.#eventListeners[ChangeEventType.beforeChangeEvent]) {
-            for (const listener of this.#eventListeners[ChangeEventType.beforeChangeEvent]) {
+    #onChange = (change) => {
+        if (this.#eventListeners[Change.ChangeEvent]) {
+            for (const listener of this.#eventListeners[Change.ChangeEvent]) {
                 listener(change);
             }
         }
     }
 
-    #afterChange(change) {
-        if (this.#eventListeners[ChangeEventType.afterChangeEvent]) {
-            for (const listener of this.#eventListeners[ChangeEventType.afterChangeEvent]) {
-                listener(change);
-            }
-        }
+    #getPropertyChange(propertyName, oldValue, newValue) {
+        return new Change({
+            changeObjectType: Caption.name,
+            changeType: ChangeType.Edit,
+            changeData: [
+                {
+                    propertyName: propertyName,
+                    oldValue: oldValue,
+                    newValue: newValue
+                }
+            ]
+        });
     }
 }

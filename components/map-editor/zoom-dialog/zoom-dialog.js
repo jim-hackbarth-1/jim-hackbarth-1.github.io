@@ -1,5 +1,5 @@
 ﻿
-import { ChangeType, MapWorkerClient, MapWorkerInputMessageType } from "../../../domain/references.js";
+import { ChangeType, Map, MapWorkerClient, MapWorkerInputMessageType } from "../../../domain/references.js";
 import { KitMessenger, KitRenderer } from "../../../ui-kit.js";
 import { EditorModel } from "../editor/editor.js";
 
@@ -43,7 +43,7 @@ class ZoomDialogModel {
         return parseFloat(this.#zoomPercent).toFixed(0) + "%"
     }
 
-    zoomOut() {
+    async zoomOut() {
         let zoom = 25;
         switch (true) {
             case (this.#zoomPercent > 400):
@@ -68,10 +68,10 @@ class ZoomDialogModel {
                 zoom = 50;
                 break;
         }
-        this.onZoomChange(`${zoom}`);
+        await this.onZoomChange(`${zoom}`);
     }
 
-    zoomIn() {
+    async zoomIn() {
         let zoom = 400;
         switch (true) {
             case (this.#zoomPercent < 25):
@@ -96,10 +96,10 @@ class ZoomDialogModel {
                 zoom = 200;
                 break;
         }
-        this.onZoomChange(`${zoom}`);
+        await this.onZoomChange(`${zoom}`);
     }
 
-    onZoomChange(value) {
+    async onZoomChange(value) {
         if (value) {
             value = value.replace("%", "");
         }
@@ -114,15 +114,22 @@ class ZoomDialogModel {
             numberValue = 400;
         }
         this.#zoomPercent = numberValue;
+        const map = await MapWorkerClient.getMap();
         MapWorkerClient.postWorkerMessage({
             messageType: MapWorkerInputMessageType.UpdateMap,
             change: {
-                changeType: ChangeType.MapProperty,
-                changeData: {
-                    propertyName: "zoom",
-                    propertyValue: this.#zoomPercent / 100
-                }
+                changeObjectType: Map.name,
+                changeObjectRef: map.ref,
+                changeType: ChangeType.Edit,
+                changeData: [
+                    {
+                        propertyName: "zoom",
+                        oldValue: map.zoom,
+                        newValue: this.#zoomPercent / 100
+                    }
+                ]
             }
+
         });
         this.#displayCurrentZoom();
     }

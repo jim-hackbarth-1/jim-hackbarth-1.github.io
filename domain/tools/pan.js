@@ -5,66 +5,83 @@ export function createToolModel() {
 
 class PanTool {
 
-    mapWorker = null;
-    xStart = null;
-    yStart = null;
-    mapStart = null;
-    isPanning = false;
+    // fields
+    #mapWorker;
+    #xStart;
+    #yStart;
+    #xPanStart;
+    #yPanStart;
+    #isPanning;
 
+    // methods
     async onActivate(mapWorker) {
-        this.mapWorker = mapWorker
+        this.#mapWorker = mapWorker
     }
 
     async handleCanvasEvent(canvasEvent) {
         const eventData = canvasEvent?.eventData;
         switch (canvasEvent?.canvasEventType) {
             case "pointerdown":
-                await this.onPointerDown(eventData);
+                this.#onPointerDown(eventData);
                 break;
             case "pointermove":
-                await this.onPointerMove(eventData);
+                this.#onPointerMove(eventData);
                 break;
             case "pointerup":
-                await this.onPointerUp(eventData);
+                this.#onPointerUp();
                 break;
         }
     }
 
-    async onPointerDown(eventData) {
+    // helpers
+    #onPointerDown(eventData) {
         if (eventData && eventData.button === 0) {
-            this.panStart(eventData);
+            this.#panStart(eventData);
         }
     }
 
-    async onPointerMove(eventData) {
-        if (eventData && this.isPanning) {
-            this.pan(eventData);
+    #onPointerMove(eventData) {
+        if (eventData && this.#isPanning) {
+            this.#pan(eventData);
         }
     }
 
-    async onPointerUp(eventData) {
-        if (eventData && this.isPanning) {
-            await this.panEnd(eventData);     
+    #onPointerUp() {
+        if (this.#isPanning) {
+            this.#panEnd();     
         }
     }
 
-    panStart(eventData) {
-        this.xStart = eventData.offsetX;
-        this.yStart = eventData.offsetY;
-        this.mapStart = this.mapWorker.map.pan;
-        this.mapWorker.map.startChange({ changeType: "MapPan", changeData: { panStart: this.mapStart } });
-        this.isPanning = true;
+    #panStart(eventData) {
+        this.#xStart = eventData.offsetX;
+        this.#yStart = eventData.offsetY;
+        this.#xPanStart = this.#mapWorker.map.pan.x;
+        this.#yPanStart = this.#mapWorker.map.pan.y;
+        this.#mapWorker.map.startChange();
+        this.#isPanning = true;
     }
 
-    pan(eventData) {
-        const dx = (eventData.offsetX - this.xStart) / this.mapWorker.map.zoom;
-        const dy = (eventData.offsetY - this.yStart) / this.mapWorker.map.zoom;
-        this.mapWorker.map.pan = { x: this.mapStart.x + dx, y: this.mapStart.y + dy };
-        this.mapWorker.renderMap();
+    #pan(eventData) {
+        const dx = (eventData.offsetX - this.#xStart) / this.#mapWorker.map.zoom;
+        const dy = (eventData.offsetY - this.#yStart) / this.#mapWorker.map.zoom;
+        this.#mapWorker.map.pan = { x: this.#xPanStart + dx, y: this.#yPanStart + dy };
+        this.#mapWorker.renderMap();
     }
 
-    async panEnd(eventData) {
-        this.mapWorker.map.completeChange({ changeType: "MapPan", changeData: { panStart: this.mapStart, panEnd: this.mapWorker.map.pan } });
-        this.isPanning = false;
+    #panEnd() {
+        const change = this.#mapWorker.createChange({
+            changeObjectType: "Map",
+            changeObjectRef: this.#mapWorker.map.ref,
+            changeType: "Edit",
+            changeData: [
+                {
+                    propertyName: "pan",
+                    oldValue: { x: this.#xPanStart, y: this.#yPanStart },
+                    newValue: this.#mapWorker.map.pan
+                }
+            ]
+        });
+        this.#mapWorker.map.completeChange(change);
+        this.#isPanning = false;
     }
 }

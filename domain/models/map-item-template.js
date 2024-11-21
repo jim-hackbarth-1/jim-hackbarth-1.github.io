@@ -3,7 +3,6 @@ import {
     BaseFill,
     BaseStroke,
     Caption,
-    ChangeEventType,
     ChangeType,
     ColorFill,
     ColorStroke,
@@ -83,9 +82,9 @@ export class MapItemTemplate {
         return this.#thumbnailSrc;
     }
     set thumbnailSrc(thumbnailSrc) {
-        this.#beforeChange({ changeType: ChangeType.MapItemTemplateProperty, changeData: { propertyName: "thumbnailSrc", propertyValue: this.thumbnailSrc } });
+        const change = this.#getPropertyChange("thumbnailSrc", this.#thumbnailSrc, thumbnailSrc);
         this.#thumbnailSrc = thumbnailSrc;
-        this.#afterChange({ changeType: ChangeType.MapItemTemplateProperty, changeData: { propertyName: "thumbnailSrc", propertyValue: this.thumbnailSrc } });
+        this.#onChange(change);
     }
 
     /** @type {BaseFill[]}  */
@@ -94,9 +93,9 @@ export class MapItemTemplate {
         return this.#fills;
     }
     set fills(fills) {
-        this.#beforeChange({ changeType: ChangeType.MapItemTemplateProperty, changeData: { propertyName: "fills", propertyValue: this.fills } });
-        this.#fills = fills ?? [];
-        this.#afterChange({ changeType: ChangeType.MapItemTemplateProperty, changeData: { propertyName: "fills", propertyValue: this.fills } });
+        const change = this.#getPropertyChange("fills", this.#fills, fills);
+        this.#fills = fills;
+        this.#onChange(change);
     }
 
     /** @type {BaseStroke[]}  */
@@ -105,9 +104,9 @@ export class MapItemTemplate {
         return this.#strokes;
     }
     set strokes(strokes) {
-        this.#beforeChange({ changeType: ChangeType.MapItemTemplateProperty, changeData: { propertyName: "strokes", propertyValue: this.strokes } });
-        this.#strokes = strokes ?? [];
-        this.#afterChange({ changeType: ChangeType.MapItemTemplateProperty, changeData: { propertyName: "strokes", propertyValue: this.strokes } });
+        const change = this.#getPropertyChange("strokes", this.#strokes, strokes);
+        this.#strokes = strokes;
+        this.#onChange(change);
     }
 
     /** @type {Shadow}  */
@@ -116,9 +115,9 @@ export class MapItemTemplate {
         return this.#shadow;
     }
     set shadow(shadow) {
-        this.#beforeChange({ changeType: ChangeType.MapItemTemplateProperty, changeData: { propertyName: "shadow", propertyValue: this.shadow } });
+        const change = this.#getPropertyChange("shadow", this.#shadow, shadow);
         this.#shadow = shadow;
-        this.#afterChange({ changeType: ChangeType.MapItemTemplateProperty, changeData: { propertyName: "shadow", propertyValue: this.shadow } });
+        this.#onChange(change);
     }
 
     /** @type {number}  */
@@ -127,9 +126,9 @@ export class MapItemTemplate {
         return this.#z;
     }
     set z(z) {
-        this.#beforeChange({ changeType: ChangeType.MapItemTemplateProperty, changeData: { propertyName: "z", propertyValue: this.z } });
+        const change = this.#getPropertyChange("z", this.#z, z);
         this.#z = z;
-        this.#afterChange({ changeType: ChangeType.MapItemTemplateProperty, changeData: { propertyName: "z", propertyValue: this.z } });
+        this.#onChange(change);
     }
 
     /** @type {Caption}  */
@@ -138,11 +137,11 @@ export class MapItemTemplate {
         return this.#caption;
     }
     set caption(caption) {
-        this.#beforeChange({ changeType: ChangeType.MapItemTemplateProperty, changeData: { propertyName: "caption", propertyValue: this.caption } });
+        const change = this.#getPropertyChange("caption", this.#caption, caption);
         this.#removeChangeEventListeners(this.#caption);
         this.#caption = caption;
         this.#addChangeEventListeners(this.#caption);
-        this.#afterChange({ changeType: ChangeType.MapItemTemplateProperty, changeData: { propertyName: "caption", propertyValue: this.caption } });
+        this.#onChange(change);
     }
 
     // methods
@@ -184,94 +183,141 @@ export class MapItemTemplate {
         if (!fill) {
             throw new Error(ErrorMessage.NullValue);
         }
-        this.#beforeChange({ changeType: ChangeType.MapItemTemplateAddFill, changeData: { fill: fill } });
+        const change = new Change({
+            changeObjectType: MapItemTemplate.name,
+            changeObjectRef: this.ref,
+            changeType: ChangeType.Insert,
+            changeData: { propertyName: "fills", indices: [this.fills.length] }
+        });
         this.#fills.push(fill);
-        this.#afterChange({ changeType: ChangeType.MapItemTemplateAddFill, changeData: { fill: fill } });
+        this.#onChange(change);
     }
 
-    insertFill(index, fill) {
+    insertFill(fill, index) {
         if (!fill) {
             throw new Error(ErrorMessage.NullValue);
         }
-        this.#beforeChange({ changeType: ChangeType.MapItemTemplateInsertFill, changeData: { index: index, fill: fill } });
+        if (index < 0 || index > this.fills.length) {
+            throw new Error(ErrorMessage.InvalidIndex);
+        }
+        const change = new Change({
+            changeObjectType: MapItemTemplate.name,
+            changeObjectRef: this.ref,
+            changeType: ChangeType.Insert,
+            changeData: { propertyName: "fills", indices: [index] }
+        });
         this.#fills.splice(index, 0, fill);
-        this.#afterChange({ changeType: ChangeType.MapItemTemplateInsertFill, changeData: { index: index, fill: fill } });
+        this.#onChange(change);
     }
 
     removeFill(fill) {
         const index = this.#fills.findIndex(f => f === fill);
         if (index > -1) {
-            this.#beforeChange({ changeType: ChangeType.MapItemTemplateRemoveFill, changeData: { index: index, fill: fill } });
+            const change = new Change({
+                changeObjectType: MapItemTemplate.name,
+                changeObjectRef: this.ref,
+                changeType: ChangeType.Delete,
+                changeData: {
+                    propertyName: "fills",
+                    fills: [{ fillData: fill.getData(), index: index }]
+                }
+            });
             this.#fills.splice(index, 1);
-            this.#afterChange({ changeType: ChangeType.MapItemTemplateRemoveFill, changeData: { index: index, fill: fill } });
+            this.#onChange(change);
         }
     }
 
     clearFills() {
-        this.fills([]);
+        this.fills = [];
     }
 
     addStroke(stroke) {
         if (!stroke) {
             throw new Error(ErrorMessage.NullValue);
         }
-        this.#beforeChange({ changeType: ChangeType.MapItemTemplateAddStroke, changeData: { stroke: stroke } });
+        const change = new Change({
+            changeObjectType: MapItemTemplate.name,
+            changeObjectRef: this.ref,
+            changeType: ChangeType.Insert,
+            changeData: { propertyName: "strokes", indices: [this.strokes.length] }
+        });
         this.#strokes.push(stroke);
-        this.#afterChange({ changeType: ChangeType.MapItemTemplateAddStroke, changeData: { stroke: stroke } });
+        this.#onChange(change);
     }
 
-    insertStroke(index, stroke) {
+    insertStroke(stroke, index) {
         if (!stroke) {
             throw new Error(ErrorMessage.NullValue);
         }
-        this.#beforeChange({ changeType: ChangeType.MapItemTemplateInsertStroke, changeData: { index: index, stroke: stroke } });
+        if (index < 0 || index > this.strokes.length) {
+            throw new Error(ErrorMessage.InvalidIndex);
+        }
+        const change = new Change({
+            changeObjectType: MapItemTemplate.name,
+            changeObjectRef: this.ref,
+            changeType: ChangeType.Insert,
+            changeData: { propertyName: "strokes", indices: [index] }
+        });
         this.#strokes.splice(index, 0, stroke);
-        this.#afterChange({ changeType: ChangeType.MapItemTemplateInsertStroke, changeData: { index: index, stroke: stroke } });
+        this.#onChange(change);
     }
 
     removeStroke(stroke) {
         const index = this.#strokes.findIndex(s => s === stroke);
         if (index > -1) {
-            this.#beforeChange({ changeType: ChangeType.MapItemTemplateRemoveStroke, changeData: { index: index, stroke: stroke } });
+            const change = new Change({
+                changeObjectType: MapItemTemplate.name,
+                changeObjectRef: this.ref,
+                changeType: ChangeType.Delete,
+                changeData: {
+                    propertyName: "strokes",
+                    strokes: [{ strokeData: stroke.getData(), index: index }]
+                }
+            });
             this.#strokes.splice(index, 1);
-            this.#afterChange({ changeType: ChangeType.MapItemTemplateRemoveStroke, changeData: { index: index, stroke: stroke } });
+            this.#onChange(change);
         }
     }
 
     clearStrokes() {
-        this.strokes([]);
+        this.strokes = [];
     }
 
     // helpers
     #eventListeners;
 
-    #beforeChange = (change) => {
-        if (this.#eventListeners[ChangeEventType.beforeChangeEvent]) {
-            for (const listener of this.#eventListeners[ChangeEventType.beforeChangeEvent]) {
+    #onChange = (change) => {
+        if (this.#eventListeners[Change.ChangeEvent]) {
+            for (const listener of this.#eventListeners[Change.ChangeEvent]) {
                 listener(change);
             }
         }
     }
 
-    #afterChange = (change) => {
-        if (this.#eventListeners[ChangeEventType.afterChangeEvent]) {
-            for (const listener of this.#eventListeners[ChangeEventType.afterChangeEvent]) {
-                listener(change);
-            }
-        }
+    #getPropertyChange(propertyName, oldValue, newValue) {
+        return new Change({
+            changeObjectType: MapItemTemplate.name,
+            changeObjectRef: this.ref,
+            changeType: ChangeType.Edit,
+            changeData: [
+                {
+                    propertyName: propertyName,
+                    oldValue: oldValue,
+                    newValue: newValue
+                }
+            ]
+        });
     }
 
     #addChangeEventListeners(source) {
         if (source) {
-            source.addEventListener(ChangeEventType.beforeChangeEvent, this.#beforeChange);
-            source.addEventListener(ChangeEventType.afterChangeEvent, this.#afterChange);
+            source.addEventListener(Change.ChangeEvent, this.#onChange);
         }
     }
 
     #removeChangeEventListeners(source) {
         if (source) {
-            source.removeEventListener(ChangeEventType.beforeChangeEvent, this.#beforeChange);
-            source.removeEventListener(ChangeEventType.afterChangeEvent, this.#afterChange);
+            source.removeEventListener(Change.ChangeEvent, this.#onChange);
         }
     }
 }

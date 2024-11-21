@@ -1,5 +1,5 @@
 ﻿
-import { ChangeEventType, ChangeType, EntityReference } from "../references.js";
+import { Change, ChangeType, EntityReference } from "../references.js";
 
 export class ToolPalette {
 
@@ -23,9 +23,9 @@ export class ToolPalette {
         return this.#editingToolPalettes;
     }
     set editingToolPalettes(editingToolPalettes) {
-        this.#beforeChange({ changeType: ChangeType.ToolPaletteProperty, changeData: { propertyName: "editingToolPalettes", propertyValue: this.editingToolPalettes } });
+        const change = this.#getPropertyChange("editingToolPalettes", this.#editingToolPalettes, editingToolPalettes);
         this.#editingToolPalettes = editingToolPalettes ?? [];
-        this.#afterChange({ changeType: ChangeType.ToolPaletteProperty, changeData: { propertyName: "editingToolPalettes", propertyValue: this.editingToolPalettes } });
+        this.#onChange(change);
     }
 
     /** @type {EntityReference[][]}  */
@@ -34,9 +34,9 @@ export class ToolPalette {
         return this.#drawingToolPalettes;
     }
     set drawingToolPalettes(drawingToolPalettes) {
-        this.#beforeChange({ changeType: ChangeType.ToolPaletteProperty, changeData: { propertyName: "drawingToolPalettes", propertyValue: this.drawingToolPalettes } });
+        const change = this.#getPropertyChange("drawingToolPalettes", this.#drawingToolPalettes, drawingToolPalettes);
         this.#drawingToolPalettes = drawingToolPalettes ?? [];
-        this.#afterChange({ changeType: ChangeType.ToolPaletteProperty, changeData: { propertyName: "drawingToolPalettes", propertyValue: this.drawingToolPalettes } });
+        this.#onChange(change);
     }
 
     /** @type {EntityReference[][]}  */
@@ -45,9 +45,9 @@ export class ToolPalette {
         return this.#mapItemTemplatePalettes;
     }
     set mapItemTemplatePalettes(mapItemTemplatePalettes) {
-        this.#beforeChange({ changeType: ChangeType.ToolPaletteProperty, changeData: { propertyName: "mapItemTemplatePalettes", propertyValue: this.mapItemTemplatePalettes } });
+        const change = this.#getPropertyChange("mapItemTemplatePalettes", this.#mapItemTemplatePalettes, mapItemTemplatePalettes);
         this.#mapItemTemplatePalettes = mapItemTemplatePalettes ?? [];
-        this.#afterChange({ changeType: ChangeType.ToolPaletteProperty, changeData: { propertyName: "mapItemTemplatePalettes", propertyValue: this.mapItemTemplatePalettes } });
+        this.#onChange(change);
     }
 
     // methods
@@ -77,112 +77,172 @@ export class ToolPalette {
         if (!editingToolPalette) {
             throw new Error(ErrorMessage.NullValue);
         }
-        this.#beforeChange({ changeType: ChangeType.ToolPaletteAddEditingToolPalette, changeData: { editingToolPalette: editingToolPalette } });
-        this.#editingToolPalettes.push(editingToolPalettes);
-        this.#afterChange({ changeType: ChangeType.ToolPaletteAddEditingToolPalette, changeData: { editingToolPalette: editingToolPalette } });
+        const change = new Change({
+            changeObjectType: ToolPalette.name,
+            changeType: ChangeType.Insert,
+            changeData: { propertyName: "editingToolPalettes", indices: [this.editingToolPalettes.length] }
+        });
+        this.#editingToolPalettes.push(editingToolPalette);
+        this.#onChange(change);
     }
 
-    insertEditingToolPalette(index, editingToolPalette) {
+    insertEditingToolPalette(editingToolPalette, index) {
         if (!editingToolPalette) {
             throw new Error(ErrorMessage.NullValue);
         }
-        this.#beforeChange({ changeType: ChangeType.ToolPaletteInsertEditingToolPalette, changeData: { index: index, editingToolPalette: editingToolPalette } });
+        if (index < 0 || index > this.editingToolPalettes.length) {
+            throw new Error(ErrorMessage.InvalidIndex);
+        }
+        const change = new Change({
+            changeObjectType: ToolPalette.name,
+            changeType: ChangeType.Insert,
+            changeData: { propertyName: "editingToolPalettes", indices: [index] }
+        });
         this.#editingToolPalettes.splice(index, 0, editingToolPalette);
-        this.#afterChange({ changeType: ChangeType.ToolPaletteInsertEditingToolPalette, changeData: { index: index, editingToolPalette: editingToolPalette } });
+        this.#onChange(change);
     }
 
     removeEditingToolPalette(editingToolPalette) {
         const index = this.#editingToolPalettes.findIndex(p => p === editingToolPalette);
         if (index > -1) {
-            this.#beforeChange({ changeType: ChangeType.ToolPaletteRemoveEditingToolPalette, changeData: { index: index, editingToolPalette: editingToolPalette } });
+            const change = new Change({
+                changeObjectType: ToolPalette.name,
+                changeType: ChangeType.Delete,
+                changeData: {
+                    propertyName: "editingToolPalettes",
+                    editingToolPalettes: [{ editingToolPaletteData: editingToolPalette.getData(), index: index }]
+                }
+            });
             this.#editingToolPalettes.splice(index, 1);
-            this.#afterChange({ changeType: ChangeType.ToolPaletteRemoveEditingToolPalette, changeData: { index: index, editingToolPalette: editingToolPalette } });
+            this.#onChange(change);
         }
     }
 
     clearEditingToolPalettes() {
-        this.editingToolPalettes([]);
+        this.editingToolPalettes = [];
     }
 
     addDrawingToolPalette(drawingToolPalette) {
         if (!drawingToolPalette) {
             throw new Error(ErrorMessage.NullValue);
         }
-        this.#beforeChange({ changeType: ChangeType.ToolPaletteAddDrawingToolPalette, changeData: { drawingToolPalette: drawingToolPalette } });
+        const change = new Change({
+            changeObjectType: ToolPalette.name,
+            changeType: ChangeType.Insert,
+            changeData: { propertyName: "drawingToolPalettes", indices: [this.drawingToolPalettes.length] }
+        });
         this.#drawingToolPalettes.push(drawingToolPalette);
-        this.#afterChange({ changeType: ChangeType.ToolPaletteAddDrawingToolPalette, changeData: { drawingToolPalette: drawingToolPalette } });
+        this.#onChange(change);
     }
 
-    insertDrawingToolPalette(index, drawingToolPalette) {
+    insertDrawingToolPalette(drawingToolPalette, index) {
         if (!drawingToolPalette) {
             throw new Error(ErrorMessage.NullValue);
         }
-        this.#beforeChange({ changeType: ChangeType.ToolPaletteInsertDrawingToolPalette, changeData: { index: index, drawingToolPalette: drawingToolPalette } });
+        if (index < 0 || index > this.drawingToolPalettes.length) {
+            throw new Error(ErrorMessage.InvalidIndex);
+        }
+        const change = new Change({
+            changeObjectType: ToolPalette.name,
+            changeType: ChangeType.Insert,
+            changeData: { propertyName: "drawingToolPalettes", indices: [index] }
+        });
         this.#drawingToolPalettes.splice(index, 0, drawingToolPalette);
-        this.#afterChange({ changeType: ChangeType.ToolPaletteInsertDrawingToolPalette, changeData: { index: index, drawingToolPalette: drawingToolPalette } });
+        this.#onChange(change);
     }
 
     removeDrawingToolPalette(drawingToolPalette) {
         const index = this.#drawingToolPalettes.findIndex(p => p === drawingToolPalette);
         if (index > -1) {
-            this.#beforeChange({ changeType: ChangeType.ToolPaletteRemoveDrawingToolPalette, changeData: { index: index, drawingToolPalette: drawingToolPalette } });
+            const change = new Change({
+                changeObjectType: ToolPalette.name,
+                changeType: ChangeType.Delete,
+                changeData: {
+                    propertyName: "drawingToolPalettes",
+                    drawingToolPalettes: [{ drawingToolPaletteData: drawingToolPalette.getData(), index: index }]
+                }
+            });
             this.#drawingToolPalettes.splice(index, 1);
-            this.#afterChange({ changeType: ChangeType.ToolPaletteRemoveDrawingToolPalette, changeData: { index: index, drawingToolPalette: drawingToolPalette } });
+            this.#onChange(change);
         }
     }
 
     clearDrawingToolPalettes() {
-        this.drawingToolPalettes([]);
+        this.drawingToolPalettes = [];
     }
 
     addMapItemTemplatePalette(mapItemTemplatePalette) {
         if (!mapItemTemplatePalette) {
             throw new Error(ErrorMessage.NullValue);
         }
-        this.#beforeChange({ changeType: ChangeType.ToolPaletteAddMapItemTemplatePalette, changeData: { mapItemTemplatePalette: mapItemTemplatePalette } });
+        const change = new Change({
+            changeObjectType: ToolPalette.name,
+            changeType: ChangeType.Insert,
+            changeData: { propertyName: "mapItemTemplatePalettes", indices: [this.mapItemTemplatePalettes.length] }
+        });
         this.#mapItemTemplatePalettes.push(mapItemTemplatePalette);
-        this.#afterChange({ changeType: ChangeType.ToolPaletteAddMapItemTemplatePalette, changeData: { mapItemTemplatePalette: mapItemTemplatePalette } });
+        this.#onChange(change);
     }
 
-    insertMapItemTemplatePalette(index, mapItemTemplatePalette) {
+    insertMapItemTemplatePalette(mapItemTemplatePalette, index) {
         if (!mapItemTemplatePalette) {
             throw new Error(ErrorMessage.NullValue);
         }
-        this.#beforeChange({ changeType: ChangeType.ToolPaletteInsertMapItemTemplatePalette, changeData: { index: index, mapItemTemplatePalette: mapItemTemplatePalette } });
+        if (index < 0 || index > this.mapItemTemplatePalettes.length) {
+            throw new Error(ErrorMessage.InvalidIndex);
+        }
+        const change = new Change({
+            changeObjectType: ToolPalette.name,
+            changeType: ChangeType.Insert,
+            changeData: { propertyName: "mapItemTemplatePalettes", indices: [index] }
+        });
         this.#mapItemTemplatePalettes.splice(index, 0, mapItemTemplatePalette);
-        this.#afterChange({ changeType: ChangeType.ToolPaletteInsertMapItemTemplatePalette, changeData: { index: index, mapItemTemplatePalette: mapItemTemplatePalette } });
+        this.#onChange(change);
     }
 
     removeMapItemTemplatePalette(mapItemTemplatePalette) {
         const index = this.#mapItemTemplatePalettes.findIndex(p => p === mapItemTemplatePalette);
         if (index > -1) {
-            this.#beforeChange({ changeType: ChangeType.ToolPaletteRemoveMapItemTemplatePalette, changeData: { index: index, mapItemTemplatePalette: mapItemTemplatePalette } });
+            const change = new Change({
+                changeObjectType: ToolPalette.name,
+                changeType: ChangeType.Delete,
+                changeData: {
+                    propertyName: "mapItemTemplatePalettes",
+                    mapItemTemplatePalettes: [{ mapItemTemplatePaletteData: mapItemTemplatePalette.getData(), index: index }]
+                }
+            });
             this.#mapItemTemplatePalettes.splice(index, 1);
-            this.#afterChange({ changeType: ChangeType.ToolPaletteRemoveMapItemTemplatePalette, changeData: { index: index, mapItemTemplatePalette: mapItemTemplatePalette } });
+            this.#onChange(change);
         }
     }
 
     clearMapItemTemplatePalettes() {
-        this.mapItemTemplatePalettes([]);
+        this.mapItemTemplatePalettes = [];
     }
 
     // helpers
     #eventListeners;
 
-    #beforeChange = (change) => {
-        if (this.#eventListeners[ChangeEventType.beforeChangeEvent]) {
-            for (const listener of this.#eventListeners[ChangeEventType.beforeChangeEvent]) {
+    #onChange = (change) => {
+        if (this.#eventListeners[Change.ChangeEvent]) {
+            for (const listener of this.#eventListeners[Change.ChangeEvent]) {
                 listener(change);
             }
         }
     }
 
-    #afterChange = (change) => {
-        if (this.#eventListeners[ChangeEventType.afterChangeEvent]) {
-            for (const listener of this.#eventListeners[ChangeEventType.afterChangeEvent]) {
-                listener(change);
-            }
-        }
+    #getPropertyChange(propertyName, oldValue, newValue) {
+        return new Change({
+            changeObjectType: ToolPalette.name,
+            changeType: ChangeType.Edit,
+            changeData: [
+                {
+                    propertyName: propertyName,
+                    oldValue: oldValue,
+                    newValue: newValue
+                }
+            ]
+        });
     }
 
     #getPalettes(palettesData) {

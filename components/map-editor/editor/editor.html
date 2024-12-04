@@ -141,6 +141,10 @@
                 border-bottom: 1px solid var(--theme-color-secondary-darkest-fixed);
             }
 
+            .tool-palette {
+                display: flex;
+            }
+
             .tool-button {
                 padding: 4px 4px 2px 4px;
             }
@@ -475,7 +479,7 @@
                     <section>
                         <kit-array data-kit-array="#model.getToolPalettes('EditingTools')" data-kit-array-ref="palettes" data-kit-item-index-ref="paletteIndex">
                             <div>
-                                <kit-array data-kit-array="#model.getToolPaletteItems('EditingTools', #paletteIndex)" data-kit-item-ref="tool">
+                                <kit-array class="tool-palette" data-kit-array="#model.getToolPaletteItems('EditingTools', #paletteIndex)" data-kit-item-ref="tool">
                                     <button id="%{#tool.id}%"
                                             onclick="#model.onToolSelected(#tool.id, #tool.data.ref)"
                                             class="tool-button action-control editing-tool-button"
@@ -500,7 +504,7 @@
                     <section>
                         <kit-array data-kit-array="#model.getToolPalettes('DrawingTools')" data-kit-item-index-ref="paletteIndex">
                             <div>
-                                <kit-array data-kit-array="#model.getToolPaletteItems('DrawingTools', #paletteIndex)" data-kit-item-ref="tool">
+                                <kit-array class="tool-palette" data-kit-array="#model.getToolPaletteItems('DrawingTools', #paletteIndex)" data-kit-item-ref="tool">
                                     <button id="%{#tool.id}%"
                                             onclick="#model.onToolSelected(#tool.id, #tool.data.ref)"
                                             class="tool-button action-control drawing-tool-button"
@@ -525,7 +529,7 @@
                     <section>
                         <kit-array data-kit-array="#model.getToolPalettes('MapItemTemplates')" data-kit-item-index-ref="paletteIndex">
                             <div>
-                                <kit-array data-kit-array="#model.getToolPaletteItems('MapItemTemplates', #paletteIndex)" data-kit-item-ref="mapItemTemplate">
+                                <kit-array class="tool-palette" data-kit-array="#model.getToolPaletteItems('MapItemTemplates', #paletteIndex)" data-kit-item-ref="mapItemTemplate">
                                     <button id="%{#mapItemTemplate.id}%"
                                             onclick="#model.onMapItemTemplateSelected(#mapItemTemplate.id, #mapItemTemplate.data.ref)"
                                             class="tool-button action-control map-item-template-button"

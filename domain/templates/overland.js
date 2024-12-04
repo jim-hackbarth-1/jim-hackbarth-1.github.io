@@ -28,7 +28,12 @@ export function getOverlandTemplate() {
                     { versionId: 1, isBuiltIn: true, name: "Pan" }
                 ]
             ],
-            drawingToolPalettes: [[{ versionId: 1, isBuiltIn: true, name: "Draw path" }]],
+            drawingToolPalettes: [
+                [
+                    { versionId: 1, isBuiltIn: true, name: "Draw path" },
+                    { versionId: 1, isBuiltIn: true, name: "Draw ellipse" }
+                ]
+            ],
             mapItemTemplatePalettes: [[blueRegion.ref]]
         }
     };

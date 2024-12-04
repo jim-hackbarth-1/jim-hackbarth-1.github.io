@@ -22,7 +22,7 @@ export class BuiltInTools {
                 },
                 moduleSrc: `${baseUrl}/domain/tools/pan.js`,
                 thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><g class="icon"><path d="M 50,10 L 35,20 45,20 45,45 20,45 20,35 10,50 20,65 20,55 45,55 45,80 35,80 50,90 65,80 55,80 55,55 80,55 80,65 90,50 80,35 80,45 55,45 55,20 65,20z"></path></g></svg>',
-                cursorSrc: `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g fill="white" stroke="black" stroke-width="2"><path d="M 50,10 L 35,20 45,20 45,45 20,45 20,35 10,50 20,65 20,55 45,55 45,80 35,80 50,90 65,80 55,80 55,55 80,55 80,65 90,50 80,35 80,45 55,45 55,20 65,20z"></path></g></svg>')}`,
+                cursorSrc: `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g fill="white" stroke="black" stroke-width="4"><path d="M 50,10 L 35,20 45,20 45,45 20,45 20,35 10,50 20,65 20,55 45,55 45,80 35,80 50,90 65,80 55,80 55,55 80,55 80,65 90,50 80,35 80,45 55,45 55,20 65,20z"></path></g></svg>')}`,
                 cursorHotspot: { x: 15, y: 15 },
                 toolType: ToolType.EditingTool
             }));
@@ -34,9 +34,9 @@ export class BuiltInTools {
                     name: "Select path"
                 },
                 moduleSrc: `${baseUrl}/domain/tools/select-path.js`,
-                thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><g class="icon"><circle cx="25" cy="25" r="10"></circle><line x1="25" y1="10" x2="25" y2="20" /><line x1="25" y1="30" x2="25" y2="40" /><line x1="10" y1="25" x2="20" y2="25" /><line x1="30" y1="25" x2="40" y2="25" /><path stroke-dasharray="4" d="M 25,25 l 10,10 15,15 -10,15, 10,15 20,10"></path></g></svg>',
-                cursorSrc: `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g stroke="black" stroke-width="2" fill="white" stroke-linecap="round"><path d="M 0,0 m 50,10 a 40 40 0 0 0 0 80 l 0,-10 a 30 30 0 0 1 0 -60 z"></path><path d="M 0,0 m 50,10 a 40 40 0 0 1 1 80 l 0,-10 a 30 30 0 0 0 0 -60 z"></path><path d="M 45,5 l 10,0 0,20 -5,15 -5,-15 z" /><path d="M 95,45 l 0,10 -20,0 -15,-5 15,-5 z" /><path d="M 55,95 l -10,0 0,-20 5,-15 5,15 z" /><path d="M 5,55 l 0,-10 20,0 15,5 -15,5 z" /></g></svg>')}`,
-                cursorHotspot: { x: 15, y: 15 },
+                thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" height="25" width="25"><g class="icon"><path stroke-dasharray="4" d="M 50,5 Q 15 5, 10 15 T 20 40 T 20 60 T 20 80 T 50 85 T 80 80 T 90 45 T 55 20 z" /><path d="M 15,15 L 65,65 A 2.5 2.5 -45 0 0 70 60 L 35,25 z" /></g></svg>',
+                cursorSrc: `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g stroke="black" stroke-width="4" fill="white"><path d="M 5,5 L 80,80 A 5 5 -45 0 0 90 70 L 35,15 z" /></g></svg>')}`,
+                cursorHotspot: { x: 0, y: 0 },
                 toolType: ToolType.EditingTool
             }));
 
@@ -47,9 +47,22 @@ export class BuiltInTools {
                     name: "Draw path"
                 },
                 moduleSrc: `${baseUrl}/domain/tools/draw-path.js`,
-                thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><g class="icon"><circle cx="25" cy="25" r="10"></circle><line x1="25" y1="10" x2="25" y2="20" /><line x1="25" y1="30" x2="25" y2="40" /><line x1="10" y1="25" x2="20" y2="25" /><line x1="30" y1="25" x2="40" y2="25" /><path stroke-dasharray="4" d="M 25,25 l 10,10 15,15 -10,15, 10,15 20,10"></path></g></svg>',
-                cursorSrc: `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g stroke="white" stroke-width="2" fill="black" stroke-linecap="round"><path d="M 0,0 m 50,10 a 40 40 0 0 0 0 80 l 0,-10 a 30 30 0 0 1 0 -60 z"></path><path d="M 0,0 m 50,10 a 40 40 0 0 1 1 80 l 0,-10 a 30 30 0 0 0 0 -60 z"></path><path d="M 45,5 l 10,0 0,20 -5,15 -5,-15 z" /><path d="M 95,45 l 0,10 -20,0 -15,-5 15,-5 z" /><path d="M 55,95 l -10,0 0,-20 5,-15 5,15 z" /><path d="M 5,55 l 0,-10 20,0 15,5 -15,5 z" /></g></svg>')}`,
-                cursorHotspot: { x: 15, y: 15 },
+                thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><g class="icon"><path d="M 50,5 Q 15 5, 10 15 T 20 40 T 20 60 T 20 80 T 50 85 T 80 80 T 90 45 T 55 20 z" /><path class="icon-text" d="M 15,15 L 65,65 A 2.5 2.5 -45 0 0 70 60 L 35,25 z" /></g></svg>',
+                cursorSrc: `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g stroke="white" stroke-width="4" fill="black"><path d="M 5,5 L 80,80 A 5 5 -45 0 0 90 70 L 35,15 z" /></g></svg>')}`,
+                cursorHotspot: { x: 0, y: 0 },
+                toolType: ToolType.DrawingTool
+            }));
+
+            BuiltInTools.#tools.push(new Tool({
+                ref: {
+                    versionId: 1,
+                    isBuiltIn: true,
+                    name: "Draw ellipse"
+                },
+                moduleSrc: `${baseUrl}/domain/tools/draw-ellipse.js`,
+                thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><g class="icon"><path d="M 30 15 a 25 25 0 0 0 0 50 a 25 25 0 0 0 0 -50 z" /><path class="icon-text" d="M 15,20 L 65,70 A 2.5 2.5 -45 0 0 70 65 L 35,30 z" /></g></svg>',
+                cursorSrc: `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g stroke="white" stroke-width="4" fill="black"><path d="M 80 20 a 10 10 0 0 0 0 20 a 10 10 0 0 0 0 -20 z" /><path d="M 5,5 L 80,80 A 5 5 -45 0 0 90 70 L 35,15 z" /></g></svg>')}`,
+                cursorHotspot: { x: 0, y: 0 },
                 toolType: ToolType.DrawingTool
             }));
         }

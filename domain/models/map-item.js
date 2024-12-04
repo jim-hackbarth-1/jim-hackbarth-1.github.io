@@ -1,5 +1,5 @@
 ﻿
-import { Change, ChangeType, EntityReference, PathArc, PathLines } from "../references.js";
+import { Change, ChangeType, EntityReference, PathArcs, PathLines } from "../references.js";
 
 export class MapItem {
 
@@ -12,8 +12,8 @@ export class MapItem {
                 if (path.pathType === PathLines.name) {
                     this.#paths.push(new PathLines(path));
                 }
-                if (path.pathType === PathArc.name) {
-                    this.#paths.push(new PathArc(path));
+                if (path.pathType === PathArcs.name) {
+                    this.#paths.push(new PathArcs(path));
                 }
             }
         }

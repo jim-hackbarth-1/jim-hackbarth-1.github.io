@@ -109,9 +109,8 @@ class DrawEllipseTool {
             const data = {
                 mapItemTemplateRef: this.#mapWorker.activeMapItemTemplate.ref.getData(),
                 paths: [{
-                    pathType: "PathArcs",
                     start: start,
-                    arcs: [
+                    transits: [
                         {
                             end: { x: end.x, y: end.y },
                             center: { x: center.x, y: center.y },

@@ -106,9 +106,8 @@ class DrawPathTool {
             const data = {
                 mapItemTemplateRef: this.#mapWorker.activeMapItemTemplate.ref.getData(),
                 paths: [{
-                    pathType: "PathLines",
                     start: start,
-                    points: points
+                    transits: points
                 }]
             };
             const mapItem = this.#mapWorker.createMapItem(data);

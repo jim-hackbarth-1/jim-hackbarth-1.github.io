@@ -1,5 +1,5 @@
 ﻿
-import { Arc, Change, ChangeType, DbManager, EntityReference, GeometryUtilities, Map, MapItem } from "../references.js";
+import { Arc, Change, ChangeType, DbManager, EntityReference, GeometryUtilities, Map, MapItem, Path } from "../references.js";
 
 /**
  * @readonly
@@ -134,16 +134,16 @@ export class MapWorker {
         return new MapItem(data);
     }
 
-    createArc(data) {
-        return new Arc(data);
+    getTransitsBounds(start, transits) {
+        return Path.getTransitsBounds(start, transits);
     }
 
-    getArcBounds(start, arc) {
-        return Arc.getBounds(start, arc);
+    rotateArc(arc, angleRadians) {
+        return Arc.rotateArc(arc, angleRadians);
     }
 
     resizeArc(arc, scaleX, scaleY, resizeDirection) {
-        return new Arc(Arc.resizeArc(arc, scaleX, scaleY, resizeDirection));
+        return Arc.resizeArc(arc, scaleX, scaleY, resizeDirection);
     }
 
     createChange(data) {

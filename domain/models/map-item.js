@@ -1,5 +1,5 @@
 ﻿
-import { Change, ChangeType, EntityReference, PathArcs, PathLines } from "../references.js";
+import { Change, ChangeType, EntityReference, Path } from "../references.js";
 
 export class MapItem {
 
@@ -9,12 +9,7 @@ export class MapItem {
         this.#paths = [];
         if (data?.paths) {
             for (const path of data.paths) {
-                if (path.pathType === PathLines.name) {
-                    this.#paths.push(new PathLines(path));
-                }
-                if (path.pathType === PathArcs.name) {
-                    this.#paths.push(new PathArcs(path));
-                }
+                this.#paths.push(new Path(path));
             }
         }
         this.#mapItemTemplateRef = data?.mapItemTemplateRef;
@@ -33,7 +28,7 @@ export class MapItem {
         return this.#id;
     }
 
-    /** @type {MapItemPaths}  */
+    /** @type {Path[]}  */
     #paths;
     get paths() {
         return this.#paths ?? [];

@@ -270,32 +270,17 @@ class SelectPathTool {
     }
 
     #getSelectionStartPathData(mapItem, path) {
-        if (path.constructor.name === "PathArcs") {
-            return {
-                mapItemId: mapItem.id,
-                path: path,
-                startingMapItemData: {
-                    bounds: mapItem.getBounds()
-                },
-                startingPathData: {
-                    start: path.start,
-                    arcs: path.arcs
-                }
-            };
-        }
-        else {
-            return {
-                mapItemId: mapItem.id,
-                path: path,
-                startingMapItemData: {
-                    bounds: mapItem.getBounds()
-                },
-                startingPathData: {
-                    start: path.start,
-                    points: path.points
-                }
-            };
-        }
+        return {
+            mapItemId: mapItem.id,
+            path: path,
+            startingMapItemData: {
+                bounds: mapItem.getBounds()
+            },
+            startingPathData: {
+                start: path.start,
+                transits: path.transits
+            }
+        };
     }
 
     #getChangeReferenceBounds(x, y) {
@@ -581,16 +566,19 @@ class SelectPathTool {
     }
 
     #scaleSelection(selection, scaleX, scaleY, resizeDirection) {
-        if (selection.path.constructor.name === "PathArcs") {
-            const arcs = [];
-            for (const arc of selection.startingPathData.arcs) {
-                arcs.push(this.#mapWorker.resizeArc(arc, scaleX, scaleY, resizeDirection));
+        const transits = [];
+        let scaledTransit = null;
+        for (const transit of selection.startingPathData.transits) {
+            if (transit.radii) {
+                scaledTransit = this.#mapWorker.resizeArc(transit, scaleX, scaleY, resizeDirection);
+                
             }
-            selection.path.arcs = arcs;
+            else {
+                scaledTransit = { x: transit.x * scaleX, y: transit.y * scaleY };
+            }
+            transits.push(scaledTransit);
         }
-        else {
-            selection.path.points = selection.startingPathData.points.map(pt => ({ x: pt.x * scaleX, y: pt.y * scaleY }));
-        }
+        selection.path.transits = transits;
     }
 
     // rotate helpers
@@ -637,11 +625,8 @@ class SelectPathTool {
         theta = theta % (Math.PI * 2);
         const thetaDegrees = theta * (180 / Math.PI);
         for (const selection of this.#selectionStartData) {
-            const bounds = this.#getSelectionBounds(selection);
-            const centerOfRotation = {
-                x: selection.startingPathData.start.x + bounds.x + (bounds.width / 2),
-                y: selection.startingPathData.start.y + bounds.y + (bounds.height / 2)
-            };
+            const bounds = this.#mapWorker.getTransitsBounds(selection.startingPathData.start, selection.startingPathData.transits);
+            const centerOfRotation = { x: bounds.x + (bounds.width / 2), y: bounds.y + (bounds.height / 2) };
             const xStart = selection.startingPathData.start.x - centerOfRotation.x;
             const yStart = selection.startingPathData.start.y - centerOfRotation.y;
             const xStartRotated = centerOfRotation.x + xStart * Math.cos(theta) + yStart * Math.sin(theta);
@@ -653,42 +638,21 @@ class SelectPathTool {
             }
             pathRotationAngle = pathRotationAngle % 360;
             selection.path.rotationAngle = pathRotationAngle;
-            if (selection.path.constructor.name === "PathArcs") {
-                const arcs = [];
-                for (const arc of selection.startingPathData.arcs) {             
-                    let arcCenter = arc.center;
-                    arcCenter = {
-                        x: arcCenter.x * Math.cos(theta) + arcCenter.y * Math.sin(theta),
-                        y: arcCenter.y * Math.cos(theta) - arcCenter.x * Math.sin(theta)
-                    };
-                    let arcEnd = arc.end;
-                    arcEnd = {
-                        x: arcEnd.x * Math.cos(theta) + arcEnd.y * Math.sin(theta),
-                        y: arcEnd.y * Math.cos(theta) - arcEnd.x * Math.sin(theta)
-                    };  
-                    let rotationAngle = arc.rotationAngle - thetaDegrees;
-                    if (rotationAngle < 0) {
-                        rotationAngle += 360;
-                    }
-                    rotationAngle = rotationAngle % 360;
-                    const rotatedArc = this.#mapWorker.createArc({
-                        end: arcEnd,
-                        center: arcCenter,
-                        radii: arc.radii,
-                        rotationAngle: rotationAngle,
-                        largeArcFlag: arc.largeArcFlag,
-                        sweepFlag: arc.sweepFlag
-                    });
-                    arcs.push(rotatedArc);
+            const transits = [];
+            let rotatedTransit = null;
+            for (const transit of selection.startingPathData.transits) {
+                if (transit.radii) {
+                    rotatedTransit = this.#mapWorker.rotateArc(transit, theta);
                 }
-                selection.path.arcs = arcs;
+                else {
+                    rotatedTransit = {
+                        x: transit.x * Math.cos(theta) + transit.y * Math.sin(theta),
+                        y: transit.y * Math.cos(theta) - transit.x * Math.sin(theta)
+                    };
+                }
+                transits.push(rotatedTransit);
             }
-            else {
-                selection.path.points = selection.startingPathData.points.map(pt => ({
-                    x: pt.x * Math.cos(theta) + pt.y * Math.sin(theta),
-                    y: pt.y * Math.cos(theta) - pt.x * Math.sin(theta)
-                }));
-            }
+            selection.path.transits = transits;
         }
         this.#mapWorker.renderMap();
         this.#drawRotationIndicator(currentPoint, referenceCenterOfRotation);
@@ -717,11 +681,14 @@ class SelectPathTool {
         this.#mapWorker.renderingContext.setLineDash([4 * lineScale, 4 * lineScale]);
         if (this.#selectionStartData) {
             for (const selection of this.#selectionStartData) {
-                if (selection.path.constructor.name === "PathArcs") {
-                    let arcStart = selection.path.start;
-                    for (const arc of selection.path.arcs) {
-                        this.#drawRadii(arcStart, arc);
-                        arcStart = { x: arcStart.x + arc.end.x, y: arcStart.y + arc.end.y };
+                let transitStart = selection.path.start;
+                for (const transit of selection.path.transits) {
+                    if (transit.radii) {
+                        this.#drawRadii(transitStart, transit);
+                        transitStart = { x: transitStart.x + transit.end.x, y: transitStart.y + transit.end.y };
+                    }
+                    else {
+                        transitStart = { x: transitStart.x + transit.x, y: transitStart.y + transit.y };
                     }
                 }
             }
@@ -746,60 +713,6 @@ class SelectPathTool {
         const radius2Path = new Path2D(`M ${pt3.x},${pt3.y} L ${pt4.x},${pt4.y}`);
         this.#mapWorker.renderingContext.stroke(radius1Path);
         this.#mapWorker.renderingContext.stroke(radius2Path);
-    }
-
-    #getSelectionBounds(selection) {
-        if (selection.path.constructor.name === "PathArcs") {
-            return this.#getArcsBounds(selection.startingPathData.arcs);
-        }
-        else {
-            return this.#getPointsBounds(selection.startingPathData.points);
-        }
-    }
-
-    #getPointsBounds(points) {
-        let x = 0;
-        let y = 0;
-        let xMin = NaN, xMax = NaN, yMin = NaN, yMax = NaN;
-        for (const point of points) {
-            x += point.x;
-            y += point.y;
-            if (isNaN(xMin) ||  x < xMin) {
-                xMin = x;
-            }
-            if (isNaN(xMax) || x > xMax) {
-                xMax = x;
-            }
-            if (isNaN(yMin) || y < yMin) {
-                yMin = y;
-            }
-            if (isNaN(yMax) || y > yMax) {
-                yMax = y;
-            }
-        }
-        return { x: xMin, y: yMin, width: xMax - xMin, height: yMax - yMin };
-    }
-
-    #getArcsBounds(arcs) {
-        let xMin = NaN, xMax = NaN, yMin = NaN, yMax = NaN;
-        let start = { x: 0, y: 0 };
-        for (const arc of arcs) {
-            const arcBounds = this.#mapWorker.getArcBounds(start, arc);
-            if (isNaN(xMin) || arcBounds.x < xMin) {
-                xMin = arcBounds.x;
-            }
-            if (isNaN(xMax) || arcBounds.x + arcBounds.width > xMax) {
-                xMax = arcBounds.x + arcBounds.width;
-            }
-            if (isNaN(yMin) || arcBounds.y < yMin) {
-                yMin = arcBounds.y;
-            }
-            if (isNaN(yMax) || arcBounds.y + arcBounds.height > yMax) {
-                yMax = arcBounds.y + arcBounds.height;
-            }
-            start = { x: start.x + arc.end.x, y: start.y + arc.end.y };
-        }
-        return { x: xMin, y: yMin, width: xMax - xMin, height: yMax - yMin };
     }
 }
 

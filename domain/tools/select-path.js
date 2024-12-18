@@ -27,9 +27,9 @@ class SelectPathTool {
         this.#cursor = "Default";
     }
 
-    async handleCanvasEvent(canvasEvent) {
-        const eventData = canvasEvent?.eventData;
-        switch (canvasEvent?.canvasEventType) {
+    async handleClientEvent(clientEvent) {
+        const eventData = clientEvent?.eventData;
+        switch (clientEvent?.eventType) {
             case "pointerdown":
                 this.#onPointerDown(eventData);
                 break;
@@ -152,7 +152,7 @@ class SelectPathTool {
     #transformCanvasPoint(x, y) {
         const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
         const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
-        return this.#mapWorker.transformPoint({ x: x, y: y }, scale, translation);
+        return this.#mapWorker.geometryUtilities.transformPoint({ x: x, y: y }, scale, translation);
     }
 
     #getSelectionBoundsInfoForPoint(point) {
@@ -336,7 +336,7 @@ class SelectPathTool {
     #selectMapItemsByPoints() {
         const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
         const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
-        const points = this.#points.map(pt => this.#mapWorker.transformPoint(pt, scale, translation));
+        const points = this.#points.map(pt => this.#mapWorker.geometryUtilities.transformPoint(pt, scale, translation));
         const layer = this.#mapWorker.map.getActiveLayer();
         layer.selectMapItemsByPoints(this.#mapWorker.renderingContext, this.#mapWorker.map, points);
     }
@@ -344,8 +344,8 @@ class SelectPathTool {
     #selectMapItemsByPath() {
         const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
         const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
-        const start = this.#mapWorker.transformPoint(this.#pointDown, scale, translation);
-        const points = this.#points.map(pt => this.#mapWorker.transformPoint(pt, scale, translation));
+        const start = this.#mapWorker.geometryUtilities.transformPoint(this.#pointDown, scale, translation);
+        const points = this.#points.map(pt => this.#mapWorker.geometryUtilities.transformPoint(pt, scale, translation));
         let x = start.x;
         let y = start.y;
         let xMin = x, xMax = x, yMin = y, yMax = y;

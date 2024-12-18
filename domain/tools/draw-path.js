@@ -21,9 +21,9 @@ class DrawPathTool {
         this.#mapWorker = mapWorker
     }
 
-    async handleCanvasEvent(canvasEvent) {
-        const eventData = canvasEvent?.eventData;
-        switch (canvasEvent?.canvasEventType) {
+    async handleClientEvent(clientEvent) {
+        const eventData = clientEvent?.eventData;
+        switch (clientEvent?.eventType) {
             case "pointerdown":
                 await this.#onPointerDown(eventData);
                 break;
@@ -73,15 +73,22 @@ class DrawPathTool {
 
     #draw(eventData) {
         this.#drawLine(eventData.offsetX, eventData.offsetY);
-        this.#points.push({ x: eventData.offsetX - this.#xCurrent, y: eventData.offsetY - this.#yCurrent });
-        this.#xCurrent = eventData.offsetX;
-        this.#yCurrent = eventData.offsetY;
+        const distance = Math.sqrt((eventData.offsetX - this.#xCurrent) ** 2 + (eventData.offsetY - this.#yCurrent) ** 2);
+        if (distance > 5) {
+            this.#points.push({ x: eventData.offsetX - this.#xCurrent, y: eventData.offsetY - this.#yCurrent });
+            this.#xCurrent = eventData.offsetX;
+            this.#yCurrent = eventData.offsetY;
+        }
+        
     }
 
     async #drawEnd(eventData) {
         this.#drawLine(eventData.offsetX, eventData.offsetY);
         this.#drawLine(this.#xStart, this.#yStart);
-        this.#points.push({ x: eventData.offsetX - this.#xCurrent, y: eventData.offsetY - this.#yCurrent });
+        const distance = Math.sqrt((eventData.offsetX - this.#xCurrent) ** 2 + (eventData.offsetY - this.#yCurrent) ** 2);
+        if (distance > 5) {
+            this.#points.push({ x: eventData.offsetX - this.#xCurrent, y: eventData.offsetY - this.#yCurrent });
+        }
         this.#isDrawing = false;
         await this.#addMapItem();  
     }
@@ -101,8 +108,8 @@ class DrawPathTool {
         if (this.#mapWorker.map && this.#mapWorker.activeMapItemTemplate) {
             const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
             const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
-            const start = this.#mapWorker.transformPoint({ x: this.#xStart, y: this.#yStart }, scale, translation);
-            const points = this.#points.map(pt => this.#mapWorker.transformPoint(pt, scale));
+            const start = this.#mapWorker.geometryUtilities.transformPoint({ x: this.#xStart, y: this.#yStart }, scale, translation);
+            const points = this.#points.map(pt => this.#mapWorker.geometryUtilities.transformPoint(pt, scale));
             const data = {
                 mapItemTemplateRef: this.#mapWorker.activeMapItemTemplate.ref.getData(),
                 paths: [{

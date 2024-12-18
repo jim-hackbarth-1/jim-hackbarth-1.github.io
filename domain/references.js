@@ -16,6 +16,7 @@ export * from "./models/tool.js";
 export * from "./models/tool-palette.js";
 export * from "./templates/overland.js";
 export * from "./tools/draw-path.js";
+export * from "./tools/edit-intersect.js";
 export * from "./tools/pan.js";
 export * from "./tools/select-path.js";
 export * from "./utilities/db-manager.js";

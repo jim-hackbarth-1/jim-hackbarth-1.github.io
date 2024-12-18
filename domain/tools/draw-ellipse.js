@@ -18,9 +18,9 @@ class DrawEllipseTool {
         this.#mapWorker = mapWorker
     }
 
-    async handleCanvasEvent(canvasEvent) {
-        const eventData = canvasEvent?.eventData;
-        switch (canvasEvent?.canvasEventType) {
+    async handleClientEvent(clientEvent) {
+        const eventData = clientEvent?.eventData;
+        switch (clientEvent?.eventType) {
             case "pointerdown":
                 await this.#onPointerDown(eventData);
                 break;
@@ -99,13 +99,13 @@ class DrawEllipseTool {
             const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
             const xStart = (this.#xCurrent + this.#xStart) / 2;
             const yStart = this.#yStart;
-            const start = this.#mapWorker.transformPoint({ x: xStart, y: yStart }, scale, translation);
+            const start = this.#mapWorker.geometryUtilities.transformPoint({ x: xStart, y: yStart }, scale, translation);
             const yEnd = this.#yCurrent - this.#yStart;
-            const end = this.#mapWorker.transformPoint({ x: 0, y: (yEnd) }, scale);
-            const center = this.#mapWorker.transformPoint({ x: 0, y: yEnd / 2 }, scale);
+            const end = this.#mapWorker.geometryUtilities.transformPoint({ x: 0, y: (yEnd) }, scale);
+            const center = this.#mapWorker.geometryUtilities.transformPoint({ x: 0, y: yEnd / 2 }, scale);
             const xRadius = Math.abs((this.#xCurrent - this.#xStart) / 2);
             const yRadius = Math.abs((this.#yCurrent - this.#yStart) / 2);
-            const radii = this.#mapWorker.transformPoint({ x: xRadius, y: yRadius }, scale);
+            const radii = this.#mapWorker.geometryUtilities.transformPoint({ x: xRadius, y: yRadius }, scale);
             const data = {
                 mapItemTemplateRef: this.#mapWorker.activeMapItemTemplate.ref.getData(),
                 paths: [{

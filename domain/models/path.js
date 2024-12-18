@@ -90,6 +90,12 @@ export class Path {
         };
     }
 
+    copy() {
+        const pathData = this.getData();
+        pathData.id = crypto.randomUUID();
+        return new Path(pathData);
+    }
+
     addEventListener(eventName, listener) {
         if (!this.#eventListeners[eventName]) {
             this.#eventListeners[eventName] = [];

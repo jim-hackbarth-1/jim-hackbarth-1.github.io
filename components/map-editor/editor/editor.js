@@ -355,8 +355,9 @@ export class EditorModel {
     }
 
     #initializeMapWorker() {
+        const appDocument = KitDependencyManager.getDocument();
         const canvas = this.#componentElement.querySelector("#map-canvas");
-        MapWorkerClient.initializeWorker(canvas, this.onMapChanged, EditorModel.#getBaseUrl());
+        MapWorkerClient.initializeWorker(appDocument, canvas, this.onMapChanged, EditorModel.#getBaseUrl());
     }
 
     #slideTools = (slideOpen) => {

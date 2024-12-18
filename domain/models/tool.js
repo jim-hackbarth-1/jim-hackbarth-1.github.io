@@ -44,6 +44,19 @@ export class BuiltInTools {
                 ref: {
                     versionId: 1,
                     isBuiltIn: true,
+                    name: "Edit intersect"
+                },
+                moduleSrc: `${baseUrl}/domain/tools/edit-intersect.js`,
+                thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 150 150"><g class="icon"><path d="M 50,5 Q 15 5, 10 15 T 20 40 T 20 60 T 20 80 T 50 85 T 80 80 T 90 45 T 55 20 z" /><path stroke-dasharray="4" d="M 90,45 Q 55 45, 50 55 T 60 80 T 60 100 T 60 120 T 90 125 T 120 120 T 130 85 T 95 60 z" /><line stroke-width="4" x1="66" y1="45" x2="54" y2="63" /><line stroke-width="4" x1="74" y1="45" x2="54" y2="75" /><line stroke-width="4" x1="82" y1="45" x2="62" y2="75" /><line stroke-width="4" x1="90" y1="45" x2="70" y2="75" /><line stroke-width="4" x1="94" y1="51" x2="78" y2="75" /></g></svg>',
+                cursorSrc: `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g stroke="black" stroke-width="4" fill="white"><path d="M 5,5 L 80,80 A 5 5 -45 0 0 90 70 L 35,15 z" /></g></svg>')}`,
+                cursorHotspot: { x: 0, y: 0 },
+                toolType: ToolType.EditingTool
+            }));
+
+            BuiltInTools.#tools.push(new Tool({
+                ref: {
+                    versionId: 1,
+                    isBuiltIn: true,
                     name: "Draw path"
                 },
                 moduleSrc: `${baseUrl}/domain/tools/draw-path.js`,

@@ -11,7 +11,7 @@ export const MapWorkerInputMessageType = {
     UpdateMap: "UpdateMap", // save happened, undo, redo, set layer, set zoom, set overlay, ...
     SetActiveTool: "SetActiveTool",
     SetActiveMapItemTemplate: "SetActiveMapItemTemplate",
-    CanvasEvent: "CanvasEvent",
+    ClientEvent: "ClientEvent",
     CursorChanged: "CursorChanged"
 };
 
@@ -77,6 +77,14 @@ export class MapWorker {
         return this.#activeMapItemTemplate;
     }
 
+    #geometryUtilities;
+    get geometryUtilities() {
+        if (!this.#geometryUtilities) {
+            this.#geometryUtilities = new GeometryUtilities();
+        }
+        return this.#geometryUtilities;
+    }
+
     // methods
     async handleClientMessage(message) {
         try {
@@ -97,8 +105,8 @@ export class MapWorker {
                 case MapWorkerInputMessageType.SetActiveMapItemTemplate:
                     await this.#setActiveMapItemTemplate(message.data.mapItemTemplateRefData);
                     break;
-                case MapWorkerInputMessageType.CanvasEvent:
-                    await this.#canvasEvent(message.data.canvasEventType, message.data.canvasEventData);
+                case MapWorkerInputMessageType.ClientEvent:
+                    await this.#clientEvent(message.data.eventType, message.data.eventData);
                     break;
                 case MapWorkerInputMessageType.CursorChanged:
                     await this.#cursorChanged(message.data.cursor);
@@ -124,10 +132,6 @@ export class MapWorker {
             const message = { messageType: MapWorkerOutputMessageType.MapUpdated, data: { hasUnsavedChanges: this.map.hasUnsavedChanges, change: change.getData() } };
             this.postMessage(message);
         }
-    }
-
-    transformPoint(point, scale, translation) {
-        return GeometryUtilities.transformPoint(point, scale, translation);
     }
 
     createMapItem(data) {
@@ -226,10 +230,10 @@ export class MapWorker {
         }
     }
 
-    async #canvasEvent(canvasEventType, eventData) {
-        if (this.activeToolModel && this.activeToolModel.handleCanvasEvent) {
-            await this.activeToolModel.handleCanvasEvent({
-                canvasEventType: canvasEventType,
+    async #clientEvent(eventType, eventData) {
+        if (this.activeToolModel && this.activeToolModel.handleClientEvent) {
+            await this.activeToolModel.handleClientEvent({
+                eventType: eventType,
                 eventData: eventData
             });
         }

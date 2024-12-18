@@ -9,6 +9,7 @@ export class MapItem {
         this.#paths = [];
         if (data?.paths) {
             for (const path of data.paths) {
+                path.mapItemId = this.id;
                 this.#paths.push(new Path(path));
             }
         }

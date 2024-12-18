@@ -26,6 +26,9 @@ export function getOverlandTemplate() {
                 ],
                 [
                     { versionId: 1, isBuiltIn: true, name: "Pan" }
+                ],
+                [
+                    { versionId: 1, isBuiltIn: true, name: "Edit intersect" }
                 ]
             ],
             drawingToolPalettes: [

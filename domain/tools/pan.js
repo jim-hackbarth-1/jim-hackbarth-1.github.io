@@ -18,9 +18,9 @@ class PanTool {
         this.#mapWorker = mapWorker
     }
 
-    async handleCanvasEvent(canvasEvent) {
-        const eventData = canvasEvent?.eventData;
-        switch (canvasEvent?.canvasEventType) {
+    async handleClientEvent(clientEvent) {
+        const eventData = clientEvent?.eventData;
+        switch (clientEvent?.eventType) {
             case "pointerdown":
                 this.#onPointerDown(eventData);
                 break;

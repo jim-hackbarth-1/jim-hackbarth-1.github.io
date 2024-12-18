@@ -21,7 +21,8 @@ export class MapWorkerClient {
     }
 
     // methods
-    static initializeWorker(canvas, mapChangeListener, baseUrl) {
+    static initializeWorker(appDocument, canvas, mapChangeListener, baseUrl) {
+        MapWorkerClient.#addDocumentEventHandlers(appDocument);
         MapWorkerClient.#addCanvasEventHandlers(canvas);
         MapWorkerClient.#mapChangeListener = mapChangeListener;
         MapWorkerClient.#mapWorker = new Worker("../../domain/utilities/map-worker.js", { type: "module" }); 
@@ -81,22 +82,34 @@ export class MapWorkerClient {
     }
 
     // helpers
+    static #documentEventHandlersAdded = false;
+    static #addDocumentEventHandlers(appDocument) {
+        if (!MapWorkerClient.#documentEventHandlersAdded) {
+            MapWorkerClient.#addDocumentEventHandler(appDocument, "keyup");
+            MapWorkerClient.#documentEventHandlersAdded = true;
+        }
+    }
+
     static #addCanvasEventHandlers(canvas) {
         MapWorkerClient.#addCanvasEventHandler(canvas, "pointerdown");
         MapWorkerClient.#addCanvasEventHandler(canvas, "pointermove");
         MapWorkerClient.#addCanvasEventHandler(canvas, "pointerup");
     }
 
-    static #addCanvasEventHandler(canvas, canvasEventType) {
-        canvas.addEventListener(canvasEventType, async (event) => await MapWorkerClient.#canvasEventHandler(canvasEventType, event));
+    static #addDocumentEventHandler(appDocument, eventType) {
+        appDocument.addEventListener(eventType, async (event) => await MapWorkerClient.#clientEventHandler(eventType, event));
     }
 
-    static async #canvasEventHandler(canvasEventType, event) {
+    static #addCanvasEventHandler(canvas, eventType) {
+        canvas.addEventListener(eventType, async (event) => await MapWorkerClient.#clientEventHandler(eventType, event));
+    }
+
+    static async #clientEventHandler(eventType, event) {
         try {
             await MapWorkerClient.postWorkerMessage({
-                messageType: MapWorkerInputMessageType.CanvasEvent,
-                canvasEventType: canvasEventType,
-                canvasEventData: MapWorkerClient.#cloneEvent(event)
+                messageType: MapWorkerInputMessageType.ClientEvent,
+                eventType: eventType,
+                eventData: MapWorkerClient.#cloneEvent(event)
             });
         }
         catch { }
@@ -112,10 +125,13 @@ export class MapWorkerClient {
             buttons: event.buttons,
             clientX: event.clientX,
             clientY: event.clientY,
+            code: event.code,
             ctrlKey: event.ctrlKey,
             detail: event.detail,
+            key: event.key,
             layerX: event.layerX,
             layerY: event.layerY,
+            location: event.location,
             metaKey: event.metaKey,
             movementX: event.movementX,
             movementY: event.movementY,
@@ -123,6 +139,7 @@ export class MapWorkerClient {
             offsetY: event.offsetY,
             pageX: event.pageX,
             pageY: event.pageY,
+            repeat: event.repeat,
             screenX: event.screenX,
             screenY: event.screenY,
             shiftKey: event.shiftKey,

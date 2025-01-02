@@ -1,5 +1,5 @@
 ﻿
-import { Change, ChangeType, EntityReference, Path, SelectionStatusType } from "../references.js";
+import { Change, ChangeType, EntityReference, Path } from "../references.js";
 
 export class MapItem {
 
@@ -19,7 +19,6 @@ export class MapItem {
         this.#isCaptionVisible = data?.isCaptionVisible;
         this.#captionText = data?.captionText;
         this.#captionLocation = data?.captionLocation;
-        this.#selectionStatus = data?.selectionStatus;
         this.#eventListeners = {};
     }
 
@@ -109,17 +108,6 @@ export class MapItem {
         this.#onChange(change);
     }
 
-    /** @type {SelectionStatusType}  */
-    #selectionStatus;
-    get selectionStatus() {
-        return this.#selectionStatus;
-    }
-    set selectionStatus(selectionStatus) {
-        const change = this.#getPropertyChange("selectionStatus", this.#selectionStatus, selectionStatus);
-        this.#selectionStatus = selectionStatus;
-        this.#onChange(change);
-    }
-
     // methods
     getData() {
         return {
@@ -130,8 +118,7 @@ export class MapItem {
             isHidden: this.#isHidden,
             isCaptionVisible: this.#isCaptionVisible,
             captionText: this.#captionText,
-            captionLocation: this.#captionLocation,
-            selectionStatus: this.#selectionStatus
+            captionLocation: this.#captionLocation
         };
     }
 
@@ -216,54 +203,6 @@ export class MapItem {
         }
     }
 
-    renderSelection(context, map) {
-        if (this.selectionStatus) {
-            const selectionBounds = this.getSelectionBounds(map);
-            const width = selectionBounds.move.width;
-            const height = selectionBounds.move.height;
-            const scale = 1 / map.zoom;
-            const handleSize = 10 * scale;
-
-            this.#drawSelectionBounds(context, map, selectionBounds.move, this.selectionStatus);
-            if (width > handleSize && height > handleSize) {
-                this.#drawSelectionBounds(context, map, selectionBounds.resizeSE, this.selectionStatus);
-            }
-            if (width > 2 * handleSize && height > handleSize) {
-                this.#drawSelectionBounds(context, map, selectionBounds.resizeSW, this.selectionStatus);
-            }
-            if (width > 3 * handleSize && height > handleSize) {
-                this.#drawSelectionBounds(context, map, selectionBounds.resizeS, this.selectionStatus);
-            }
-            if (height > 2 * handleSize && width > handleSize) {
-                this.#drawSelectionBounds(context, map, selectionBounds.resizeNE, this.selectionStatus);
-            }
-            if (height > 3 * handleSize && width > handleSize) {
-                this.#drawSelectionBounds(context, map, selectionBounds.resizeE, this.selectionStatus);
-            }
-            if (width > 2 * handleSize && height > 2 * handleSize) {
-                this.#drawSelectionBounds(context, map, selectionBounds.resizeNW, this.selectionStatus);
-            }
-            if (width > 3 * handleSize && height > 2 * handleSize) {
-                this.#drawSelectionBounds(context, map, selectionBounds.resizeN, this.selectionStatus);
-            }
-            if (width > 2 * handleSize && height > 3 * handleSize) {
-                this.#drawSelectionBounds(context, map, selectionBounds.resizeW, this.selectionStatus);
-            }
-            if (width > 3 * handleSize && height > 3 * handleSize) {
-                this.#drawSelectionBounds(context, map, selectionBounds.rotate, this.selectionStatus);
-                const start = {
-                    x: selectionBounds.rotate.x + (selectionBounds.rotate.width / 2),
-                    y: selectionBounds.rotate.y + selectionBounds.rotate.height
-                };
-                const end = {
-                    x: start.x,
-                    y: selectionBounds.move.y + (selectionBounds.move.height / 2)
-                };
-                this.#drawRotationLine(context, map, start, end);
-            }     
-        }
-    }
-
     isSelectedByPath(context, selectionBounds, selectionPath) {
         const bounds = this.getBounds();
         if (bounds.x < selectionBounds.x
@@ -321,24 +260,6 @@ export class MapItem {
         return { x: xMin, y: yMin, width: xMax - xMin, height: yMax - yMin };
     }
 
-    getSelectionBounds(map) {
-        const bounds = this.getBounds();
-        const handleSize = 10 / map.zoom;
-        return {
-            mapItem: this,
-            rotate: { x: bounds.x + (bounds.width - handleSize) / 2, y: bounds.y - (4 * handleSize), width: handleSize, height: handleSize },
-            resizeNW: { x: bounds.x, y: bounds.y, width: handleSize, height: handleSize },
-            resizeN: { x: bounds.x + (bounds.width - handleSize) / 2, y: bounds.y, width: handleSize, height: handleSize },
-            resizeNE: { x: bounds.x + bounds.width - handleSize, y: bounds.y, width: handleSize, height: handleSize },
-            resizeE: { x: bounds.x + bounds.width - handleSize, y: bounds.y + (bounds.height - handleSize) / 2, width: handleSize, height: handleSize },
-            resizeSE: { x: bounds.x + bounds.width - handleSize, y: bounds.y + bounds.height - handleSize, width: handleSize, height: handleSize },
-            resizeS: { x: bounds.x + (bounds.width - handleSize) / 2, y: bounds.y + bounds.height - handleSize, width: handleSize, height: handleSize },
-            resizeSW: { x: bounds.x, y: bounds.y + bounds.height - handleSize, width: handleSize, height: handleSize },
-            resizeW: { x: bounds.x, y: bounds.y + (bounds.height - handleSize) / 2, width: handleSize, height: handleSize },
-            move: bounds
-        }
-    }
-
     // helpers
     #eventListeners;
 
@@ -363,46 +284,5 @@ export class MapItem {
                 }
             ]
         });
-    }
-
-    #drawSelectionBounds(context, map, bounds, selectionStatus) {
-        const scale = 1 / map.zoom;
-        const minSize = 10 * scale;
-        let width = bounds.width;
-        if (width < minSize) {
-            width = minSize;
-        }
-        let height = bounds.height;
-        if (height < minSize) {
-            height = minSize;
-        }
-        const pathDark = new Path2D(`M ${bounds.x},${bounds.y} l ${width},${0} ${0},${height} ${-width},${0} z`);
-        const pathLight = new Path2D(`M ${bounds.x + 1 * scale},${bounds.y + 1 * scale} l ${width},${0} ${0},${height} ${-width},${0} z`);
-        context.setLineDash([2 * scale, 2 * scale]);
-        context.lineWidth = 2 * scale;
-        context.strokeStyle = (selectionStatus == SelectionStatusType.Primary) ? "yellow" : "white";
-        context.stroke(pathLight);
-        context.lineWidth = 2 * scale;
-        context.strokeStyle = "dimgray";
-        context.stroke(pathDark);
-    }
-
-    #drawRotationLine(context, map, start, end) {
-        const scale = 1 / map.zoom;
-        const pathDark = new Path2D(`M ${start.x},${start.y} L ${end.x},${end.y}}`);
-        const pathLight = new Path2D(`M ${start.x + 1 * scale},${start.y + 1 * scale} L ${end.x},${end.y}`);
-        const radius = 5 * scale;
-        const circle = new Path2D(`M ${end.x},${end.y} m 0,${-radius} a ${radius} ${radius} 0 0 0 0 ${2 * radius} a ${radius} ${radius} 0 0 0 0 ${-2 * radius}`);
-        context.setLineDash([2 * scale, 2 * scale]);
-        context.lineWidth = 2 * scale;
-        context.strokeStyle = "white";
-        context.stroke(pathLight);
-        context.lineWidth = 2 * scale;
-        context.strokeStyle = "dimgray";
-        context.stroke(pathDark);
-        context.setLineDash([]);
-        context.stroke(circle);
-        context.fillStyle = "white";
-        context.fill(circle);
     }
 }

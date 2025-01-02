@@ -210,24 +210,24 @@ class FitSelectionTool {
         this.#points.push({ x: eventData.offsetX, y: eventData.offsetY });
         if (this.#mapWorker.map) {
             if (this.#points.length < 4) {
-                this.#selectMapItemsByPoints();
+                this.#selectByPoints();
             }
             else {
-                this.#selectMapItemsByPath();
+                this.#selectByPath();
             }
         }
         this.#selectionUtilities.resetSelectionBounds(this.#mapWorker);
     }
 
-    #selectMapItemsByPoints() {
+    #selectByPoints() {
         const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
         const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
         const points = this.#points.map(pt => this.#mapWorker.geometryUtilities.transformPoint(pt, scale, translation));
         const layer = this.#mapWorker.map.getActiveLayer();
-        layer.selectMapItemsByPoints(this.#mapWorker.renderingContext, this.#mapWorker.map, points, this.#isCtrlPressed);
+        layer.selectByPoints(this.#mapWorker.renderingContext, this.#mapWorker.map, points, this.#isCtrlPressed);
     }
 
-    #selectMapItemsByPath() {
+    #selectByPath() {
         const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
         const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
         const start = this.#mapWorker.geometryUtilities.transformPoint(this.#pointDown, scale, translation);
@@ -257,7 +257,7 @@ class FitSelectionTool {
         pathData += " z";
         const selectionPath = new Path2D(pathData);
         const layer = this.#mapWorker.map.getActiveLayer();
-        layer.selectMapItemsByPath(this.#mapWorker.renderingContext, selectionBounds, selectionPath, this.#isCtrlPressed);
+        layer.selectByPath(this.#mapWorker.renderingContext, selectionBounds, selectionPath, this.#isCtrlPressed);
     }
 
     #drawSelectionLine(x, y) {
@@ -278,24 +278,28 @@ class FitSelectionTool {
         // get secondary selection path(s)
         const layer = this.#mapWorker.map.getActiveLayer();
         const secondaryPaths = [];
-        const secondarySelections = layer.mapItems.filter(mi => mi.selectionStatus == "Secondary");
-        for (const mapItem of secondarySelections) {
-            for (const path of mapItem.paths) {
-                secondaryPaths.push(path);
+        const secondarySelections = layer.mapItemGroups.filter(mi => mi.selectionStatus == "Secondary");
+        for (const mapItemGroup of secondarySelections) {
+            for (const mapItem of mapItemGroup.mapItems) {
+                for (const path of mapItem.paths) {
+                    secondaryPaths.push(path);
+                }
             }
         }
 
         // display set operation paths
-        const primarySelections = layer.mapItems.filter(mi => mi.selectionStatus == "Primary");
-        for (const mapItem of primarySelections) {
-            for (const primaryPath of mapItem.paths) {
-                for (const secondaryPath of secondaryPaths) {
-                    const setOperationPaths = this.#getSetOperationPaths(primaryPath, secondaryPath);
-                    for (const setOperationPath of setOperationPaths) {
-                        this.#displayPath(setOperationPath);
-                    }
-                    if (setOperationPaths.length > 0) {
-                        break;
+        const primarySelections = layer.mapItemGroups.filter(mi => mi.selectionStatus == "Primary");
+        for (const mapItemGroup of primarySelections) {
+            for (const mapItem of mapItemGroup.mapItems) {
+                for (const primaryPath of mapItem.paths) {
+                    for (const secondaryPath of secondaryPaths) {
+                        const setOperationPaths = this.#getSetOperationPaths(primaryPath, secondaryPath);
+                        for (const setOperationPath of setOperationPaths) {
+                            this.#displayPath(setOperationPath);
+                        }
+                        if (setOperationPaths.length > 0) {
+                            break;
+                        }
                     }
                 }
             }
@@ -307,31 +311,35 @@ class FitSelectionTool {
         // get secondary selection path(s)
         const layer = this.#mapWorker.map.getActiveLayer();
         const secondaryPaths = [];
-        const secondarySelections = layer.mapItems.filter(mi => mi.selectionStatus == "Secondary");
-        for (const mapItem of secondarySelections) {
-            for (const path of mapItem.paths) {
-                secondaryPaths.push(path);
+        const secondarySelections = layer.mapItemGroups.filter(mi => mi.selectionStatus == "Secondary");
+        for (const mapItemGroup of secondarySelections) {
+            for (const mapItem of mapItemGroup.mapItems) {
+                for (const path of mapItem.paths) {
+                    secondaryPaths.push(path);
+                }
             }
         }
 
         // perform set operations
-        const primarySelections = layer.mapItems.filter(mi => mi.selectionStatus == "Primary");
+        const primarySelections = layer.mapItemGroups.filter(mi => mi.selectionStatus == "Primary");
         let mapItemPaths = [];
-        for (const mapItem of primarySelections) {
-            mapItemPaths = [];
-            for (const primaryPath of mapItem.paths) {
-                for (const secondaryPath of secondaryPaths) {
-                    const setOperationPaths = this.#getSetOperationPaths(primaryPath, secondaryPath);
-                    for (const setOperationPath of setOperationPaths) {
-                        mapItemPaths.push(setOperationPath);
-                    }
-                    if (setOperationPaths.length > 0) {
-                        break;
+        for (const mapItemGroup of primarySelections) {
+            for (const mapItem of mapItemGroup.mapItems) {
+                mapItemPaths = [];
+                for (const primaryPath of mapItem.paths) {
+                    for (const secondaryPath of secondaryPaths) {
+                        const setOperationPaths = this.#getSetOperationPaths(primaryPath, secondaryPath);
+                        for (const setOperationPath of setOperationPaths) {
+                            mapItemPaths.push(setOperationPath);
+                        }
+                        if (setOperationPaths.length > 0) {
+                            break;
+                        }
                     }
                 }
-            }
-            if (mapItemPaths.length > 0) {
-                mapItem.paths = mapItemPaths;
+                if (mapItemPaths.length > 0) {
+                    mapItem.paths = mapItemPaths;
+                }
             }
         }
         this.#mapWorker.renderMap();

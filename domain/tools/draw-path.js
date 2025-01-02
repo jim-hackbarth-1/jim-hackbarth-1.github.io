@@ -90,7 +90,7 @@ class DrawPathTool {
             this.#points.push({ x: eventData.offsetX - this.#xCurrent, y: eventData.offsetY - this.#yCurrent });
         }
         this.#isDrawing = false;
-        await this.#addMapItem();  
+        await this.#addMapItemGroup();  
     }
 
     #drawLine(x, y) {
@@ -104,21 +104,24 @@ class DrawPathTool {
         this.#mapWorker.renderingContext.stroke(this.#pathLight);
     }
 
-    async #addMapItem() {  
+    async #addMapItemGroup() {  
         if (this.#mapWorker.map && this.#mapWorker.activeMapItemTemplate) {
             const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
             const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
             const start = this.#mapWorker.geometryUtilities.transformPoint({ x: this.#xStart, y: this.#yStart }, scale, translation);
             const points = this.#points.map(pt => this.#mapWorker.geometryUtilities.transformPoint(pt, scale));
-            const data = {
+            const mapItemData = {
                 mapItemTemplateRef: this.#mapWorker.activeMapItemTemplate.ref.getData(),
                 paths: [{
                     start: start,
                     transits: points
                 }]
             };
-            const mapItem = this.#mapWorker.createMapItem(data);
-            this.#mapWorker.map.getActiveLayer().addMapItem(mapItem);
+            const data = {
+                mapItems: [mapItemData]
+            };
+            const mapItemGroup = this.#mapWorker.createMapItemGroup(data);
+            this.#mapWorker.map.getActiveLayer().addMapItemGroup(mapItemGroup);
         }
         this.#mapWorker.renderMap();
     }

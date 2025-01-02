@@ -184,26 +184,26 @@ class SelectRectangleTool {
         const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
         const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
         if (Math.abs(this.#pointDown.x - this.#pointCurrent.x) < 10 && Math.abs(this.#pointDown.y - this.#pointCurrent.y) < 10) {
-            this.#selectMapItemsByPoints(scale, translation);
+            this.#selectByPoints(scale, translation);
         }
         else {
-            this.#selectMapItemsByPath(scale, translation);
+            this.#selectByPath(scale, translation);
         }
         this.#selectionUtilities.resetSelectionBounds(this.#mapWorker);
         this.#mapWorker.renderMap();
     }
 
-    #selectMapItemsByPoints(scale, translation) {
+    #selectByPoints(scale, translation) {
         const points = [
             { x: this.#pointDown.x, y: this.#pointDown.y },
             { x: this.#pointCurrent.x, y: this.#pointCurrent.y }
         ];
         const transformedPoints = points.map(pt => this.#mapWorker.geometryUtilities.transformPoint(pt, scale, translation));
         const layer = this.#mapWorker.map.getActiveLayer();
-        layer.selectMapItemsByPoints(this.#mapWorker.renderingContext, this.#mapWorker.map, transformedPoints, this.#isCtrlPressed);
+        layer.selectByPoints(this.#mapWorker.renderingContext, this.#mapWorker.map, transformedPoints, this.#isCtrlPressed);
     }
 
-    #selectMapItemsByPath(scale, translation) {
+    #selectByPath(scale, translation) {
         const start = this.#mapWorker.geometryUtilities.transformPoint(
             { x: this.#pointDown.x, y: this.#pointDown.y }, scale, translation);
         const end = this.#mapWorker.geometryUtilities.transformPoint(
@@ -217,6 +217,6 @@ class SelectRectangleTool {
         const pathData = `M ${bounds.x},${bounds.y} l ${bounds.width},0 0,${bounds.height} ${-bounds.width},0 z`;
         const selectionPath = new Path2D(pathData);
         const layer = this.#mapWorker.map.getActiveLayer();
-        layer.selectMapItemsByPath(this.#mapWorker.renderingContext, bounds, selectionPath, this.#isCtrlPressed);
+        layer.selectByPath(this.#mapWorker.renderingContext, bounds, selectionPath, this.#isCtrlPressed);
     }
 }

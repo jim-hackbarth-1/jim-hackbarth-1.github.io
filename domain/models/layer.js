@@ -1,5 +1,5 @@
 ﻿
-import { Change, ChangeType, MapItem, SelectionStatusType } from "../references.js";
+import { Change, ChangeType, MapItemGroup, SelectionStatusType } from "../references.js";
 
 export class Layer {
 
@@ -7,12 +7,12 @@ export class Layer {
     constructor(data) {
         this.#name = data?.name;
         this.#isHidden = data?.isHidden;
-        this.#mapItems = [];
-        if (data?.mapItems) {
-            for (const mapItemData of data.mapItems) {
-                const mapItem = new MapItem(mapItemData);
-                this.#mapItems.push(mapItem);
-                this.#addChangeEventListeners(mapItem);
+        this.#mapItemGroups = [];
+        if (data?.mapItemGroups) {
+            for (const mapItemGroupData of data.mapItemGroups) {
+                const mapItemGroup = new MapItemGroup(mapItemGroupData);
+                this.#mapItemGroups.push(mapItemGroup);
+                this.#addChangeEventListeners(mapItemGroup);
             }
         }
         this.#eventListeners = {};
@@ -41,35 +41,35 @@ export class Layer {
         this.#onChange(change);
     }
 
-    /** @type {MapItem[]}  */
-    #mapItems;
-    get mapItems() {
-        return this.#mapItems;
+    /** @type {MapItemGroup[]}  */
+    #mapItemGroups;
+    get mapItemGroups() {
+        return this.#mapItemGroups;
     }
-    set mapItems(mapItems) {
-        if (this.#mapItems) {
-            for (const mapItem of this.#mapItems) {
-                this.#removeChangeEventListeners(mapItem);
+    set mapItemGroups(mapItemGroups) {
+        if (this.#mapItemGroups) {
+            for (const mapItemGroup of this.#mapItemGroups) {
+                this.#removeChangeEventListeners(mapItemGroup);
             }
         }
-        const change = this.#getPropertyChange("mapItems", this.#mapItems, mapItems);
-        this.#mapItems = mapItems ?? [];
-        for (const mapItem of this.#mapItems) {
-            this.#addChangeEventListeners(mapItem);
+        const change = this.#getPropertyChange("mapItemGroups", this.#mapItemGroups, mapItemGroups);
+        this.#mapItemGroups = mapItemGroups ?? [];
+        for (const mapItemGroup of this.#mapItemGroups) {
+            this.#addChangeEventListeners(mapItemGroup);
         }
         this.#onChange(change);
     }
 
     // methods
     getData() {
-        const mapItems = [];
-        for (const mapItem of this.#mapItems) {
-            mapItems.push(mapItem.getData());
+        const mapItemGroups = [];
+        for (const mapItemGroup of this.#mapItemGroups) {
+            mapItemGroups.push(mapItemGroup.getData());
         }
         return {
             name: this.#name,
             isHidden: this.#isHidden,
-            mapItems: mapItems
+            mapItemGroups: mapItemGroups
         };
     }
 
@@ -87,88 +87,88 @@ export class Layer {
         }
     }
 
-    addMapItem(mapItem) {
-        if (!mapItem) {
+    addMapItemGroup(mapItemGroup) {
+        if (!mapItemGroup) {
             throw new Error(ErrorMessage.NullValue);
         }
         const change = new Change({
             changeObjectType: Layer.name,
             changeObjectRef: this.name,
             changeType: ChangeType.Insert,
-            changeData: [{ mapItemId: mapItem.id, index: this.mapItems.length }]
+            changeData: [{ mapItemGroupId: mapItemGroup.id, index: this.mapItemGroups.length }]
         });
-        this.#mapItems.push(mapItem);
+        this.#mapItemGroups.push(mapItemGroup);
         this.#onChange(change);
     }
 
-    insertMapItem(mapItem, index) {
-        if (!mapItem) {
+    insertMapItemGroup(mapItemGroup, index) {
+        if (!mapItemGroup) {
             throw new Error(ErrorMessage.NullValue);
         }
-        if (index < 0 || index > this.mapItems.length) {
+        if (index < 0 || index > this.mapItemGroups.length) {
             throw new Error(ErrorMessage.InvalidIndex);
         }
         const change = new Change({
             changeObjectType: Layer.name,
             changeObjectRef: this.name,
             changeType: ChangeType.Insert,
-            changeData: [{ mapItemId: mapItem.id, index: index }]
+            changeData: [{ mapItemGroupId: mapItemGroup.id, index: index }]
         });
-        this.#mapItems.splice(index, 0, mapItem);
+        this.#mapItemGroups.splice(index, 0, mapItemGroup);
         this.#onChange(change);
     }
 
-    removeMapItem(mapItem) {
-        const index = this.#mapItems.findIndex(mi => mi.id === mapItem.id);
+    removeMapItemGroup(mapItemGroup) {
+        const index = this.#mapItemGroups.findIndex(mig => mig.id === mapItemGroup.id);
         if (index > -1) {
             const change = new Change({
                 changeObjectType: Layer.name,
                 changeObjectRef: this.name,
                 changeType: ChangeType.Delete,
-                changeData: [{ mapItemId: mapItem.id, index: index }]
+                changeData: [{ mapItemGroupId: mapItemGroup.id, index: index }]
             });
-            this.#mapItems.splice(index, 1);
+            this.#mapItemGroups.splice(index, 1);
             this.#onChange(change);
         }
     }
 
     clearMapItems() {
-        this.mapItems = [];
+        this.mapItemGroups = [];
     }
 
     render(context, map) {
         if (this.isHidden != true) {
-            for (const mapItem of this.mapItems) {
-                mapItem.render(context, map); // temp
+            for (const mapItemGroup of this.mapItemGroups) {
+                mapItemGroup.render(context, map); // temp
             }
         }
     }
 
     renderSelections(context, map) {
         if (this.isHidden != true) {
-            for (const mapItem of this.mapItems) {
-                mapItem.renderSelection(context, map); // temp
+            for (const mapItemGroup of this.mapItemGroups) {
+                mapItemGroup.renderSelection(context, map); // temp
             }
         }
     }
 
-    selectMapItemsByPath(context, selectionBounds, selectionPath, toggleCurrentSelections) { 
+    selectByPath(context, selectionBounds, selectionPath, toggleCurrentSelections) { 
         const selectionResults = [];
-        for (const mapItem of this.mapItems) {
+        for (const mapItemGroup of this.mapItemGroups) {
             selectionResults.push({
-                isSelected: mapItem.isSelectedByPath(context, selectionBounds, selectionPath),
-                mapItem: mapItem
+                isSelected: mapItemGroup.isSelectedByPath(context, selectionBounds, selectionPath),
+                mapItemGroup: mapItemGroup
             });
         }
         this.#processSelectionResults(selectionResults, toggleCurrentSelections);
     }
 
-    selectMapItemsByPoints(context, map, points, toggleCurrentSelections) {
+    selectByPoints(context, map, points, toggleCurrentSelections) {
         const selectionResults = [];
-        for (const mapItem of this.mapItems) {
+        for (const mapItemGroup of this.mapItemGroups) {
             selectionResults.push({
-                isSelected: mapItem.isSelectedByPoints(context, map, points),
-                mapItem: mapItem
+                isSelected: mapItemGroup.isSelectedByPoints(context, map, points),
+                mapItemGroup: mapItemGroup
             });
         }
         this.#processSelectionResults(selectionResults, toggleCurrentSelections);
@@ -176,9 +176,9 @@ export class Layer {
 
     getSelectionBounds(map) {
         const selectionBounds = [];
-        for (const mapItem of this.mapItems) {
-            if (mapItem.selectionStatus) {
-                selectionBounds.push(mapItem.getSelectionBounds(map));
+        for (const mapItemGroup of this.mapItemGroups) {
+            if (mapItemGroup.selectionStatus) {
+                selectionBounds.push(mapItemGroup.getSelectionBounds(map));
             }
         }
         return selectionBounds;
@@ -224,48 +224,48 @@ export class Layer {
 
     #processSelectionResults(selectionResults, toggleCurrentSelections) {
         let selectionStatus = SelectionStatusType.Primary;
-        let currentPrimaryId = selectionResults.find(r => r.mapItem.selectionStatus == SelectionStatusType.Primary)?.mapItem.id;
+        let currentPrimaryId = selectionResults.find(r => r.mapItemGroup.selectionStatus == SelectionStatusType.Primary)?.mapItemGroup.id;
         if (toggleCurrentSelections) {
             for (const selectionResult of selectionResults) {
                 if (selectionResult.isSelected) {
-                    switch (selectionResult.mapItem.selectionStatus) {
+                    switch (selectionResult.mapItemGroup.selectionStatus) {
                         case SelectionStatusType.Primary:
-                            selectionResult.mapItem.selectionStatus = SelectionStatusType.Secondary;
+                            selectionResult.mapItemGroup.selectionStatus = SelectionStatusType.Secondary;
                             break;
                         case SelectionStatusType.Secondary:
-                            selectionResult.mapItem.selectionStatus = null;
+                            selectionResult.mapItemGroup.selectionStatus = null;
                             break;
                         default:
-                            selectionResult.mapItem.selectionStatus = selectionStatus;
+                            selectionResult.mapItemGroup.selectionStatus = selectionStatus;
                             selectionStatus = SelectionStatusType.Secondary;
                     }
                 }
                 else {
-                    if (selectionResult.mapItem.selectionStatus == SelectionStatusType.Primary) {
-                        selectionResult.mapItem.selectionStatus = SelectionStatusType.Secondary;
+                    if (selectionResult.mapItemGroup.selectionStatus == SelectionStatusType.Primary) {
+                        selectionResult.mapItemGroup.selectionStatus = SelectionStatusType.Secondary;
                     }
                 }
             }
-            let currentPrimary = selectionResults.find(r => r.mapItem.selectionStatus == SelectionStatusType.Primary);
+            let currentPrimary = selectionResults.find(r => r.mapItemGroup.selectionStatus == SelectionStatusType.Primary);
             if (!currentPrimary) {
                 currentPrimary = selectionResults.find(
-                    r => r.mapItem.selectionStatus == SelectionStatusType.Secondary && r.mapItem.id != currentPrimaryId);
+                    r => r.mapItemGroup.selectionStatus == SelectionStatusType.Secondary && r.mapItemGroup.id != currentPrimaryId);
                 if (!currentPrimary) {
-                    currentPrimary = selectionResults.find(r => r.mapItem.selectionStatus == SelectionStatusType.Secondary);
+                    currentPrimary = selectionResults.find(r => r.mapItemGroup.selectionStatus == SelectionStatusType.Secondary);
                 }
                 if (currentPrimary) {
-                    currentPrimary.mapItem.selectionStatus = SelectionStatusType.Primary;
+                    currentPrimary.mapItemGroup.selectionStatus = SelectionStatusType.Primary;
                 }
             }
         }
         else {
             for (const selectionResult of selectionResults) {
                 if (selectionResult.isSelected) {
-                    selectionResult.mapItem.selectionStatus = selectionStatus;
+                    selectionResult.mapItemGroup.selectionStatus = selectionStatus;
                     selectionStatus = SelectionStatusType.Secondary;
                 }
                 else {
-                    selectionResult.mapItem.selectionStatus = null;
+                    selectionResult.mapItemGroup.selectionStatus = null;
                 }
             }
         }

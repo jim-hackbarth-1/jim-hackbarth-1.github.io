@@ -1,5 +1,16 @@
 ﻿
-import { Arc, Change, ChangeType, DbManager, EntityReference, GeometryUtilities, Map, MapItem, Path, SelectionUtilities } from "../references.js";
+import {
+    Arc,
+    Change,
+    ChangeType,
+    DbManager,
+    EntityReference,
+    GeometryUtilities,
+    Map,
+    MapItemGroup,
+    Path,
+    SelectionUtilities
+} from "../references.js";
 
 /**
  * @readonly
@@ -134,8 +145,8 @@ export class MapWorker {
         }
     }
 
-    createMapItem(data) {
-        return new MapItem(data);
+    createMapItemGroup(data) {
+        return new MapItemGroup(data);
     }
 
     createPath(data) {

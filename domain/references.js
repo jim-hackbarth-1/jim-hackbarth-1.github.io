@@ -8,6 +8,7 @@ export * from "./models/fill.js";
 export * from "./models/layer.js";
 export * from "./models/map.js";
 export * from "./models/map-item.js";
+export * from "./models/map-item-group.js";
 export * from "./models/map-item-template.js";
 export * from "./models/path.js";
 export * from "./models/shadow.js";

@@ -73,11 +73,14 @@ export class SelectionUtilities {
         if (mapWorker?.map) {
             mapWorker.map.startChange();
             const layer = mapWorker.map.getActiveLayer();
-            if (layer?.mapItems) {
-                for (const mapItem of layer.mapItems) {
-                    if (mapItem.selectionStatus && mapItem.paths) {
-                        for (const path of mapItem.paths) {
-                            this.selectionStartData.push(this.#getSelectionStartPathData(mapItem, path));
+            if (layer?.mapItemGroups) {
+                for (const mapItemGroup of layer.mapItemGroups) {
+                    let bounds = mapItemGroup.getBounds();
+                    if (mapItemGroup.selectionStatus) {
+                        for (const mapItem of mapItemGroup.mapItems) {
+                            for (const path of mapItem.paths) {
+                                this.selectionStartData.push(this.#getSelectionStartPathData(mapItemGroup.id, bounds, mapItem.id, path));
+                            }
                         }
                     }
                 }
@@ -92,7 +95,7 @@ export class SelectionUtilities {
             changeObjectType: "Layer",
             changeObjectRef: layer.name,
             changeType: changeType,
-            changeData: this.selectionStartData.map(s => ({ mapItemId: s.mapItemId, pathId: s.path.id, start: s.startingPathData }))
+            changeData: this.selectionStartData.map(s => ({ mapItemGroupId: s.mapItemGroupId, mapItemId: s.mapItemId, pathId: s.path.id, start: s.startingPathData }))
         });
         mapWorker.map.completeChange(change);
         this.resetSelectionBounds(mapWorker);
@@ -138,11 +141,14 @@ export class SelectionUtilities {
         if (mapWorker?.map) {
             mapWorker.map.startChange();
             const layer = mapWorker.map.getActiveLayer();
-            if (layer?.mapItems) {
-                for (const mapItem of layer.mapItems) {
-                    if (mapItem.selectionStatus && mapItem.paths) {
-                        for (const path of mapItem.paths) {
-                            this.selectionStartData.push(this.#getSelectionStartPathData(mapItem, path));
+            if (layer?.mapItemGroups) {
+                for (const mapItemGroup of layer.mapItemGroups) {
+                    let bounds = mapItemGroup.getBounds();
+                    if (mapItemGroup.selectionStatus) {
+                        for (const mapItem of mapItemGroup.mapItems) {
+                            for (const path of mapItem.paths) {
+                                this.selectionStartData.push(this.#getSelectionStartPathData(mapItemGroup.id, bounds, mapItem.id, path));
+                            }
                         }
                     }
                 }
@@ -174,7 +180,7 @@ export class SelectionUtilities {
         theta = theta % (Math.PI * 2);
         const thetaDegrees = theta * (180 / Math.PI);
         for (const selection of this.selectionStartData) {
-            const bounds = selection.startingMapItemData.bounds;
+            const bounds = selection.mapItemGroupBounds;
             const centerOfRotation = { x: bounds.x + (bounds.width / 2), y: bounds.y + (bounds.height / 2) };
             const xStart = selection.startingPathData.start.x - centerOfRotation.x;
             const yStart = selection.startingPathData.start.y - centerOfRotation.y;
@@ -275,13 +281,12 @@ export class SelectionUtilities {
         return boundsInfo.selectionBounds.move;
     }
 
-    #getSelectionStartPathData(mapItem, path) {
+    #getSelectionStartPathData(mapItemGroupId, mapItemGroupBounds, mapItemId, path) {
         return {
-            mapItemId: mapItem.id,
+            mapItemGroupId: mapItemGroupId,
+            mapItemGroupBounds: mapItemGroupBounds,
+            mapItemId: mapItemId,
             path: path,
-            startingMapItemData: {
-                bounds: mapItem.getBounds()
-            },
             startingPathData: {
                 start: path.start,
                 transits: path.transits

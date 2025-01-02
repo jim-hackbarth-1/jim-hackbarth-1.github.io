@@ -65,6 +65,7 @@ export class MapItemTemplate {
                 this.#caption = new Caption(data.caption);
             }
         }
+        this.#tags = data?.tags;
         this.#eventListeners = {};
         this.#addChangeEventListeners(this.#caption);
     }
@@ -144,6 +145,17 @@ export class MapItemTemplate {
         this.#onChange(change);
     }
 
+    /** @type {string}  */
+    #tags;
+    get tags() {
+        return this.#tags;
+    }
+    set tags(tags) {
+        const change = this.#getPropertyChange("tags", this.#tags, tags);
+        this.#tags = tags;
+        this.#onChange(change);
+    }
+
     // methods
     getData() {
         const fills = [];
@@ -161,7 +173,8 @@ export class MapItemTemplate {
             strokes: strokes,
             shadow: this.#shadow ? this.#shadow.getData() : null,
             z: this.#z,
-            caption: this.#caption ? this.#caption.getData() : null
+            caption: this.#caption ? this.#caption.getData() : null,
+            tags: this.#tags
         };
     }
 

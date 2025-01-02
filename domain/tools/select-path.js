@@ -179,25 +179,25 @@ class SelectPathTool {
         this.#points.push({ x: eventData.offsetX, y: eventData.offsetY });
         if (this.#mapWorker.map) {
             if (this.#points.length < 4) {
-                this.#selectMapItemsByPoints();
+                this.#selectByPoints();
             }
             else {
-                this.#selectMapItemsByPath();
+                this.#selectByPath();
             }
         }
         this.#selectionUtilities.resetSelectionBounds(this.#mapWorker);
         this.#mapWorker.renderMap();
     }
 
-    #selectMapItemsByPoints() {
+    #selectByPoints() {
         const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
         const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
         const points = this.#points.map(pt => this.#mapWorker.geometryUtilities.transformPoint(pt, scale, translation));
         const layer = this.#mapWorker.map.getActiveLayer();
-        layer.selectMapItemsByPoints(this.#mapWorker.renderingContext, this.#mapWorker.map, points, this.#isCtrlPressed);
+        layer.selectByPoints(this.#mapWorker.renderingContext, this.#mapWorker.map, points, this.#isCtrlPressed);
     }
 
-    #selectMapItemsByPath() {
+    #selectByPath() {
         const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
         const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
         const start = this.#mapWorker.geometryUtilities.transformPoint(this.#pointDown, scale, translation);
@@ -227,7 +227,7 @@ class SelectPathTool {
         pathData += " z";
         const selectionPath = new Path2D(pathData);
         const layer = this.#mapWorker.map.getActiveLayer();
-        layer.selectMapItemsByPath(this.#mapWorker.renderingContext, selectionBounds, selectionPath, this.#isCtrlPressed);
+        layer.selectByPath(this.#mapWorker.renderingContext, selectionBounds, selectionPath, this.#isCtrlPressed);
     }
 
     #drawSelectionLine(x, y) {

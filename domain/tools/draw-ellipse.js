@@ -69,7 +69,7 @@ class DrawEllipseTool {
 
     async #drawEnd() {   
         this.#isDrawing = false;
-        await this.#addMapItem();
+        await this.#addMapItemGroup();
     }
 
     #drawEllipse() {
@@ -93,7 +93,7 @@ class DrawEllipseTool {
         this.#mapWorker.renderingContext.stroke(ellipse);        
     }
 
-    async #addMapItem() {
+    async #addMapItemGroup() {
         if (this.#mapWorker.map && this.#mapWorker.activeMapItemTemplate) {
             const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
             const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
@@ -106,7 +106,7 @@ class DrawEllipseTool {
             const xRadius = Math.abs((this.#xCurrent - this.#xStart) / 2);
             const yRadius = Math.abs((this.#yCurrent - this.#yStart) / 2);
             const radii = this.#mapWorker.geometryUtilities.transformPoint({ x: xRadius, y: yRadius }, scale);
-            const data = {
+            const mapItemData = {
                 mapItemTemplateRef: this.#mapWorker.activeMapItemTemplate.ref.getData(),
                 paths: [{
                     start: start,
@@ -124,8 +124,11 @@ class DrawEllipseTool {
                     ]
                 }]
             };
-            const mapItem = this.#mapWorker.createMapItem(data);
-            this.#mapWorker.map.getActiveLayer().addMapItem(mapItem);
+            const data = {
+                mapItems: [mapItemData]
+            };
+            const mapItemGroup = this.#mapWorker.createMapItemGroup(data);
+            this.#mapWorker.map.getActiveLayer().addMapItemGroup(mapItemGroup);
         }
         this.#mapWorker.renderMap();
     }

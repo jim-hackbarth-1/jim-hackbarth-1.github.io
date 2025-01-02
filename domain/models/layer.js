@@ -1,5 +1,5 @@
 ﻿
-import { Change, ChangeType, MapItem } from "../references.js";
+import { Change, ChangeType, MapItem, SelectionStatusType } from "../references.js";
 
 export class Layer {
 
@@ -152,22 +152,32 @@ export class Layer {
         }
     }
 
-    selectMapItemsByPath(context, selectionBounds, selectionPath) {         
+    selectMapItemsByPath(context, selectionBounds, selectionPath, toggleCurrentSelections) { 
+        const selectionResults = [];
         for (const mapItem of this.mapItems) {
-            mapItem.selectByPath(context, selectionBounds, selectionPath);
+            selectionResults.push({
+                isSelected: mapItem.isSelectedByPath(context, selectionBounds, selectionPath),
+                mapItem: mapItem
+            });
         }
+        this.#processSelectionResults(selectionResults, toggleCurrentSelections);
     }
 
-    selectMapItemsByPoints(context, map, points) {
+    selectMapItemsByPoints(context, map, points, toggleCurrentSelections) {
+        const selectionResults = [];
         for (const mapItem of this.mapItems) {
-            mapItem.selectByPoints(context, map, points);
+            selectionResults.push({
+                isSelected: mapItem.isSelectedByPoints(context, map, points),
+                mapItem: mapItem
+            });
         }
+        this.#processSelectionResults(selectionResults, toggleCurrentSelections);
     }
 
     getSelectionBounds(map) {
         const selectionBounds = [];
         for (const mapItem of this.mapItems) {
-            if (mapItem.isSelected) {
+            if (mapItem.selectionStatus) {
                 selectionBounds.push(mapItem.getSelectionBounds(map));
             }
         }
@@ -209,6 +219,55 @@ export class Layer {
     #removeChangeEventListeners(source) {
         if (source) {
             source.removeEventListener(Change.ChangeEvent, this.#onChange);
+        }
+    }
+
+    #processSelectionResults(selectionResults, toggleCurrentSelections) {
+        let selectionStatus = SelectionStatusType.Primary;
+        let currentPrimaryId = selectionResults.find(r => r.mapItem.selectionStatus == SelectionStatusType.Primary)?.mapItem.id;
+        if (toggleCurrentSelections) {
+            for (const selectionResult of selectionResults) {
+                if (selectionResult.isSelected) {
+                    switch (selectionResult.mapItem.selectionStatus) {
+                        case SelectionStatusType.Primary:
+                            selectionResult.mapItem.selectionStatus = SelectionStatusType.Secondary;
+                            break;
+                        case SelectionStatusType.Secondary:
+                            selectionResult.mapItem.selectionStatus = null;
+                            break;
+                        default:
+                            selectionResult.mapItem.selectionStatus = selectionStatus;
+                            selectionStatus = SelectionStatusType.Secondary;
+                    }
+                }
+                else {
+                    if (selectionResult.mapItem.selectionStatus == SelectionStatusType.Primary) {
+                        selectionResult.mapItem.selectionStatus = SelectionStatusType.Secondary;
+                    }
+                }
+            }
+            let currentPrimary = selectionResults.find(r => r.mapItem.selectionStatus == SelectionStatusType.Primary);
+            if (!currentPrimary) {
+                currentPrimary = selectionResults.find(
+                    r => r.mapItem.selectionStatus == SelectionStatusType.Secondary && r.mapItem.id != currentPrimaryId);
+                if (!currentPrimary) {
+                    currentPrimary = selectionResults.find(r => r.mapItem.selectionStatus == SelectionStatusType.Secondary);
+                }
+                if (currentPrimary) {
+                    currentPrimary.mapItem.selectionStatus = SelectionStatusType.Primary;
+                }
+            }
+        }
+        else {
+            for (const selectionResult of selectionResults) {
+                if (selectionResult.isSelected) {
+                    selectionResult.mapItem.selectionStatus = selectionStatus;
+                    selectionStatus = SelectionStatusType.Secondary;
+                }
+                else {
+                    selectionResult.mapItem.selectionStatus = null;
+                }
+            }
         }
     }
 }

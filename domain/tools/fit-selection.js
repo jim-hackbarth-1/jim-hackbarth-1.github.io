@@ -1,9 +1,9 @@
 ﻿
 export function createToolModel() {
-    return new SelectPathTool();
+    return new FitSelectionTool();
 }
 
-class SelectPathTool {
+class FitSelectionTool {
 
     // fields
     #mapWorker;
@@ -14,6 +14,7 @@ class SelectPathTool {
     #pathLight;
     #selectionUtilities;
     #isCtrlPressed;
+    #setOperationMode;
 
     // methods
     async onActivate(mapWorker) {
@@ -24,6 +25,7 @@ class SelectPathTool {
         this.#selectionUtilities = this.#mapWorker.createSelectionUtilities();
         this.#cursor = "Default";
         this.#isCtrlPressed = false;
+        this.#setOperationMode = "Intersect";
     }
 
     async handleClientEvent(clientEvent) {
@@ -76,6 +78,10 @@ class SelectPathTool {
     }
 
     #onPointerMove(eventData) {
+        let preview = false;
+        let drawArcsRadii = false;
+        let drawRotationIndicator = false;
+        let rotatePoint = null;
         if (eventData) {
             const currentPoint = { x: eventData.offsetX, y: eventData.offsetY };
             if (this.#selectionUtilities.activityState === "Default") {
@@ -86,20 +92,29 @@ class SelectPathTool {
             }
             if (this.#selectionUtilities.activityState === "Move") {
                 this.#selectionUtilities.move(this.#mapWorker, this.#pointDown, currentPoint);
-                this.#mapWorker.renderMap();
+                preview = true;
             }
             if (this.#selectionUtilities.activityState.startsWith("Resize")) {
                 this.#selectionUtilities.resize(this.#mapWorker, this.#pointDown, currentPoint);
-                this.#mapWorker.renderMap();
-                this.#selectionUtilities.drawArcsRadii(this.#mapWorker);
+                preview = true;
+                drawArcsRadii = true;              
             }
-            if (this.#selectionUtilities.activityState === "Rotate") {
-                const point = this.#transformCanvasPoint(eventData.offsetX, eventData.offsetY);
-                this.#selectionUtilities.rotateMove(this.#mapWorker, point);
-                this.#mapWorker.renderMap();
-                this.#selectionUtilities.drawRotationIndicator(this.#mapWorker, point);
-                this.#selectionUtilities.drawArcsRadii(this.#mapWorker);
+            if (this.#selectionUtilities.activityState === "Rotate") { 
+                rotatePoint = this.#transformCanvasPoint(eventData.offsetX, eventData.offsetY);
+                this.#selectionUtilities.rotateMove(this.#mapWorker, rotatePoint);
+                preview = true;
+                drawRotationIndicator = true;
+                drawArcsRadii = true;
             }
+        }
+        if (preview) {
+            this.#previewSetOperation();
+        }
+        if (drawRotationIndicator && rotatePoint) {
+            this.#selectionUtilities.drawRotationIndicator(this.#mapWorker, rotatePoint);
+        }
+        if (drawArcsRadii) {
+            this.#selectionUtilities.drawArcsRadii(this.#mapWorker);
         }
     }
 
@@ -116,10 +131,10 @@ class SelectPathTool {
             }
             if (this.#selectionUtilities.activityState === "Rotate") {
                 this.#selectionUtilities.completeChange(this.#mapWorker, "Rotate");
-                this.#mapWorker.renderMap();
             }
         }
         this.#selectionUtilities.activityState = "Default";
+        this.#previewSetOperation();
     }
 
     #onKeyDown(eventData) {
@@ -131,6 +146,22 @@ class SelectPathTool {
     #onKeyUp(eventData) {
         if (eventData.key == "Control") {
             this.#isCtrlPressed = false;
+        }
+        if (eventData.key?.toLowerCase() == "i") {
+            this.#setOperationMode = "Intersect";
+            this.#previewSetOperation();
+        }
+        if (eventData.key?.toLowerCase() == "u") {
+            this.#setOperationMode = "Union";
+            this.#previewSetOperation();
+        }
+        if (eventData.key?.toLowerCase() == "x") {
+            this.#setOperationMode = "Exclude";
+            this.#previewSetOperation();
+        }
+        if (eventData.key == "Enter") {
+            this.#performSetOperation();
+            this.#mapWorker.renderMap();
         }
     }
 
@@ -186,7 +217,6 @@ class SelectPathTool {
             }
         }
         this.#selectionUtilities.resetSelectionBounds(this.#mapWorker);
-        this.#mapWorker.renderMap();
     }
 
     #selectMapItemsByPoints() {
@@ -240,5 +270,99 @@ class SelectPathTool {
         this.#mapWorker.renderingContext.lineWidth = 1;
         this.#pathLight.lineTo(x, y);
         this.#mapWorker.renderingContext.stroke(this.#pathLight);
+    }
+
+    #previewSetOperation() {
+        this.#mapWorker.renderMap();
+
+        // get secondary selection path(s)
+        const layer = this.#mapWorker.map.getActiveLayer();
+        const secondaryPaths = [];
+        const secondarySelections = layer.mapItems.filter(mi => mi.selectionStatus == "Secondary");
+        for (const mapItem of secondarySelections) {
+            for (const path of mapItem.paths) {
+                secondaryPaths.push(path);
+            }
+        }
+
+        // display set operation paths
+        const primarySelections = layer.mapItems.filter(mi => mi.selectionStatus == "Primary");
+        for (const mapItem of primarySelections) {
+            for (const primaryPath of mapItem.paths) {
+                for (const secondaryPath of secondaryPaths) {
+                    const setOperationPaths = this.#getSetOperationPaths(primaryPath, secondaryPath);
+                    for (const setOperationPath of setOperationPaths) {
+                        this.#displayPath(setOperationPath);
+                    }
+                    if (setOperationPaths.length > 0) {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    #performSetOperation() {
+
+        // get secondary selection path(s)
+        const layer = this.#mapWorker.map.getActiveLayer();
+        const secondaryPaths = [];
+        const secondarySelections = layer.mapItems.filter(mi => mi.selectionStatus == "Secondary");
+        for (const mapItem of secondarySelections) {
+            for (const path of mapItem.paths) {
+                secondaryPaths.push(path);
+            }
+        }
+
+        // perform set operations
+        const primarySelections = layer.mapItems.filter(mi => mi.selectionStatus == "Primary");
+        let mapItemPaths = [];
+        for (const mapItem of primarySelections) {
+            mapItemPaths = [];
+            for (const primaryPath of mapItem.paths) {
+                for (const secondaryPath of secondaryPaths) {
+                    const setOperationPaths = this.#getSetOperationPaths(primaryPath, secondaryPath);
+                    for (const setOperationPath of setOperationPaths) {
+                        mapItemPaths.push(setOperationPath);
+                    }
+                    if (setOperationPaths.length > 0) {
+                        break;
+                    }
+                }
+            }
+            if (mapItemPaths.length > 0) {
+                mapItem.paths = mapItemPaths;
+            }
+        }
+        this.#mapWorker.renderMap();
+    }
+
+    #getSetOperationPaths(path1, path2) {
+        let pathDataList = [];
+        if (this.#setOperationMode == "Intersect") {
+            pathDataList = this.#mapWorker.geometryUtilities.getIntersectionPathDataList(path1, path2);
+        }
+        if (this.#setOperationMode == "Union") {
+            pathDataList = this.#mapWorker.geometryUtilities.getUnionPathDataList(path1, path2);
+        }
+        if (this.#setOperationMode == "Exclude") {
+            pathDataList = this.#mapWorker.geometryUtilities.getExclusionPathDataList(path1, path2);
+        }
+        const paths = [];
+        for (const pathData of pathDataList) {
+            paths.push(this.#mapWorker.createPath(pathData));
+        }
+        return paths;
+    }
+
+    #displayPath(path) {
+        const path2D = new Path2D(`${path.getPathInfo()} z`);
+        this.#mapWorker.renderingContext.setLineDash([]);
+        this.#mapWorker.renderingContext.strokeStyle = "darkred";
+        this.#mapWorker.renderingContext.lineWidth = 3;
+        this.#mapWorker.renderingContext.stroke(path2D);
+        this.#mapWorker.renderingContext.strokeStyle = "white";
+        this.#mapWorker.renderingContext.lineWidth = 1;
+        this.#mapWorker.renderingContext.stroke(path2D);
     }
 }

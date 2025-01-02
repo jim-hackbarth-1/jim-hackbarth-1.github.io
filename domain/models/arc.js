@@ -199,9 +199,9 @@ export class Arc {
         const endFromCenter = { x: arc.end.x - arc.center.x, y: arc.end.y - arc.center.y };
 
         // get unrotated start and end points
-        let xStartUnrotated = -startFromCenter.x * Math.cos(-theta) + startFromCenter.y * Math.sin(-theta);
+        let xStartUnrotated = startFromCenter.x * Math.cos(-theta) - startFromCenter.y * Math.sin(-theta);
         let yStartUnrotated = startFromCenter.x * Math.sin(-theta) + startFromCenter.y * Math.cos(-theta);
-        let xEndUnrotated = -endFromCenter.x * Math.cos(-theta) + endFromCenter.y * Math.sin(-theta);
+        let xEndUnrotated = endFromCenter.x * Math.cos(-theta) - endFromCenter.y * Math.sin(-theta);
         let yEndUnrotated = endFromCenter.x * Math.sin(-theta) + endFromCenter.y * Math.cos(-theta);
 
         // scale unrotated start and end points

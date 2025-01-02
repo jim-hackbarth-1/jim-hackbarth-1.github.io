@@ -22,13 +22,14 @@ export function getOverlandTemplate() {
         toolPalette: {
             editingToolPalettes: [
                 [
-                    { versionId: 1, isBuiltIn: true, name: "Select path" }
+                    { versionId: 1, isBuiltIn: true, name: "Select path" },
+                    { versionId: 1, isBuiltIn: true, name: "Select rectangle" }
                 ],
                 [
                     { versionId: 1, isBuiltIn: true, name: "Pan" }
                 ],
                 [
-                    { versionId: 1, isBuiltIn: true, name: "Edit intersect" }
+                    { versionId: 1, isBuiltIn: true, name: "Fit selection" }
                 ]
             ],
             drawingToolPalettes: [

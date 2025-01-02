@@ -85,6 +85,7 @@ export class MapWorkerClient {
     static #documentEventHandlersAdded = false;
     static #addDocumentEventHandlers(appDocument) {
         if (!MapWorkerClient.#documentEventHandlersAdded) {
+            MapWorkerClient.#addDocumentEventHandler(appDocument, "keydown");
             MapWorkerClient.#addDocumentEventHandler(appDocument, "keyup");
             MapWorkerClient.#documentEventHandlersAdded = true;
         }

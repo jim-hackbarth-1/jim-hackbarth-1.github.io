@@ -1,17 +1,15 @@
 ﻿
 export function createToolModel() {
-    return new SelectPathTool();
+    return new SelectRectangleTool();
 }
 
-class SelectPathTool {
+class SelectRectangleTool {
 
     // fields
     #mapWorker;
     #cursor;
     #pointDown;
-    #points;
-    #pathDark;
-    #pathLight;
+    #pointCurrent;
     #selectionUtilities;
     #isCtrlPressed;
 
@@ -59,7 +57,6 @@ class SelectPathTool {
     #onPointerDown(eventData) {
         if (eventData && eventData.button === 0) {
             this.#pointDown = { x: eventData.offsetX, y: eventData.offsetY };
-            this.#points = [];
             const transformedPoint = this.#transformCanvasPoint(eventData.offsetX, eventData.offsetY);
             this.#selectionUtilities.setActivityState(transformedPoint, this.#isCtrlPressed);
             if (this.#selectionUtilities.activityState === "Select") {
@@ -99,7 +96,7 @@ class SelectPathTool {
                 this.#mapWorker.renderMap();
                 this.#selectionUtilities.drawRotationIndicator(this.#mapWorker, point);
                 this.#selectionUtilities.drawArcsRadii(this.#mapWorker);
-            }
+            }          
         }
     }
 
@@ -115,9 +112,9 @@ class SelectPathTool {
                 this.#selectionUtilities.completeChange(this.#mapWorker, "Resize");
             }
             if (this.#selectionUtilities.activityState === "Rotate") {
-                this.#selectionUtilities.completeChange(this.#mapWorker, "Rotate");
+                this.#selectionUtilities.completeChange(this.#mapWorker, "Rotate"); 
                 this.#mapWorker.renderMap();
-            }
+            }  
         }
         this.#selectionUtilities.activityState = "Default";
     }
@@ -159,86 +156,67 @@ class SelectPathTool {
     }
 
     #selectDown(eventData) {
-        this.#points.push({ x: eventData.offsetX, y: eventData.offsetY });
-        this.#mapWorker.renderingContext.resetTransform();
-        this.#mapWorker.renderingContext.restore();
-        this.#pathDark = new Path2D();
-        this.#pathLight = new Path2D();
-        this.#pathDark.moveTo(eventData.offsetX, eventData.offsetY);
-        this.#pathLight.moveTo(eventData.offsetX, eventData.offsetY);
+        this.#mapWorker.renderingContext.setLineDash([5, 10]);
+        this.#pointCurrent = { x: eventData.offsetX, y: eventData.offsetY };
     }
 
     #selectMove(eventData) {
-        this.#drawSelectionLine(eventData.offsetX, eventData.offsetY);
-        this.#points.push({ x: eventData.offsetX, y: eventData.offsetY });
+        this.#pointCurrent = { x: eventData.offsetX, y: eventData.offsetY };
+        this.#mapWorker.renderMap();
+        this.#mapWorker.renderingContext.restore();
+        this.#mapWorker.renderingContext.resetTransform();
+        const startX = this.#pointDown.x;
+        const startY = this.#pointDown.y;
+        const currentX = this.#pointCurrent.x;
+        const currentY = this.#pointCurrent.y;
+        const rect = new Path2D(`M ${startX},${startY} L ${startX},${currentY} ${currentX},${currentY} ${currentX},${startY} z`);
+        this.#mapWorker.renderingContext.setLineDash([5, 5]);
+        this.#mapWorker.renderingContext.strokeStyle = "dimgray";
+        this.#mapWorker.renderingContext.lineWidth = 3;
+        this.#mapWorker.renderingContext.stroke(rect);
+        this.#mapWorker.renderingContext.strokeStyle = "lightyellow";
+        this.#mapWorker.renderingContext.lineWidth = 1;
+        this.#mapWorker.renderingContext.stroke(rect);
     }
 
     #selectUp(eventData) {
-        this.#drawSelectionLine(eventData.offsetX, eventData.offsetY);
-        this.#drawSelectionLine(this.#pointDown.x, this.#pointDown.y);
-        this.#points.push({ x: eventData.offsetX, y: eventData.offsetY });
-        if (this.#mapWorker.map) {
-            if (this.#points.length < 4) {
-                this.#selectMapItemsByPoints();
-            }
-            else {
-                this.#selectMapItemsByPath();
-            }
+        this.#pointCurrent = { x: eventData.offsetX, y: eventData.offsetY };
+        const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
+        const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
+        if (Math.abs(this.#pointDown.x - this.#pointCurrent.x) < 10 && Math.abs(this.#pointDown.y - this.#pointCurrent.y) < 10) {
+            this.#selectMapItemsByPoints(scale, translation);
+        }
+        else {
+            this.#selectMapItemsByPath(scale, translation);
         }
         this.#selectionUtilities.resetSelectionBounds(this.#mapWorker);
         this.#mapWorker.renderMap();
     }
 
-    #selectMapItemsByPoints() {
-        const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
-        const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
-        const points = this.#points.map(pt => this.#mapWorker.geometryUtilities.transformPoint(pt, scale, translation));
+    #selectMapItemsByPoints(scale, translation) {
+        const points = [
+            { x: this.#pointDown.x, y: this.#pointDown.y },
+            { x: this.#pointCurrent.x, y: this.#pointCurrent.y }
+        ];
+        const transformedPoints = points.map(pt => this.#mapWorker.geometryUtilities.transformPoint(pt, scale, translation));
         const layer = this.#mapWorker.map.getActiveLayer();
-        layer.selectMapItemsByPoints(this.#mapWorker.renderingContext, this.#mapWorker.map, points, this.#isCtrlPressed);
+        layer.selectMapItemsByPoints(this.#mapWorker.renderingContext, this.#mapWorker.map, transformedPoints, this.#isCtrlPressed);
     }
 
-    #selectMapItemsByPath() {
-        const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
-        const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
-        const start = this.#mapWorker.geometryUtilities.transformPoint(this.#pointDown, scale, translation);
-        const points = this.#points.map(pt => this.#mapWorker.geometryUtilities.transformPoint(pt, scale, translation));
-        let x = start.x;
-        let y = start.y;
-        let xMin = x, xMax = x, yMin = y, yMax = y;
-        for (const point of points) {
-            if (point.x < xMin) {
-                xMin = point.x;
-            }
-            if (point.x > xMax) {
-                xMax = point.x;
-            }
-            if (point.y < yMin) {
-                yMin = point.y;
-            }
-            if (point.y > yMax) {
-                yMax = point.y;
-            }
-        }
-        const selectionBounds = { x: xMin, y: yMin, width: xMax - xMin, height: yMax - yMin };
-        let pathData = `M ${start.x},${start.y}`;
-        for (const point of points) {
-            pathData += ` L ${point.x},${point.y}`;
-        }
-        pathData += " z";
+    #selectMapItemsByPath(scale, translation) {
+        const start = this.#mapWorker.geometryUtilities.transformPoint(
+            { x: this.#pointDown.x, y: this.#pointDown.y }, scale, translation);
+        const end = this.#mapWorker.geometryUtilities.transformPoint(
+            { x: this.#pointCurrent.x, y: this.#pointCurrent.y }, scale, translation);
+        const bounds = {
+            x: Math.min(start.x, end.x),
+            y: Math.min(start.y, end.y),
+            width: Math.abs(start.x - end.x),
+            height: Math.abs(start.y - end.y)
+        };
+        const pathData = `M ${bounds.x},${bounds.y} l ${bounds.width},0 0,${bounds.height} ${-bounds.width},0 z`;
         const selectionPath = new Path2D(pathData);
         const layer = this.#mapWorker.map.getActiveLayer();
-        layer.selectMapItemsByPath(this.#mapWorker.renderingContext, selectionBounds, selectionPath, this.#isCtrlPressed);
-    }
-
-    #drawSelectionLine(x, y) {
-        this.#mapWorker.renderingContext.setLineDash([5, 5]);
-        this.#mapWorker.renderingContext.strokeStyle = "dimgray";
-        this.#mapWorker.renderingContext.lineWidth = 3;
-        this.#pathDark.lineTo(x, y);
-        this.#mapWorker.renderingContext.stroke(this.#pathDark);
-        this.#mapWorker.renderingContext.strokeStyle = "lightyellow";
-        this.#mapWorker.renderingContext.lineWidth = 1;
-        this.#pathLight.lineTo(x, y);
-        this.#mapWorker.renderingContext.stroke(this.#pathLight);
+        layer.selectMapItemsByPath(this.#mapWorker.renderingContext, bounds, selectionPath, this.#isCtrlPressed);
     }
 }

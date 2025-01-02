@@ -1,5 +1,5 @@
 ﻿
-import { Arc, Change, ChangeType, DbManager, EntityReference, GeometryUtilities, Map, MapItem, Path } from "../references.js";
+import { Arc, Change, ChangeType, DbManager, EntityReference, GeometryUtilities, Map, MapItem, Path, SelectionUtilities } from "../references.js";
 
 /**
  * @readonly
@@ -138,6 +138,10 @@ export class MapWorker {
         return new MapItem(data);
     }
 
+    createPath(data) {
+        return new Path(data);
+    }
+
     getTransitsBounds(start, transits) {
         return Path.getTransitsBounds(start, transits);
     }
@@ -152,6 +156,10 @@ export class MapWorker {
 
     createChange(data) {
         return new Change(data);
+    }
+
+    createSelectionUtilities() {
+        return new SelectionUtilities();
     }
 
     renderMap() {

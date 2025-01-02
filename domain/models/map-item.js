@@ -1,5 +1,5 @@
 ﻿
-import { Change, ChangeType, EntityReference, Path } from "../references.js";
+import { Change, ChangeType, EntityReference, Path, SelectionStatusType } from "../references.js";
 
 export class MapItem {
 
@@ -19,7 +19,7 @@ export class MapItem {
         this.#isCaptionVisible = data?.isCaptionVisible;
         this.#captionText = data?.captionText;
         this.#captionLocation = data?.captionLocation;
-        this.#isSelected = data?.isSelected;
+        this.#selectionStatus = data?.selectionStatus;
         this.#eventListeners = {};
     }
 
@@ -109,14 +109,14 @@ export class MapItem {
         this.#onChange(change);
     }
 
-    /** @type {boolean}  */
-    #isSelected;
-    get isSelected() {
-        return this.#isSelected;
+    /** @type {SelectionStatusType}  */
+    #selectionStatus;
+    get selectionStatus() {
+        return this.#selectionStatus;
     }
-    set isSelected(isSelected) {
-        const change = this.#getPropertyChange("isSelected", this.#isSelected, isSelected);
-        this.#isSelected = isSelected;
+    set selectionStatus(selectionStatus) {
+        const change = this.#getPropertyChange("selectionStatus", this.#selectionStatus, selectionStatus);
+        this.#selectionStatus = selectionStatus;
         this.#onChange(change);
     }
 
@@ -131,7 +131,7 @@ export class MapItem {
             isCaptionVisible: this.#isCaptionVisible,
             captionText: this.#captionText,
             captionLocation: this.#captionLocation,
-            isSelected: this.#isSelected
+            selectionStatus: this.#selectionStatus
         };
     }
 
@@ -217,40 +217,40 @@ export class MapItem {
     }
 
     renderSelection(context, map) {
-        if (this.isSelected) {
+        if (this.selectionStatus) {
             const selectionBounds = this.getSelectionBounds(map);
             const width = selectionBounds.move.width;
             const height = selectionBounds.move.height;
             const scale = 1 / map.zoom;
             const handleSize = 10 * scale;
 
-            this.#drawSelectionBounds(context, map, selectionBounds.move);
+            this.#drawSelectionBounds(context, map, selectionBounds.move, this.selectionStatus);
             if (width > handleSize && height > handleSize) {
-                this.#drawSelectionBounds(context, map, selectionBounds.resizeSE);
+                this.#drawSelectionBounds(context, map, selectionBounds.resizeSE, this.selectionStatus);
             }
             if (width > 2 * handleSize && height > handleSize) {
-                this.#drawSelectionBounds(context, map, selectionBounds.resizeSW);
+                this.#drawSelectionBounds(context, map, selectionBounds.resizeSW, this.selectionStatus);
             }
             if (width > 3 * handleSize && height > handleSize) {
-                this.#drawSelectionBounds(context, map, selectionBounds.resizeS);
+                this.#drawSelectionBounds(context, map, selectionBounds.resizeS, this.selectionStatus);
             }
             if (height > 2 * handleSize && width > handleSize) {
-                this.#drawSelectionBounds(context, map, selectionBounds.resizeNE);
+                this.#drawSelectionBounds(context, map, selectionBounds.resizeNE, this.selectionStatus);
             }
             if (height > 3 * handleSize && width > handleSize) {
-                this.#drawSelectionBounds(context, map, selectionBounds.resizeE);
+                this.#drawSelectionBounds(context, map, selectionBounds.resizeE, this.selectionStatus);
             }
             if (width > 2 * handleSize && height > 2 * handleSize) {
-                this.#drawSelectionBounds(context, map, selectionBounds.resizeNW);
+                this.#drawSelectionBounds(context, map, selectionBounds.resizeNW, this.selectionStatus);
             }
             if (width > 3 * handleSize && height > 2 * handleSize) {
-                this.#drawSelectionBounds(context, map, selectionBounds.resizeN);
+                this.#drawSelectionBounds(context, map, selectionBounds.resizeN, this.selectionStatus);
             }
             if (width > 2 * handleSize && height > 3 * handleSize) {
-                this.#drawSelectionBounds(context, map, selectionBounds.resizeW);
+                this.#drawSelectionBounds(context, map, selectionBounds.resizeW, this.selectionStatus);
             }
             if (width > 3 * handleSize && height > 3 * handleSize) {
-                this.#drawSelectionBounds(context, map, selectionBounds.rotate);
+                this.#drawSelectionBounds(context, map, selectionBounds.rotate, this.selectionStatus);
                 const start = {
                     x: selectionBounds.rotate.x + (selectionBounds.rotate.width / 2),
                     y: selectionBounds.rotate.y + selectionBounds.rotate.height
@@ -264,25 +264,23 @@ export class MapItem {
         }
     }
 
-    selectByPath(context, selectionBounds, selectionPath) {
+    isSelectedByPath(context, selectionBounds, selectionPath) {
         const bounds = this.getBounds();
         if (bounds.x < selectionBounds.x
             || bounds.x + bounds.width > selectionBounds.x + selectionBounds.width
             || bounds.y < selectionBounds.y
             || bounds.y + bounds.height > selectionBounds.y + selectionBounds.height) {
-            this.isSelected = false;
-            return;
+            return false;
         }
         for (const path of this.paths) {
             if (!context.isPointInPath(selectionPath, path.start.x, path.start.y)) {
-                this.isSelected = false;
-                return;
+                return false;
             }
         }
-        this.isSelected = true;
+        return true;
     }
 
-    selectByPoints(context, map, points) {
+    isSelectedByPoints(context, map, points) {
         const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
         const hasFill = mapItemTemplate.fills.length > 0;
         for (const path of this.paths) {
@@ -290,19 +288,17 @@ export class MapItem {
             for (const point of points) {
                 if (hasFill) {
                     if (context.isPointInPath(path2D, point.x, point.y)) {
-                        this.isSelected = true;
-                        return;
+                        return true;
                     }
                 }
                 else {
                     if (context.isPointInStroke(path2D, point.x, point.y)) {
-                        this.isSelected = true;
-                        return;
+                        return true;
                     }
                 }
             }
         }
-        this.isSelected = false;
+        return false;
     }
 
     getBounds() {
@@ -369,7 +365,7 @@ export class MapItem {
         });
     }
 
-    #drawSelectionBounds(context, map, bounds) {
+    #drawSelectionBounds(context, map, bounds, selectionStatus) {
         const scale = 1 / map.zoom;
         const minSize = 10 * scale;
         let width = bounds.width;
@@ -384,7 +380,7 @@ export class MapItem {
         const pathLight = new Path2D(`M ${bounds.x + 1 * scale},${bounds.y + 1 * scale} l ${width},${0} ${0},${height} ${-width},${0} z`);
         context.setLineDash([2 * scale, 2 * scale]);
         context.lineWidth = 2 * scale;
-        context.strokeStyle = "white";
+        context.strokeStyle = (selectionStatus == SelectionStatusType.Primary) ? "yellow" : "white";
         context.stroke(pathLight);
         context.lineWidth = 2 * scale;
         context.strokeStyle = "dimgray";

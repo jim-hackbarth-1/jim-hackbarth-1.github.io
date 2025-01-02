@@ -1119,7 +1119,7 @@ export class GeometryUtilities {
             return false;
         }
         for (let i = 0; i < fragment1.transitInfoList.length; i++) {
-            if (!this.#areTransitsEqual(fragment1.transitInfoList[i], fragment2.transitInfoList[i])) {
+            if (!this.#areTransitsEqual(fragment1.transitInfoList[i].transit, fragment2.transitInfoList[i].transit)) {
                 return false;
             }
         }
@@ -1209,7 +1209,7 @@ class ComplexNumber {
     static removeImaginary(inputNumbers, maxImaginary) {
         const outputNumbers = [];
         for (const input of inputNumbers) {
-            if (input.imaginary < maxImaginary) {
+            if (Math.abs(input.imaginary) < maxImaginary) {
                 outputNumbers.push(new ComplexNumber(input.real, 0));
             }
         }
@@ -1302,7 +1302,7 @@ class ComplexNumber {
     sqrt() {
         const abs = this.abs();
         const real = Math.sqrt(0.5 * (abs + this.real));
-        const imaginary = Math.sqrt(0.5 * (abs - this.real));
+        let imaginary = Math.sqrt(0.5 * (abs - this.real));
         if (this.imaginary < 0) {
             imaginary *= -1;
         }

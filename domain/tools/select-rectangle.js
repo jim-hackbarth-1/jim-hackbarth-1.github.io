@@ -109,7 +109,9 @@ class SelectRectangleTool {
                 this.#selectionUtilities.completeChange(this.#mapWorker, "Move");
             }
             if (this.#selectionUtilities.activityState.startsWith("Resize")) {
+                this.#selectionUtilities.removeExteriorClipPaths(this.#mapWorker);
                 this.#selectionUtilities.completeChange(this.#mapWorker, "Resize");
+                this.#mapWorker.renderMap();
             }
             if (this.#selectionUtilities.activityState === "Rotate") {
                 this.#selectionUtilities.completeChange(this.#mapWorker, "Rotate"); 

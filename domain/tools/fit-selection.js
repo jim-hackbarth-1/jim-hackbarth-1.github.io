@@ -127,6 +127,7 @@ class FitSelectionTool {
                 this.#selectionUtilities.completeChange(this.#mapWorker, "Move");
             }
             if (this.#selectionUtilities.activityState.startsWith("Resize")) {
+                this.#selectionUtilities.removeExteriorClipPaths(this.#mapWorker);
                 this.#selectionUtilities.completeChange(this.#mapWorker, "Resize");
             }
             if (this.#selectionUtilities.activityState === "Rotate") {
@@ -296,6 +297,9 @@ class FitSelectionTool {
                         const setOperationPaths = this.#getSetOperationPaths(primaryPath, secondaryPath);
                         for (const setOperationPath of setOperationPaths) {
                             this.#displayPath(setOperationPath);
+                            for (const clipPath of setOperationPath.clipPaths) {
+                                this.#displayPath(clipPath);
+                            }
                         }
                         if (setOperationPaths.length > 0) {
                             break;
@@ -330,6 +334,10 @@ class FitSelectionTool {
                     for (const secondaryPath of secondaryPaths) {
                         const setOperationPaths = this.#getSetOperationPaths(primaryPath, secondaryPath);
                         for (const setOperationPath of setOperationPaths) {
+                            for (const clipPath of primaryPath.clipPaths) {
+                                setOperationPath.clipPaths.push(clipPath);
+                            }
+                            this.#mapWorker.geometryUtilities.removeExteriorClipPaths(setOperationPath);
                             mapItemPaths.push(setOperationPath);
                         }
                         if (setOperationPaths.length > 0) {

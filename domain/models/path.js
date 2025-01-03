@@ -1,5 +1,5 @@
 ﻿
-import { Arc, Change, ChangeType } from "../references.js";
+import { Arc, Change, ChangeType, GeometryUtilities } from "../references.js";
 
 export class Path {
 
@@ -16,6 +16,15 @@ export class Path {
                     transit = new Arc(transitData);
                 }
                 this.#transits.push(transit);
+            }
+        }
+        if (data?.clipPaths) {
+            this.#clipPaths = [];
+            for (const clipPathData of data.clipPaths) {
+                clipPathData.id = null;
+                clipPathData.mapItemId = data?.mapItemId,
+                clipPathData.clipPaths = null;
+                this.#clipPaths.push(new Path(clipPathData));
             }
         }
         this.#rotationAngle = data?.rotationAngle;
@@ -60,6 +69,17 @@ export class Path {
         this.#onChange(change);
     }
 
+    /** @type {[Path]} */
+    #clipPaths;
+    get clipPaths() {
+        return this.#clipPaths ?? [];
+    }
+    set clipPaths(clipPaths) {
+        const change = this.#getPropertyChange("clipPaths", this.#clipPaths, clipPaths);
+        this.#clipPaths = clipPaths;
+        this.#onChange(change);
+    }
+
     /** @type {number} */
     #rotationAngle; // for tracking tile fill/stroke rotation
     get rotationAngle() {
@@ -74,6 +94,7 @@ export class Path {
     // methods
     getData() {
         const transits = [];
+        const clipPaths = [];
         for (const transit of this.transits) {
             let transitData = transit;
             if (transit.radii) {
@@ -81,11 +102,15 @@ export class Path {
             }
             transits.push(transitData);
         }
+        for (const clipPath of this.clipPaths) {
+            clipPaths.push(clipPath.getData());
+        }
         return {
             id: this.#id,
             mapItemId: this.#mapItemId,
             start: this.#start,
             transits: transits,
+            clipPaths: clipPaths,
             rotationAngle: this.#rotationAngle
         };
     }
@@ -125,40 +150,8 @@ export class Path {
     }
 
     getBounds() {
-        return Path.getTransitsBounds(this.start, this.transits);
-    }
-
-    static getTransitsBounds(start, transits) {
-        let transitStart = start;
-        let xMin = transitStart.x, xMax = transitStart.x, yMin = transitStart.y, yMax = transitStart.y;
-        let transitBounds = null;
-        let left = null;
-        let top = null;
-        for (const transit of transits) {
-            if (transit.radii) {
-                transitBounds = Arc.getBounds(transitStart, transit);
-                transitStart = { x: transitStart.x + transit.end.x, y: transitStart.y + transit.end.y };
-            }
-            else {
-                left = Math.min(transitStart.x, transitStart.x + transit.x);
-                top = Math.min(transitStart.y, transitStart.y + transit.y);
-                transitBounds = { x: left, y: top, width: Math.abs(transit.x), height: Math.abs(transit.y) };
-                transitStart = { x: transitStart.x + transit.x, y: transitStart.y + transit.y };
-            }
-            if (transitBounds.x < xMin) {
-                xMin = transitBounds.x;
-            }
-            if (transitBounds.x + transitBounds.width > xMax) {
-                xMax = transitBounds.x + transitBounds.width;
-            }
-            if (transitBounds.y < yMin) {
-                yMin = transitBounds.y;
-            }
-            if (transitBounds.y + transitBounds.height > yMax) {
-                yMax = transitBounds.y + transitBounds.height;
-            }
-        }
-        return { x: xMin, y: yMin, width: xMax - xMin, height: yMax - yMin };
+        const geometryUtilities = new GeometryUtilities();
+        return geometryUtilities.getPathBounds(this.start, this.transits);
     }
 
     // helpers

@@ -184,20 +184,24 @@ export class MapItem {
     render(context, map) {
         if (this.isHidden != true) {
             const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
+            const hasFill = mapItemTemplate.fills.length > 0;
             if (mapItemTemplate) {
                 const scale = 1 / map.zoom;
                 for (const path of this.paths) {
                     let pathInfo = path.getPathInfo();
-                    if (mapItemTemplate.fills.length > 0) {
+                    if (hasFill) {
                         pathInfo += " z";
-                    }
+                    } 
                     const path2D = new Path2D(pathInfo);
                     context.setLineDash([]);
                     context.strokeStyle = mapItemTemplate.strokes[0].color;
                     context.lineWidth = mapItemTemplate.strokes[0].width * scale;
                     context.stroke(path2D);
+                    context.save();
+                    this.#renderClipPaths(context, path, hasFill);
                     context.fillStyle = mapItemTemplate.fills[0].color;
-                    context.fill(path2D);
+                    context.fill(path2D); 
+                    context.restore();
                 }
             }
         }
@@ -284,5 +288,25 @@ export class MapItem {
                 }
             ]
         });
+    }
+
+    #renderClipPaths(context, path, hasFill) {
+        if (path?.clipPaths) {
+            let outerPathInfo = path.getPathInfo();
+            if (hasFill) {
+                outerPathInfo += " z";
+            }
+            const outerPath = new Path2D(outerPathInfo);
+            for (const clipPath of path.clipPaths) {
+                let innerPathInfo = clipPath.getPathInfo();
+                if (hasFill) {
+                    innerPathInfo += " z";
+                }
+                const innerPath = new Path2D(innerPathInfo);
+                context.stroke(innerPath);
+                outerPath.addPath(innerPath);
+            }
+            context.clip(outerPath, "evenodd");
+        }
     }
 }

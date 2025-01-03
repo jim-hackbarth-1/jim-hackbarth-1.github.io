@@ -381,7 +381,21 @@ export class GeometryUtilities {
         for (const fragment of path2Fragments) {
             fragments.push(fragment);
         }
-        return this.#getPathDataListFromFragments(fragments);
+        const pathDataList = this.#getPathDataListFromFragments(fragments);
+        return this.#convertExcludedInteriorPathsToClipPaths(pathDataList);
+    }
+
+    removeExteriorClipPaths(path) {
+        const clipPaths = [];
+        const bounds = this.getPathBounds(path.start, path.transits);
+        for (const clipPath of path.clipPaths) {
+            const isStartInPath = this.isPointInPath(clipPath.start, bounds, path);
+            const intersections = this.getPathPathIntersections(clipPath, path);
+            if (isStartInPath && intersections.length == 0) {
+                clipPaths.push(clipPath);
+            }
+        }
+        path.clipPaths = clipPaths;
     }
 
     isPointInBounds(point, bounds) {
@@ -453,6 +467,39 @@ export class GeometryUtilities {
             };
             return this.getSegmentBounds(segment);
         }
+    }
+
+    getPathBounds(start, transits) {
+        let transitStart = start;
+        let xMin = transitStart.x, xMax = transitStart.x, yMin = transitStart.y, yMax = transitStart.y;
+        let transitBounds = null;
+        let left = null;
+        let top = null;
+        for (const transit of transits) {
+            if (transit.radii) {
+                transitBounds = this.getArcBounds(transitStart, transit);
+                transitStart = { x: transitStart.x + transit.end.x, y: transitStart.y + transit.end.y };
+            }
+            else {
+                left = Math.min(transitStart.x, transitStart.x + transit.x);
+                top = Math.min(transitStart.y, transitStart.y + transit.y);
+                transitBounds = { x: left, y: top, width: Math.abs(transit.x), height: Math.abs(transit.y) };
+                transitStart = { x: transitStart.x + transit.x, y: transitStart.y + transit.y };
+            }
+            if (transitBounds.x < xMin) {
+                xMin = transitBounds.x;
+            }
+            if (transitBounds.x + transitBounds.width > xMax) {
+                xMax = transitBounds.x + transitBounds.width;
+            }
+            if (transitBounds.y < yMin) {
+                yMin = transitBounds.y;
+            }
+            if (transitBounds.y + transitBounds.height > yMax) {
+                yMax = transitBounds.y + transitBounds.height;
+            }
+        }
+        return { x: xMin, y: yMin, width: xMax - xMin, height: yMax - yMin };
     }
 
     isPointInPath(point, pathBounds, path, offsetCheck) {
@@ -1175,6 +1222,31 @@ export class GeometryUtilities {
         }
         return (odds >= evens);
     } 
+
+    #convertExcludedInteriorPathsToClipPaths(pathDataListIn) {
+        const pathDataListWorking = [];
+        for (let i = 0; i < pathDataListIn.length; i++) {
+            pathDataListIn[i].clipPaths = [];
+            pathDataListWorking.push({
+                pathData: pathDataListIn[i],
+                bounds: this.getPathBounds(pathDataListIn[i].start, pathDataListIn[i].transits),
+                index: i,
+                isClip: false
+            });
+        }
+        for (const pathDataInfo1 of pathDataListWorking) {
+            for (const pathDataInfo2 of pathDataListWorking) {
+                if (pathDataInfo1.index != pathDataInfo2.index) {
+                    if (this.isPointInPath(pathDataInfo1.pathData.start, pathDataInfo2.bounds, pathDataInfo2.pathData)) {
+                        pathDataInfo1.isClip = true;
+                        pathDataInfo2.pathData.clipPaths.push(pathDataInfo1.pathData);
+                        break;
+                    }
+                }
+            }
+        }
+        return pathDataListWorking.filter(x => !x.isClip).map(x => x.pathData);
+    }
 }
 
 class ComplexNumber {

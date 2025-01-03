@@ -153,10 +153,6 @@ export class MapWorker {
         return new Path(data);
     }
 
-    getTransitsBounds(start, transits) {
-        return Path.getTransitsBounds(start, transits);
-    }
-
     rotateArc(arc, angleRadians) {
         return Arc.rotateArc(arc, angleRadians);
     }

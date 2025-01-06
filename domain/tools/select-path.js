@@ -14,6 +14,8 @@ class SelectPathTool {
     #pathLight;
     #selectionUtilities;
     #isCtrlPressed;
+    #isShiftPressed;
+    #isAltPressed;
 
     // methods
     async onActivate(mapWorker) {
@@ -24,6 +26,8 @@ class SelectPathTool {
         this.#selectionUtilities = this.#mapWorker.createSelectionUtilities();
         this.#cursor = "Default";
         this.#isCtrlPressed = false;
+        this.#isShiftPressed = false;
+        this.#isAltPressed = false;
     }
 
     async handleClientEvent(clientEvent) {
@@ -61,7 +65,7 @@ class SelectPathTool {
             this.#pointDown = { x: eventData.offsetX, y: eventData.offsetY };
             this.#points = [];
             const transformedPoint = this.#transformCanvasPoint(eventData.offsetX, eventData.offsetY);
-            this.#selectionUtilities.setActivityState(transformedPoint, this.#isCtrlPressed);
+            this.#selectionUtilities.setActivityState(transformedPoint, this.#isAltPressed);
             if (this.#selectionUtilities.activityState === "Select") {
                 this.#selectDown(eventData);
             }
@@ -85,20 +89,20 @@ class SelectPathTool {
                 this.#selectMove(eventData);
             }
             if (this.#selectionUtilities.activityState === "Move") {
-                this.#selectionUtilities.move(this.#mapWorker, this.#pointDown, currentPoint);
+                this.#selectionUtilities.move(this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isCtrlPressed);
                 this.#mapWorker.renderMap();
             }
             if (this.#selectionUtilities.activityState.startsWith("Resize")) {
-                this.#selectionUtilities.resize(this.#mapWorker, this.#pointDown, currentPoint);
+                this.#selectionUtilities.resize(this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isCtrlPressed);
                 this.#mapWorker.renderMap();
-                this.#selectionUtilities.drawArcsRadii(this.#mapWorker);
+                this.#selectionUtilities.drawArcsRadii(this.#mapWorker, this.#isCtrlPressed);
             }
             if (this.#selectionUtilities.activityState === "Rotate") {
                 const point = this.#transformCanvasPoint(eventData.offsetX, eventData.offsetY);
-                this.#selectionUtilities.rotateMove(this.#mapWorker, point);
+                this.#selectionUtilities.rotateMove(this.#mapWorker, point, this.#isShiftPressed, this.#isCtrlPressed);
                 this.#mapWorker.renderMap();
                 this.#selectionUtilities.drawRotationIndicator(this.#mapWorker, point);
-                this.#selectionUtilities.drawArcsRadii(this.#mapWorker);
+                this.#selectionUtilities.drawArcsRadii(this.#mapWorker, this.#isCtrlPressed);
             }
         }
     }
@@ -128,11 +132,23 @@ class SelectPathTool {
         if (eventData.key == "Control") {
             this.#isCtrlPressed = true;
         }
+        if (eventData.key == "Shift") {
+            this.#isShiftPressed = true;
+        }
+        if (eventData.key == "Alt") {
+            this.#isAltPressed = true;
+        }
     }
 
     #onKeyUp(eventData) {
         if (eventData.key == "Control") {
             this.#isCtrlPressed = false;
+        }
+        if (eventData.key == "Shift") {
+            this.#isShiftPressed = false;
+        }
+        if (eventData.key == "Alt") {
+            this.#isAltPressed = false;
         }
     }
 
@@ -196,7 +212,7 @@ class SelectPathTool {
         const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
         const points = this.#points.map(pt => this.#mapWorker.geometryUtilities.transformPoint(pt, scale, translation));
         const layer = this.#mapWorker.map.getActiveLayer();
-        layer.selectByPoints(this.#mapWorker.renderingContext, this.#mapWorker.map, points, this.#isCtrlPressed);
+        layer.selectByPoints(this.#mapWorker.renderingContext, this.#mapWorker.map, points, this.#isAltPressed);
     }
 
     #selectByPath() {
@@ -229,7 +245,7 @@ class SelectPathTool {
         pathData += " z";
         const selectionPath = new Path2D(pathData);
         const layer = this.#mapWorker.map.getActiveLayer();
-        layer.selectByPath(this.#mapWorker.renderingContext, selectionBounds, selectionPath, this.#isCtrlPressed);
+        layer.selectByPath(this.#mapWorker.renderingContext, selectionBounds, selectionPath, this.#isAltPressed);
     }
 
     #drawSelectionLine(x, y) {

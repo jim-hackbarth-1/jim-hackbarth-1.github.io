@@ -101,10 +101,23 @@ export class SelectionUtilities {
         this.resetSelectionBounds(mapWorker);
     }
 
-    move(mapWorker, startPoint, endPoint) {
-        const dx = (endPoint.x - startPoint.x) / mapWorker.map.zoom;
-        const dy = (endPoint.y - startPoint.y) / mapWorker.map.zoom;
-        for (const selection of this.selectionStartData) {
+    move(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode) {
+        let dx = (endPoint.x - startPoint.x) / mapWorker.map.zoom;
+        let dy = (endPoint.y - startPoint.y) / mapWorker.map.zoom;
+        if (useLockMode) {
+            if (Math.abs(dx) > Math.abs(dy)) {
+                dy = 0;
+            }
+            else {
+                dx = 0;
+            }
+        }
+        let selectionStartData = this.selectionStartData;
+        if (useSingleSelectionMode) {
+            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(startPoint, ActivityState.Move);
+            selectionStartData = selectionStartData.filter(ssd => ssd.mapItemGroupId == boundsInfo.mapItemGroupId);
+        }
+        for (const selection of selectionStartData) {
             selection.path.start = { x: selection.startingPathData.start.x + dx, y: selection.startingPathData.start.y + dy };
             for (const clipPath of selection.path.clipPaths) {
                 const startDataPath = selection.startingPathData.clipPaths.find(p => p.id == clipPath.id);
@@ -115,30 +128,30 @@ export class SelectionUtilities {
         }
     }
 
-    resize(mapWorker, startPoint, endPoint) {
+    resize(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode) {
         if (this.activityState === ActivityState.ResizeSE) {
-            this.#resizeSEMove(mapWorker, startPoint, endPoint);
+            this.#resizeSEMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode);
         }
         if (this.activityState === ActivityState.ResizeS) {
-            this.#resizeSMove(mapWorker, startPoint, endPoint);
+            this.#resizeSMove(mapWorker, startPoint, endPoint, useSingleSelectionMode);
         }
         if (this.activityState === ActivityState.ResizeSW) {
-            this.#resizeSWMove(mapWorker, startPoint, endPoint);
+            this.#resizeSWMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode);
         }
         if (this.activityState === ActivityState.ResizeW) {
-            this.#resizeWMove(mapWorker, startPoint, endPoint);
+            this.#resizeWMove(mapWorker, startPoint, endPoint, useSingleSelectionMode);
         }
         if (this.activityState === ActivityState.ResizeNW) {
-            this.#resizeNWMove(mapWorker, startPoint, endPoint);
+            this.#resizeNWMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode);
         }
         if (this.activityState === ActivityState.ResizeN) {
-            this.#resizeNMove(mapWorker, startPoint, endPoint);
+            this.#resizeNMove(mapWorker, startPoint, endPoint, useSingleSelectionMode);
         }
         if (this.activityState === ActivityState.ResizeNE) {
-            this.#resizeNEMove(mapWorker, startPoint, endPoint);
+            this.#resizeNEMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode);
         }
         if (this.activityState === ActivityState.ResizeE) {
-            this.#resizeEMove(mapWorker, startPoint, endPoint);
+            this.#resizeEMove(mapWorker, startPoint, endPoint, useSingleSelectionMode);
         }
     }
 
@@ -159,16 +172,19 @@ export class SelectionUtilities {
                     }
                 }
                 const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(point, ActivityState.Rotate);
-                this.changeReferenceBounds = boundsInfo.selectionBounds.move;
+                this.changeReferenceBounds = {
+                    mapItemGroupId: boundsInfo.mapItemGroupId,
+                    bounds: boundsInfo.selectionBounds.move
+                }
             }
         }
     }
 
-    rotateMove(mapWorker, currentPoint) {
+    rotateMove(mapWorker, currentPoint, useLockMode, useSingleSelectionMode) {
         const referenceBounds = this.changeReferenceBounds;
         const referenceCenterOfRotation = {
-            x: referenceBounds.x + (referenceBounds.width / 2),
-            y: referenceBounds.y + (referenceBounds.height / 2)
+            x: referenceBounds.bounds.x + (referenceBounds.bounds.width / 2),
+            y: referenceBounds.bounds.y + (referenceBounds.bounds.height / 2)
         };
         let theta = (currentPoint.x < referenceCenterOfRotation.x) ? (Math.PI / 2) : (3 * Math.PI / 2);
         if (referenceCenterOfRotation.y != currentPoint.y) {
@@ -184,8 +200,26 @@ export class SelectionUtilities {
             theta += (Math.PI * 2);
         }
         theta = theta % (Math.PI * 2);
-        const thetaDegrees = theta * (180 / Math.PI);
-        for (const selection of this.selectionStartData) {
+        if (useLockMode) {
+            let lockTheta = 0;
+            let lock = 0;
+            let min = 0;
+            let max = 0;
+            for (let i = 1; i < 8; i++) {
+                lock = i * Math.PI / 4;
+                min = lock - (Math.PI / 8);
+                max = lock + (Math.PI / 8);
+                if (theta >= min && theta <= max) {
+                    lockTheta = lock;
+                }
+            }
+            theta = lockTheta;
+        }
+        let selectionStartData = this.selectionStartData;
+        if (useSingleSelectionMode) {
+            selectionStartData = selectionStartData.filter(ssd => ssd.mapItemGroupId == referenceBounds.mapItemGroupId);
+        }
+        for (const selection of selectionStartData) {
             const bounds = selection.mapItemGroupBounds;
             const centerOfRotation = { x: bounds.x + (bounds.width / 2), y: bounds.y + (bounds.height / 2) };
             this.#rotatePath(selection.path, theta, centerOfRotation, selection.startingPathData, mapWorker);
@@ -198,13 +232,17 @@ export class SelectionUtilities {
         }
     }
 
-    drawArcsRadii(mapWorker) {
+    drawArcsRadii(mapWorker, useSingleSelectionMode) {
         const lineScale = 1 / mapWorker.map.zoom;
         mapWorker.renderingContext.strokeStyle = "green";
         mapWorker.renderingContext.lineWidth = 1 * lineScale;
         mapWorker.renderingContext.setLineDash([4 * lineScale, 4 * lineScale]);
-        if (this.selectionStartData) {
-            for (const selection of this.selectionStartData) {
+        let selectionStartData = this.selectionStartData;
+        if (useSingleSelectionMode && selectionStartData) {
+            selectionStartData = selectionStartData.filter(ssd => ssd.mapItemGroupId == this.changeReferenceBounds.mapItemGroupId);
+        }
+        if (selectionStartData) {
+            for (const selection of selectionStartData) {
                 let transitStart = selection.path.start;
                 let arcCount = 0;
                 for (const transit of selection.path.transits) {
@@ -226,8 +264,8 @@ export class SelectionUtilities {
     drawRotationIndicator(mapWorker, currentPoint) {
         const referenceBounds = this.changeReferenceBounds;
         const centerOfRotation = {
-            x: referenceBounds.x + (referenceBounds.width / 2),
-            y: referenceBounds.y + (referenceBounds.height / 2)
+            x: referenceBounds.bounds.x + (referenceBounds.bounds.width / 2),
+            y: referenceBounds.bounds.y + (referenceBounds.bounds.height / 2)
         };
         const line = new Path2D(`M ${currentPoint.x},${currentPoint.y} L ${centerOfRotation.x},${centerOfRotation.y}`);
         const lineScale = 1 / mapWorker.map.zoom;
@@ -260,6 +298,7 @@ export class SelectionUtilities {
                     && point.y >= bounds.y
                     && point.y <= bounds.y + bounds.height) {
                     return {
+                        mapItemGroupId: selectionBounds.mapItemGroup.id,
                         selectionBounds: selectionBounds,
                         boundsType: boundsType
                     };
@@ -271,7 +310,10 @@ export class SelectionUtilities {
 
     #getChangeReferenceBounds(point) {
         const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(point, ActivityState.Move);
-        return boundsInfo.selectionBounds.move;
+        return {
+            mapItemGroupId: boundsInfo.mapItemGroupId,
+            bounds: boundsInfo.selectionBounds.move
+        };
     }
 
     #getSelectionStartPathData(mapItemGroupId, mapItemGroupBounds, mapItemId, path) {
@@ -326,12 +368,20 @@ export class SelectionUtilities {
         path.transits = transits;
     }
 
-    #resizeSEMove(mapWorker, startPoint, endPoint) {
-        const dx = (endPoint.x - startPoint.x) / mapWorker.map.zoom;
-        const dy = (endPoint.y - startPoint.y) / mapWorker.map.zoom;
-        const scaleX = (this.changeReferenceBounds.width + dx) / this.changeReferenceBounds.width;
-        const scaleY = (this.changeReferenceBounds.height + dy) / this.changeReferenceBounds.height;
-        for (const selection of this.selectionStartData) {
+    #resizeSEMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode) {
+        let dx = (endPoint.x - startPoint.x) / mapWorker.map.zoom;
+        let dy = (endPoint.y - startPoint.y) / mapWorker.map.zoom;
+        if (useLockMode) {
+            dy = dx;
+        }      
+        const scaleX = (this.changeReferenceBounds.bounds.width + dx) / this.changeReferenceBounds.bounds.width;
+        const scaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
+        let selectionStartData = this.selectionStartData;
+        if (useSingleSelectionMode) {
+            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(startPoint, ActivityState.ResizeSE);
+            selectionStartData = selectionStartData.filter(ssd => ssd.mapItemGroupId == boundsInfo.mapItemGroupId);
+        }
+        for (const selection of selectionStartData) {
             if (this.#canPathBeScaled(selection.path, scaleX, scaleY)) {
                 const offset = this.#resizePathSE(selection.path, scaleX, scaleY, selection.startingPathData, mapWorker);
                 for (const clipPath of selection.path.clipPaths) {
@@ -357,11 +407,16 @@ export class SelectionUtilities {
         return offset;
     }
 
-    #resizeSMove(mapWorker, startPoint, endPoint) {
+    #resizeSMove(mapWorker, startPoint, endPoint, useSingleSelectionMode) {
         const dy = (endPoint.y - startPoint.y) / mapWorker.map.zoom;
         const scaleX = 1;
-        const scaleY = (this.changeReferenceBounds.height + dy) / this.changeReferenceBounds.height;
-        for (const selection of this.selectionStartData) {
+        const scaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
+        let selectionStartData = this.selectionStartData;
+        if (useSingleSelectionMode) {
+            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(startPoint, ActivityState.ResizeS);
+            selectionStartData = selectionStartData.filter(ssd => ssd.mapItemGroupId == boundsInfo.mapItemGroupId);
+        }
+        for (const selection of selectionStartData) {
             if (this.#canPathBeScaled(selection.path, scaleX, scaleY)) {
                 const offset = this.#resizePathS(selection.path, scaleX, scaleY, selection.startingPathData, mapWorker);
                 for (const clipPath of selection.path.clipPaths) {
@@ -386,12 +441,20 @@ export class SelectionUtilities {
         return offset;
     }
 
-    #resizeSWMove(mapWorker, startPoint, endPoint) {
-        const dx = (startPoint.x - endPoint.x) / mapWorker.map.zoom;
-        const dy = (endPoint.y - startPoint.y) / mapWorker.map.zoom;
-        const scaleX = (this.changeReferenceBounds.width + dx) / this.changeReferenceBounds.width;
-        const scaleY = (this.changeReferenceBounds.height + dy) / this.changeReferenceBounds.height;
-        for (const selection of this.selectionStartData) {
+    #resizeSWMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode) {
+        let dx = (startPoint.x - endPoint.x) / mapWorker.map.zoom;
+        let dy = (endPoint.y - startPoint.y) / mapWorker.map.zoom;
+        if (useLockMode) {
+            dy = dx;
+        } 
+        const scaleX = (this.changeReferenceBounds.bounds.width + dx) / this.changeReferenceBounds.bounds.width;
+        const scaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
+        let selectionStartData = this.selectionStartData;
+        if (useSingleSelectionMode) {
+            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(startPoint, ActivityState.ResizeSW);
+            selectionStartData = selectionStartData.filter(ssd => ssd.mapItemGroupId == boundsInfo.mapItemGroupId);
+        }
+        for (const selection of selectionStartData) {
             if (this.#canPathBeScaled(selection.path, scaleX, scaleY)) {
                 const offset = this.#resizePathSW(selection.path, scaleX, scaleY, selection.startingPathData, mapWorker);
                 for (const clipPath of selection.path.clipPaths) {
@@ -417,11 +480,16 @@ export class SelectionUtilities {
         return offset;
     }
 
-    #resizeWMove(mapWorker, startPoint, endPoint) {
+    #resizeWMove(mapWorker, startPoint, endPoint, useSingleSelectionMode) {
         const dx = (startPoint.x - endPoint.x) / mapWorker.map.zoom;
-        const scaleX = (this.changeReferenceBounds.width + dx) / this.changeReferenceBounds.width;
+        const scaleX = (this.changeReferenceBounds.bounds.width + dx) / this.changeReferenceBounds.bounds.width;
         const scaleY = 1;
-        for (const selection of this.selectionStartData) {
+        let selectionStartData = this.selectionStartData;
+        if (useSingleSelectionMode) {
+            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(startPoint, ActivityState.ResizeW);
+            selectionStartData = selectionStartData.filter(ssd => ssd.mapItemGroupId == boundsInfo.mapItemGroupId);
+        }
+        for (const selection of selectionStartData) {
             if (this.#canPathBeScaled(selection.path, scaleX, scaleY)) {
                 const offset = this.#resizePathW(selection.path, scaleX, scaleY, selection.startingPathData, mapWorker);
                 for (const clipPath of selection.path.clipPaths) {
@@ -447,12 +515,20 @@ export class SelectionUtilities {
         return offset;
     }
 
-    #resizeNWMove(mapWorker, startPoint, endPoint) {
-        const dx = (startPoint.x - endPoint.x) / mapWorker.map.zoom;
-        const dy = (startPoint.y - endPoint.y) / mapWorker.map.zoom;
-        const scaleX = (this.changeReferenceBounds.width + dx) / this.changeReferenceBounds.width;
-        const scaleY = (this.changeReferenceBounds.height + dy) / this.changeReferenceBounds.height;
-        for (const selection of this.selectionStartData) {
+    #resizeNWMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode) {
+        let dx = (startPoint.x - endPoint.x) / mapWorker.map.zoom;
+        let dy = (startPoint.y - endPoint.y) / mapWorker.map.zoom;
+        if (useLockMode) {
+            dy = dx;
+        } 
+        const scaleX = (this.changeReferenceBounds.bounds.width + dx) / this.changeReferenceBounds.bounds.width;
+        const scaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
+        let selectionStartData = this.selectionStartData;
+        if (useSingleSelectionMode) {
+            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(startPoint, ActivityState.ResizeNW);
+            selectionStartData = selectionStartData.filter(ssd => ssd.mapItemGroupId == boundsInfo.mapItemGroupId);
+        }
+        for (const selection of selectionStartData) {
             if (this.#canPathBeScaled(selection.path, scaleX, scaleY)) {
                 const offset = this.#resizePathNW(selection.path, scaleX, scaleY, selection.startingPathData, mapWorker);
                 for (const clipPath of selection.path.clipPaths) {
@@ -478,11 +554,16 @@ export class SelectionUtilities {
         return offset;
     }
 
-    #resizeNMove(mapWorker, startPoint, endPoint) {
+    #resizeNMove(mapWorker, startPoint, endPoint, useSingleSelectionMode) {
         const dy = (startPoint.y - endPoint.y) / mapWorker.map.zoom;
         const scaleX = 1;
-        const scaleY = (this.changeReferenceBounds.height + dy) / this.changeReferenceBounds.height;
-        for (const selection of this.selectionStartData) {
+        const scaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
+        let selectionStartData = this.selectionStartData;
+        if (useSingleSelectionMode) {
+            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(startPoint, ActivityState.ResizeN);
+            selectionStartData = selectionStartData.filter(ssd => ssd.mapItemGroupId == boundsInfo.mapItemGroupId);
+        }
+        for (const selection of selectionStartData) {
             if (this.#canPathBeScaled(selection.path, scaleX, scaleY)) {
                 const offset = this.#resizePathN(selection.path, scaleX, scaleY, selection.startingPathData, mapWorker);
                 for (const clipPath of selection.path.clipPaths) {
@@ -507,12 +588,20 @@ export class SelectionUtilities {
         return offset;
     }
 
-    #resizeNEMove(mapWorker, startPoint, endPoint) {
-        const dx = (endPoint.x - startPoint.x) / mapWorker.map.zoom;
-        const dy = (startPoint.y - endPoint.y) / mapWorker.map.zoom;
-        const scaleX = (this.changeReferenceBounds.width + dx) / this.changeReferenceBounds.width;
-        const scaleY = (this.changeReferenceBounds.height + dy) / this.changeReferenceBounds.height;
-        for (const selection of this.selectionStartData) {
+    #resizeNEMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode) {
+        let dx = (endPoint.x - startPoint.x) / mapWorker.map.zoom;
+        let dy = (startPoint.y - endPoint.y) / mapWorker.map.zoom;
+        if (useLockMode) {
+            dy = dx;
+        } 
+        const scaleX = (this.changeReferenceBounds.bounds.width + dx) / this.changeReferenceBounds.bounds.width;
+        const scaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
+        let selectionStartData = this.selectionStartData;
+        if (useSingleSelectionMode) {
+            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(startPoint, ActivityState.ResizeNE);
+            selectionStartData = selectionStartData.filter(ssd => ssd.mapItemGroupId == boundsInfo.mapItemGroupId);
+        }
+        for (const selection of selectionStartData) {
             if (this.#canPathBeScaled(selection.path, scaleX, scaleY)) {
                 const offset = this.#resizePathNE(selection.path, scaleX, scaleY, selection.startingPathData, mapWorker);
                 for (const clipPath of selection.path.clipPaths) {
@@ -538,11 +627,16 @@ export class SelectionUtilities {
         return offset;
     }
 
-    #resizeEMove(mapWorker, startPoint, endPoint) {
+    #resizeEMove(mapWorker, startPoint, endPoint, useSingleSelectionMode) {
         const dx = (endPoint.x - startPoint.x) / mapWorker.map.zoom;
-        const scaleX = (this.changeReferenceBounds.width + dx) / this.changeReferenceBounds.width;
+        const scaleX = (this.changeReferenceBounds.bounds.width + dx) / this.changeReferenceBounds.bounds.width;
         const scaleY = 1;
-        for (const selection of this.selectionStartData) {
+        let selectionStartData = this.selectionStartData;
+        if (useSingleSelectionMode) {
+            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(startPoint, ActivityState.ResizeE);
+            selectionStartData = selectionStartData.filter(ssd => ssd.mapItemGroupId == boundsInfo.mapItemGroupId);
+        }
+        for (const selection of selectionStartData) {
             if (this.#canPathBeScaled(selection.path, scaleX, scaleY)) {
                 const offset = this.#resizePathE(selection.path, scaleX, scaleY, selection.startingPathData, mapWorker);
                 for (const clipPath of selection.path.clipPaths) {

@@ -334,6 +334,7 @@ class FitSelectionTool {
                     for (const secondaryPath of secondaryPaths) {
                         const setOperationPaths = this.#getSetOperationPaths(primaryPath, secondaryPath);
                         for (const setOperationPath of setOperationPaths) {
+                            setOperationPath.mapItemId = mapItem.id;
                             for (const clipPath of primaryPath.clipPaths) {
                                 setOperationPath.clipPaths.push(clipPath);
                             }

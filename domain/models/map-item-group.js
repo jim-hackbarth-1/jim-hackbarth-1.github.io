@@ -29,6 +29,7 @@ export class MapItemGroup {
     }
     set mapItems(mapItems) {
         const change = this.#getPropertyChange("mapItems", this.#mapItems, mapItems);
+        this.#validateUniqueIds(mapItems);
         this.#mapItems = mapItems;
         this.#onChange(change);
     }
@@ -45,6 +46,23 @@ export class MapItemGroup {
     }
 
     // methods
+    static cleanseData(data, inputUtilities) {
+        if (!data) {
+            return null;
+        }
+        const mapItems = [];
+        if (data.mapItems) {
+            for (const mapItem of data.mapItems) {
+                mapItems.push(MapItem.cleanseData(mapItem, inputUtilities));
+            }
+        }
+        return {
+            id: inputUtilities.cleanseString(data.id),
+            mapItems: mapItems,
+            selectionStatus: inputUtilities.cleanseString(data.selectionStatus)
+        }
+    }
+
     getData() {
         return {
             id: this.#id,
@@ -71,6 +89,9 @@ export class MapItemGroup {
         if (!mapItem) {
             throw new Error(ErrorMessage.NullValue);
         }
+        if (this.mapItems.some(mi => mi.id == mapItem.id)) {
+            throw new Error(ErrorMessage.ItemAlreadyExistsInList);
+        }
         const change = new Change({
             changeObjectType: MapItemGroup.name,
             changeObjectRef: this.id,
@@ -84,6 +105,9 @@ export class MapItemGroup {
     insertMapItem(mapItem, index) {
         if (!mapItem) {
             throw new Error(ErrorMessage.NullValue);
+        }
+        if (this.mapItems.some(mi => mi.id == mapItem.id)) {
+            throw new Error(ErrorMessage.ItemAlreadyExistsInList);
         }
         if (index < 0 || index > this.mapItems.length) {
             throw new Error(ErrorMessage.InvalidIndex);
@@ -294,5 +318,17 @@ export class MapItemGroup {
         context.stroke(circle);
         context.fillStyle = "white";
         context.fill(circle);
+    }
+
+    #validateUniqueIds(mapItems) {
+        if (mapItems) {
+            const ids = [];
+            for (const mapItem of mapItems) {
+                if (ids.includes(mapItem.id)) {
+                    throw new Error(ErrorMessage.ItemAlreadyExistsInList);
+                }
+                ids.push(mapItem.id);
+            }
+        }
     }
 }

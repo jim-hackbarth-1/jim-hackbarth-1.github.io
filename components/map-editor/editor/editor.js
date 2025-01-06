@@ -5,6 +5,7 @@ import {
     ChangeType,
     EntityReference,
     FileManager,
+    InputUtilities,
     Map,
     MapWorkerClient,
     MapWorkerInputMessageType,
@@ -229,7 +230,8 @@ export class EditorModel {
         this.#componentElement.querySelector(`#${id}`).classList.add("active");
         const map = await MapWorkerClient.getMap();
         const tool = map.tools.find(t => EntityReference.areEqual(t.ref, ref));
-        this.#toolCursor = `url(${tool.cursorSrc}) ${tool.cursorHotspot.x} ${tool.cursorHotspot.y}, crosshair`;
+        const cursorSrc = `data:image/svg+xml;base64,${btoa(tool.cursorSrc)}`;
+        this.#toolCursor = `url(${cursorSrc}) ${tool.cursorHotspot.x} ${tool.cursorHotspot.y}, crosshair`;
         this.#setMapCursor();
         const refData = tool?.ref ? tool.ref.getData() : null;
         await MapWorkerClient.postWorkerMessage({ messageType: MapWorkerInputMessageType.SetActiveTool, toolRefData: refData });
@@ -439,7 +441,10 @@ export class EditorModel {
         // TODO: get external tools
 
         // display
-        const map = new Map(mapData);
+        const inputUtilities = new InputUtilities();
+        const parser = new DOMParser();
+        const serializer = new XMLSerializer();
+        const map = new Map(Map.cleanseData(mapData, inputUtilities, parser, serializer));
         await MapWorkerClient.setMap(map);
         KitRenderer.renderComponent(this.#componentId);
     }

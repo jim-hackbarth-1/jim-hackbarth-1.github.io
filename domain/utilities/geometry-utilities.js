@@ -1053,6 +1053,15 @@ export class GeometryUtilities {
             }
         }
         pathDataList.push(currentPathData);
+        for (const pathData of pathDataList) {
+            const transits = [];
+            for (const transit of pathData.transits) {
+                if (transit.radii || transit.x != 0 || transit.y != 0) {
+                    transits.push(transit);
+                }
+            }
+            pathData.transits = transits;
+        }
         return pathDataList;
     }
 

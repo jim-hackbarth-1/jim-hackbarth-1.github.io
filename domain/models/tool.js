@@ -12,7 +12,7 @@ export class BuiltInTools {
     static #tools = null;
 
     static async getTools(baseUrl) {
-        const selectCursorSrc = `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g stroke="black" stroke-width="4" fill="white"><path d="M 5,5 L 80,80 A 5 5 -45 0 0 90 70 L 35,15 z" /></g></svg>')}`;
+        const selectCursorSrc = '<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g stroke="black" stroke-width="4" fill="white"><path d="M 5,5 L 80,80 A 5 5 -45 0 0 90 70 L 35,15 z" /></g></svg>';
         if (!BuiltInTools.#tools) {
             BuiltInTools.#tools = [];
             BuiltInTools.#tools.push(new Tool({
@@ -23,7 +23,7 @@ export class BuiltInTools {
                 },
                 moduleSrc: `${baseUrl}/domain/tools/pan.js`,
                 thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><g class="icon"><path d="M 50,10 L 35,20 45,20 45,45 20,45 20,35 10,50 20,65 20,55 45,55 45,80 35,80 50,90 65,80 55,80 55,55 80,55 80,65 90,50 80,35 80,45 55,45 55,20 65,20z"></path></g></svg>',
-                cursorSrc: `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g fill="white" stroke="black" stroke-width="4"><path d="M 50,10 L 35,20 45,20 45,45 20,45 20,35 10,50 20,65 20,55 45,55 45,80 35,80 50,90 65,80 55,80 55,55 80,55 80,65 90,50 80,35 80,45 55,45 55,20 65,20z"></path></g></svg>')}`,
+                cursorSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g fill="white" stroke="black" stroke-width="4"><path d="M 50,10 L 35,20 45,20 45,45 20,45 20,35 10,50 20,65 20,55 45,55 45,80 35,80 50,90 65,80 55,80 55,55 80,55 80,65 90,50 80,35 80,45 55,45 55,20 65,20z"></path></g></svg>',
                 cursorHotspot: { x: 15, y: 15 },
                 toolType: ToolType.EditingTool
             }));
@@ -75,7 +75,7 @@ export class BuiltInTools {
                 },
                 moduleSrc: `${baseUrl}/domain/tools/draw-path.js`,
                 thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><g class="icon"><path d="M 50,5 Q 15 5, 10 15 T 20 40 T 20 60 T 20 80 T 50 85 T 80 80 T 90 45 T 55 20 z" /><path class="icon-text" d="M 15,15 L 65,65 A 2.5 2.5 -45 0 0 70 60 L 35,25 z" /></g></svg>',
-                cursorSrc: `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g stroke="white" stroke-width="4" fill="black"><path d="M 5,5 L 80,80 A 5 5 -45 0 0 90 70 L 35,15 z" /></g></svg>')}`,
+                cursorSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g stroke="white" stroke-width="4" fill="black"><path d="M 5,5 L 80,80 A 5 5 -45 0 0 90 70 L 35,15 z" /></g></svg>',
                 cursorHotspot: { x: 0, y: 0 },
                 toolType: ToolType.DrawingTool
             }));
@@ -88,7 +88,7 @@ export class BuiltInTools {
                 },
                 moduleSrc: `${baseUrl}/domain/tools/draw-ellipse.js`,
                 thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><g class="icon"><path d="M 30 15 a 25 25 0 0 0 0 50 a 25 25 0 0 0 0 -50 z" /><path class="icon-text" d="M 15,20 L 65,70 A 2.5 2.5 -45 0 0 70 65 L 35,30 z" /></g></svg>',
-                cursorSrc: `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g stroke="white" stroke-width="4" fill="black"><path d="M 80 20 a 10 10 0 0 0 0 20 a 10 10 0 0 0 0 -20 z" /><path d="M 5,5 L 80,80 A 5 5 -45 0 0 90 70 L 35,15 z" /></g></svg>')}`,
+                cursorSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g stroke="white" stroke-width="4" fill="black"><path d="M 80 20 a 10 10 0 0 0 0 20 a 10 10 0 0 0 0 -20 z" /><path d="M 5,5 L 80,80 A 5 5 -45 0 0 90 70 L 35,15 z" /></g></svg>',
                 cursorHotspot: { x: 0, y: 0 },
                 toolType: ToolType.DrawingTool
             }));
@@ -106,13 +106,11 @@ export class Tool {
     // constructor
     constructor(data) {
         this.#ref = new EntityReference(data?.ref);
-        if (data) {
-            this.#moduleSrc = data.moduleSrc;
-            this.#thumbnailSrc = data.thumbnailSrc;
-            this.#cursorSrc = data.cursorSrc,
-            this.#cursorHotspot = data.cursorHotspot,
-            this.#toolType = data.toolType;
-        }
+        this.#moduleSrc = data?.moduleSrc;
+        this.#thumbnailSrc = data?.thumbnailSrc;
+        this.#cursorSrc = data?.cursorSrc;
+        this.#cursorHotspot = data?.cursorHotspot;
+        this.#toolType = data?.toolType;
         this.#eventListeners = {};
     }
 
@@ -179,6 +177,20 @@ export class Tool {
     }
 
     // methods
+    static cleanseData(data, inputUtilities, domParser, domSerializer) {
+        if (!data) {
+            return null;
+        }
+        return {
+            ref: EntityReference.cleanseData(data.ref, inputUtilities),
+            moduleSrc: inputUtilities.cleanseString(data.moduleSrc),
+            thumbnailSrc: inputUtilities.cleanseSvg(data.thumbnailSrc, domParser, domSerializer),
+            cursorSrc: inputUtilities.cleanseSvg(data.cursorSrc, domParser, domSerializer),
+            cursorHotspot: inputUtilities.cleansePoint(data.cursorHotspot),
+            toolType: inputUtilities.cleanseString(data.toolType)
+        };
+    }
+
     getData() {
         return {
             ref: this.#ref ? this.#ref.getData() : null,
@@ -228,5 +240,5 @@ export class Tool {
                 }
             ]
         });
-    }
+    } 
 }

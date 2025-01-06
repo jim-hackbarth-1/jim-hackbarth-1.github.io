@@ -211,6 +211,27 @@ export class Caption {
     }
 
     // methods
+    static cleanseData(data, inputUtilities) {
+        if (!data) {
+            return null;
+        }
+        return {
+            defaultText: inputUtilities.cleanseString(data.defaultText),
+            opacity: inputUtilities.cleanseNumber(data.opacity),
+            font: inputUtilities.cleanseString(data.font),
+            fontSize: inputUtilities.cleanseNumber(data.fontSize),
+            fontColor: inputUtilities.cleanseString(data.fontColor),
+            fontVariantCaps: inputUtilities.cleanseString(data.fontVariantCaps),
+            fontOutlineColor: inputUtilities.cleanseString(data.fontOutlineColor),
+            fontShadow: Shadow.cleanseData(data.fontShadow, inputUtilities),
+            align: inputUtilities.cleanseString(data.align),
+            baseline: inputUtilities.cleanseString(data.baseline),
+            backgroundFill: ColorFill.cleanseData(data.backgroundFill, inputUtilities),
+            borderStroke: ColorStroke.cleanseData(data.borderStroke, inputUtilities),
+            shadow: Shadow.cleanseData(data.shadow, inputUtilities)
+        }
+    }
+
     getData() {
         return {
             defaultText: this.#defaultText,

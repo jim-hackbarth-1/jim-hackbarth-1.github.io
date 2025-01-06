@@ -47,6 +47,7 @@ export class Layer {
         return this.#mapItemGroups;
     }
     set mapItemGroups(mapItemGroups) {
+        this.#validateUniqueIds(mapItemGroups);
         if (this.#mapItemGroups) {
             for (const mapItemGroup of this.#mapItemGroups) {
                 this.#removeChangeEventListeners(mapItemGroup);
@@ -61,6 +62,23 @@ export class Layer {
     }
 
     // methods
+    static cleanseData(data, inputUtilities) {
+        if (!data) {
+            return null;
+        }
+        const mapItemGroups = [];
+        if (data.mapItemGroups) {
+            for (const mapItemGroup of data.mapItemGroups) {
+                mapItemGroups.push(MapItemGroup.cleanseData(mapItemGroup, inputUtilities));
+            }
+        }
+        return {
+            name: inputUtilities.cleanseString(data.name),
+            isHidden: inputUtilities.cleanseBoolean(data.isHidden),
+            mapItemGroups: mapItemGroups
+        }
+    }
+
     getData() {
         const mapItemGroups = [];
         for (const mapItemGroup of this.#mapItemGroups) {
@@ -91,6 +109,9 @@ export class Layer {
         if (!mapItemGroup) {
             throw new Error(ErrorMessage.NullValue);
         }
+        if (this.mapItemGroups.some(mig => mig.id == mapItemGroup.id)) {
+            throw new Error(ErrorMessage.ItemAlreadyExistsInList);
+        }
         const change = new Change({
             changeObjectType: Layer.name,
             changeObjectRef: this.name,
@@ -104,6 +125,9 @@ export class Layer {
     insertMapItemGroup(mapItemGroup, index) {
         if (!mapItemGroup) {
             throw new Error(ErrorMessage.NullValue);
+        }
+        if (this.mapItemGroups.some(mig => mig.id == mapItemGroup.id)) {
+            throw new Error(ErrorMessage.ItemAlreadyExistsInList);
         }
         if (index < 0 || index > this.mapItemGroups.length) {
             throw new Error(ErrorMessage.InvalidIndex);
@@ -267,6 +291,18 @@ export class Layer {
                 else {
                     selectionResult.mapItemGroup.selectionStatus = null;
                 }
+            }
+        }
+    }
+
+    #validateUniqueIds(mapItemGroups) {
+        if (mapItemGroups) {
+            const ids = [];
+            for (const mapItemGroup of mapItemGroups) {
+                if (ids.includes(mapItemGroup.id)) {
+                    throw new Error(ErrorMessage.ItemAlreadyExistsInList);
+                }
+                ids.push(mapItemGroup.id);
             }
         }
     }

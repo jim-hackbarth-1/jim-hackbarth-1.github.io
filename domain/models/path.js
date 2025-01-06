@@ -76,6 +76,12 @@ export class Path {
     }
     set clipPaths(clipPaths) {
         const change = this.#getPropertyChange("clipPaths", this.#clipPaths, clipPaths);
+        if (clipPaths) {
+            for (const clipPath of clipPaths) {
+                clipPath.mapItemId = this.mapItemId;
+            }
+        }
+        this.#validateUniqueIds(clipPaths);
         this.#clipPaths = clipPaths;
         this.#onChange(change);
     }
@@ -92,6 +98,37 @@ export class Path {
     }
 
     // methods
+    static cleanseData(data, inputUtilities) {
+        if (!data) {
+            return null;
+        }
+        const transits = [];
+        if (data.transits) {
+            for (const transit of data.transits) {
+                if (transit.radii) {
+                    transits.push(Arc.cleanseData(transit, inputUtilities));
+                }
+                else {
+                    transits.push(inputUtilities.cleansePoint(transit));
+                }
+            }
+        }
+        const clipPaths = [];
+        if (data.clipPaths) {
+            for (const clipPath of data.clipPaths) {
+                clipPaths.push(Path.cleanseData(clipPath, inputUtilities));
+            }
+        }
+        return {
+            id: data.cleanseString(data.id),
+            mapItemId: data.cleanseString(data.mapItemId),
+            start: inputUtilities.cleansePoint(data.start),
+            transits: transits,
+            clipPaths: clipPaths,
+            rotationAngle: inputUtilities.cleanseNumber(data.rotationAngle)
+        }
+    }
+
     getData() {
         const transits = [];
         const clipPaths = [];
@@ -178,5 +215,17 @@ export class Path {
                 }
             ]
         });
+    }
+
+    #validateUniqueIds(clipPaths) {
+        if (clipPaths) {
+            const ids = [];
+            for (const clipPath of clipPaths) {
+                if (ids.includes(clipPath.id)) {
+                    throw new Error(ErrorMessage.ItemAlreadyExistsInList);
+                }
+                ids.push(clipPath.id);
+            }
+        }
     }
 }

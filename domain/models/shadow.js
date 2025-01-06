@@ -37,6 +37,18 @@ export class Shadow {
     }
 
     // methods
+    static cleanseData(data, inputUtilities) {
+        if (!data) {
+            return null;
+        }
+        return {
+            blur: inputUtilities.cleanseNumber(data.blur),
+            color: inputUtilities.cleanseString(data.color),
+            offsetX: inputUtilities.cleanseNumber(data.offsetX),
+            offsetY: inputUtilities.cleanseNumber(data.offsetY)
+        }
+    }
+
     getData() {
         return {
             blur: this.#blur,

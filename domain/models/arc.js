@@ -69,6 +69,20 @@ export class Arc {
     }
 
     // methods
+    static cleanseData(data, inputUtilities) {
+        if (!data) {
+            return null;
+        }
+        return {
+            end: inputUtilities.cleansePoint(data.end),
+            center: inputUtilities.cleansePoint(data.center),
+            radii: inputUtilities.cleansePoint(data.radii),
+            rotationAngle: inputUtilities.cleanseNumber(data.rotationAngle),
+            largeArcFlag: inputUtilities.cleanseNumber(data.largeArcFlag),
+            sweepFlag: inputUtilities.cleanseNumber(data.sweepFlag)
+        };
+    }
+
     getData() {
         return {
             end: this.#end,

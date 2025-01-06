@@ -1,5 +1,5 @@
 ﻿
-import { Change, ChangeType, EntityReference, getOverlandTemplate, Layer, MapItemTemplate, Tool, ToolPalette } from "../references.js";
+import { Change, ChangeType, EntityReference, ErrorMessage, getOverlandTemplate, Layer, MapItemTemplate, Tool, ToolPalette } from "../references.js";
 
 export class BuiltInTemplates {
 
@@ -92,6 +92,7 @@ export class Map {
         return this.#layers;
     }
     set layers(layers) {
+        this.#validateUniqueLayerNames(layers);
         if (this.#layers) {
             for (const layer of this.#layers) {
                 this.#removeChangeEventListeners(layer);
@@ -221,6 +222,57 @@ export class Map {
     }
 
     // methods
+    static cleanseData(data, inputUtilities, domParser, domSerializer) {
+        if (!data) {
+            return null;
+        }
+        const layers = [];
+        if (data.layers) {
+            for (const layer of data.layers) {
+                layers.push(Layer.cleanseData(layer, inputUtilities));
+            }
+        }
+        const mapItemTemplateRefs = [];
+        if (data.mapItemTemplateRefs) {
+            for (const mapItemTemplateRef of data.mapItemTemplateRefs) {
+                mapItemTemplateRefs.push(EntityReference.cleanseData(mapItemTemplateRef, inputUtilities));
+            }
+        }
+        const mapItemTemplates = [];
+        if (data.mapItemTemplates) {
+            for (const mapItemTemplate of data.mapItemTemplates) {
+                mapItemTemplates.push(MapItemTemplate.cleanseData(mapItemTemplate, inputUtilities, domParser, domSerializer));
+            }
+        }
+        const toolRefs = [];
+        if (data.toolRefs) {
+            for (const toolRef of data.toolRefs) {
+                toolRefs.push(EntityReference.cleanseData(toolRef, inputUtilities));
+            }
+        }
+        const tools = [];
+        if (data.tools) {
+            for (const tool of data.tools) {
+                tools.push(Tool.cleanseData(tool, inputUtilities, domParser, domSerializer));
+            }
+        }
+        return {
+            ref: EntityReference.cleanseData(data.ref, inputUtilities),
+            templateRef: EntityReference.cleanseData(data.templateRef, inputUtilities),
+            thumbnailSrc: inputUtilities.cleanseSvg(data.thumbnailSrc, inputUtilities, domParser, domSerializer),
+            layers: layers,
+            activeLayer: inputUtilities.cleanseString(data.activeLayer),
+            mapItemTemplateRefs: mapItemTemplateRefs,
+            mapItemTemplates: mapItemTemplates,
+            toolRefs: toolRefs,
+            tools: tools,
+            toolPalette: ToolPalette.cleanseData(data.toolPalette, inputUtilities),
+            pan: inputUtilities.cleansePoint(data.pan),
+            zoom: inputUtilities.cleanseNumber(data.zoom),
+            hasUnsavedChanges: inputUtilities.cleanseBoolean(data.hasUnsavedChanges)
+        }
+    }
+
     getData() {
         const layers = [];
         for (const layer of this.#layers) {
@@ -290,9 +342,6 @@ export class Map {
     insertLayer(layer, index) {
         if (!layer) {
             throw new Error(ErrorMessage.NullValue);
-        }
-        if (this.layers.some(l => l.name === layer.name)) {
-            throw new Error(ErrorMessage.ItemAlreadyExistsInList);
         }
         if (index < 0 || index > this.layers.length) {
             throw new Error(ErrorMessage.InvalidIndex);
@@ -650,5 +699,17 @@ export class Map {
             }
         }
         return refsData;
+    }
+
+    #validateUniqueLayerNames(layers) {
+        if (layers) {
+            const names = [];
+            for (const layer of layers) {
+                if (names.includes(layer.name)) {
+                    throw new Error(ErrorMessage.ItemAlreadyExistsInList);
+                }
+                names.push(layer.name);
+            }
+        }
     }
 }

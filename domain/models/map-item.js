@@ -35,6 +35,12 @@ export class MapItem {
     }
     set paths(paths) {
         const change = this.#getPropertyChange("paths", this.#paths, paths);
+        if (paths) {
+            for (const path of paths) {
+                this.#setPathMapItemId(path);
+            }
+        }
+        this.#validateUniqueIds(paths);
         this.#paths = paths;
         this.#onChange(change);
     }
@@ -109,6 +115,28 @@ export class MapItem {
     }
 
     // methods
+    static cleanseData(data, inputUtilities) {
+        if (!data) {
+            return null;
+        }
+        const paths = [];
+        if (data.paths) {
+            for (const path of data.paths) {
+                paths.push(Path.cleanseData(path, inputUtilities));
+            }
+        }
+        return {
+            id: inputUtilities.cleanseString(data.id),
+            paths: paths,
+            mapItemTemplateRef: EntityReference.cleanseData(data.mapItemTemplateRef),
+            z: inputUtilities.cleanseNumber(data.z),
+            isHidden: inputUtilities.cleanseBoolean(data.isHidden),
+            isCaptionVisible: inputUtilities.cleanseBoolean(data.isCaptionVisible),
+            captionText: inputUtilities.cleanseString(data.captionText),
+            captionLocation: inputUtilities.cleansePoint(data.captionLocation)
+        }
+    }
+
     getData() {
         return {
             id: this.#id,
@@ -140,12 +168,16 @@ export class MapItem {
         if (!path) {
             throw new Error(ErrorMessage.NullValue);
         }
+        if (this.paths.some(p => p.id == path.id)) {
+            throw new Error(ErrorMessage.ItemAlreadyExistsInList);
+        }
         const change = new Change({
             changeObjectType: MapItem.name,
             changeObjectRef: this.id,
             changeType: ChangeType.Insert,
             changeData: [{ pathId: path.id, index: this.paths.length }]
         });
+        this.#setPathMapItemId(path);
         this.#paths.push(path);
         this.#onChange(change);
     }
@@ -153,6 +185,9 @@ export class MapItem {
     insertPath(path, index) {
         if (!path) {
             throw new Error(ErrorMessage.NullValue);
+        }
+        if (this.paths.some(p => p.id == path.id)) {
+            throw new Error(ErrorMessage.ItemAlreadyExistsInList);
         }
         if (index < 0 || index > this.paths.length) {
             throw new Error(ErrorMessage.InvalidIndex);
@@ -163,6 +198,7 @@ export class MapItem {
             changeType: ChangeType.Insert,
             changeData: [{ pathId: path.id, index: index }]
         });
+        this.#setPathMapItemId(path);
         this.#paths.splice(index, 0, path);
         this.#onChange(change);
     }
@@ -307,6 +343,29 @@ export class MapItem {
                 outerPath.addPath(innerPath);
             }
             context.clip(outerPath, "evenodd");
+        }
+    }
+
+    #setPathMapItemId(path) {
+        if (path) {
+            path.mapItemId = this.id;
+            if (path.clipPaths) {
+                for (const clipPath of path.clipPaths) {
+                    clipPath.mapItemId = this.id;
+                }
+            }
+        }
+    }
+
+    #validateUniqueIds(paths) {
+        if (paths) {
+            const ids = [];
+            for (const path of paths) {
+                if (ids.includes(path.id)) {
+                    throw new Error(ErrorMessage.ItemAlreadyExistsInList);
+                }
+                ids.push(path.id);
+            }
         }
     }
 }

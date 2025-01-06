@@ -51,6 +51,17 @@ export class ToolPalette {
     }
 
     // methods
+    static cleanseData(data, inputUtilities) {
+        if (!data) {
+            return null;
+        }
+        return {
+            editingToolPalettes: ToolPalette.#cleansePalettesData(data.editingToolPalettes, inputUtilities),
+            drawingToolPalettes: ToolPalette.#cleansePalettesData(data.drawingToolPalettes, inputUtilities),
+            mapItemTemplatePalettes: ToolPalette.#cleansePalettesData(data.mapItemTemplatePalettes, inputUtilities),
+        }
+    }
+
     getData() {
         return {
             editingToolPalettes: this.#getPalettesData(this.#editingToolPalettes),
@@ -272,5 +283,19 @@ export class ToolPalette {
             }
         }
         return palettesData;
+    }
+
+    static #cleansePalettesData(palettes, inputUtilities) {
+        const cleansedPalettes = [];
+        if (palettes) {
+            for (const palette of palettes) {
+                const cleansedPalette = [];
+                for (const ref of palette) {
+                    cleansedPalette.push(EntityReference.cleanseData(ref, inputUtilities));
+                }
+                cleansedPalettes.push(cleansedPalette);
+            }
+        }
+        return cleansedPalettes;
     }
 }

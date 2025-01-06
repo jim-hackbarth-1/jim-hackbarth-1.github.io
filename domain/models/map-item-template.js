@@ -157,6 +157,56 @@ export class MapItemTemplate {
     }
 
     // methods
+    static cleanseData(data, inputUtilities, domParser, domSerializer) {
+        if (!data) {
+            return null;
+        }
+        const fills = [];
+        if (data.fills) {
+            for (const fill of data.fills) {
+                if (fill.color) {
+                    fills.push(ColorFill.cleanseData(fill, inputUtilities));
+                }
+                if (fill.gradientType) {
+                    fills.push(GradientFill.cleanseData(fill, inputUtilities));
+                }
+                if (fill.imageSrc) {
+                    fills.push(TileFill.cleanseData(fill, inputUtilities));
+                }
+                if (fill.imageSources) {
+                    fills.push(ImageArrayFill.cleanseData(fill, inputUtilities));
+                }
+            }
+        }
+        const strokes = [];
+        if (data.strokes) {
+            for (const stroke of data.strokes) {
+                if (stroke.color) {
+                    strokes.push(ColorStroke.cleanseData(stroke, inputUtilities));
+                }
+                if (stroke.gradientType) {
+                    strokes.push(GradientStroke.cleanseData(stroke, inputUtilities));
+                }
+                if (stroke.imageSrc) {
+                    strokes.push(TileStroke.cleanseData(stroke, inputUtilities));
+                }
+                if (stroke.imageSources) {
+                    strokes.push(ImageArrayStroke.cleanseData(stroke, inputUtilities));
+                }
+            }
+        }
+        return {
+            ref: EntityReference.cleanseData(data.ref, inputUtilities),
+            thumbnailSrc: inputUtilities.cleanseSvg(data.thumbnailSrc, domParser, domSerializer),
+            fills: fills,
+            strokes: strokes,
+            shadow: Shadow.cleanseData(data.shadow),
+            z: inputUtilities.cleanseNumber(data.z),
+            caption: Caption.cleanseData(data.caption),
+            tags: inputUtilities.cleanseString(data.tags)
+        }
+    }
+
     getData() {
         const fills = [];
         for (const fill of this.fills) {

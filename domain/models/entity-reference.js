@@ -37,6 +37,18 @@ export class EntityReference {
     }
 
     // methods
+    static cleanseData(data, inputUtilities) {
+        if (!data) {
+            return null;
+        }
+        return {
+            versionId: inputUtilities.cleanseNumber(data.versionId),
+            isBuiltIn: inputUtilities.cleanseBoolean(data.isBuiltIn),
+            isFromTemplate: inputUtilities.cleanseBoolean(data.isFromTemplate),
+            name: inputUtilities.cleanseString(data.name)
+        };
+    }
+
     getData() {
         return {
             versionId: this.#versionId,

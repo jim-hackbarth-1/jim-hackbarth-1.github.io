@@ -12,10 +12,12 @@ class DrawEllipseTool {
     #xCurrent;
     #yCurrent;
     #isDrawing;
+    #isShiftPressed;
 
     // methods
     async onActivate(mapWorker) {
-        this.#mapWorker = mapWorker
+        this.#mapWorker = mapWorker;
+        this.#isShiftPressed = false;
     }
 
     async handleClientEvent(clientEvent) {
@@ -29,6 +31,12 @@ class DrawEllipseTool {
                 break;
             case "pointerup":
                 await this.#onPointerUp(eventData);
+                break;
+            case "keydown":
+                this.#onKeyDown(eventData);
+                break;
+            case "keyup":
+                this.#onKeyUp(eventData);
                 break;
         }
     }
@@ -52,19 +60,45 @@ class DrawEllipseTool {
         }
     }
 
+    #onKeyDown(eventData) {
+        if (eventData.key == "Shift") {
+            this.#isShiftPressed = true;
+        }
+    }
+
+    #onKeyUp(eventData) {
+        if (eventData.key == "Shift") {
+            this.#isShiftPressed = false;
+        }
+    }
+
     #drawStart(eventData) {
         this.#mapWorker.renderingContext.setLineDash([5, 10]);
         this.#xStart = eventData.offsetX;
         this.#yStart = eventData.offsetY;
-        this.#xCurrent = eventData.offsetX;
-        this.#yCurrent = eventData.offsetY;
+        this.#setCurrentPoint(eventData);
         this.#isDrawing = true;
     }
 
     #draw(eventData) {
-        this.#xCurrent = eventData.offsetX;
-        this.#yCurrent = eventData.offsetY;
+        this.#setCurrentPoint(eventData);
         this.#drawEllipse();
+    }
+
+    #setCurrentPoint(eventData) {
+        this.#xCurrent = eventData.offsetX;
+        if (this.#isShiftPressed) {
+            const xDelta = Math.abs(this.#xCurrent - this.#xStart);
+            if (eventData.offsetY < this.#yStart) {
+                this.#yCurrent = this.#yStart - xDelta;
+            }
+            else {
+                this.#yCurrent = this.#yStart + xDelta;
+            }
+        }
+        else {
+            this.#yCurrent = eventData.offsetY;
+        }
     }
 
     async #drawEnd() {   

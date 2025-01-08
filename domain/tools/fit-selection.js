@@ -17,6 +17,8 @@ class FitSelectionTool {
     #isShiftPressed;
     #isAltPressed;
     #setOperationMode;
+    #isArrowPressed;
+    #moveIncrementIteration;
 
     // methods
     async onActivate(mapWorker) {
@@ -30,6 +32,8 @@ class FitSelectionTool {
         this.#isShiftPressed = false;
         this.#isAltPressed = false;
         this.#setOperationMode = "Intersect";
+        this.#isArrowPressed = false;
+        this.#moveIncrementIteration = 0;
     }
 
     async handleClientEvent(clientEvent) {
@@ -152,6 +156,18 @@ class FitSelectionTool {
         if (eventData.key == "Alt") {
             this.#isAltPressed = true;
         }
+        if (eventData.key == "ArrowLeft") {
+            this.#moveIncrement(eventData, -1, 0);
+        }
+        if (eventData.key == "ArrowRight") {
+            this.#moveIncrement(eventData, 1, 0);
+        }
+        if (eventData.key == "ArrowUp") {
+            this.#moveIncrement(eventData, 0, -1);
+        }
+        if (eventData.key == "ArrowDown") {
+            this.#moveIncrement(eventData, 0, 1);
+        }
     }
 
     #onKeyUp(eventData) {
@@ -179,6 +195,10 @@ class FitSelectionTool {
         if (eventData.key == "Enter") {
             this.#performSetOperation();
             this.#mapWorker.renderMap();
+        }
+        if (eventData.key?.startsWith("Arrow")) {
+            this.#moveIncrementIteration = 0;
+            this.#isArrowPressed = false;
         }
     }
 
@@ -397,5 +417,22 @@ class FitSelectionTool {
         this.#mapWorker.renderingContext.strokeStyle = "white";
         this.#mapWorker.renderingContext.lineWidth = 1;
         this.#mapWorker.renderingContext.stroke(path2D);
+    }
+
+    #moveIncrement(eventData, dx, dy) {
+        this.#isArrowPressed = true;
+        if (eventData.repeat) {
+            dx = dx * 10;
+            dy = dy * 10;
+            this.#moveIncrementIteration += 10;
+        }
+        else {
+            this.#moveIncrementIteration = 0;
+        }
+        const maxIteration = Math.min(this.#mapWorker.map.currentViewPort.width, this.#mapWorker.map.currentViewPort.height);
+        if (this.#moveIncrementIteration < maxIteration && this.#isArrowPressed) {
+            this.#selectionUtilities.moveIncrement(this.#mapWorker, dx, dy, this.#isCtrlPressed);
+            this.#previewSetOperation();
+        }
     }
 }

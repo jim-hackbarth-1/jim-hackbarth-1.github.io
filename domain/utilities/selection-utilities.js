@@ -128,6 +128,26 @@ export class SelectionUtilities {
         }
     }
 
+    moveIncrement(mapWorker, incrementX, incrementY, usePrimarySelectionMode) {
+        let dx = incrementX / mapWorker.map.zoom;
+        let dy = incrementY / mapWorker.map.zoom;
+        const layer = mapWorker.map.getActiveLayer();
+        if (layer?.mapItemGroups) {
+            for (const mapItemGroup of layer.mapItemGroups) {
+                if ((!usePrimarySelectionMode && mapItemGroup.selectionStatus) || (mapItemGroup.selectionStatus == "Primary")) {
+                    for (const mapItem of mapItemGroup.mapItems) {
+                        for (const path of mapItem.paths) {
+                            path.start = { x: path.start.x + dx, y: path.start.y + dy };
+                            for (const clipPath of path.clipPaths) {
+                                clipPath.start = { x: clipPath.start.x + dx, y: clipPath.start.y + dy };
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     resize(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode) {
         if (this.activityState === ActivityState.ResizeSE) {
             this.#resizeSEMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode);

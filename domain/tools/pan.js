@@ -65,7 +65,7 @@ class PanTool {
         const dx = (eventData.offsetX - this.#xStart) / this.#mapWorker.map.zoom;
         const dy = (eventData.offsetY - this.#yStart) / this.#mapWorker.map.zoom;
         this.#mapWorker.map.pan = { x: this.#xPanStart + dx, y: this.#yPanStart + dy };
-        this.#mapWorker.renderMap();
+        this.#mapWorker.renderMap({ updatedViewPort: true });
     }
 
     #panEnd() {

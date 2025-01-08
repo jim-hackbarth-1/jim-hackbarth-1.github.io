@@ -238,7 +238,7 @@ export class MapItemTemplate {
     removeEventListener(eventName, listener) {
         const index = this.#eventListeners[eventName].findIndex(l => l === listener);
         if (index > -1) {
-            this.#eventListeners.splice(index, 1);
+            this.#eventListeners[eventName].splice(index, 1);
         }
     }
 

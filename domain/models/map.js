@@ -221,6 +221,12 @@ export class Map {
         this.#hasUnsavedChanges = hasUnsavedChanges;
     }
 
+    /** @type {{x: number, y: number, width: number, height: number}}  */
+    #currentViewPort;
+    get currentViewPort() {
+        return this.#currentViewPort ?? { x: 0, y: 0, width: 0, height: 0 };
+    }
+
     // methods
     static cleanseData(data, inputUtilities, domParser, domSerializer) {
         if (!data) {
@@ -313,7 +319,7 @@ export class Map {
     removeEventListener(eventName, listener) {
         const index = this.#eventListeners[eventName].findIndex(l => l === listener);
         if (index > -1) {
-            this.#eventListeners.splice(index, 1);
+            this.#eventListeners[eventName].splice(index, 1);
         }
     }
 
@@ -617,13 +623,19 @@ export class Map {
         this.tools = [];
     }
 
-    render(canvas, context) {
+    render(canvas, context, options) {
         context.resetTransform();
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.scale(this.zoom, this.zoom);
         context.translate(this.pan.x, this.pan.y);
+        this.#currentViewPort = {
+            x: -this.pan.x,
+            y: -this.pan.y,
+            width: canvas.width / this.zoom,
+            height: canvas.height / this.zoom
+        };
         for (const layer of this.layers) {
-            layer.render(context, this);
+            layer.render(context, this, options);
         }
         for (const layer of this.layers) {
             layer.renderSelections(context, this);

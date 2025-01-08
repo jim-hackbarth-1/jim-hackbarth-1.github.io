@@ -28,6 +28,7 @@ export class Path {
             }
         }
         this.#rotationAngle = data?.rotationAngle;
+        this.#bounds = data?.bounds;
         this.#eventListeners = {};
     }
 
@@ -44,7 +45,7 @@ export class Path {
     set mapItemId(mapItemId) {
         const change = this.#getPropertyChange("mapItemId", this.#mapItemId, mapItemId);
         this.#mapItemId = mapItemId;
-        this.#onChange(change);
+        this.#onChange(change, false);
     }
 
     /** @type {{x: number, y: number}} */
@@ -55,7 +56,7 @@ export class Path {
     set start(start) {
         const change = this.#getPropertyChange("start", this.#start, start);
         this.#start = start;
-        this.#onChange(change);
+        this.#onChange(change, true);
     }
 
     /** @type {[{x: number, y: number}|Arc]} */
@@ -66,7 +67,7 @@ export class Path {
     set transits(transits) {
         const change = this.#getPropertyChange("transits", this.#transits, transits);
         this.#transits = transits;
-        this.#onChange(change);
+        this.#onChange(change, true);
     }
 
     /** @type {[Path]} */
@@ -83,7 +84,7 @@ export class Path {
         }
         this.#validateUniqueIds(clipPaths);
         this.#clipPaths = clipPaths;
-        this.#onChange(change);
+        this.#onChange(change, true);
     }
 
     /** @type {number} */
@@ -94,7 +95,24 @@ export class Path {
     set rotationAngle(rotationAngle) {
         const change = this.#getPropertyChange("rotationAngle", this.#rotationAngle, rotationAngle);
         this.#rotationAngle = rotationAngle;
-        this.#onChange(change);
+        this.#onChange(change, true);
+    }
+
+    /** @type {x: number, y: number, width: number, height: number} */
+    #bounds;
+    get bounds() {
+        if (!this.#bounds) {
+            const geometryUtilities = new GeometryUtilities();
+            this.#bounds = geometryUtilities.getPathBounds(this.start, this.transits);
+            this.inViewPort = null;
+        }
+        return this.#bounds;
+    }
+
+    /** @type {boolean} */
+    #inView;
+    get inView() {
+        return this.#inView;
     }
 
     // methods
@@ -120,12 +138,13 @@ export class Path {
             }
         }
         return {
-            id: data.cleanseString(data.id),
-            mapItemId: data.cleanseString(data.mapItemId),
+            id: inputUtilities.cleanseString(data.id),
+            mapItemId: inputUtilities.cleanseString(data.mapItemId),
             start: inputUtilities.cleansePoint(data.start),
             transits: transits,
             clipPaths: clipPaths,
-            rotationAngle: inputUtilities.cleanseNumber(data.rotationAngle)
+            rotationAngle: inputUtilities.cleanseNumber(data.rotationAngle),
+            bounds: inputUtilities.cleanseBounds(data.bounds)
         }
     }
 
@@ -148,7 +167,8 @@ export class Path {
             start: this.#start,
             transits: transits,
             clipPaths: clipPaths,
-            rotationAngle: this.#rotationAngle
+            rotationAngle: this.#rotationAngle,
+            bounds: this.#bounds
         };
     }
 
@@ -168,7 +188,7 @@ export class Path {
     removeEventListener(eventName, listener) {
         const index = this.#eventListeners[eventName].findIndex(l => l === listener);
         if (index > -1) {
-            this.#eventListeners.splice(index, 1);
+            this.#eventListeners[eventName].splice(index, 1);
         }
     }
 
@@ -186,19 +206,71 @@ export class Path {
         return pathInfo;
     }
 
-    getBounds() {
-        const geometryUtilities = new GeometryUtilities();
-        return geometryUtilities.getPathBounds(this.start, this.transits);
+    render(context, map, mapItemTemplate, options) {
+        if (mapItemTemplate && this.#isViewable(map, options)) {
+            const hasFill = mapItemTemplate.fills.length > 0;
+            const scale = 1 / map.zoom;
+            let pathInfo = this.getPathInfo();
+            if (hasFill) {
+                pathInfo += " z";
+            }
+            const path2D = new Path2D(pathInfo);
+            context.setLineDash([]);
+            context.strokeStyle = mapItemTemplate.strokes[0].color;
+            context.lineWidth = mapItemTemplate.strokes[0].width * scale;
+            context.stroke(path2D);
+            context.save();
+            this.#renderClipPaths(context, pathInfo, hasFill);
+            context.fillStyle = mapItemTemplate.fills[0].color;
+            context.fill(path2D);
+            context.restore();
+        }
+    }
+
+    #isViewable(map, options) {
+        if (options?.updatedViewPort || this.inView === undefined) { 
+            const geometryUtilities = new GeometryUtilities();
+            const startInBounds = geometryUtilities.isPointInBounds(this.start, map.currentViewPort);
+            if (startInBounds) {
+                this.#inView = true;
+            }
+            else {
+                const path1 = new Path({
+                    start: { x: this.bounds.x, y: this.bounds.y },
+                    transits: [
+                        { x: this.bounds.width, y: 0 },
+                        { x: 0, y: this.bounds.height },
+                        { x: -this.bounds.width, y: 0 }
+                    ],
+                    bounds: this.bounds
+                });
+                const path2 = new Path({
+                    start: { x: map.currentViewPort.x, y: map.currentViewPort.y },
+                    transits: [
+                        { x: map.currentViewPort.width, y: 0 },
+                        { x: 0, y: map.currentViewPort.height },
+                        { x: -map.currentViewPort.width, y: 0 }
+                    ],
+                    bounds: map.currentViewPort
+                });
+                const intersections = geometryUtilities.getPathPathIntersections(path1, path2);
+                this.#inView = (intersections.length > 0);
+            }
+        }
+        return this.#inView;
     }
 
     // helpers
     #eventListeners;
 
-    #onChange = (change) => {
+    #onChange = (change, invalidateBounds) => {
         if (this.#eventListeners[Change.ChangeEvent]) {
             for (const listener of this.#eventListeners[Change.ChangeEvent]) {
-                listener(change);
+                listener(change, invalidateBounds);
             }
+        }
+        if (invalidateBounds) {
+            this.#bounds = null;
         }
     }
 
@@ -226,6 +298,22 @@ export class Path {
                 }
                 ids.push(clipPath.id);
             }
+        }
+    }
+
+    #renderClipPaths(context, pathInfo, hasFill) {
+        if (this.clipPaths) {
+            const outerPath = new Path2D(pathInfo);
+            for (const clipPath of this.clipPaths) {
+                let innerPathInfo = clipPath.getPathInfo();
+                if (hasFill) {
+                    innerPathInfo += " z";
+                }
+                const innerPath = new Path2D(innerPathInfo);
+                context.stroke(innerPath);
+                outerPath.addPath(innerPath);
+            }
+            context.clip(outerPath, "evenodd");
         }
     }
 }

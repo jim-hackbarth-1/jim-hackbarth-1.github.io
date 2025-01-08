@@ -324,7 +324,7 @@ export class GeometryUtilities {
 
     getPathPathIntersections(path1, path2) {
         const intersections = [];
-        const path2Bounds = path2.getBounds();
+        const path2Bounds = path2.bounds;
         let transitStart = path1.start;
         const transits = [...path1.transits];
         transits.push(this.#getPathClosingTransit(path1));
@@ -819,7 +819,7 @@ export class GeometryUtilities {
     #getIntersectionTransitInfo(path1, path2) {
         const transitInfoList = [];
         let start = path1.start;
-        const path2Bounds = path2.getBounds();
+        const path2Bounds = path2.bounds;
         let checkIfInPath = true;
         let inPath2 = false;
         const transits = [...path1.transits];

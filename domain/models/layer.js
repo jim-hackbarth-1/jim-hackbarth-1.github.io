@@ -101,7 +101,7 @@ export class Layer {
     removeEventListener(eventName, listener) {
         const index = this.#eventListeners[eventName].findIndex(l => l === listener);
         if (index > -1) {
-            this.#eventListeners.splice(index, 1);
+            this.#eventListeners[eventName].splice(index, 1);
         }
     }
 
@@ -119,6 +119,7 @@ export class Layer {
             changeData: [{ mapItemGroupId: mapItemGroup.id, index: this.mapItemGroups.length }]
         });
         this.#mapItemGroups.push(mapItemGroup);
+        this.#addChangeEventListeners(mapItemGroup);
         this.#onChange(change);
     }
 
@@ -139,6 +140,7 @@ export class Layer {
             changeData: [{ mapItemGroupId: mapItemGroup.id, index: index }]
         });
         this.#mapItemGroups.splice(index, 0, mapItemGroup);
+        this.#addChangeEventListeners(mapItemGroup);
         this.#onChange(change);
     }
 
@@ -152,6 +154,7 @@ export class Layer {
                 changeData: [{ mapItemGroupId: mapItemGroup.id, index: index }]
             });
             this.#mapItemGroups.splice(index, 1);
+            this.#removeChangeEventListeners(mapItemGroup);
             this.#onChange(change);
         }
     }
@@ -160,10 +163,40 @@ export class Layer {
         this.mapItemGroups = [];
     }
 
-    render(context, map) {
+    render(context, map, options) {
         if (this.isHidden != true) {
-            for (const mapItemGroup of this.mapItemGroups) {
-                mapItemGroup.render(context, map); // temp
+            let mapItemGroups1 = this.mapItemGroups;
+            let mapItemGroups2 = [];
+            if (options?.updatedViewPort) {
+                mapItemGroups1 = [];
+                for (const mapItemGroup of this.mapItemGroups) {
+                    let mapItemInView = false;
+                    for (const mapItem of mapItemGroup.mapItems) {
+                        let pathInView = false;
+                        for (const path of mapItem.paths) {
+                            if (path.inView) {
+                                pathInView = true;
+                                break;
+                            }
+                        }
+                        if (pathInView) {
+                            mapItemInView = true;
+                            break;
+                        }
+                    }
+                    if (mapItemInView) {
+                        mapItemGroups1.push(mapItemGroup);
+                    }
+                    else {
+                        mapItemGroups2.push(mapItemGroup);
+                    }
+                }
+            }
+            for (const mapItemGroup of mapItemGroups1) {
+                mapItemGroup.render(context, map, options); // temp
+            }
+            for (const mapItemGroup of mapItemGroups2) {
+                mapItemGroup.render(context, map, options); // temp
             }
         }
     }

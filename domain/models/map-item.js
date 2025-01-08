@@ -8,9 +8,11 @@ export class MapItem {
         this.#id = data?.id ?? crypto.randomUUID();
         this.#paths = [];
         if (data?.paths) {
-            for (const path of data.paths) {
-                path.mapItemId = this.id;
-                this.#paths.push(new Path(path));
+            for (const pathData of data.paths) {
+                pathData.mapItemId = this.id;
+                const path = new Path(pathData);
+                this.#paths.push(path);
+                this.#addChangeEventListeners(path);
             }
         }
         this.#mapItemTemplateRef = data?.mapItemTemplateRef;
@@ -19,6 +21,7 @@ export class MapItem {
         this.#isCaptionVisible = data?.isCaptionVisible;
         this.#captionText = data?.captionText;
         this.#captionLocation = data?.captionLocation;
+        this.#bounds = data?.bounds;
         this.#eventListeners = {};
     }
 
@@ -34,6 +37,11 @@ export class MapItem {
         return this.#paths ?? [];
     }
     set paths(paths) {
+        if (this.#paths) {
+            for (const path of this.#paths) {
+                this.#removeChangeEventListeners(path);
+            }
+        }
         const change = this.#getPropertyChange("paths", this.#paths, paths);
         if (paths) {
             for (const path of paths) {
@@ -41,8 +49,11 @@ export class MapItem {
             }
         }
         this.#validateUniqueIds(paths);
-        this.#paths = paths;
-        this.#onChange(change);
+        this.#paths = paths ?? [];
+        for (const path of this.#paths) {
+            this.#addChangeEventListeners(path);
+        }
+        this.#onChange(change, true);
     }
 
     /** @type {EntityReference}  */
@@ -56,7 +67,7 @@ export class MapItem {
         }
         const change = this.#getPropertyChange("mapItemTemplateRef", this.#mapItemTemplateRef, mapItemTemplateRef);
         this.#mapItemTemplateRef = mapItemTemplateRef;
-        this.#onChange(change);
+        this.#onChange(change, true);
     }
 
     /** @type {number}  */
@@ -67,7 +78,7 @@ export class MapItem {
     set z(z) {
         const change = this.#getPropertyChange("z", this.#z, z);
         this.#z = z;
-        this.#onChange(change);
+        this.#onChange(change, false);
     }
 
     /** @type {boolean}  */
@@ -78,7 +89,7 @@ export class MapItem {
     set isHidden(isHidden) {
         const change = this.#getPropertyChange("isHidden", this.#isHidden, isHidden);
         this.#isHidden = isHidden;
-        this.#onChange(change);
+        this.#onChange(change, false);
     }
 
     /** @type {boolean}  */
@@ -89,7 +100,7 @@ export class MapItem {
     set isCaptionVisibile(isCaptionVisible) {
         const change = this.#getPropertyChange("isCaptionVisible", this.#isCaptionVisible, isCaptionVisible);
         this.#isCaptionVisible = isCaptionVisible;
-        this.#onChange(change);
+        this.#onChange(change, false);
     }
 
     /** @type {string}  */
@@ -100,7 +111,7 @@ export class MapItem {
     set captionText(captionText) {
         const change = this.#getPropertyChange("captionText", this.#captionText, captionText);
         this.#captionText = captionText;
-        this.#onChange(change);
+        this.#onChange(change, false);
     }
 
     /** @type {{x: number, y: number}} */
@@ -111,7 +122,32 @@ export class MapItem {
     set captionLocation(captionLocation) {
         const change = this.#getPropertyChange("captionLocation", this.#captionLocation, captionLocation);
         this.#captionLocation = captionLocation;
-        this.#onChange(change);
+        this.#onChange(change, false);
+    }
+
+    /** @type {x: number, y: number, width: number, height: number} */
+    #bounds;
+    get bounds() {
+        if (!this.#bounds) {
+            let xMin = NaN, xMax = NaN, yMin = NaN, yMax = NaN;
+            for (const path of this.paths) {
+                const pathBounds = path.bounds;
+                if (isNaN(xMin) || pathBounds.x < xMin) {
+                    xMin = pathBounds.x;
+                }
+                if (isNaN(xMax) || pathBounds.x + pathBounds.width > xMax) {
+                    xMax = pathBounds.x + pathBounds.width;
+                }
+                if (isNaN(yMin) || pathBounds.y < yMin) {
+                    yMin = pathBounds.y;
+                }
+                if (isNaN(yMax) || pathBounds.y + pathBounds.height > yMax) {
+                    yMax = pathBounds.y + pathBounds.height;
+                }
+            }
+            this.#bounds = { x: xMin, y: yMin, width: xMax - xMin, height: yMax - yMin };
+        }
+        return this.#bounds;
     }
 
     // methods
@@ -133,7 +169,8 @@ export class MapItem {
             isHidden: inputUtilities.cleanseBoolean(data.isHidden),
             isCaptionVisible: inputUtilities.cleanseBoolean(data.isCaptionVisible),
             captionText: inputUtilities.cleanseString(data.captionText),
-            captionLocation: inputUtilities.cleansePoint(data.captionLocation)
+            captionLocation: inputUtilities.cleansePoint(data.captionLocation),
+            bounds: inputUtilities.cleanseBounds(data.bounds)
         }
     }
 
@@ -146,7 +183,8 @@ export class MapItem {
             isHidden: this.#isHidden,
             isCaptionVisible: this.#isCaptionVisible,
             captionText: this.#captionText,
-            captionLocation: this.#captionLocation
+            captionLocation: this.#captionLocation,
+            bounds: this.#bounds
         };
     }
 
@@ -160,7 +198,7 @@ export class MapItem {
     removeEventListener(eventName, listener) {
         const index = this.#eventListeners[eventName].findIndex(l => l === listener);
         if (index > -1) {
-            this.#eventListeners.splice(index, 1);
+            this.#eventListeners[eventName].splice(index, 1);
         }
     }
 
@@ -179,7 +217,8 @@ export class MapItem {
         });
         this.#setPathMapItemId(path);
         this.#paths.push(path);
-        this.#onChange(change);
+        this.#addChangeEventListeners(path);
+        this.#onChange(change, true);
     }
 
     insertPath(path, index) {
@@ -200,7 +239,8 @@ export class MapItem {
         });
         this.#setPathMapItemId(path);
         this.#paths.splice(index, 0, path);
-        this.#onChange(change);
+        this.#addChangeEventListeners(path);
+        this.#onChange(change, true);
     }
 
     removePath(path) {
@@ -213,38 +253,24 @@ export class MapItem {
                 changeData: [{ pathId: path.id, index: index }]
             });
             this.#paths.splice(index, 1);
-            this.#onChange(change);
+            this.#removeChangeEventListeners(path);
+            this.#onChange(change, true);
         }
     }
 
-    render(context, map) {
+    render(context, map, options) {
         if (this.isHidden != true) {
             const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
-            const hasFill = mapItemTemplate.fills.length > 0;
             if (mapItemTemplate) {
-                const scale = 1 / map.zoom;
                 for (const path of this.paths) {
-                    let pathInfo = path.getPathInfo();
-                    if (hasFill) {
-                        pathInfo += " z";
-                    } 
-                    const path2D = new Path2D(pathInfo);
-                    context.setLineDash([]);
-                    context.strokeStyle = mapItemTemplate.strokes[0].color;
-                    context.lineWidth = mapItemTemplate.strokes[0].width * scale;
-                    context.stroke(path2D);
-                    context.save();
-                    this.#renderClipPaths(context, path, hasFill);
-                    context.fillStyle = mapItemTemplate.fills[0].color;
-                    context.fill(path2D); 
-                    context.restore();
+                    path.render(context, map, mapItemTemplate, options);
                 }
             }
         }
     }
 
     isSelectedByPath(context, selectionBounds, selectionPath) {
-        const bounds = this.getBounds();
+        const bounds = this.bounds;
         if (bounds.x < selectionBounds.x
             || bounds.x + bounds.width > selectionBounds.x + selectionBounds.width
             || bounds.y < selectionBounds.y
@@ -280,34 +306,17 @@ export class MapItem {
         return false;
     }
 
-    getBounds() {
-        let xMin = NaN, xMax = NaN, yMin = NaN, yMax = NaN;
-        for (const path of this.paths) {
-            const pathBounds = path.getBounds();
-            if (isNaN(xMin) || pathBounds.x < xMin) {
-                xMin = pathBounds.x;
-            }
-            if (isNaN(xMax) || pathBounds.x + pathBounds.width > xMax) {
-                xMax = pathBounds.x + pathBounds.width;
-            }
-            if (isNaN(yMin) || pathBounds.y < yMin) {
-                yMin = pathBounds.y;
-            }
-            if (isNaN(yMax) || pathBounds.y + pathBounds.height > yMax) {
-                yMax = pathBounds.y + pathBounds.height;
-            }
-        }
-        return { x: xMin, y: yMin, width: xMax - xMin, height: yMax - yMin };
-    }
-
     // helpers
     #eventListeners;
 
-    #onChange = (change) => {
+    #onChange = (change, invalidateBounds) => {
         if (this.#eventListeners[Change.ChangeEvent]) {
             for (const listener of this.#eventListeners[Change.ChangeEvent]) {
-                listener(change);
+                listener(change, invalidateBounds);
             }
+        }
+        if (invalidateBounds) {
+            this.#bounds = null;
         }
     }
 
@@ -326,23 +335,15 @@ export class MapItem {
         });
     }
 
-    #renderClipPaths(context, path, hasFill) {
-        if (path?.clipPaths) {
-            let outerPathInfo = path.getPathInfo();
-            if (hasFill) {
-                outerPathInfo += " z";
-            }
-            const outerPath = new Path2D(outerPathInfo);
-            for (const clipPath of path.clipPaths) {
-                let innerPathInfo = clipPath.getPathInfo();
-                if (hasFill) {
-                    innerPathInfo += " z";
-                }
-                const innerPath = new Path2D(innerPathInfo);
-                context.stroke(innerPath);
-                outerPath.addPath(innerPath);
-            }
-            context.clip(outerPath, "evenodd");
+    #addChangeEventListeners(source) {
+        if (source) {
+            source.addEventListener(Change.ChangeEvent, this.#onChange);
+        }
+    }
+
+    #removeChangeEventListeners(source) {
+        if (source) {
+            source.removeEventListener(Change.ChangeEvent, this.#onChange);
         }
     }
 

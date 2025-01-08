@@ -169,9 +169,9 @@ export class MapWorker {
         return new SelectionUtilities();
     }
 
-    renderMap() {
+    renderMap(options) {
         if (this.canvas && this.renderingContext && this.map) {
-            this.map.render(this.canvas, this.renderingContext);
+            this.map.render(this.canvas, this.renderingContext, options);
         }
     }
 
@@ -194,7 +194,7 @@ export class MapWorker {
         if (this.canvas && this.renderingContext) {
             if (this.map) {
                 this.map.addEventListener(Change.ChangeEvent, this.handleMapChange);
-                this.map.render(this.canvas, this.renderingContext);
+                this.map.render(this.canvas, this.renderingContext, { updatedViewPort: true });
             }
             else {
                 this.renderingContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -204,18 +204,22 @@ export class MapWorker {
 
     async #updateMap(change) {
         const changeObjectType = change?.changeObjectType;
+        let updatedViewPort = false;
         switch (changeObjectType) {
             case Map.name:
                 if (change?.changeData && change?.changeType === ChangeType.Edit) {
                     for (const changeItem of change.changeData) {
                         this.map[changeItem.propertyName] = changeItem.newValue;
+                        if (changeItem.propertyName == "zoom" || changeItem.propertyName == "pan") {
+                            updatedViewPort = true;
+                        }
                     }
                 }
                 break;
             default:
                 throw new Error(`Unexpected worker request type: ${messageType ?? "(null)"}`);
         }
-        this.renderMap();
+        this.renderMap({ updatedViewPort: updatedViewPort });
     }
 
     async #setActiveTool(toolRefData) {

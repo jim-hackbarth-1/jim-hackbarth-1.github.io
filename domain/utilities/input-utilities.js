@@ -33,6 +33,18 @@ export class InputUtilities {
         }
     }
 
+    cleanseBounds(bounds) {
+        if (!bounds) {
+            return null;
+        }
+        return {
+            x: this.cleanseNumber(bounds.x),
+            y: this.cleanseNumber(bounds.y),
+            width: this.cleanseNumber(bounds.width),
+            height: this.cleanseNumber(bounds.height),
+        }
+    }
+
     cleanseSvg(svg, domParser, domSerializer) {
         if (!svg) {
             return null;

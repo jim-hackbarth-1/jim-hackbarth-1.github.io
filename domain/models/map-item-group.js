@@ -9,10 +9,13 @@ export class MapItemGroup {
         this.#mapItems = [];
         if (data?.mapItems) {
             for (const mapItemData of data.mapItems) {
-                this.#mapItems.push(new MapItem(mapItemData));
+                const mapItem = new MapItem(mapItemData);
+                this.#mapItems.push(mapItem);
+                this.#addChangeEventListeners(mapItem);
             }
         }
         this.#selectionStatus = data?.selectionStatus;
+        this.#bounds = data?.bounds;
         this.#eventListeners = {};
     }
 
@@ -28,10 +31,18 @@ export class MapItemGroup {
         return this.#mapItems ?? [];
     }
     set mapItems(mapItems) {
+        if (this.#mapItems) {
+            for (const mapItem of this.#mapItems) {
+                this.#removeChangeEventListeners(mapItem);
+            }
+        }
         const change = this.#getPropertyChange("mapItems", this.#mapItems, mapItems);
         this.#validateUniqueIds(mapItems);
-        this.#mapItems = mapItems;
-        this.#onChange(change);
+        this.#mapItems = mapItems ?? [];
+        for (const mapItem of this.#mapItems) {
+            this.#addChangeEventListeners(mapItem);
+        }
+        this.#onChange(change, true);
     }
 
     /** @type {SelectionStatusType}  */
@@ -42,7 +53,32 @@ export class MapItemGroup {
     set selectionStatus(selectionStatus) {
         const change = this.#getPropertyChange("selectionStatus", this.#selectionStatus, selectionStatus);
         this.#selectionStatus = selectionStatus;
-        this.#onChange(change);
+        this.#onChange(change, false);
+    }
+
+    /** @type {x: number, y: number, width: number, height: number} */
+    #bounds;
+    get bounds() {
+        if (!this.#bounds) {
+            let xMin = NaN, xMax = NaN, yMin = NaN, yMax = NaN;
+            for (const mapItem of this.mapItems) {
+                const mapItemBounds = mapItem.bounds;
+                if (isNaN(xMin) || mapItemBounds.x < xMin) {
+                    xMin = mapItemBounds.x;
+                }
+                if (isNaN(xMax) || mapItemBounds.x + mapItemBounds.width > xMax) {
+                    xMax = mapItemBounds.x + mapItemBounds.width;
+                }
+                if (isNaN(yMin) || mapItemBounds.y < yMin) {
+                    yMin = mapItemBounds.y;
+                }
+                if (isNaN(yMax) || mapItemBounds.y + mapItemBounds.height > yMax) {
+                    yMax = mapItemBounds.y + mapItemBounds.height;
+                }
+            }
+            this.#bounds = { x: xMin, y: yMin, width: xMax - xMin, height: yMax - yMin };
+        }
+        return this.#bounds;
     }
 
     // methods
@@ -59,7 +95,8 @@ export class MapItemGroup {
         return {
             id: inputUtilities.cleanseString(data.id),
             mapItems: mapItems,
-            selectionStatus: inputUtilities.cleanseString(data.selectionStatus)
+            selectionStatus: inputUtilities.cleanseString(data.selectionStatus),
+            bounds: inputUtilities.cleanseBounds(data.bounds)
         }
     }
 
@@ -67,7 +104,8 @@ export class MapItemGroup {
         return {
             id: this.#id,
             mapItems: this.#mapItems ? this.#mapItems.map(mi => mi.getData()) : null,
-            selectionStatus: this.#selectionStatus
+            selectionStatus: this.#selectionStatus,
+            bounds: this.#bounds
         };
     }
 
@@ -81,7 +119,7 @@ export class MapItemGroup {
     removeEventListener(eventName, listener) {
         const index = this.#eventListeners[eventName].findIndex(l => l === listener);
         if (index > -1) {
-            this.#eventListeners.splice(index, 1);
+            this.#eventListeners[eventName].splice(index, 1);
         }
     }
 
@@ -99,7 +137,8 @@ export class MapItemGroup {
             changeData: [{ mapItemId: mapItem.id, index: this.mapItems.length }]
         });
         this.#mapItems.push(mapItem);
-        this.#onChange(change);
+        this.#addChangeEventListeners(mapItem);
+        this.#onChange(change, true);
     }
 
     insertMapItem(mapItem, index) {
@@ -119,7 +158,8 @@ export class MapItemGroup {
             changeData: [{ mapItemId: mapItem.id, index: index }]
         });
         this.#mapItems.splice(index, 0, mapItem);
-        this.#onChange(change);
+        this.#addChangeEventListeners(mapItem);
+        this.#onChange(change, true);
     }
 
     removeMapItem(mapItem) {
@@ -132,13 +172,14 @@ export class MapItemGroup {
                 changeData: [{ mapItemId: mapItem.id, index: index }]
             });
             this.#mapItems.splice(index, 1);
-            this.#onChange(change);
+            this.#removeChangeEventListeners(mapItem);
+            this.#onChange(change, true);
         }
     }
 
-    render(context, map) {
+    render(context, map, options) {
         for (const mapItem of this.mapItems) {
-            mapItem.render(context, map);
+            mapItem.render(context, map, options);
         }
     }
 
@@ -191,7 +232,7 @@ export class MapItemGroup {
     }
 
     isSelectedByPath(context, selectionBounds, selectionPath) {
-        const bounds = this.getBounds();
+        const bounds = this.bounds;
         if (bounds.x < selectionBounds.x
             || bounds.x + bounds.width > selectionBounds.x + selectionBounds.width
             || bounds.y < selectionBounds.y
@@ -215,28 +256,8 @@ export class MapItemGroup {
         return false;
     }
 
-    getBounds() {
-        let xMin = NaN, xMax = NaN, yMin = NaN, yMax = NaN;
-        for (const mapItem of this.mapItems) {
-            const mapItemBounds = mapItem.getBounds();
-            if (isNaN(xMin) || mapItemBounds.x < xMin) {
-                xMin = mapItemBounds.x;
-            }
-            if (isNaN(xMax) || mapItemBounds.x + mapItemBounds.width > xMax) {
-                xMax = mapItemBounds.x + mapItemBounds.width;
-            }
-            if (isNaN(yMin) || mapItemBounds.y < yMin) {
-                yMin = mapItemBounds.y;
-            }
-            if (isNaN(yMax) || mapItemBounds.y + mapItemBounds.height > yMax) {
-                yMax = mapItemBounds.y + mapItemBounds.height;
-            }
-        }
-        return { x: xMin, y: yMin, width: xMax - xMin, height: yMax - yMin };
-    }
-
     getSelectionBounds(map) {
-        const bounds = this.getBounds();
+        const bounds = this.bounds;
         const handleSize = 10 / map.zoom;
         return {
             mapItemGroup: this,
@@ -256,11 +277,14 @@ export class MapItemGroup {
     // helpers
     #eventListeners;
 
-    #onChange = (change) => {
+    #onChange = (change, invalidateBounds) => {
         if (this.#eventListeners[Change.ChangeEvent]) {
             for (const listener of this.#eventListeners[Change.ChangeEvent]) {
-                listener(change);
+                listener(change, invalidateBounds);
             }
+        }
+        if (invalidateBounds) {
+            this.#bounds = null;
         }
     }
 
@@ -277,6 +301,18 @@ export class MapItemGroup {
                 }
             ]
         });
+    }
+
+    #addChangeEventListeners(source) {
+        if (source) {
+            source.addEventListener(Change.ChangeEvent, this.#onChange);
+        }
+    }
+
+    #removeChangeEventListeners(source) {
+        if (source) {
+            source.removeEventListener(Change.ChangeEvent, this.#onChange);
+        }
     }
 
     #drawSelectionBounds(context, map, bounds, selectionStatus) {

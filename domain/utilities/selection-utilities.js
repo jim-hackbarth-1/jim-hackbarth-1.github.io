@@ -75,7 +75,7 @@ export class SelectionUtilities {
             const layer = mapWorker.map.getActiveLayer();
             if (layer?.mapItemGroups) {
                 for (const mapItemGroup of layer.mapItemGroups) {
-                    let bounds = mapItemGroup.getBounds();
+                    let bounds = mapItemGroup.bounds;
                     if (mapItemGroup.selectionStatus) {
                         for (const mapItem of mapItemGroup.mapItems) {
                             for (const path of mapItem.paths) {
@@ -162,7 +162,7 @@ export class SelectionUtilities {
             const layer = mapWorker.map.getActiveLayer();
             if (layer?.mapItemGroups) {
                 for (const mapItemGroup of layer.mapItemGroups) {
-                    let bounds = mapItemGroup.getBounds();
+                    let bounds = mapItemGroup.bounds;
                     if (mapItemGroup.selectionStatus) {
                         for (const mapItem of mapItemGroup.mapItems) {
                             for (const path of mapItem.paths) {
@@ -395,10 +395,10 @@ export class SelectionUtilities {
     }
 
     #resizePathSE(path, scaleX, scaleY, startingPathData, mapWorker, offset) {
-        const originalBounds = path.getBounds();
+        const originalBounds = path.bounds;
         path.transits = this.#getScaledTransits(startingPathData.transits, scaleX, scaleY, mapWorker, "SE");
         if (!offset) {
-            const newBounds = path.getBounds();
+            const newBounds = path.bounds;
             const boundsDx = newBounds.x - originalBounds.x;
             const boundsDy = newBounds.y - originalBounds.y;
             offset = { x: boundsDx, y: boundsDy };
@@ -430,10 +430,10 @@ export class SelectionUtilities {
     }
 
     #resizePathS(path, scaleX, scaleY, startingPathData, mapWorker, offset) {
-        const originalBounds = path.getBounds();
+        const originalBounds = path.bounds;
         path.transits = this.#getScaledTransits(startingPathData.transits, scaleX, scaleY, mapWorker, "S");
         if (!offset) {
-            const newBounds = path.getBounds();
+            const newBounds = path.bounds;
             const boundsDy = newBounds.y - originalBounds.y;
             offset = { x: 0, y: boundsDy };
         }
@@ -468,10 +468,10 @@ export class SelectionUtilities {
     }
 
     #resizePathSW(path, scaleX, scaleY, startingPathData, mapWorker, offset) {
-        const originalBounds = path.getBounds();
+        const originalBounds = path.bounds;
         path.transits = this.#getScaledTransits(startingPathData.transits, scaleX, scaleY, mapWorker, "SW");
         if (!offset) {
-            const newBounds = path.getBounds();
+            const newBounds = path.bounds;
             const boundsDx = (newBounds.x + newBounds.width) - (originalBounds.x + originalBounds.width);
             const boundsDy = newBounds.y - originalBounds.y;
             offset = { x: boundsDx, y: boundsDy };
@@ -503,10 +503,10 @@ export class SelectionUtilities {
     }
 
     #resizePathW(path, scaleX, scaleY, startingPathData, mapWorker, offset) {
-        const originalBounds = path.getBounds();
+        const originalBounds = path.bounds;
         path.transits = this.#getScaledTransits(startingPathData.transits, scaleX, scaleY, mapWorker, "W");
         if (!offset) {
-            const newBounds = path.getBounds();
+            const newBounds = path.bounds;
             const boundsDx = (newBounds.x + newBounds.width) - (originalBounds.x + originalBounds.width);
             const boundsDy = 0;
             offset = { x: boundsDx, y: boundsDy };
@@ -542,10 +542,10 @@ export class SelectionUtilities {
     }
 
     #resizePathNW(path, scaleX, scaleY, startingPathData, mapWorker, offset) {
-        const originalBounds = path.getBounds();
+        const originalBounds = path.bounds;
         path.transits = this.#getScaledTransits(startingPathData.transits, scaleX, scaleY, mapWorker, "NW");
         if (!offset) {
-            const newBounds = path.getBounds();
+            const newBounds = path.bounds;
             const boundsDx = (newBounds.x + newBounds.width) - (originalBounds.x + originalBounds.width);
             const boundsDy = (newBounds.y + newBounds.height) - (originalBounds.y + originalBounds.height);
             offset = { x: boundsDx, y: boundsDy };
@@ -577,10 +577,10 @@ export class SelectionUtilities {
     }
 
     #resizePathN(path, scaleX, scaleY, startingPathData, mapWorker, offset) {
-        const originalBounds = path.getBounds();
+        const originalBounds = path.bounds;
         path.transits = this.#getScaledTransits(startingPathData.transits, scaleX, scaleY, mapWorker, "N");
         if (!offset) {
-            const newBounds = path.getBounds();
+            const newBounds = path.bounds;
             const boundsDy = (newBounds.y + newBounds.height) - (originalBounds.y + originalBounds.height);
             offset = { x: 0, y: boundsDy };
         }
@@ -615,10 +615,10 @@ export class SelectionUtilities {
     }
 
     #resizePathNE(path, scaleX, scaleY, startingPathData, mapWorker, offset) {
-        const originalBounds = path.getBounds();
+        const originalBounds = path.bounds;
         path.transits = this.#getScaledTransits(startingPathData.transits, scaleX, scaleY, mapWorker, "NE");
         if (!offset) {
-            const newBounds = path.getBounds();
+            const newBounds = path.bounds;
             const boundsDx = newBounds.x - originalBounds.x;
             const boundsDy = (newBounds.y + newBounds.height) - (originalBounds.y + originalBounds.height);
             offset = { x: boundsDx, y: boundsDy };
@@ -650,10 +650,10 @@ export class SelectionUtilities {
     }
 
     #resizePathE(path, scaleX, scaleY, startingPathData, mapWorker, offset) {
-        const originalBounds = path.getBounds();
+        const originalBounds = path.bounds;
         path.transits = this.#getScaledTransits(startingPathData.transits, scaleX, scaleY, mapWorker, "E");
         if (!offset) {
-            const newBounds = path.getBounds();
+            const newBounds = path.bounds;
             const boundsDx = newBounds.x - originalBounds.x;
             offset = { x: boundsDx, y: 0 };
         }
@@ -663,7 +663,7 @@ export class SelectionUtilities {
 
     #canPathBeScaled(path, scaleX, scaleY) {
         if (scaleX < 1 || scaleY < 1) {
-            const originalBounds = path.getBounds();
+            const originalBounds = path.bounds;
             if ((originalBounds.width < 15 && scaleX < 1) || (originalBounds.height < 15 && scaleY < 1)) {
                 return false;
             }

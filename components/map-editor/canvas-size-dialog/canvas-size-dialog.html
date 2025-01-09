@@ -1,0 +1,87 @@
+﻿
+<dialog class="canvas-size-dialog-component surface-tertiary background">
+    <style>
+        @scope (.canvas-size-dialog-component) {
+            :scope {
+                height: 150px;
+                width: 300px;
+                border: 1px solid var(--theme-color-tertiary-darkest);
+            }
+
+            .controls-container {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .controls-container div {
+                margin: 5px;
+            }
+
+            label {
+                display: block;
+            }
+
+            input[type="number"] {
+                border: 1px solid var(--theme-color-tertiary-darkest);
+                border-radius: 3px;
+                height: 35px;
+                color: var(--theme-color-tertiary-darkest);
+                background-color: var(--theme-color-tertiary-lighter);
+                padding: 0 5px 0 5px;
+                text-align: center;
+                width: 75px;
+            }
+
+            input[type="number"]:invalid + .invalid::after {
+                content: "✖";
+                background-color: var(--theme-color-complementary-lighter);
+                border: 1px solid var(--theme-color-complementary-darkest);
+                border-radius: 3px;
+                color: var(--theme-color-complementary-darkest);
+                padding-left: 2px;
+                padding-right: 2px;
+                margin-left: -5px;
+            }
+
+            input[type="number"]:focus {
+                background-color: var(--theme-color-tertiary-lightest);
+                border: 1px solid var(--theme-color-tertiary-darkest);
+            }
+
+            input[type="number"]:not([disabled]):hover {
+                box-shadow: var(--theme-color-tertiary-lightest) 1px 1px 3px 0 inset, var(--theme-color-tertiary-lightest) -1px -1px 3px 0 inset;
+            }
+        }
+    </style>
+    <header class="surface-tertiary">
+        <div class="icon-container">
+            <kit-component data-kit-template-path="/resources/icons/view-resize-canvas.html" data-kit-model="null"></kit-component>
+        </div>
+        <div>
+            <h1>Canvas size</h1>
+        </div>
+        <div class="spacer"></div>
+        <div>
+            <button title="Close" class="action-text" onclick="#model.closeDialog();">
+                <div class="icon-container">
+                    <kit-component data-kit-template-path="/resources/icons/file-close.html" data-kit-model="null"></kit-component>
+                </div>
+            </button>
+        </div>
+    </header>
+    <section>
+        <div class="controls-container">
+            <div>
+                <label>Height:</label>
+                <input id="inputHeight" title="Height" type="number" min="100" max="10000" required onchange="#model.onSizeChange()" />
+                <span class="invalid"></span>
+            </div>
+            <div>
+                <label>Width:</label>
+                <input id="inputWidth" title="Width" type="number" min="100" max="10000" required onchange="#model.onSizeChange()" />
+                <span class="invalid"></span>
+            </div>
+        </div>
+    </section>
+</dialog>

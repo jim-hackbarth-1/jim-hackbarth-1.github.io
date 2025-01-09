@@ -13,7 +13,7 @@
     --editor-tool-width: 200px;
     --editor-tool-left: 0px;
     --theme-dark-mode: 0;
-    --theme-hue-primary: 30; /* 300 pink (default spring) */
+    --theme-hue-primary: 240; /* 300 pink (default spring) */
 }
 
 :scope[data-app-theme="summer"] {

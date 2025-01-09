@@ -320,7 +320,7 @@
                         <div class="button-text">Zoom ...</div>
                     </div>
                 </button>
-                <button title="Resize canvas" class="action-text" data-kit-add-attributes="%{#model.isResizeCanvasDisabled()}%">
+                <button title="Resize canvas" class="action-text" onclick="#model.showDialog('canvas-size-dialog-component')" data-kit-add-attributes="%{#model.isResizeCanvasDisabled()}%">
                     <div class="button-content">
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/view-resize-canvas.html" data-kit-model="null"></kit-component>
@@ -435,7 +435,7 @@
                     <span id="zoom-label">%{#model.getZoom()}%</span>
                 </div>
             </button>
-            <button title="Resize canvas" class="action-text" data-kit-add-attributes="%{#model.isResizeCanvasDisabled()}%">
+            <button title="Resize canvas" class="action-text" onclick="#model.showDialog('canvas-size-dialog-component')" data-kit-add-attributes="%{#model.isResizeCanvasDisabled()}%">
                 <div class="button-content">
                     <div class="icon-container">
                         <kit-component data-kit-template-path="/resources/icons/view-resize-canvas.html" data-kit-model="null"></kit-component>
@@ -552,4 +552,5 @@
     <kit-component id="file-save-dialog-component" data-kit-template-path="/components/map-editor/file-save-dialog/file-save-dialog.html"></kit-component>
     <kit-component id="file-open-dialog-component" data-kit-template-path="/components/map-editor/file-open-dialog/file-open-dialog.html"></kit-component>
     <kit-component id="zoom-dialog-component" data-kit-template-path="/components/map-editor/zoom-dialog/zoom-dialog.html"></kit-component>
+    <kit-component id="canvas-size-dialog-component" data-kit-template-path="/components/map-editor/canvas-size-dialog/canvas-size-dialog.html"></kit-component>
 </section>

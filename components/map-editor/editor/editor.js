@@ -23,6 +23,7 @@ export class EditorModel {
     static NewFileRequestTopic = "NewFileRequestTopic";
     static SaveFileRequestTopic = "SaveFileRequestTopic";
     static OpenFileRequestTopic = "OpenFileRequestTopic";
+    static CanvasResizeRequestTopic = "CanvasResizeRequestTopic";
 
     // instance fields
     #componentId;
@@ -141,7 +142,8 @@ export class EditorModel {
     }
 
     async isResizeCanvasDisabled() {
-        return "disabled";
+        const map = await MapWorkerClient.getMap();
+        return map ? null : "disabled";
     }
 
     async isOverlayDisabled() {
@@ -303,6 +305,17 @@ export class EditorModel {
         await FileManager.saveMap(json);
     }
 
+    async onCanvasResizeRequested(message) {
+        const currentCanvas = this.#componentElement.querySelector("#map-canvas");
+        const appDocument = KitDependencyManager.getDocument();
+        const newCanvas = appDocument.createElement("canvas");
+        newCanvas.id = "map-canvas";
+        newCanvas.height = message.height;
+        newCanvas.width = message.width;
+        currentCanvas.parentNode.replaceChild(newCanvas, currentCanvas); 
+        this.#initializeMapWorker();
+    }
+
     async getZoom() {      
         let zoom = "";
         const map = await MapWorkerClient.getMap();
@@ -334,6 +347,7 @@ export class EditorModel {
         KitMessenger.subscribe(EditorModel.NewFileRequestTopic, this.#componentId, this.onNewFileRequested.name);
         KitMessenger.subscribe(EditorModel.SaveFileRequestTopic, this.#componentId, this.onSaveFileRequested.name);
         KitMessenger.subscribe(EditorModel.OpenFileRequestTopic, this.#componentId, this.onOpenFileRequested.name);
+        KitMessenger.subscribe(EditorModel.CanvasResizeRequestTopic, this.#componentId, this.onCanvasResizeRequested.name);
     }
 
     async #initializeToolsAndCanvas() {

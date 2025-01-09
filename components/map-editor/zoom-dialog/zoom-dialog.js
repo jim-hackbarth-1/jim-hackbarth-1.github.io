@@ -1,7 +1,6 @@
 ﻿
 import { ChangeType, Map, MapWorkerClient, MapWorkerInputMessageType } from "../../../domain/references.js";
-import { KitMessenger, KitRenderer } from "../../../ui-kit.js";
-import { EditorModel } from "../editor/editor.js";
+import { KitRenderer } from "../../../ui-kit.js";
 
 export function createModel() {
     return new ZoomDialogModel();

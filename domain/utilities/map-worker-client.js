@@ -22,6 +22,7 @@ export class MapWorkerClient {
 
     // methods
     static initializeWorker(appDocument, canvas, mapChangeListener, baseUrl) {
+        this.#currentCanvasSize = { height: canvas.height, width: canvas.width };
         MapWorkerClient.#addDocumentEventHandlers(appDocument);
         MapWorkerClient.#addCanvasEventHandlers(canvas);
         MapWorkerClient.#mapChangeListener = mapChangeListener;
@@ -56,6 +57,11 @@ export class MapWorkerClient {
         if (MapWorkerClient.#mapWorker) {
             MapWorkerClient.#mapWorker.postMessage({ messageType: MapWorkerInputMessageType.LoadMap });
         }
+    }
+
+    static #currentCanvasSize;
+    static getCurrentCanvasSize() {
+        return this.#currentCanvasSize ?? { height: 0, width: 0 };
     }
 
     static postWorkerMessage(message) {

@@ -1,6 +1,6 @@
 ﻿
 import { BuiltInTemplates } from "../../../domain/references.js";
-import { KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
+import { KitMessenger, KitRenderer } from "../../../ui-kit.js";
 import { EditorModel } from "../editor/editor.js";
 
 export function createModel() {

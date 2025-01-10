@@ -268,7 +268,8 @@ class SelectRectangleTool {
         else {
             this.#moveIncrementIteration = 0;
         }
-        const maxIteration = Math.min(this.#mapWorker.map.currentViewPort.width, this.#mapWorker.map.currentViewPort.height);
+        let maxIteration = Math.min(this.#mapWorker.map.currentViewPort.width, this.#mapWorker.map.currentViewPort.height);
+        maxIteration = maxIteration * this.#mapWorker.map.zoom;
         if (this.#moveIncrementIteration < maxIteration && this.#isArrowPressed) {
             this.#selectionUtilities.moveIncrement(this.#mapWorker, dx, dy, this.#isCtrlPressed);
             this.#mapWorker.renderMap();

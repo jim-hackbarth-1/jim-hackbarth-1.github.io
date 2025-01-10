@@ -114,7 +114,8 @@ export class SelectionUtilities {
         }
         let selectionStartData = this.selectionStartData;
         if (useSingleSelectionMode) {
-            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(startPoint, ActivityState.Move);
+            const transformedPoint = this.#transformCanvasPoint(mapWorker, startPoint.x, startPoint.y);
+            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(transformedPoint, ActivityState.Move);
             selectionStartData = selectionStartData.filter(ssd => ssd.mapItemGroupId == boundsInfo.mapItemGroupId);
         }
         for (const selection of selectionStartData) {
@@ -398,7 +399,8 @@ export class SelectionUtilities {
         const scaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
         let selectionStartData = this.selectionStartData;
         if (useSingleSelectionMode) {
-            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(startPoint, ActivityState.ResizeSE);
+            const transformedPoint = this.#transformCanvasPoint(mapWorker, startPoint.x, startPoint.y);
+            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(transformedPoint, ActivityState.ResizeSE);
             selectionStartData = selectionStartData.filter(ssd => ssd.mapItemGroupId == boundsInfo.mapItemGroupId);
         }
         for (const selection of selectionStartData) {
@@ -433,7 +435,8 @@ export class SelectionUtilities {
         const scaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
         let selectionStartData = this.selectionStartData;
         if (useSingleSelectionMode) {
-            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(startPoint, ActivityState.ResizeS);
+            const transformedPoint = this.#transformCanvasPoint(mapWorker, startPoint.x, startPoint.y);
+            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(transformedPoint, ActivityState.ResizeS);
             selectionStartData = selectionStartData.filter(ssd => ssd.mapItemGroupId == boundsInfo.mapItemGroupId);
         }
         for (const selection of selectionStartData) {
@@ -471,7 +474,8 @@ export class SelectionUtilities {
         const scaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
         let selectionStartData = this.selectionStartData;
         if (useSingleSelectionMode) {
-            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(startPoint, ActivityState.ResizeSW);
+            const transformedPoint = this.#transformCanvasPoint(mapWorker, startPoint.x, startPoint.y);
+            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(transformedPoint, ActivityState.ResizeSW);
             selectionStartData = selectionStartData.filter(ssd => ssd.mapItemGroupId == boundsInfo.mapItemGroupId);
         }
         for (const selection of selectionStartData) {
@@ -506,7 +510,8 @@ export class SelectionUtilities {
         const scaleY = 1;
         let selectionStartData = this.selectionStartData;
         if (useSingleSelectionMode) {
-            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(startPoint, ActivityState.ResizeW);
+            const transformedPoint = this.#transformCanvasPoint(mapWorker, startPoint.x, startPoint.y);
+            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(transformedPoint, ActivityState.ResizeW);
             selectionStartData = selectionStartData.filter(ssd => ssd.mapItemGroupId == boundsInfo.mapItemGroupId);
         }
         for (const selection of selectionStartData) {
@@ -545,7 +550,8 @@ export class SelectionUtilities {
         const scaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
         let selectionStartData = this.selectionStartData;
         if (useSingleSelectionMode) {
-            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(startPoint, ActivityState.ResizeNW);
+            const transformedPoint = this.#transformCanvasPoint(mapWorker, startPoint.x, startPoint.y);
+            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(transformedPoint, ActivityState.ResizeNW);
             selectionStartData = selectionStartData.filter(ssd => ssd.mapItemGroupId == boundsInfo.mapItemGroupId);
         }
         for (const selection of selectionStartData) {
@@ -580,7 +586,8 @@ export class SelectionUtilities {
         const scaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
         let selectionStartData = this.selectionStartData;
         if (useSingleSelectionMode) {
-            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(startPoint, ActivityState.ResizeN);
+            const transformedPoint = this.#transformCanvasPoint(mapWorker, startPoint.x, startPoint.y);
+            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(transformedPoint, ActivityState.ResizeN);
             selectionStartData = selectionStartData.filter(ssd => ssd.mapItemGroupId == boundsInfo.mapItemGroupId);
         }
         for (const selection of selectionStartData) {
@@ -618,7 +625,8 @@ export class SelectionUtilities {
         const scaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
         let selectionStartData = this.selectionStartData;
         if (useSingleSelectionMode) {
-            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(startPoint, ActivityState.ResizeNE);
+            const transformedPoint = this.#transformCanvasPoint(mapWorker, startPoint.x, startPoint.y);
+            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(transformedPoint, ActivityState.ResizeNE);
             selectionStartData = selectionStartData.filter(ssd => ssd.mapItemGroupId == boundsInfo.mapItemGroupId);
         }
         for (const selection of selectionStartData) {
@@ -653,7 +661,8 @@ export class SelectionUtilities {
         const scaleY = 1;
         let selectionStartData = this.selectionStartData;
         if (useSingleSelectionMode) {
-            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(startPoint, ActivityState.ResizeE);
+            const transformedPoint = this.#transformCanvasPoint(mapWorker, startPoint.x, startPoint.y);
+            const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(transformedPoint, ActivityState.ResizeE);
             selectionStartData = selectionStartData.filter(ssd => ssd.mapItemGroupId == boundsInfo.mapItemGroupId);
         }
         for (const selection of selectionStartData) {
@@ -679,6 +688,12 @@ export class SelectionUtilities {
         }
         path.start = { x: path.start.x - offset.x, y: path.start.y };
         return offset;
+    }
+
+    #transformCanvasPoint(mapWorker, x, y) {
+        const scale = { x: 1 / mapWorker.map.zoom, y: 1 / mapWorker.map.zoom };
+        const translation = { x: -mapWorker.map.pan.x, y: -mapWorker.map.pan.y };
+        return mapWorker.geometryUtilities.transformPoint({ x: x, y: y }, scale, translation);
     }
 
     #canPathBeScaled(path, scaleX, scaleY) {

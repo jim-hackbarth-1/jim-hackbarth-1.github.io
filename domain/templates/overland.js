@@ -26,7 +26,8 @@ export function getOverlandTemplate() {
                     { versionId: 1, isBuiltIn: true, name: "Select rectangle" }
                 ],
                 [
-                    { versionId: 1, isBuiltIn: true, name: "Pan" }
+                    { versionId: 1, isBuiltIn: true, name: "Pan" },
+                    { versionId: 1, isBuiltIn: true, name: "Zoom" }
                 ],
                 [
                     { versionId: 1, isBuiltIn: true, name: "Fit selection" }

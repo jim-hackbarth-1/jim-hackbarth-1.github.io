@@ -208,12 +208,14 @@ export class MapWorker {
         switch (changeObjectType) {
             case Map.name:
                 if (change?.changeData && change?.changeType === ChangeType.Edit) {
+                    this.map.startChange();
                     for (const changeItem of change.changeData) {
                         this.map[changeItem.propertyName] = changeItem.newValue;
                         if (changeItem.propertyName == "zoom" || changeItem.propertyName == "pan") {
                             updatedViewPort = true;
                         }
                     }
+                    this.map.completeChange(new Change(change));
                 }
                 break;
             default:
@@ -250,12 +252,78 @@ export class MapWorker {
     }
 
     async #clientEvent(eventType, eventData) {
-        if (this.activeToolModel && this.activeToolModel.handleClientEvent) {
-            await this.activeToolModel.handleClientEvent({
-                eventType: eventType,
-                eventData: eventData
-            });
+        if (eventType === "wheel" && eventData.altKey) {
+            if (this.map) {
+                this.#incrementZoom(eventData);
+            }
         }
+        else {
+            if (this.activeToolModel && this.activeToolModel.handleClientEvent) {
+                await this.activeToolModel.handleClientEvent({
+                    eventType: eventType,
+                    eventData: eventData
+                });
+            }
+        }
+    }
+    
+    #wheelTimeout = undefined;
+    #wheelStartZoom;
+    #incrementZoom(eventData) {
+
+        // calculate zoom
+        let zoom = Number(this.map.zoom);
+        if (eventData.deltaY < 0) {
+            zoom += 0.01;
+        }
+        else {
+            //console.log("here");
+            zoom -= 0.01;
+        }
+        zoom = zoom.toFixed(2);
+        if (zoom < 0.25) {
+            zoom = 0.25;
+        }
+        if (zoom > 4) {
+            zoom = 4;
+        }
+        //console.log(`this.map.zoom: ${this.map.zoom}, zoom: ${zoom}`);
+        if (this.map.zoom == zoom) {
+            return;
+        }
+
+        // start wheel change
+        if (this.#wheelTimeout === undefined) {
+            this.map.startChange();
+            this.#wheelStartZoom = this.map.zoom;
+        }
+
+        // update map
+        this.map.zoom = zoom;
+        this.renderMap({ updatedViewPort: true });
+
+        // record change at wheel end
+        clearTimeout(this.#wheelTimeout);
+        this.#wheelTimeout = setTimeout(() => {
+            if (this.#wheelTimeout) {
+                const change = new Change({
+                    changeObjectType: Map.name,
+                    changeObjectRef: this.map.ref,
+                    changeType: ChangeType.Edit,
+                    changeData: [
+                        {
+                            propertyName: "zoom",
+                            oldValue: this.#wheelStartZoom,
+                            newValue: this.map.zoom
+                        }
+                    ]
+                });
+                //console.log(change);
+                this.map.completeChange(change);
+                this.#wheelTimeout = undefined;
+            }
+            
+        }, 500);
     }
 
     async #cursorChanged(cursor) {

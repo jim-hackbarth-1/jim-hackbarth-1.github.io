@@ -20,6 +20,7 @@ class PanTool {
         this.#mapWorker = mapWorker
         this.#isArrowPressed = false;
         this.#panIncrementIteration = 0;
+        this.#drawCurrentPan();
     }
 
     async handleClientEvent(clientEvent) {

@@ -15,6 +15,7 @@ export class BuiltInTools {
         const selectCursorSrc = '<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g stroke="black" stroke-width="4" fill="white"><path d="M 5,5 L 80,80 A 5 5 -45 0 0 90 70 L 35,15 z" /></g></svg>';
         if (!BuiltInTools.#tools) {
             BuiltInTools.#tools = [];
+
             BuiltInTools.#tools.push(new Tool({
                 ref: {
                     versionId: 1,
@@ -25,6 +26,19 @@ export class BuiltInTools {
                 thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><g class="icon"><path d="M 50,10 L 35,20 45,20 45,45 20,45 20,35 10,50 20,65 20,55 45,55 45,80 35,80 50,90 65,80 55,80 55,55 80,55 80,65 90,50 80,35 80,45 55,45 55,20 65,20z"></path></g></svg>',
                 cursorSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g fill="white" stroke="black" stroke-width="4"><path d="M 50,10 L 35,20 45,20 45,45 20,45 20,35 10,50 20,65 20,55 45,55 45,80 35,80 50,90 65,80 55,80 55,55 80,55 80,65 90,50 80,35 80,45 55,45 55,20 65,20z"></path></g></svg>',
                 cursorHotspot: { x: 15, y: 15 },
+                toolType: ToolType.EditingTool
+            }));
+
+            BuiltInTools.#tools.push(new Tool({
+                ref: {
+                    versionId: 1,
+                    isBuiltIn: true,
+                    name: "Zoom"
+                },
+                moduleSrc: `${baseUrl}/domain/tools/zoom.js`,
+                thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><g class="icon"><path stroke-dasharray="4" d="M 35,35 l 60,0 0,60 -60,0 z" /><ellipse cx="35" cy="35" rx="25" ry="25" /><line x1="50" y1="50" x2="90" y2="90" /></g></svg>',
+                cursorSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g stroke="black" stroke-width="4" fill="none"><path stroke-dasharray="4" d="M 35,35 l 60,0 0,60 -60,0 z" /><ellipse cx="35" cy="35" rx="25" ry="25" /><line x1="50" y1="50" x2="90" y2="90" /></g></svg>',
+                cursorHotspot: { x: 10, y: 10 },
                 toolType: ToolType.EditingTool
             }));
 

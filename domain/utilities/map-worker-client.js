@@ -101,6 +101,7 @@ export class MapWorkerClient {
         MapWorkerClient.#addCanvasEventHandler(canvas, "pointerdown");
         MapWorkerClient.#addCanvasEventHandler(canvas, "pointermove");
         MapWorkerClient.#addCanvasEventHandler(canvas, "pointerup");
+        MapWorkerClient.#addCanvasEventHandler(canvas, "wheel");
     }
 
     static #addDocumentEventHandler(appDocument, eventType) {
@@ -134,6 +135,10 @@ export class MapWorkerClient {
             clientY: event.clientY,
             code: event.code,
             ctrlKey: event.ctrlKey,
+            deltaX: event.deltaX,
+            deltaY: event.deltaY,
+            deltaZ: event.deltaZ,
+            deltaMode: event.deltaMode,
             detail: event.detail,
             key: event.key,
             layerX: event.layerX,

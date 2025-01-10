@@ -112,7 +112,10 @@ class ZoomDialogModel {
         if (numberValue > 400) {
             numberValue = 400;
         }
+        numberValue = numberValue.toFixed(0);
         this.#zoomPercent = numberValue;
+        let zoom = this.#zoomPercent / 100;
+        zoom = zoom.toFixed(2);
         const map = await MapWorkerClient.getMap();
         MapWorkerClient.postWorkerMessage({
             messageType: MapWorkerInputMessageType.UpdateMap,
@@ -124,11 +127,10 @@ class ZoomDialogModel {
                     {
                         propertyName: "zoom",
                         oldValue: map.zoom,
-                        newValue: this.#zoomPercent / 100
+                        newValue: zoom
                     }
                 ]
             }
-
         });
         this.#displayCurrentZoom();
     }
@@ -138,8 +140,52 @@ class ZoomDialogModel {
         componentElement.querySelector("#zoom-current").value = this.getZoom();
     }
 
-    zoomToFit() {
-        console.log("not yet implemented");
+    async zoomToFit() {
+        // get bounds to fit
+        const map = await MapWorkerClient.getMap();
+        const boundsToFit = this.#getBoundsToFit(map);
+
+        // get canvas size
+        const canvasSize = MapWorkerClient.getCurrentCanvasSize();
+
+        // get pan
+        const pan = { x: -boundsToFit.x, y: -boundsToFit.y };
+
+        // get zoom
+        let zoom = Math.min(canvasSize.width / boundsToFit.width, canvasSize.height / boundsToFit.height);
+        zoom = zoom.toFixed(2);
+        if (zoom < 0.25) {
+            zoom = 0.25;
+        }
+        if (zoom > 4) {
+            zoom = 4;
+        }
+
+        // set pan and zoom
+        MapWorkerClient.postWorkerMessage({
+            messageType: MapWorkerInputMessageType.UpdateMap,
+            change: {
+                changeObjectType: Map.name,
+                changeObjectRef: map.ref,
+                changeType: ChangeType.Edit,
+                changeData: [
+                    {
+                        propertyName: "zoom",
+                        oldValue: map.zoom,
+                        newValue: zoom
+                    },
+                    {
+                        propertyName: "pan",
+                        oldValue: map.pan,
+                        newValue: pan
+                    }
+                ]
+            }
+        });
+        
+        // display current zoom
+        this.#zoomPercent = zoom * 100;
+        this.#displayCurrentZoom();
     }
 
     closeDialog() {
@@ -154,5 +200,26 @@ class ZoomDialogModel {
         componentElement.querySelector("#zoom-current").value = this.getZoom();
         componentElement.querySelector("#zoom-in").disabled = zoomInDisabled;
         componentElement.querySelector("#zoom-out").disabled = zoomOutDisabled;
+    }
+
+    #getBoundsToFit(map) {
+        let xMin = NaN, xMax = NaN, yMin = NaN, yMax = NaN;
+        for (const layer of map.layers) {
+            for (const mapItemGroup of layer.mapItemGroups) {
+                if (isNaN(xMin) || mapItemGroup.bounds.x < xMin) {
+                    xMin = mapItemGroup.bounds.x;
+                }
+                if (isNaN(xMax) || mapItemGroup.bounds.x + mapItemGroup.bounds.width > xMax) {
+                    xMax = mapItemGroup.bounds.x + mapItemGroup.bounds.width;
+                }
+                if (isNaN(yMin) || mapItemGroup.bounds.y < yMin) {
+                    yMin = mapItemGroup.bounds.y;
+                }
+                if (isNaN(yMax) || mapItemGroup.bounds.y + mapItemGroup.bounds.height > yMax) {
+                    yMax = mapItemGroup.bounds.y + mapItemGroup.bounds.height;
+                }
+            }
+        }
+        return { x: xMin - 5, y: yMin - 5, width: xMax - xMin + 10, height: yMax - yMin + 10 };
     }
 }

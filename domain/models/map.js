@@ -1,5 +1,16 @@
 ﻿
-import { Change, ChangeType, EntityReference, ErrorMessage, getOverlandTemplate, Layer, MapItemTemplate, Tool, ToolPalette } from "../references.js";
+import {
+    Change,
+    ChangeType,
+    EntityReference,
+    ErrorMessage,
+    getOverlandTemplate,
+    Layer,
+    MapItemTemplate,
+    Overlay,
+    Tool,
+    ToolPalette
+} from "../references.js";
 
 export class BuiltInTemplates {
 
@@ -59,6 +70,7 @@ export class Map {
         this.#pan = data?.pan;
         this.#zoom = data?.zoom;
         this.#hasUnsavedChanges = data?.hasUnsavedChanges;
+        this.#overlay = new Overlay(data?.overlay);
         this.#eventListeners = {}; 
     }
 
@@ -227,6 +239,17 @@ export class Map {
         return this.#currentViewPort ?? { x: 0, y: 0, width: 0, height: 0 };
     }
 
+    /** @type {Overlay} */
+    #overlay;
+    get overlay() {
+        return this.#overlay ?? new Overlay();
+    }
+    set overlay(overlay) {
+        const change = this.#getPropertyChange("overlay", this.#overlay, overlay);
+        this.#overlay = overlay;
+        this.#onChange(change);
+    }
+
     // methods
     static cleanseData(data, inputUtilities, domParser, domSerializer) {
         if (!data) {
@@ -275,7 +298,8 @@ export class Map {
             toolPalette: ToolPalette.cleanseData(data.toolPalette, inputUtilities),
             pan: inputUtilities.cleansePoint(data.pan),
             zoom: inputUtilities.cleanseNumber(data.zoom),
-            hasUnsavedChanges: inputUtilities.cleanseBoolean(data.hasUnsavedChanges)
+            hasUnsavedChanges: inputUtilities.cleanseBoolean(data.hasUnsavedChanges),
+            overlay: Overlay.cleanseData(data.overlay, inputUtilities)
         }
     }
 
@@ -305,7 +329,8 @@ export class Map {
             toolPalette: this.#toolPalette ? this.#toolPalette.getData() : null,
             pan: this.#pan,
             zoom: this.#zoom,
-            hasUnsavedChanges: this.#hasUnsavedChanges
+            hasUnsavedChanges: this.#hasUnsavedChanges,
+            overlay: this.#overlay ? this.#overlay.getData() : null
         };
     }
 
@@ -640,6 +665,7 @@ export class Map {
         for (const layer of this.layers) {
             layer.renderSelections(context, this);
         }
+        this.overlay.render(context, this, options);
     }
 
     #startedChange

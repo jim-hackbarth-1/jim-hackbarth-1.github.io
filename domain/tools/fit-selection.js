@@ -19,6 +19,7 @@ class FitSelectionTool {
     #setOperationMode;
     #isArrowPressed;
     #moveIncrementIteration;
+    #isOPressed;
 
     // methods
     async onActivate(mapWorker) {
@@ -34,6 +35,7 @@ class FitSelectionTool {
         this.#setOperationMode = "Intersect";
         this.#isArrowPressed = false;
         this.#moveIncrementIteration = 0;
+        this.#isOPressed = false;
     }
 
     async handleClientEvent(clientEvent) {
@@ -99,11 +101,13 @@ class FitSelectionTool {
                 this.#selectMove(eventData);
             }
             if (this.#selectionUtilities.activityState === "Move") {
-                this.#selectionUtilities.move(this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isCtrlPressed);
+                this.#selectionUtilities.move(
+                    this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isCtrlPressed, this.#isOPressed);
                 preview = true;
             }
             if (this.#selectionUtilities.activityState.startsWith("Resize")) {
-                this.#selectionUtilities.resize(this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isCtrlPressed);
+                this.#selectionUtilities.resize(
+                    this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isCtrlPressed, this.#isOPressed);
                 preview = true;
                 drawArcsRadii = true;              
             }
@@ -168,6 +172,9 @@ class FitSelectionTool {
         if (eventData.key == "ArrowDown") {
             this.#moveIncrement(eventData, 0, 1);
         }
+        if (eventData.key?.toLowerCase() == "o") {
+            this.#isOPressed = true;
+        }
     }
 
     #onKeyUp(eventData) {
@@ -199,6 +206,9 @@ class FitSelectionTool {
         if (eventData.key?.startsWith("Arrow")) {
             this.#moveIncrementIteration = 0;
             this.#isArrowPressed = false;
+        }
+        if (eventData.key?.toLowerCase() == "o") {
+            this.#isOPressed = false;
         }
     }
 
@@ -409,13 +419,14 @@ class FitSelectionTool {
     }
 
     #displayPath(path) {
+        const scale = 1 / this.#mapWorker.map.zoom;
         const path2D = new Path2D(`${path.getPathInfo()} z`);
         this.#mapWorker.renderingContext.setLineDash([]);
         this.#mapWorker.renderingContext.strokeStyle = "darkred";
-        this.#mapWorker.renderingContext.lineWidth = 3;
+        this.#mapWorker.renderingContext.lineWidth = 3 * scale;
         this.#mapWorker.renderingContext.stroke(path2D);
         this.#mapWorker.renderingContext.strokeStyle = "white";
-        this.#mapWorker.renderingContext.lineWidth = 1;
+        this.#mapWorker.renderingContext.lineWidth = 1 * scale;;
         this.#mapWorker.renderingContext.stroke(path2D);
     }
 

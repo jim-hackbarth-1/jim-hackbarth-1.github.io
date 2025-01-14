@@ -328,7 +328,7 @@
                         <div class="button-text">Resize canvas ...</div>
                     </div>
                 </button>
-                <button title="Overlay" class="action-text" data-kit-add-attributes="%{#model.isOverlayDisabled()}%">
+                <button title="Overlay" class="action-text" onclick="#model.showDialog('overlay-dialog-component')" data-kit-add-attributes="%{#model.isOverlayDisabled()}%">
                     <div class="button-content">
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/view-overlay.html" data-kit-model="null"></kit-component>
@@ -442,7 +442,7 @@
                     </div>
                 </div>
             </button>
-            <button title="Overlay" class="action-text" data-kit-add-attributes="%{#model.isOverlayDisabled()}%">
+            <button title="Overlay" class="action-text" onclick="#model.showDialog('overlay-dialog-component')" data-kit-add-attributes="%{#model.isOverlayDisabled()}%">
                 <div class="button-content">
                     <div class="icon-container">
                         <kit-component data-kit-template-path="/resources/icons/view-overlay.html" data-kit-model="null"></kit-component>
@@ -553,4 +553,5 @@
     <kit-component id="file-open-dialog-component" data-kit-template-path="/components/map-editor/file-open-dialog/file-open-dialog.html"></kit-component>
     <kit-component id="zoom-dialog-component" data-kit-template-path="/components/map-editor/zoom-dialog/zoom-dialog.html"></kit-component>
     <kit-component id="canvas-size-dialog-component" data-kit-template-path="/components/map-editor/canvas-size-dialog/canvas-size-dialog.html"></kit-component>
+    <kit-component id="overlay-dialog-component" data-kit-template-path="/components/map-editor/overlay-dialog/overlay-dialog.html"></kit-component>
 </section>

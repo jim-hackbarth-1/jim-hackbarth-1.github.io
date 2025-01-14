@@ -8,6 +8,7 @@ import {
     GeometryUtilities,
     Map,
     MapItemGroup,
+    Overlay,
     Path,
     SelectionUtilities
 } from "../references.js";
@@ -210,10 +211,15 @@ export class MapWorker {
                 if (change?.changeData && change?.changeType === ChangeType.Edit) {
                     this.map.startChange();
                     for (const changeItem of change.changeData) {
-                        this.map[changeItem.propertyName] = changeItem.newValue;
-                        if (changeItem.propertyName == "zoom" || changeItem.propertyName == "pan") {
-                            updatedViewPort = true;
+                        if (changeItem.propertyName == "overlay") {
+                            this.map[changeItem.propertyName] = new Overlay(changeItem.newValue);
                         }
+                        else {
+                            this.map[changeItem.propertyName] = changeItem.newValue;
+                            if (changeItem.propertyName == "zoom" || changeItem.propertyName == "pan") {
+                                updatedViewPort = true;
+                            }
+                        } 
                     }
                     this.map.completeChange(new Change(change));
                 }

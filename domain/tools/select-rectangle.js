@@ -16,6 +16,7 @@ class SelectRectangleTool {
     #isAltPressed;
     #isArrowPressed;
     #moveIncrementIteration;
+    #isOPressed;
 
     // methods
     async onActivate(mapWorker) {
@@ -30,6 +31,7 @@ class SelectRectangleTool {
         this.#isAltPressed = false;
         this.#isArrowPressed = false;
         this.#moveIncrementIteration = 0;
+        this.#isOPressed = false;
     }
 
     async handleClientEvent(clientEvent) {
@@ -90,11 +92,13 @@ class SelectRectangleTool {
                 this.#selectMove(eventData);
             }
             if (this.#selectionUtilities.activityState === "Move") {
-                this.#selectionUtilities.move(this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isCtrlPressed);
+                this.#selectionUtilities.move(
+                    this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isCtrlPressed, this.#isOPressed);
                 this.#mapWorker.renderMap();
             }
             if (this.#selectionUtilities.activityState.startsWith("Resize")) {
-                this.#selectionUtilities.resize(this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isCtrlPressed);
+                this.#selectionUtilities.resize(
+                    this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isCtrlPressed, this.#isOPressed);
                 this.#mapWorker.renderMap();
                 this.#selectionUtilities.drawArcsRadii(this.#mapWorker, this.#isCtrlPressed);
             }
@@ -151,6 +155,9 @@ class SelectRectangleTool {
         if (eventData.key == "ArrowDown") {
             this.#moveIncrement(eventData, 0, 1);
         }
+        if (eventData.key?.toLowerCase() == "o") {
+            this.#isOPressed = true;
+        }
     }
 
     #onKeyUp(eventData) {
@@ -166,6 +173,9 @@ class SelectRectangleTool {
         if (eventData.key?.startsWith("Arrow")) {
             this.#moveIncrementIteration = 0;
             this.#isArrowPressed = false;
+        }
+        if (eventData.key?.toLowerCase() == "o") {
+            this.#isOPressed = false;
         }
     }
 

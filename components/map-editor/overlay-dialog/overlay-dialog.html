@@ -1,0 +1,117 @@
+﻿
+<dialog class="overlay-dialog-component surface-tertiary background">
+    <style>
+        @scope (.overlay-dialog-component) {
+            :scope {
+                height: 350px;
+                width: 175px;
+                border: 1px solid var(--theme-color-tertiary-darkest);
+            }
+
+            .controls-container {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .controls-container div {
+                margin: 5px;
+            }
+
+            label {
+                display: block;
+            }
+
+            input[type="color"] {
+                border: 1px solid var(--theme-color-tertiary-darkest);
+                border-radius: 3px;
+                height: 35px;
+                width: 125px;
+                padding: 0 2px 0 2px;
+            }
+
+            select {
+                border: 1px solid var(--theme-color-tertiary-darkest);
+                border-radius: 3px;
+                height: 35px;
+                color: var(--theme-color-tertiary-darkest);
+                background-color: var(--theme-color-tertiary-lighter);
+                width: 125px;
+            }
+
+            input[type="number"] {
+                border: 1px solid var(--theme-color-tertiary-darkest);
+                border-radius: 3px;
+                height: 35px;
+                color: var(--theme-color-tertiary-darkest);
+                background-color: var(--theme-color-tertiary-lighter);
+                padding: 0 5px 0 5px;
+                text-align: center;
+                width: 75px;
+            }
+
+            input[type="number"]:invalid + .invalid::after {
+                content: "✖";
+                background-color: var(--theme-color-complementary-lighter);
+                border: 1px solid var(--theme-color-complementary-darkest);
+                border-radius: 3px;
+                color: var(--theme-color-complementary-darkest);
+                padding-left: 2px;
+                padding-right: 2px;
+                margin-left: -5px;
+            }
+
+            input[type="number"]:focus, select:focus {
+                background-color: var(--theme-color-tertiary-lightest);
+                border: 1px solid var(--theme-color-tertiary-darkest);
+            }
+
+            input[type="number"]:not([disabled]):hover {
+                box-shadow: var(--theme-color-tertiary-lightest) 1px 1px 3px 0 inset, var(--theme-color-tertiary-lightest) -1px -1px 3px 0 inset;
+            }
+        }
+    </style>
+    <header class="surface-tertiary">
+        <div class="icon-container">
+            <kit-component data-kit-template-path="/resources/icons/view-overlay.html" data-kit-model="null"></kit-component>
+        </div>
+        <div>
+            <h1>Overlay</h1>
+        </div>
+        <div class="spacer"></div>
+        <div>
+            <button title="Close" class="action-text" onclick="#model.closeDialog();">
+                <div class="icon-container">
+                    <kit-component data-kit-template-path="/resources/icons/file-close.html" data-kit-model="null"></kit-component>
+                </div>
+            </button>
+        </div>
+    </header>
+    <section>
+        <div class="controls-container">
+            <div>
+                <label>Pattern:</label>
+                <select id="inputPattern" title="Pattern" onchange="#model.onOverlayChange()">
+                    <option value="None">None</option>
+                    <option value="Grid">Grid</option>
+                    <option value="Dots">Dots</option>
+                    <option value="Hex">Hex</option>
+                </select>
+            </div>
+            <div>
+                <label>Size:</label>
+                <input id="inputSize" title="Size" type="number" min="10" max="1000" required onchange="#model.onOverlayChange()" />
+                <span class="invalid"></span>
+            </div>
+            <div>
+                <label>Color:</label>
+                <input id="inputColor" title="Color" type="color" required onchange="#model.onOverlayChange()" />
+                <span class="invalid"></span>
+            </div>
+            <div>
+                <label>Opacity(%):</label>
+                <input id="inputOpacity" title="Opacity(%)" type="number" min="0" max="100" required onchange="#model.onOverlayChange()" />
+                <span class="invalid"></span>
+            </div>
+        </div>
+    </section>
+</dialog>

@@ -147,7 +147,8 @@ export class EditorModel {
     }
 
     async isOverlayDisabled() {
-        return "disabled";
+        const map = await MapWorkerClient.getMap();
+        return map ? null : "disabled";
     }
 
     async isReadOnlyViewerDisabled() {
@@ -281,6 +282,7 @@ export class EditorModel {
             }
             mapData.activeLayer = template.activeLayer;
             mapData.toolPalette = template.toolPalette.getData();
+            mapData.overlay = template.overlay.getData();
         }
         await this.#openMap(mapData, template);
     }

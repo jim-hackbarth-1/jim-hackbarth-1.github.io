@@ -101,7 +101,7 @@ export class SelectionUtilities {
         this.resetSelectionBounds(mapWorker);
     }
 
-    move(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode) {
+    move(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode, snapToOverlay) {
         let dx = (endPoint.x - startPoint.x) / mapWorker.map.zoom;
         let dy = (endPoint.y - startPoint.y) / mapWorker.map.zoom;
         if (useLockMode) {
@@ -119,11 +119,23 @@ export class SelectionUtilities {
             selectionStartData = selectionStartData.filter(ssd => ssd.mapItemGroupId == boundsInfo.mapItemGroupId);
         }
         for (const selection of selectionStartData) {
-            selection.path.start = { x: selection.startingPathData.start.x + dx, y: selection.startingPathData.start.y + dy };
+            const start = { x: selection.startingPathData.start.x + dx, y: selection.startingPathData.start.y + dy }
+            let snapDx = 0;
+            let snapDy = 0;
+            if (snapToOverlay) {
+                const selectionBounds = mapWorker.geometryUtilities.getPathBounds(start, selection.startingPathData.transits);
+                const topLeft = { x: selectionBounds.x, y: selectionBounds.y };
+                const snapPoint = mapWorker.map.overlay.getNearestOverlayPoint(topLeft);
+                snapDx = topLeft.x - snapPoint.x;
+                snapDy = topLeft.y - snapPoint.y;
+            }
+            start.x -= snapDx;
+            start.y -= snapDy;
+            selection.path.start = start;
             for (const clipPath of selection.path.clipPaths) {
                 const startDataPath = selection.startingPathData.clipPaths.find(p => p.id == clipPath.id);
                 if (startDataPath) {
-                    clipPath.start = { x: startDataPath.start.x + dx, y: startDataPath.start.y + dy };
+                    clipPath.start = { x: startDataPath.start.x + dx - snapDx, y: startDataPath.start.y + dy - snapDy };
                 }
             }
         }
@@ -149,30 +161,30 @@ export class SelectionUtilities {
         }
     }
 
-    resize(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode) {
+    resize(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode, snapToOverlay) {
         if (this.activityState === ActivityState.ResizeSE) {
-            this.#resizeSEMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode);
+            this.#resizeSEMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode, snapToOverlay);
         }
         if (this.activityState === ActivityState.ResizeS) {
-            this.#resizeSMove(mapWorker, startPoint, endPoint, useSingleSelectionMode);
+            this.#resizeSMove(mapWorker, startPoint, endPoint, useSingleSelectionMode, snapToOverlay);
         }
         if (this.activityState === ActivityState.ResizeSW) {
-            this.#resizeSWMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode);
+            this.#resizeSWMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode, snapToOverlay);
         }
         if (this.activityState === ActivityState.ResizeW) {
-            this.#resizeWMove(mapWorker, startPoint, endPoint, useSingleSelectionMode);
+            this.#resizeWMove(mapWorker, startPoint, endPoint, useSingleSelectionMode, snapToOverlay);
         }
         if (this.activityState === ActivityState.ResizeNW) {
-            this.#resizeNWMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode);
+            this.#resizeNWMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode, snapToOverlay);
         }
         if (this.activityState === ActivityState.ResizeN) {
-            this.#resizeNMove(mapWorker, startPoint, endPoint, useSingleSelectionMode);
+            this.#resizeNMove(mapWorker, startPoint, endPoint, useSingleSelectionMode, snapToOverlay);
         }
         if (this.activityState === ActivityState.ResizeNE) {
-            this.#resizeNEMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode);
+            this.#resizeNEMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode, snapToOverlay);
         }
         if (this.activityState === ActivityState.ResizeE) {
-            this.#resizeEMove(mapWorker, startPoint, endPoint, useSingleSelectionMode);
+            this.#resizeEMove(mapWorker, startPoint, endPoint, useSingleSelectionMode, snapToOverlay);
         }
     }
 
@@ -389,9 +401,15 @@ export class SelectionUtilities {
         path.transits = transits;
     }
 
-    #resizeSEMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode) {
-        let dx = (endPoint.x - startPoint.x) / mapWorker.map.zoom;
-        let dy = (endPoint.y - startPoint.y) / mapWorker.map.zoom;
+    #resizeSEMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode, snapToOverlay) {
+        let end = endPoint;
+        if (snapToOverlay) {
+            let mapPoint = this.#transformCanvasPoint(mapWorker, end.x, end.y);
+            mapPoint = mapWorker.map.overlay.getNearestOverlayPoint(mapPoint);
+            end = this.#transformMapPoint(mapWorker, mapPoint.x, mapPoint.y);
+        }
+        let dx = (end.x - startPoint.x) / mapWorker.map.zoom;
+        let dy = (end.y - startPoint.y) / mapWorker.map.zoom;
         if (useLockMode) {
             dy = dx;
         }      
@@ -429,8 +447,14 @@ export class SelectionUtilities {
         return offset;
     }
 
-    #resizeSMove(mapWorker, startPoint, endPoint, useSingleSelectionMode) {
-        const dy = (endPoint.y - startPoint.y) / mapWorker.map.zoom;
+    #resizeSMove(mapWorker, startPoint, endPoint, useSingleSelectionMode, snapToOverlay) {
+        let end = endPoint;
+        if (snapToOverlay) {
+            let mapPoint = this.#transformCanvasPoint(mapWorker, end.x, end.y);
+            mapPoint = mapWorker.map.overlay.getNearestOverlayPoint(mapPoint);
+            end = this.#transformMapPoint(mapWorker, mapPoint.x, mapPoint.y);
+        }
+        const dy = (end.y - startPoint.y) / mapWorker.map.zoom;
         const scaleX = 1;
         const scaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
         let selectionStartData = this.selectionStartData;
@@ -464,9 +488,15 @@ export class SelectionUtilities {
         return offset;
     }
 
-    #resizeSWMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode) {
-        let dx = (startPoint.x - endPoint.x) / mapWorker.map.zoom;
-        let dy = (endPoint.y - startPoint.y) / mapWorker.map.zoom;
+    #resizeSWMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode, snapToOverlay) {
+        let end = endPoint;
+        if (snapToOverlay) {
+            let mapPoint = this.#transformCanvasPoint(mapWorker, end.x, end.y);
+            mapPoint = mapWorker.map.overlay.getNearestOverlayPoint(mapPoint);
+            end = this.#transformMapPoint(mapWorker, mapPoint.x, mapPoint.y);
+        }
+        let dx = (startPoint.x - end.x) / mapWorker.map.zoom;
+        let dy = (end.y - startPoint.y) / mapWorker.map.zoom;
         if (useLockMode) {
             dy = dx;
         } 
@@ -504,8 +534,14 @@ export class SelectionUtilities {
         return offset;
     }
 
-    #resizeWMove(mapWorker, startPoint, endPoint, useSingleSelectionMode) {
-        const dx = (startPoint.x - endPoint.x) / mapWorker.map.zoom;
+    #resizeWMove(mapWorker, startPoint, endPoint, useSingleSelectionMode, snapToOverlay) {
+        let end = endPoint;
+        if (snapToOverlay) {
+            let mapPoint = this.#transformCanvasPoint(mapWorker, end.x, end.y);
+            mapPoint = mapWorker.map.overlay.getNearestOverlayPoint(mapPoint);
+            end = this.#transformMapPoint(mapWorker, mapPoint.x, mapPoint.y);
+        }
+        const dx = (startPoint.x - end.x) / mapWorker.map.zoom;
         const scaleX = (this.changeReferenceBounds.bounds.width + dx) / this.changeReferenceBounds.bounds.width;
         const scaleY = 1;
         let selectionStartData = this.selectionStartData;
@@ -540,9 +576,15 @@ export class SelectionUtilities {
         return offset;
     }
 
-    #resizeNWMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode) {
-        let dx = (startPoint.x - endPoint.x) / mapWorker.map.zoom;
-        let dy = (startPoint.y - endPoint.y) / mapWorker.map.zoom;
+    #resizeNWMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode, snapToOverlay) {
+        let end = endPoint;
+        if (snapToOverlay) {
+            let mapPoint = this.#transformCanvasPoint(mapWorker, end.x, end.y);
+            mapPoint = mapWorker.map.overlay.getNearestOverlayPoint(mapPoint);
+            end = this.#transformMapPoint(mapWorker, mapPoint.x, mapPoint.y);
+        }
+        let dx = (startPoint.x - end.x) / mapWorker.map.zoom;
+        let dy = (startPoint.y - end.y) / mapWorker.map.zoom;
         if (useLockMode) {
             dy = dx;
         } 
@@ -580,8 +622,14 @@ export class SelectionUtilities {
         return offset;
     }
 
-    #resizeNMove(mapWorker, startPoint, endPoint, useSingleSelectionMode) {
-        const dy = (startPoint.y - endPoint.y) / mapWorker.map.zoom;
+    #resizeNMove(mapWorker, startPoint, endPoint, useSingleSelectionMode, snapToOverlay) {
+        let end = endPoint;
+        if (snapToOverlay) {
+            let mapPoint = this.#transformCanvasPoint(mapWorker, end.x, end.y);
+            mapPoint = mapWorker.map.overlay.getNearestOverlayPoint(mapPoint);
+            end = this.#transformMapPoint(mapWorker, mapPoint.x, mapPoint.y);
+        }
+        const dy = (startPoint.y - end.y) / mapWorker.map.zoom;
         const scaleX = 1;
         const scaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
         let selectionStartData = this.selectionStartData;
@@ -615,9 +663,15 @@ export class SelectionUtilities {
         return offset;
     }
 
-    #resizeNEMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode) {
-        let dx = (endPoint.x - startPoint.x) / mapWorker.map.zoom;
-        let dy = (startPoint.y - endPoint.y) / mapWorker.map.zoom;
+    #resizeNEMove(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode, snapToOverlay) {
+        let end = endPoint;
+        if (snapToOverlay) {
+            let mapPoint = this.#transformCanvasPoint(mapWorker, end.x, end.y);
+            mapPoint = mapWorker.map.overlay.getNearestOverlayPoint(mapPoint);
+            end = this.#transformMapPoint(mapWorker, mapPoint.x, mapPoint.y);
+        }
+        let dx = (end.x - startPoint.x) / mapWorker.map.zoom;
+        let dy = (startPoint.y - end.y) / mapWorker.map.zoom;
         if (useLockMode) {
             dy = dx;
         } 
@@ -655,8 +709,14 @@ export class SelectionUtilities {
         return offset;
     }
 
-    #resizeEMove(mapWorker, startPoint, endPoint, useSingleSelectionMode) {
-        const dx = (endPoint.x - startPoint.x) / mapWorker.map.zoom;
+    #resizeEMove(mapWorker, startPoint, endPoint, useSingleSelectionMode, snapToOverlay) {
+        let end = endPoint;
+        if (snapToOverlay) {
+            let mapPoint = this.#transformCanvasPoint(mapWorker, end.x, end.y);
+            mapPoint = mapWorker.map.overlay.getNearestOverlayPoint(mapPoint);
+            end = this.#transformMapPoint(mapWorker, mapPoint.x, mapPoint.y);
+        }
+        const dx = (end.x - startPoint.x) / mapWorker.map.zoom;
         const scaleX = (this.changeReferenceBounds.bounds.width + dx) / this.changeReferenceBounds.bounds.width;
         const scaleY = 1;
         let selectionStartData = this.selectionStartData;
@@ -693,6 +753,12 @@ export class SelectionUtilities {
     #transformCanvasPoint(mapWorker, x, y) {
         const scale = { x: 1 / mapWorker.map.zoom, y: 1 / mapWorker.map.zoom };
         const translation = { x: -mapWorker.map.pan.x, y: -mapWorker.map.pan.y };
+        return mapWorker.geometryUtilities.transformPoint({ x: x, y: y }, scale, translation);
+    }
+
+    #transformMapPoint(mapWorker, x, y) {
+        const scale = { x: mapWorker.map.zoom, y: mapWorker.map.zoom };
+        const translation = { x: mapWorker.map.pan.x, y: mapWorker.map.pan.y };
         return mapWorker.geometryUtilities.transformPoint({ x: x, y: y }, scale, translation);
     }
 

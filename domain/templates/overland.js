@@ -40,6 +40,12 @@ export function getOverlandTemplate() {
                 ]
             ],
             mapItemTemplatePalettes: [[blueRegion.ref]]
+        },
+        overlay: {
+            pattern: "Hex",
+            size: 30,
+            color: "#000000",
+            opacity: 0.5
         }
     };
     return new Map(mapData);

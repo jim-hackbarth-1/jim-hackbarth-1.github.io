@@ -114,6 +114,9 @@ export class MapWorkerClient {
 
     static async #clientEventHandler(eventType, event) {
         try {
+            if (eventType == "wheel" && event.altKey) {
+                event.preventDefault();
+            }
             await MapWorkerClient.postWorkerMessage({
                 messageType: MapWorkerInputMessageType.ClientEvent,
                 eventType: eventType,

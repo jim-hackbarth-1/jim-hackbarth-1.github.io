@@ -138,7 +138,15 @@ class PanTool {
     }
 
     #drawCurrentPan() {
-        const text = `pan: ${this.#mapWorker.map.pan.x.toFixed(0)}, ${this.#mapWorker.map.pan.y.toFixed(0)}`;
+        let x = this.#mapWorker.map.pan.x.toFixed(0);
+        if (x == -0) {
+            x = 0;
+        }
+        let y = this.#mapWorker.map.pan.y.toFixed(0);
+        if (y == -0) {
+            y = 0;
+        }
+        const text = `pan: ${x}, ${y}`;
         const scale = 1 / this.#mapWorker.map.zoom;
         const fontSize = 12 * scale;
         this.#mapWorker.renderingContext.font = `${fontSize}px sans-serif`;

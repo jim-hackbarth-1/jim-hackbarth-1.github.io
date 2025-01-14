@@ -13,11 +13,13 @@ class DrawEllipseTool {
     #yCurrent;
     #isDrawing;
     #isShiftPressed;
+    #isOPressed;
 
     // methods
     async onActivate(mapWorker) {
         this.#mapWorker = mapWorker;
         this.#isShiftPressed = false;
+        this.#isOPressed = false;
     }
 
     async handleClientEvent(clientEvent) {
@@ -64,32 +66,50 @@ class DrawEllipseTool {
         if (eventData.key == "Shift") {
             this.#isShiftPressed = true;
         }
+        if (eventData.key?.toLowerCase() == "o") {
+            this.#isOPressed = true;
+        }
     }
 
     #onKeyUp(eventData) {
         if (eventData.key == "Shift") {
             this.#isShiftPressed = false;
         }
+        if (eventData.key?.toLowerCase() == "o") {
+            this.#isOPressed = false;
+        }
     }
 
     #drawStart(eventData) {
         this.#mapWorker.renderingContext.setLineDash([5, 10]);
-        this.#xStart = eventData.offsetX;
-        this.#yStart = eventData.offsetY;
-        this.#setCurrentPoint(eventData);
+        let start = { x: eventData.offsetX, y: eventData.offsetY };
+        if (this.#isOPressed) {
+            let mapPoint = this.#transformCanvasPoint(start.x, start.y);
+            mapPoint = this.#mapWorker.map.overlay.getNearestOverlayPoint(mapPoint);
+            start = this.#transformMapPoint(mapPoint.x, mapPoint.y);
+        }
+        this.#xStart = start.x;
+        this.#yStart = start.y;
+        this.#setCurrentPoint(start);
         this.#isDrawing = true;
     }
 
     #draw(eventData) {
-        this.#setCurrentPoint(eventData);
+        let point = { x: eventData.offsetX, y: eventData.offsetY };
+        if (this.#isOPressed) {
+            let mapPoint = this.#transformCanvasPoint(point.x, point.y);
+            mapPoint = this.#mapWorker.map.overlay.getNearestOverlayPoint(mapPoint);
+            point = this.#transformMapPoint(mapPoint.x, mapPoint.y);
+        }
+        this.#setCurrentPoint(point);
         this.#drawEllipse();
     }
 
-    #setCurrentPoint(eventData) {
-        this.#xCurrent = eventData.offsetX;
+    #setCurrentPoint(point) {
+        this.#xCurrent = point.x;
         if (this.#isShiftPressed) {
             const xDelta = Math.abs(this.#xCurrent - this.#xStart);
-            if (eventData.offsetY < this.#yStart) {
+            if (point.y < this.#yStart) {
                 this.#yCurrent = this.#yStart - xDelta;
             }
             else {
@@ -97,7 +117,7 @@ class DrawEllipseTool {
             }
         }
         else {
-            this.#yCurrent = eventData.offsetY;
+            this.#yCurrent = point.y;
         }
     }
 
@@ -165,5 +185,17 @@ class DrawEllipseTool {
             this.#mapWorker.map.getActiveLayer().addMapItemGroup(mapItemGroup);
         }
         this.#mapWorker.renderMap();
+    }
+
+    #transformCanvasPoint(x, y) {
+        const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
+        const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
+        return this.#mapWorker.geometryUtilities.transformPoint({ x: x, y: y }, scale, translation);
+    }
+
+    #transformMapPoint(x, y) {
+        const scale = { x: this.#mapWorker.map.zoom, y: this.#mapWorker.map.zoom };
+        const translation = { x: this.#mapWorker.map.pan.x, y: this.#mapWorker.map.pan.y };
+        return this.#mapWorker.geometryUtilities.transformPoint({ x: x, y: y }, scale, translation);
     }
 }

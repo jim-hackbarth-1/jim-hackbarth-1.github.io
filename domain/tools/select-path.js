@@ -18,6 +18,7 @@ class SelectPathTool {
     #isAltPressed;
     #isArrowPressed;
     #moveIncrementIteration;
+    #isOPressed;
 
     // methods
     async onActivate(mapWorker) {
@@ -32,6 +33,7 @@ class SelectPathTool {
         this.#isAltPressed = false;
         this.#isArrowPressed = false;
         this.#moveIncrementIteration = 0;
+        this.#isOPressed = false;
     }
 
     async handleClientEvent(clientEvent) {
@@ -93,11 +95,13 @@ class SelectPathTool {
                 this.#selectMove(eventData);
             }
             if (this.#selectionUtilities.activityState === "Move") {
-                this.#selectionUtilities.move(this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isCtrlPressed);
+                this.#selectionUtilities.move(
+                    this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isCtrlPressed, this.#isOPressed);
                 this.#mapWorker.renderMap();
             }
             if (this.#selectionUtilities.activityState.startsWith("Resize")) {
-                this.#selectionUtilities.resize(this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isCtrlPressed);
+                this.#selectionUtilities.resize(
+                    this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isCtrlPressed, this.#isOPressed);
                 this.#mapWorker.renderMap();
                 this.#selectionUtilities.drawArcsRadii(this.#mapWorker, this.#isCtrlPressed);
             }
@@ -154,6 +158,9 @@ class SelectPathTool {
         if (eventData.key == "ArrowDown") {
             this.#moveIncrement(eventData, 0, 1);
         }
+        if (eventData.key?.toLowerCase() == "o") {
+            this.#isOPressed = true;
+        }
     }
 
     #onKeyUp(eventData) {
@@ -169,6 +176,9 @@ class SelectPathTool {
         if (eventData.key?.startsWith("Arrow")) {
             this.#moveIncrementIteration = 0;
             this.#isArrowPressed = false;
+        }
+        if (eventData.key?.toLowerCase() == "o") {
+            this.#isOPressed = false;
         }
     }
 

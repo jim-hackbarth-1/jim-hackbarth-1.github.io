@@ -1,8 +1,11 @@
 ﻿
+import { InputUtilities } from "../references.js";
+
 export class EntityReference {
 
     // constructor
     constructor(data) {
+        data = EntityReference.#cleanseData(data);
         if (data) {
             this.#versionId = data.versionId;
             this.#isBuiltIn = data.isBuiltIn;
@@ -37,18 +40,6 @@ export class EntityReference {
     }
 
     // methods
-    static cleanseData(data, inputUtilities) {
-        if (!data) {
-            return null;
-        }
-        return {
-            versionId: inputUtilities.cleanseNumber(data.versionId),
-            isBuiltIn: inputUtilities.cleanseBoolean(data.isBuiltIn),
-            isFromTemplate: inputUtilities.cleanseBoolean(data.isFromTemplate),
-            name: inputUtilities.cleanseString(data.name)
-        };
-    }
-
     getData() {
         return {
             versionId: this.#versionId,
@@ -71,5 +62,18 @@ export class EntityReference {
             && isBuiltIn1 === isBuiltIn2
             && isFromTemplate1 === isFromTemplate2
             && name1 === name2;
+    }
+
+    // helpers
+    static #cleanseData(data) {
+        if (!data) {
+            return null;
+        }
+        return {
+            versionId: InputUtilities.cleanseNumber(data.versionId),
+            isBuiltIn: InputUtilities.cleanseBoolean(data.isBuiltIn),
+            isFromTemplate: InputUtilities.cleanseBoolean(data.isFromTemplate),
+            name: InputUtilities.cleanseString(data.name)
+        };
     }
 }

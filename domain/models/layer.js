@@ -1,12 +1,12 @@
 ﻿
-import { Change, ChangeType, MapItemGroup, SelectionStatusType } from "../references.js";
+import { Change, ChangeType, InputUtilities, MapItemGroup, SelectionStatusType } from "../references.js";
 
 export class Layer {
 
     // constructor
     constructor(data) {
-        this.#name = data?.name;
-        this.#isHidden = data?.isHidden;
+        this.#name = InputUtilities.cleanseString(data?.name);
+        this.#isHidden = InputUtilities.cleanseBoolean(data?.isHidden);
         this.#mapItemGroups = [];
         if (data?.mapItemGroups) {
             for (const mapItemGroupData of data.mapItemGroups) {
@@ -62,23 +62,6 @@ export class Layer {
     }
 
     // methods
-    static cleanseData(data, inputUtilities) {
-        if (!data) {
-            return null;
-        }
-        const mapItemGroups = [];
-        if (data.mapItemGroups) {
-            for (const mapItemGroup of data.mapItemGroups) {
-                mapItemGroups.push(MapItemGroup.cleanseData(mapItemGroup, inputUtilities));
-            }
-        }
-        return {
-            name: inputUtilities.cleanseString(data.name),
-            isHidden: inputUtilities.cleanseBoolean(data.isHidden),
-            mapItemGroups: mapItemGroups
-        }
-    }
-
     getData() {
         const mapItemGroups = [];
         for (const mapItemGroup of this.#mapItemGroups) {
@@ -192,6 +175,7 @@ export class Layer {
                     }
                 }
             }
+            // render map item groups that were in view first
             for (const mapItemGroup of mapItemGroups1) {
                 mapItemGroup.render(context, map, options); // temp
             }

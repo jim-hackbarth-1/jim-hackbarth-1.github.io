@@ -111,7 +111,7 @@ class DrawPathTool {
             const start = this.#mapWorker.geometryUtilities.transformPoint({ x: this.#xStart, y: this.#yStart }, scale, translation);
             const points = this.#points.map(pt => this.#mapWorker.geometryUtilities.transformPoint(pt, scale));
             const mapItemData = {
-                mapItemTemplateRef: this.#mapWorker.activeMapItemTemplate.ref.getData(),
+                mapItemTemplateRef: this.#mapWorker.activeMapItemTemplate.ref,
                 paths: [{
                     start: start,
                     transits: points

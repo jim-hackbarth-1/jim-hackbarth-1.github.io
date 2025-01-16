@@ -249,7 +249,7 @@
         <div>
             <button onclick="#model.toggleDropdown('menu-edit')" class="dropbtn top-menu-item action-text" data-dropdown-id="menu-edit">Edit</button>
             <div id="menu-edit" class="dropdown-content surface-secondary">
-                <button title="Undo" class="action-text" data-kit-add-attributes="%{#model.isUndoDisabled()}%">
+                <button id="menuEditUndo" title="Undo" class="action-text" onclick="#model.undo()" data-kit-add-attributes="%{#model.isUndoDisabled()}%">
                     <div class="button-content">
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/edit-undo.html" data-kit-model="null"></kit-component>
@@ -257,7 +257,7 @@
                         <div class="button-text">Undo</div>
                     </div>
                 </button>
-                <button title="Redo" class="action-text" data-kit-add-attributes="%{#model.isRedoDisabled()}%">
+                <button id="menuEditRedo" title="Redo" class="action-text" onclick="#model.redo()" data-kit-add-attributes="%{#model.isRedoDisabled()}%">
                     <div class="button-content">
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/edit-redo.html" data-kit-model="null"></kit-component>
@@ -375,14 +375,14 @@
         </div>
         <div class="toolbar-group">
             <div class="group-divider"></div>
-            <button title="Undo" class="action-text" data-kit-add-attributes="%{#model.isUndoDisabled()}%">
+            <button id="buttonUndo" title="Undo" class="action-text" onclick="#model.undo()" data-kit-add-attributes="%{#model.isUndoDisabled()}%">
                 <div class="button-content">
                     <div class="icon-container">
                         <kit-component data-kit-template-path="/resources/icons/edit-undo.html" data-kit-model="null"></kit-component>
                     </div>
                 </div>
             </button>
-            <button title="Redo" class="action-text" data-kit-add-attributes="%{#model.isRedoDisabled()}%">
+            <button id="buttonRedo" title="Redo" class="action-text" onclick="#model.redo()" data-kit-add-attributes="%{#model.isRedoDisabled()}%">
                 <div class="button-content">
                     <div class="icon-container">
                         <kit-component data-kit-template-path="/resources/icons/edit-redo.html" data-kit-model="null"></kit-component>

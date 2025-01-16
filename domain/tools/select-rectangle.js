@@ -22,7 +22,7 @@ class SelectRectangleTool {
     async onActivate(mapWorker) {
         this.#mapWorker = mapWorker;
         if (this.#mapWorker.map) {
-            this.#mapWorker.map.addEventListener("afterChangeEvent", this.handleMapChange);
+            this.#mapWorker.map.addEventListener("ChangeEvent", this.handleMapChange);
         }
         this.#selectionUtilities = this.#mapWorker.createSelectionUtilities();
         this.#cursor = "Default";

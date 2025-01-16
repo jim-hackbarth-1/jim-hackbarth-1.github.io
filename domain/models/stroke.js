@@ -1,21 +1,21 @@
 ﻿
-import { GradientType } from "../references.js";
+import { GradientType, InputUtilities } from "../references.js";
 
 export class BaseStroke {
 
     // constructor
     constructor(data) {
-        this.#width = 1;
-        this.#opacity = 1;
+        this.#width = InputUtilities.cleanseNumber(data?.width) ?? 1;
+        this.#opacity = InputUtilities.cleanseNumber(data?.opacity) ?? 1;
         this.#dash = [];
-        if (data) {
-            this.#width = data.width ?? 1;
-            this.#opacity = data.opacity ?? 1;
-            this.#dash = data.dash ?? [];
-            this.#dashOffset = data.dashOffset;
-            this.#cap = data.cap;
-            this.#join = data.join;
+        if (data?.dash) {
+            for (const dashItem of data.dash) {
+                this.#dash.push(InputUtilities.cleanseNumber(dashItem));
+            }    
         }
+        this.#dashOffset = InputUtilities.cleanseNumber(data?.dashOffset);
+        this.#cap = InputUtilities.cleanseString(data?.cap);
+        this.#join = InputUtilities.cleanseString(data?.join);
     }
 
     // properties
@@ -56,26 +56,6 @@ export class BaseStroke {
     }
 
     // methods
-    static cleanseData(data, inputUtilities) {
-        if (!data) {
-            return null;
-        }
-        const dash = [];
-        if (data.dash) {
-            for (const dashItem of dash) {
-                dash.push(inputUtilities.cleanseNumber(dashItem));
-            }
-        }
-        return {
-            width: inputUtilities.cleanseNumber(data.width),
-            opacity: inputUtilities.cleanseNumber(data.opacity),
-            dash: dash,
-            dashOffset: inputUtilities.cleanseNumber(data.dashOffset),
-            cap: inputUtilities.cleanseString(data.cap),
-            join: inputUtilities.cleanseString(data.join),
-        }
-    }
-
     getData() {
         return {
             width: this.#width,

@@ -18,6 +18,9 @@ class PanTool {
     // methods
     async onActivate(mapWorker) {
         this.#mapWorker = mapWorker
+        if (this.#mapWorker.map) {
+            this.#mapWorker.map.addEventListener("ChangeEvent", this.handleMapChange);
+        }
         this.#isArrowPressed = false;
         this.#panIncrementIteration = 0;
         this.#drawCurrentPan();
@@ -42,6 +45,10 @@ class PanTool {
                 this.#onKeyUp(eventData);
                 break;
         }
+    }
+
+    handleMapChange = async (change) => {
+        this.#drawCurrentPan();
     }
 
     // helpers
@@ -156,7 +163,7 @@ class PanTool {
         const height = bounds.actualBoundingBoxAscent + bounds.actualBoundingBoxDescent + padding;
         const rectStart = this.#transformCanvasPoint(5, 5);
         const rect = new Path2D(`M ${rectStart.x},${rectStart.y} l ${width},0 0,${height} ${-(width)},0 z`);      
-        this.#mapWorker.renderingContext.lineWidth = 2 * scale;;
+        this.#mapWorker.renderingContext.lineWidth = 2 * scale;
         this.#mapWorker.renderingContext.fillStyle = "white";
         this.#mapWorker.renderingContext.globalAlpha = 0.5; 
         this.#mapWorker.renderingContext.fill(rect);

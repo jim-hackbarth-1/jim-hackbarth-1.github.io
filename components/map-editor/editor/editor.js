@@ -50,11 +50,16 @@ export class EditorModel {
             this.#setMapCursor(message.data?.cursor);
             await MapWorkerClient.postWorkerMessage({ messageType: MapWorkerInputMessageType.CursorChanged, cursor: message.data?.cursor });
         }
-        if (message?.messageType === MapWorkerOutputMessageType.MapUpdated && message?.data?.change?.changeData) {
+        if (message?.messageType === MapWorkerOutputMessageType.MapUpdated && message?.data?.change?.changeItems) {
+            const map = await MapWorkerClient.getMap();
+            this.#componentElement.querySelector("#menuEditUndo").disabled = !map.canUndo();
+            this.#componentElement.querySelector("#buttonUndo").disabled = !map.canUndo();
+            this.#componentElement.querySelector("#menuEditRedo").disabled = !map.canRedo();
+            this.#componentElement.querySelector("#buttonRedo").disabled = !map.canRedo();
             if (message?.data?.change?.changeObjectType == Map.name) {
                 for (const changeItem of message.data.change.changeData) {
                     if (changeItem.propertyName === "zoom") {
-                        const map = await MapWorkerClient.getMap();
+                        
                         const zoomLabel = this.#componentElement.querySelector("#zoom-label");
                         zoomLabel.innerHTML = parseFloat(map.zoom * 100).toFixed(0) + "%"
                     }
@@ -121,11 +126,27 @@ export class EditorModel {
     }
 
     async isUndoDisabled() {
+        const map = await MapWorkerClient.getMap();
+        if (map?.canUndo()) {
+            return null;
+        }
         return "disabled";
     }
 
+    async undo() {
+        MapWorkerClient.postWorkerMessage({ messageType: MapWorkerInputMessageType.Undo });
+    }
+
     async isRedoDisabled() {
+        const map = await MapWorkerClient.getMap();
+        if (map?.canRedo()) {
+            return null;
+        }
         return "disabled";
+    }
+
+    async redo() {
+        MapWorkerClient.postWorkerMessage({ messageType: MapWorkerInputMessageType.Redo });
     }
 
     async isEditSelectionDisabled() {
@@ -457,11 +478,7 @@ export class EditorModel {
         // TODO: get external tools
 
         // display
-        const inputUtilities = new InputUtilities();
-        const parser = new DOMParser();
-        const serializer = new XMLSerializer();
-        const map = new Map(Map.cleanseData(mapData, inputUtilities, parser, serializer));
-        await MapWorkerClient.setMap(map);
+        await MapWorkerClient.setMap(new Map(mapData));
         KitRenderer.renderComponent(this.#componentId);
     }
 

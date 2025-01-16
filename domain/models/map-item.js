@@ -1,11 +1,11 @@
 ﻿
-import { Change, ChangeType, EntityReference, Path } from "../references.js";
+import { Change, ChangeType, EntityReference, InputUtilities, Path } from "../references.js";
 
 export class MapItem {
 
     // constructor
     constructor(data) {
-        this.#id = data?.id ?? crypto.randomUUID();
+        this.#id = InputUtilities.cleanseString(data?.id) ?? crypto.randomUUID();
         this.#paths = [];
         if (data?.paths) {
             for (const pathData of data.paths) {
@@ -15,13 +15,13 @@ export class MapItem {
                 this.#addChangeEventListeners(path);
             }
         }
-        this.#mapItemTemplateRef = data?.mapItemTemplateRef;
-        this.#z = data?.z;
-        this.#isHidden = data?.isHidden;
-        this.#isCaptionVisible = data?.isCaptionVisible;
-        this.#captionText = data?.captionText;
-        this.#captionLocation = data?.captionLocation;
-        this.#bounds = data?.bounds;
+        this.#mapItemTemplateRef = new EntityReference(data?.mapItemTemplateRef);
+        this.#z = InputUtilities.cleanseNumber(data?.z);
+        this.#isHidden = InputUtilities.cleanseBoolean(data?.isHidden);
+        this.#isCaptionVisible = InputUtilities.cleanseBoolean(data?.isCaptionVisible);
+        this.#captionText = InputUtilities.cleanseString(data?.captionText);
+        this.#captionLocation = InputUtilities.cleansePoint(data?.captionLocation);
+        this.#bounds = InputUtilities.cleanseBounds(data?.bounds);
         this.#eventListeners = {};
     }
 
@@ -151,34 +151,11 @@ export class MapItem {
     }
 
     // methods
-    static cleanseData(data, inputUtilities) {
-        if (!data) {
-            return null;
-        }
-        const paths = [];
-        if (data.paths) {
-            for (const path of data.paths) {
-                paths.push(Path.cleanseData(path, inputUtilities));
-            }
-        }
-        return {
-            id: inputUtilities.cleanseString(data.id),
-            paths: paths,
-            mapItemTemplateRef: EntityReference.cleanseData(data.mapItemTemplateRef),
-            z: inputUtilities.cleanseNumber(data.z),
-            isHidden: inputUtilities.cleanseBoolean(data.isHidden),
-            isCaptionVisible: inputUtilities.cleanseBoolean(data.isCaptionVisible),
-            captionText: inputUtilities.cleanseString(data.captionText),
-            captionLocation: inputUtilities.cleansePoint(data.captionLocation),
-            bounds: inputUtilities.cleanseBounds(data.bounds)
-        }
-    }
-
     getData() {
         return {
             id: this.#id,
             paths: this.#paths ? this.#paths.map(p => p.getData()) : null,
-            mapItemTemplateRef: this.#mapItemTemplateRef,
+            mapItemTemplateRef: this.#mapItemTemplateRef.getData(),
             z: this.#z,
             isHidden: this.#isHidden,
             isCaptionVisible: this.#isCaptionVisible,

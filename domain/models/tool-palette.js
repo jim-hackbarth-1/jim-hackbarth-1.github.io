@@ -5,14 +5,9 @@ export class ToolPalette {
 
     // constructor
     constructor(data) {
-        this.#editingToolPalettes = [];
-        this.#drawingToolPalettes = [];
-        this.#mapItemTemplatePalettes = [];
-        if (data) {
-            this.#editingToolPalettes = this.#getPalettes(data.editingToolPalettes);
-            this.#drawingToolPalettes = this.#getPalettes(data.drawingToolPalettes);
-            this.#mapItemTemplatePalettes = this.#getPalettes(data.mapItemTemplatePalettes);
-        }
+        this.#editingToolPalettes = this.#getPalettes(data?.editingToolPalettes);
+        this.#drawingToolPalettes = this.#getPalettes(data?.drawingToolPalettes);
+        this.#mapItemTemplatePalettes = this.#getPalettes(data?.mapItemTemplatePalettes);
         this.#eventListeners = {};
     }
 
@@ -51,17 +46,6 @@ export class ToolPalette {
     }
 
     // methods
-    static cleanseData(data, inputUtilities) {
-        if (!data) {
-            return null;
-        }
-        return {
-            editingToolPalettes: ToolPalette.#cleansePalettesData(data.editingToolPalettes, inputUtilities),
-            drawingToolPalettes: ToolPalette.#cleansePalettesData(data.drawingToolPalettes, inputUtilities),
-            mapItemTemplatePalettes: ToolPalette.#cleansePalettesData(data.mapItemTemplatePalettes, inputUtilities),
-        }
-    }
-
     getData() {
         return {
             editingToolPalettes: this.#getPalettesData(this.#editingToolPalettes),

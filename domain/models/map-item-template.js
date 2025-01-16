@@ -11,6 +11,7 @@ import {
     GradientStroke,
     ImageArrayFill,
     ImageArrayStroke,
+    InputUtilities,
     Shadow,
     TileFill,
     TileStroke
@@ -21,51 +22,49 @@ export class MapItemTemplate {
     // constructor
     constructor(data) {
         this.#ref = new EntityReference(data?.ref);
+        this.#thumbnailSrc = InputUtilities.cleanseSvg(data?.thumbnailSrc);
         this.#fills = [];
-        this.#strokes = [];
-        if (data) {
-            this.#thumbnailSrc = data.thumbnailSrc;
-            if (data.fills) {
-                for (const fill of data.fills) {
-                    if (fill.color) {
-                        this.#fills.push(new ColorFill(fill));
-                    }
-                    if (fill.gradientType) {
-                        this.#fills.push(new GradientFill(fill));
-                    }
-                    if (fill.imageSrc) {
-                        this.#fills.push(new TileFill(fill));
-                    }
-                    if (fill.imageSources) {
-                        this.#fills.push(new ImageArrayFill(fill));
-                    }
+        if (data?.fills) {
+            for (const fill of data.fills) {
+                if (fill.color) {
+                    this.#fills.push(new ColorFill(fill));
                 }
-            }
-            if (data.strokes) {
-                for (const stroke of data.strokes) {
-                    if (stroke.color) {
-                        this.#strokes.push(new ColorStroke(stroke));
-                    }
-                    if (stroke.gradientType) {
-                        this.#strokes.push(new GradientStroke(stroke));
-                    }
-                    if (stroke.imageSrc) {
-                        this.#strokes.push(new TileStroke(stroke));
-                    }
-                    if (stroke.imageSources) {
-                        this.#strokes.push(new ImageArrayStroke(stroke));
-                    }
+                if (fill.gradientType) {
+                    this.#fills.push(new GradientFill(fill));
                 }
-            }
-            if (data.shadow) {
-                this.#shadow = new Shadow(data.shadow);
-            }
-            this.#z = data.z;
-            if (data.caption) {
-                this.#caption = new Caption(data.caption);
+                if (fill.imageSrc) {
+                    this.#fills.push(new TileFill(fill));
+                }
+                if (fill.imageSources) {
+                    this.#fills.push(new ImageArrayFill(fill));
+                }
             }
         }
-        this.#tags = data?.tags;
+        this.#strokes = [];
+        if (data?.strokes) {
+            for (const stroke of data.strokes) {
+                if (stroke.color) {
+                    this.#strokes.push(new ColorStroke(stroke));
+                }
+                if (stroke.gradientType) {
+                    this.#strokes.push(new GradientStroke(stroke));
+                }
+                if (stroke.imageSrc) {
+                    this.#strokes.push(new TileStroke(stroke));
+                }
+                if (stroke.imageSources) {
+                    this.#strokes.push(new ImageArrayStroke(stroke));
+                }
+            }
+        }
+        if (data?.shadow) {
+            this.#shadow = new Shadow(data.shadow);
+        }
+        this.#z = InputUtilities.cleanseNumber(data?.z);
+        if (data?.caption) {
+            this.#caption = new Caption(data.caption);
+        }
+        this.#tags = InputUtilities.cleanseString(data?.tags);
         this.#eventListeners = {};
         this.#addChangeEventListeners(this.#caption);
     }
@@ -157,56 +156,6 @@ export class MapItemTemplate {
     }
 
     // methods
-    static cleanseData(data, inputUtilities, domParser, domSerializer) {
-        if (!data) {
-            return null;
-        }
-        const fills = [];
-        if (data.fills) {
-            for (const fill of data.fills) {
-                if (fill.color) {
-                    fills.push(ColorFill.cleanseData(fill, inputUtilities));
-                }
-                if (fill.gradientType) {
-                    fills.push(GradientFill.cleanseData(fill, inputUtilities));
-                }
-                if (fill.imageSrc) {
-                    fills.push(TileFill.cleanseData(fill, inputUtilities));
-                }
-                if (fill.imageSources) {
-                    fills.push(ImageArrayFill.cleanseData(fill, inputUtilities));
-                }
-            }
-        }
-        const strokes = [];
-        if (data.strokes) {
-            for (const stroke of data.strokes) {
-                if (stroke.color) {
-                    strokes.push(ColorStroke.cleanseData(stroke, inputUtilities));
-                }
-                if (stroke.gradientType) {
-                    strokes.push(GradientStroke.cleanseData(stroke, inputUtilities));
-                }
-                if (stroke.imageSrc) {
-                    strokes.push(TileStroke.cleanseData(stroke, inputUtilities));
-                }
-                if (stroke.imageSources) {
-                    strokes.push(ImageArrayStroke.cleanseData(stroke, inputUtilities));
-                }
-            }
-        }
-        return {
-            ref: EntityReference.cleanseData(data.ref, inputUtilities),
-            thumbnailSrc: inputUtilities.cleanseSvg(data.thumbnailSrc, domParser, domSerializer),
-            fills: fills,
-            strokes: strokes,
-            shadow: Shadow.cleanseData(data.shadow),
-            z: inputUtilities.cleanseNumber(data.z),
-            caption: Caption.cleanseData(data.caption),
-            tags: inputUtilities.cleanseString(data.tags)
-        }
-    }
-
     getData() {
         const fills = [];
         for (const fill of this.fills) {

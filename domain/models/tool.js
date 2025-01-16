@@ -1,5 +1,5 @@
 ﻿
-import { Change, ChangeType, EntityReference } from "../references.js";
+import { Change, ChangeType, EntityReference, InputUtilities } from "../references.js";
 
 /** @readonly @enum {string} */
 export const ToolType = {
@@ -120,11 +120,11 @@ export class Tool {
     // constructor
     constructor(data) {
         this.#ref = new EntityReference(data?.ref);
-        this.#moduleSrc = data?.moduleSrc;
-        this.#thumbnailSrc = data?.thumbnailSrc;
-        this.#cursorSrc = data?.cursorSrc;
-        this.#cursorHotspot = data?.cursorHotspot;
-        this.#toolType = data?.toolType;
+        this.#moduleSrc = InputUtilities.cleanseString(data?.moduleSrc);
+        this.#thumbnailSrc = InputUtilities.cleanseSvg(data?.thumbnailSrc);
+        this.#cursorSrc = InputUtilities.cleanseSvg(data?.cursorSrc);
+        this.#cursorHotspot = InputUtilities.cleansePoint(data?.cursorHotspot);
+        this.#toolType = InputUtilities.cleanseString(data?.toolType);
         this.#eventListeners = {};
     }
 
@@ -191,20 +191,6 @@ export class Tool {
     }
 
     // methods
-    static cleanseData(data, inputUtilities, domParser, domSerializer) {
-        if (!data) {
-            return null;
-        }
-        return {
-            ref: EntityReference.cleanseData(data.ref, inputUtilities),
-            moduleSrc: inputUtilities.cleanseString(data.moduleSrc),
-            thumbnailSrc: inputUtilities.cleanseSvg(data.thumbnailSrc, domParser, domSerializer),
-            cursorSrc: inputUtilities.cleanseSvg(data.cursorSrc, domParser, domSerializer),
-            cursorHotspot: inputUtilities.cleansePoint(data.cursorHotspot),
-            toolType: inputUtilities.cleanseString(data.toolType)
-        };
-    }
-
     getData() {
         return {
             ref: this.#ref ? this.#ref.getData() : null,

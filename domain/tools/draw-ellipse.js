@@ -161,7 +161,7 @@ class DrawEllipseTool {
             const yRadius = Math.abs((this.#yCurrent - this.#yStart) / 2);
             const radii = this.#mapWorker.geometryUtilities.transformPoint({ x: xRadius, y: yRadius }, scale);
             const mapItemData = {
-                mapItemTemplateRef: this.#mapWorker.activeMapItemTemplate.ref.getData(),
+                mapItemTemplateRef: this.#mapWorker.activeMapItemTemplate.ref,
                 paths: [{
                     start: start,
                     transits: [

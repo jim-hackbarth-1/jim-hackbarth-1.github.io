@@ -2,7 +2,7 @@
 export class InputUtilities {
 
     // methods
-    cleanseString(stringIn) {
+    static cleanseString(stringIn) {
         let stringOut = stringIn;
         if (stringOut) {
             stringOut = stringOut
@@ -15,15 +15,15 @@ export class InputUtilities {
         return stringOut;
     }
 
-    cleanseBoolean(boolean) {
+    static cleanseBoolean(boolean) {
         return boolean ? true : false;
     }
 
-    cleanseNumber(number) {
+    static cleanseNumber(number) {
         return isNaN(number) ? null : number;
     }
 
-    cleansePoint(point) {
+    static cleansePoint(point) {
         if (!point) {
             return null;
         }
@@ -33,7 +33,7 @@ export class InputUtilities {
         }
     }
 
-    cleanseBounds(bounds) {
+    static cleanseBounds(bounds) {
         if (!bounds) {
             return null;
         }
@@ -45,10 +45,15 @@ export class InputUtilities {
         }
     }
 
-    cleanseSvg(svg, domParser, domSerializer) {
+    static cleanseSvg(svg) {
         if (!svg) {
             return null;
         }
+        const domParser = InputUtilities.#getParser();
+        const domSerializer = InputUtilities.#getSerializer();
+        if (!domParser || !domSerializer) {
+            return svg;
+        } 
         const docIn = domParser.parseFromString(svg, "application/xml");
         const docOut = domParser.parseFromString("<root/>", "application/xml");
         InputUtilities.#processSvgSrcNode(docOut, docOut.documentElement, docIn.documentElement);
@@ -59,6 +64,24 @@ export class InputUtilities {
     }
 
     // helpers
+    static #getParser() {
+        try {
+            return new DOMParser();
+        }
+        catch {
+            return null;
+        }
+    }
+
+    static #getSerializer() {
+        try {
+            return new XMLSerializer();
+        }
+        catch {
+            return null;
+        }
+    }
+
     static #allowedSvgTags = [
         "a", "animate", "animateMotion", "animateTransform", "circle",
         "clipPath", "defs", "desc", "ellipse", "feBlend",
@@ -136,5 +159,4 @@ export class InputUtilities {
                 break;
         }
     }
-
 }

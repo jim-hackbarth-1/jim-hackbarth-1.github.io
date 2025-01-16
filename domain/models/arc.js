@@ -1,16 +1,16 @@
 ﻿
-import { GeometryUtilities } from "../references.js";
+import { GeometryUtilities, InputUtilities } from "../references.js";
 
 export class Arc {
 
     // constructor
     constructor(data) {
-        this.#end = data?.end;
-        this.#center = data?.center;
-        this.#radii = data?.radii;
-        this.#rotationAngle = data?.rotationAngle;
-        this.#largeArcFlag = data?.largeArcFlag;
-        this.#sweepFlag = data?.sweepFlag;
+        this.#end = InputUtilities.cleansePoint(data?.end);
+        this.#center = InputUtilities.cleansePoint(data?.center);
+        this.#radii = InputUtilities.cleansePoint(data?.radii);
+        this.#rotationAngle = InputUtilities.cleanseNumber(data?.rotationAngle);
+        this.#largeArcFlag = InputUtilities.cleanseNumber(data?.largeArcFlag);
+        this.#sweepFlag = InputUtilities.cleanseNumber(data?.sweepFlag);
     }
 
     // properties
@@ -69,20 +69,6 @@ export class Arc {
     }
 
     // methods
-    static cleanseData(data, inputUtilities) {
-        if (!data) {
-            return null;
-        }
-        return {
-            end: inputUtilities.cleansePoint(data.end),
-            center: inputUtilities.cleansePoint(data.center),
-            radii: inputUtilities.cleansePoint(data.radii),
-            rotationAngle: inputUtilities.cleanseNumber(data.rotationAngle),
-            largeArcFlag: inputUtilities.cleanseNumber(data.largeArcFlag),
-            sweepFlag: inputUtilities.cleanseNumber(data.sweepFlag)
-        };
-    }
-
     getData() {
         return {
             end: this.#end,

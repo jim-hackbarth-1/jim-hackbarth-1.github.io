@@ -8,6 +8,7 @@ import {
     GradientStroke,
     ImageArrayFill,
     ImageArrayStroke,
+    InputUtilities,
     Shadow,
     TileFill,
     TileStroke
@@ -17,51 +18,48 @@ export class Caption {
 
     // constructor
     constructor(data) {
-        this.#opacity = 1;
-        if (data) {
-            this.#defaultText = data.defaultText;
-            this.#opacity = data.opacity ?? 1;
-            this.#font = data.font;
-            this.#fontSize = data.fontSize;
-            this.#fontColor = data.fontColor;
-            this.#fontVariantCaps = data.fontVariantCaps;
-            this.#fontOutlineColor = data.fontOutlineColor;
-            if (data.fontShadow) {
-                this.#fontShadow = new Shadow(data.fontShadow);
+        this.#defaultText = InputUtilities.cleanseString(data?.defaultText);
+        this.#opacity = InputUtilities.cleanseNumber(data?.opacity) ?? 1;
+        this.#font = InputUtilities.cleanseString(data?.font);
+        this.#fontSize = InputUtilities.cleanseNumber(data?.fontSize);
+        this.#fontColor = InputUtilities.cleanseString(data?.fontColor);
+        this.#fontVariantCaps = InputUtilities.cleanseString(data?.fontVariantCaps);
+        this.#fontOutlineColor = InputUtilities.cleanseString(data?.fontOutlineColor);
+        if (data?.fontShadow) {
+            this.#fontShadow = new Shadow(data.fontShadow);
+        }
+        this.#align = InputUtilities.cleanseString(data?.align);
+        this.#baseline = InputUtilities.cleanseString(data?.baseline);
+        if (data?.backgroundFill) {
+            if (data.backgroundFill.color) {
+                this.#backgroundFill = new ColorFill(data.backgroundFill);
             }
-            this.#align = data.align;
-            this.#baseline = data.baseline;
-            if (data.backgroundFill) {
-                if (data.backgroundFill.color) {
-                    this.#backgroundFill = new ColorFill(data.backgroundFill);
-                }
-                if (data.backgroundFill.gradientType) {
-                    this.#backgroundFill = new GradientFill(data.backgroundFill);
-                }
-                if (data.backgroundFill.imageSrc) {
-                    this.#backgroundFill = new TileFill(data.backgroundFill);
-                }
-                if (data.backgroundFill.imageSources) {
-                    this.#backgroundFill = new ImageArrayFill(data.backgroundFill);
-                }
+            if (data.backgroundFill.gradientType) {
+                this.#backgroundFill = new GradientFill(data.backgroundFill);
             }
-            if (data.borderStroke) {
-                if (data.borderStroke.color) {
-                    this.#borderStroke = new ColorStroke(data.borderStroke);
-                }
-                if (data.borderStroke.gradientType) {
-                    this.#borderStroke = new GradientStroke(data.borderStroke);
-                }
-                if (data.borderStroke.imageSrc) {
-                    this.#borderStroke = new TileStroke(data.borderStroke);
-                }
-                if (data.borderStroke.imageSources) {
-                    this.#borderStroke = new ImageArrayStroke(data.borderStroke);
-                }
+            if (data.backgroundFill.imageSrc) {
+                this.#backgroundFill = new TileFill(data.backgroundFill);
             }
-            if (data.shadow) {
-                this.#shadow = new Shadow(data.shadow);
+            if (data.backgroundFill.imageSources) {
+                this.#backgroundFill = new ImageArrayFill(data.backgroundFill);
             }
+        }
+        if (data?.borderStroke) {
+            if (data.borderStroke.color) {
+                this.#borderStroke = new ColorStroke(data.borderStroke);
+            }
+            if (data.borderStroke.gradientType) {
+                this.#borderStroke = new GradientStroke(data.borderStroke);
+            }
+            if (data.borderStroke.imageSrc) {
+                this.#borderStroke = new TileStroke(data.borderStroke);
+            }
+            if (data.borderStroke.imageSources) {
+                this.#borderStroke = new ImageArrayStroke(data.borderStroke);
+            }
+        }
+        if (data?.shadow) {
+            this.#shadow = new Shadow(data.shadow);
         }
         this.#eventListeners = {};
     }
@@ -211,27 +209,6 @@ export class Caption {
     }
 
     // methods
-    static cleanseData(data, inputUtilities) {
-        if (!data) {
-            return null;
-        }
-        return {
-            defaultText: inputUtilities.cleanseString(data.defaultText),
-            opacity: inputUtilities.cleanseNumber(data.opacity),
-            font: inputUtilities.cleanseString(data.font),
-            fontSize: inputUtilities.cleanseNumber(data.fontSize),
-            fontColor: inputUtilities.cleanseString(data.fontColor),
-            fontVariantCaps: inputUtilities.cleanseString(data.fontVariantCaps),
-            fontOutlineColor: inputUtilities.cleanseString(data.fontOutlineColor),
-            fontShadow: Shadow.cleanseData(data.fontShadow, inputUtilities),
-            align: inputUtilities.cleanseString(data.align),
-            baseline: inputUtilities.cleanseString(data.baseline),
-            backgroundFill: ColorFill.cleanseData(data.backgroundFill, inputUtilities),
-            borderStroke: ColorStroke.cleanseData(data.borderStroke, inputUtilities),
-            shadow: Shadow.cleanseData(data.shadow, inputUtilities)
-        }
-    }
-
     getData() {
         return {
             defaultText: this.#defaultText,

@@ -20,11 +20,13 @@ import {
 export const MapWorkerInputMessageType = {
     Initialize: "Initialize",
     LoadMap: "LoadMap",
-    UpdateMap: "UpdateMap", // save happened, undo, redo, set layer, set zoom, set overlay, ...
+    UpdateMap: "UpdateMap", // save happened, set layer, set zoom, set overlay, ...
     SetActiveTool: "SetActiveTool",
     SetActiveMapItemTemplate: "SetActiveMapItemTemplate",
     ClientEvent: "ClientEvent",
-    CursorChanged: "CursorChanged"
+    CursorChanged: "CursorChanged",
+    Undo: "Undo",
+    Redo: "Redo"
 };
 
 export const MapWorkerOutputMessageType = {
@@ -123,6 +125,12 @@ export class MapWorker {
                 case MapWorkerInputMessageType.CursorChanged:
                     await this.#cursorChanged(message.data.cursor);
                     break;
+                case MapWorkerInputMessageType.Undo:
+                    await this.#undo();
+                    break;
+                case MapWorkerInputMessageType.Redo:
+                    await this.#redo();
+                    break;
                 default:
                     throw new Error(`Unexpected worker request type: ${messageType ?? "(null)"}`);
             }
@@ -219,7 +227,7 @@ export class MapWorker {
                             if (changeItem.propertyName == "zoom" || changeItem.propertyName == "pan") {
                                 updatedViewPort = true;
                             }
-                        } 
+                        }
                     }
                     this.map.completeChange(new Change(change));
                 }
@@ -228,6 +236,16 @@ export class MapWorker {
                 throw new Error(`Unexpected worker request type: ${messageType ?? "(null)"}`);
         }
         this.renderMap({ updatedViewPort: updatedViewPort });
+    }
+
+    async #undo() {
+        this.map.undo();
+        this.renderMap({ updatedViewPort: true }); // <-- TODO: figure out if the viewport needs updating (maybe return undone changes?);
+    }
+
+    async #redo() {
+        this.map.redo();
+        this.renderMap({ updatedViewPort: true }); // <-- TODO: figure out if the viewport needs updating (maybe return undone changes?);
     }
 
     async #setActiveTool(toolRefData) {

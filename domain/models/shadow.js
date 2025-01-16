@@ -1,13 +1,15 @@
 ﻿
+import { InputUtilities } from "../references.js";
+
 export class Shadow {
 
     // constructor
     constructor(data) {
         if (data) {
-            this.#blur = data.blur;
-            this.#color = data.color;
-            this.#offsetX = data.offsetX;
-            this.#offsetY = data.offsetY;
+            this.#blur = InputUtilities.cleanseNumber(data.blur);
+            this.#color = InputUtilities.cleanseString(data.color);
+            this.#offsetX = InputUtilities.cleanseNumber(data.offsetX);
+            this.#offsetY = InputUtilities.cleanseNumber(data.offsetY);
         }
     }
 
@@ -37,18 +39,6 @@ export class Shadow {
     }
 
     // methods
-    static cleanseData(data, inputUtilities) {
-        if (!data) {
-            return null;
-        }
-        return {
-            blur: inputUtilities.cleanseNumber(data.blur),
-            color: inputUtilities.cleanseString(data.color),
-            offsetX: inputUtilities.cleanseNumber(data.offsetX),
-            offsetY: inputUtilities.cleanseNumber(data.offsetY)
-        }
-    }
-
     getData() {
         return {
             blur: this.#blur,

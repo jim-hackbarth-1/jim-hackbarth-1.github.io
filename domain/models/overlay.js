@@ -1,4 +1,6 @@
 ﻿
+import { InputUtilities } from "../references.js";
+
 /** @readonly @enum {string} */
 export const OverlayPattern = {
     None: "None",
@@ -11,10 +13,10 @@ export class Overlay {
 
     // constructor
     constructor(data) {
-        this.#pattern = data?.pattern;
-        this.#size = data?.size
-        this.#color = data?.color;
-        this.#opacity = data?.opacity;
+        this.#pattern = InputUtilities.cleanseString(data?.pattern);
+        this.#size = InputUtilities.cleanseNumber(data?.size);
+        this.#color = InputUtilities.cleanseString(data?.color);
+        this.#opacity = InputUtilities.cleanseNumber(data?.opacity);
     }
 
     // properties
@@ -43,18 +45,6 @@ export class Overlay {
     }
 
     // methods
-    static cleanseData(data, inputUtilities) {
-        if (!data) {
-            return null;
-        }
-        return {
-            pattern: inputUtilities.cleanseString(data.pattern),
-            size: inputUtilities.cleanseNumber(data.size),
-            color: inputUtilities.cleanseString(data.color),
-            opacity: inputUtilities.cleanseNumber(data.opacity)
-        }
-    }
-
     getData() {
         return {
             pattern: this.#pattern,

@@ -1,11 +1,11 @@
 ﻿
-import { Change, ChangeType, MapItem, SelectionStatusType } from "../references.js";
+import { Change, ChangeType, InputUtilities, MapItem, SelectionStatusType } from "../references.js";
 
 export class MapItemGroup {
 
     // constructor
     constructor(data) {
-        this.#id = data?.id ?? crypto.randomUUID();
+        this.#id = InputUtilities.cleanseString(data?.id) ?? crypto.randomUUID();
         this.#mapItems = [];
         if (data?.mapItems) {
             for (const mapItemData of data.mapItems) {
@@ -14,8 +14,8 @@ export class MapItemGroup {
                 this.#addChangeEventListeners(mapItem);
             }
         }
-        this.#selectionStatus = data?.selectionStatus;
-        this.#bounds = data?.bounds;
+        this.#selectionStatus = InputUtilities.cleanseString(data?.selectionStatus);
+        this.#bounds = InputUtilities.cleanseBounds(data?.bounds);
         this.#eventListeners = {};
     }
 
@@ -82,24 +82,6 @@ export class MapItemGroup {
     }
 
     // methods
-    static cleanseData(data, inputUtilities) {
-        if (!data) {
-            return null;
-        }
-        const mapItems = [];
-        if (data.mapItems) {
-            for (const mapItem of data.mapItems) {
-                mapItems.push(MapItem.cleanseData(mapItem, inputUtilities));
-            }
-        }
-        return {
-            id: inputUtilities.cleanseString(data.id),
-            mapItems: mapItems,
-            selectionStatus: inputUtilities.cleanseString(data.selectionStatus),
-            bounds: inputUtilities.cleanseBounds(data.bounds)
-        }
-    }
-
     getData() {
         return {
             id: this.#id,

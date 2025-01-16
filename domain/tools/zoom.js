@@ -14,9 +14,6 @@ class ZoomTool {
     // methods
     async onActivate(mapWorker) {
         this.#mapWorker = mapWorker;
-        if (this.#mapWorker.map) {
-            this.#mapWorker.map.addEventListener("afterChangeEvent", this.handleMapChange);
-        }
     }
 
     async handleClientEvent(clientEvent) {

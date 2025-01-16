@@ -5,6 +5,7 @@ import {
     EntityReference,
     ErrorMessage,
     getOverlandTemplate,
+    InputUtilities,
     Layer,
     MapItemTemplate,
     Overlay,
@@ -37,7 +38,7 @@ export class Map {
         if (data?.templateRef) {
             this.#templateRef = new EntityReference(data.templateRef);
         }
-        this.#thumbnailSrc = data?.thumbnailSrc;
+        this.#thumbnailSrc = data?.thumbnailSrc; // TODO: cleanse src
         this.#layers = [];
         if (data?.layers) {
             for (const layerData of data.layers) {
@@ -46,7 +47,7 @@ export class Map {
                 this.#addChangeEventListeners(layer);
             }
         }
-        this.#activeLayer = data?.activeLayer;
+        this.#activeLayer = InputUtilities.cleanseString(data?.activeLayer);
         this.#mapItemTemplateRefs = this.#getRefs(data?.mapItemTemplateRefs);     
         this.#mapItemTemplates = [];
         if (data?.mapItemTemplates) {
@@ -67,10 +68,12 @@ export class Map {
         }
         this.#toolPalette = new ToolPalette(data?.toolPalette);
         this.#addChangeEventListeners(this.#toolPalette);
-        this.#pan = data?.pan;
-        this.#zoom = data?.zoom;
-        this.#hasUnsavedChanges = data?.hasUnsavedChanges;
+        this.#pan = InputUtilities.cleansePoint(data?.pan);
+        this.#zoom = InputUtilities.cleanseNumber(data?.zoom);
+        this.#hasUnsavedChanges = InputUtilities.cleanseBoolean(data?.hasUnsavedChanges);
         this.#overlay = new Overlay(data?.overlay);
+        this.#changeLog = data?.changeLog ?? [];
+        this.#undoLog = data?.undoLog ?? [];
         this.#eventListeners = {}; 
     }
 
@@ -251,58 +254,6 @@ export class Map {
     }
 
     // methods
-    static cleanseData(data, inputUtilities, domParser, domSerializer) {
-        if (!data) {
-            return null;
-        }
-        const layers = [];
-        if (data.layers) {
-            for (const layer of data.layers) {
-                layers.push(Layer.cleanseData(layer, inputUtilities));
-            }
-        }
-        const mapItemTemplateRefs = [];
-        if (data.mapItemTemplateRefs) {
-            for (const mapItemTemplateRef of data.mapItemTemplateRefs) {
-                mapItemTemplateRefs.push(EntityReference.cleanseData(mapItemTemplateRef, inputUtilities));
-            }
-        }
-        const mapItemTemplates = [];
-        if (data.mapItemTemplates) {
-            for (const mapItemTemplate of data.mapItemTemplates) {
-                mapItemTemplates.push(MapItemTemplate.cleanseData(mapItemTemplate, inputUtilities, domParser, domSerializer));
-            }
-        }
-        const toolRefs = [];
-        if (data.toolRefs) {
-            for (const toolRef of data.toolRefs) {
-                toolRefs.push(EntityReference.cleanseData(toolRef, inputUtilities));
-            }
-        }
-        const tools = [];
-        if (data.tools) {
-            for (const tool of data.tools) {
-                tools.push(Tool.cleanseData(tool, inputUtilities, domParser, domSerializer));
-            }
-        }
-        return {
-            ref: EntityReference.cleanseData(data.ref, inputUtilities),
-            templateRef: EntityReference.cleanseData(data.templateRef, inputUtilities),
-            thumbnailSrc: inputUtilities.cleanseSvg(data.thumbnailSrc, inputUtilities, domParser, domSerializer),
-            layers: layers,
-            activeLayer: inputUtilities.cleanseString(data.activeLayer),
-            mapItemTemplateRefs: mapItemTemplateRefs,
-            mapItemTemplates: mapItemTemplates,
-            toolRefs: toolRefs,
-            tools: tools,
-            toolPalette: ToolPalette.cleanseData(data.toolPalette, inputUtilities),
-            pan: inputUtilities.cleansePoint(data.pan),
-            zoom: inputUtilities.cleanseNumber(data.zoom),
-            hasUnsavedChanges: inputUtilities.cleanseBoolean(data.hasUnsavedChanges),
-            overlay: Overlay.cleanseData(data.overlay, inputUtilities)
-        }
-    }
-
     getData() {
         const layers = [];
         for (const layer of this.#layers) {
@@ -677,12 +628,138 @@ export class Map {
         this.#onChange(change);
     }
 
+    // ~~~
+    #changeLog = [];
+    #undoLog = [];
+    #undoing = false;
+
+    canUndo() {
+        return (this.#changeLog.length > 0);
+    }
+
+    undo() {
+        let change = new Change(this.#changeLog.pop());
+        change = this.#getChangeReversion(change);
+        this.#applyChange(change, true);
+    }
+
+    canRedo() {
+        return (this.#undoLog.length > 0);
+    }
+
+    redo() {
+        let change = new Change(this.#undoLog.pop());
+        change = this.#getChangeReversion(change);
+        this.#applyChange(change);
+    }
+
+    applyChangeData(changeData) {
+        this.#applyChange(new Change(changeData));
+    }
+
+    #logChange(change) {
+        const maxLogLength = 100;
+        if (this.#undoing) {
+            this.#undoLog.push(change.getData());
+            if (this.#undoLog.length > maxLogLength) {
+                this.#undoLog = this.#undoLog.slice(-maxLogLength);
+            }
+        }
+        else {
+            this.#changeLog.push(change.getData());
+            if (this.#changeLog.length > maxLogLength) {
+                this.#changeLog = this.#changeLog.slice(-maxLogLength);
+            }
+        }
+    }
+
+    #applyChange(change, undoing) {
+        if (change) {
+            try {
+                this.#undoing = undoing;
+                this.startChange();
+                
+                // ~~~
+                const changeObjectType = change?.changeObjectType;
+                switch (changeObjectType) {
+                    case Map.name:
+                        if (change?.changeItems && change?.changeType === ChangeType.Edit) {
+                            for (const changeItem of change.changeItems) {
+                                if (changeItem.propertyName == "overlay") {
+                                    this.overlay = new Overlay(changeItem.newValue);
+                                }
+                                if (changeItem.propertyName == "pan") {
+                                    this.pan = InputUtilities.cleansePoint(changeItem.newValue);
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        throw new Error("Not implemented");
+                }
+                // ~~~
+
+            }
+            catch (exception) {
+                throw exception;
+            }
+            finally {
+                this.completeChange(change);
+                this.#undoing = false;
+            }
+        }
+    }
+
+    #getChangeReversion(change) {
+        let reversion = null;
+        if (change) {
+            let reversionChangeType = change.changeType;
+            if (change.changeType == ChangeType.Insert) {
+                reversionChangeType = ChangeType.Delete;
+            }
+            if (change.changeType == ChangeType.Delete) {
+                reversionChangeType = ChangeType.Insert;
+            }            
+            const reversionData = {
+                changeObjectType: change.changeObjectType,
+                changeObjectRef: change.changeObjectRef,
+                changeType: reversionChangeType,
+                changeItems: []
+            }
+
+            // ~~~
+            const changeObjectType = change?.changeObjectType;
+            switch (changeObjectType) {
+                case Map.name:
+                    if (change?.changeItems && change?.changeType === ChangeType.Edit) {
+                        for (const changeItem of change.changeItems) {
+                            reversionData.changeItems.push({
+                                propertyName: changeItem.propertyName,
+                                oldValue: changeItem.newValue,
+                                newValue: changeItem.oldValue
+                            });
+                        }
+                    }
+                    break;
+                default:
+                    throw new Error("Not implemented");
+            }
+            reversion = new Change(reversionData);
+            // ~~~
+            
+        }
+        return reversion;
+    }
+
+    // ~~~
+
     // helpers
     #eventListeners;
 
     #onChange = (change) => {
         if (!this.#startedChange) {
             this.#hasUnsavedChanges = true;
+            this.#logChange(change);
             if (this.#eventListeners[Change.ChangeEvent]) {
                 for (const listener of this.#eventListeners[Change.ChangeEvent]) {
                     listener(change);
@@ -704,6 +781,10 @@ export class Map {
                 }
             ]
         });
+    }
+
+    #getListData(list) {
+        return list ? list.map(x => x.getData ? x.getData() : x) : null;
     }
 
     #addChangeEventListeners(source) {

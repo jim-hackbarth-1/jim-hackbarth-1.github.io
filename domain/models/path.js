@@ -1,21 +1,22 @@
 ﻿
-import { Arc, Change, ChangeType, GeometryUtilities } from "../references.js";
+import { Arc, Change, ChangeType, GeometryUtilities, InputUtilities } from "../references.js";
 
 export class Path {
 
     // constructor
     constructor(data) {
-        this.#id = data?.id ?? crypto.randomUUID();
-        this.#mapItemId = data?.mapItemId;
-        this.#start = data?.start;
+        this.#id = InputUtilities.cleanseString(data?.id) ?? crypto.randomUUID();
+        this.#mapItemId = InputUtilities.cleanseString(data?.mapItemId);
+        this.#start = InputUtilities.cleansePoint(data?.start);
         if (data?.transits) {
             this.#transits = [];
             for (const transitData of data.transits) {
-                let transit = transitData;
-                if (transit.radii) {
-                    transit = new Arc(transitData);
+                if (transitData.radii) {
+                    this.#transits.push(new Arc(transitData));
                 }
-                this.#transits.push(transit);
+                else {
+                    this.#transits.push(InputUtilities.cleansePoint(transitData));
+                }
             }
         }
         if (data?.clipPaths) {
@@ -27,8 +28,8 @@ export class Path {
                 this.#clipPaths.push(new Path(clipPathData));
             }
         }
-        this.#rotationAngle = data?.rotationAngle;
-        this.#bounds = data?.bounds;
+        this.#rotationAngle = InputUtilities.cleanseNumber(data?.rotationAngle);
+        this.#bounds = InputUtilities.cleanseBounds(data?.bounds);
         this.#eventListeners = {};
     }
 
@@ -104,7 +105,7 @@ export class Path {
         if (!this.#bounds) {
             const geometryUtilities = new GeometryUtilities();
             this.#bounds = geometryUtilities.getPathBounds(this.start, this.transits);
-            this.inViewPort = null;
+            this.#inView = null;
         }
         return this.#bounds;
     }
@@ -116,38 +117,6 @@ export class Path {
     }
 
     // methods
-    static cleanseData(data, inputUtilities) {
-        if (!data) {
-            return null;
-        }
-        const transits = [];
-        if (data.transits) {
-            for (const transit of data.transits) {
-                if (transit.radii) {
-                    transits.push(Arc.cleanseData(transit, inputUtilities));
-                }
-                else {
-                    transits.push(inputUtilities.cleansePoint(transit));
-                }
-            }
-        }
-        const clipPaths = [];
-        if (data.clipPaths) {
-            for (const clipPath of data.clipPaths) {
-                clipPaths.push(Path.cleanseData(clipPath, inputUtilities));
-            }
-        }
-        return {
-            id: inputUtilities.cleanseString(data.id),
-            mapItemId: inputUtilities.cleanseString(data.mapItemId),
-            start: inputUtilities.cleansePoint(data.start),
-            transits: transits,
-            clipPaths: clipPaths,
-            rotationAngle: inputUtilities.cleanseNumber(data.rotationAngle),
-            bounds: inputUtilities.cleanseBounds(data.bounds)
-        }
-    }
-
     getData() {
         const transits = [];
         const clipPaths = [];

@@ -25,7 +25,7 @@ class FitSelectionTool {
     async onActivate(mapWorker) {
         this.#mapWorker = mapWorker;
         if (this.#mapWorker.map) {
-            this.#mapWorker.map.addEventListener("afterChangeEvent", this.handleMapChange);
+            this.#mapWorker.map.addEventListener("ChangeEvent", this.handleMapChange);
         }
         this.#selectionUtilities = this.#mapWorker.createSelectionUtilities();
         this.#cursor = "Default";
@@ -380,7 +380,6 @@ class FitSelectionTool {
                     for (const secondaryPath of secondaryPaths) {
                         const setOperationPaths = this.#getSetOperationPaths(primaryPath, secondaryPath);
                         for (const setOperationPath of setOperationPaths) {
-                            setOperationPath.mapItemId = mapItem.id;
                             for (const clipPath of primaryPath.clipPaths) {
                                 setOperationPath.clipPaths.push(clipPath);
                             }

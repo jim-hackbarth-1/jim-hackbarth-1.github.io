@@ -50,7 +50,7 @@ export class EditorModel {
             this.#setMapCursor(message.data?.cursor);
             await MapWorkerClient.postWorkerMessage({ messageType: MapWorkerInputMessageType.CursorChanged, cursor: message.data?.cursor });
         }
-        if (message?.messageType === MapWorkerOutputMessageType.MapUpdated && message?.data?.change?.changeItems) {
+        if (message?.messageType === MapWorkerOutputMessageType.MapUpdated && message?.data?.change?.changeData) {
             const map = await MapWorkerClient.getMap();
             this.#componentElement.querySelector("#menuEditUndo").disabled = !map.canUndo();
             this.#componentElement.querySelector("#buttonUndo").disabled = !map.canUndo();
@@ -59,7 +59,6 @@ export class EditorModel {
             if (message?.data?.change?.changeObjectType == Map.name) {
                 for (const changeItem of message.data.change.changeData) {
                     if (changeItem.propertyName === "zoom") {
-                        
                         const zoomLabel = this.#componentElement.querySelector("#zoom-label");
                         zoomLabel.innerHTML = parseFloat(map.zoom * 100).toFixed(0) + "%"
                     }

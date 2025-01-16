@@ -9,7 +9,6 @@ export class MapItem {
         this.#paths = [];
         if (data?.paths) {
             for (const pathData of data.paths) {
-                pathData.mapItemId = this.id;
                 const path = new Path(pathData);
                 this.#paths.push(path);
                 this.#addChangeEventListeners(path);
@@ -43,11 +42,6 @@ export class MapItem {
             }
         }
         const change = this.#getPropertyChange("paths", this.#paths, paths);
-        if (paths) {
-            for (const path of paths) {
-                this.#setPathMapItemId(path);
-            }
-        }
         this.#validateUniqueIds(paths);
         this.#paths = paths ?? [];
         for (const path of this.#paths) {
@@ -192,7 +186,6 @@ export class MapItem {
             changeType: ChangeType.Insert,
             changeData: [{ pathId: path.id, index: this.paths.length }]
         });
-        this.#setPathMapItemId(path);
         this.#paths.push(path);
         this.#addChangeEventListeners(path);
         this.#onChange(change, true);
@@ -214,7 +207,6 @@ export class MapItem {
             changeType: ChangeType.Insert,
             changeData: [{ pathId: path.id, index: index }]
         });
-        this.#setPathMapItemId(path);
         this.#paths.splice(index, 0, path);
         this.#addChangeEventListeners(path);
         this.#onChange(change, true);
@@ -321,17 +313,6 @@ export class MapItem {
     #removeChangeEventListeners(source) {
         if (source) {
             source.removeEventListener(Change.ChangeEvent, this.#onChange);
-        }
-    }
-
-    #setPathMapItemId(path) {
-        if (path) {
-            path.mapItemId = this.id;
-            if (path.clipPaths) {
-                for (const clipPath of path.clipPaths) {
-                    clipPath.mapItemId = this.id;
-                }
-            }
         }
     }
 

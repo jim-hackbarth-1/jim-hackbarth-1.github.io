@@ -6,7 +6,6 @@ export class Path {
     // constructor
     constructor(data) {
         this.#id = InputUtilities.cleanseString(data?.id) ?? crypto.randomUUID();
-        this.#mapItemId = InputUtilities.cleanseString(data?.mapItemId);
         this.#start = InputUtilities.cleansePoint(data?.start);
         if (data?.transits) {
             this.#transits = [];
@@ -23,7 +22,6 @@ export class Path {
             this.#clipPaths = [];
             for (const clipPathData of data.clipPaths) {
                 clipPathData.id = null;
-                clipPathData.mapItemId = data?.mapItemId,
                 clipPathData.clipPaths = null;
                 this.#clipPaths.push(new Path(clipPathData));
             }
@@ -37,16 +35,6 @@ export class Path {
     #id;
     get id() {
         return this.#id;
-    }
-
-    #mapItemId;
-    get mapItemId() {
-        return this.#mapItemId;
-    }
-    set mapItemId(mapItemId) {
-        const change = this.#getPropertyChange("mapItemId", this.#mapItemId, mapItemId);
-        this.#mapItemId = mapItemId;
-        this.#onChange(change, false);
     }
 
     /** @type {{x: number, y: number}} */
@@ -78,11 +66,6 @@ export class Path {
     }
     set clipPaths(clipPaths) {
         const change = this.#getPropertyChange("clipPaths", this.#clipPaths, clipPaths);
-        if (clipPaths) {
-            for (const clipPath of clipPaths) {
-                clipPath.mapItemId = this.mapItemId;
-            }
-        }
         this.#validateUniqueIds(clipPaths);
         this.#clipPaths = clipPaths;
         this.#onChange(change, true);
@@ -105,7 +88,7 @@ export class Path {
         if (!this.#bounds) {
             const geometryUtilities = new GeometryUtilities();
             this.#bounds = geometryUtilities.getPathBounds(this.start, this.transits);
-            this.#inView = null;
+            this.#inView = undefined;
         }
         return this.#bounds;
     }
@@ -132,7 +115,6 @@ export class Path {
         }
         return {
             id: this.#id,
-            mapItemId: this.#mapItemId,
             start: this.#start,
             transits: transits,
             clipPaths: clipPaths,

@@ -1,7 +1,7 @@
 ﻿
 import { Arc, Change, ChangeType, GeometryUtilities, InputUtilities } from "../references.js";
 
-export class Path {
+export class ClipPath {
 
     // constructor
     constructor(data) {
@@ -16,14 +16,6 @@ export class Path {
                 else {
                     this.#transits.push(InputUtilities.cleansePoint(transitData));
                 }
-            }
-        }
-        if (data?.clipPaths) {
-            this.#clipPaths = [];
-            for (const clipPathData of data.clipPaths) {
-                clipPathData.id = null;
-                clipPathData.clipPaths = null;
-                this.#clipPaths.push(new Path(clipPathData));
             }
         }
         this.#rotationAngle = InputUtilities.cleanseNumber(data?.rotationAngle);
@@ -59,7 +51,169 @@ export class Path {
         this.#onChange(change, true);
     }
 
-    /** @type {[Path]} */
+    /** @type {number} */
+    #rotationAngle; // for tracking tile fill/stroke rotation
+    get rotationAngle() {
+        return this.#rotationAngle ?? 0;
+    }
+    set rotationAngle(rotationAngle) {
+        const change = this.#getPropertyChange("rotationAngle", this.#rotationAngle, rotationAngle);
+        this.#rotationAngle = rotationAngle;
+        this.#onChange(change, true);
+    }
+
+    /** @type {x: number, y: number, width: number, height: number} */
+    #bounds;
+    get bounds() {
+        if (!this.#bounds) {
+            const geometryUtilities = new GeometryUtilities();
+            this.#bounds = geometryUtilities.getPathBounds(this.start, this.transits);
+        }
+        return this.#bounds;
+    }
+
+    // methods
+    getData() {
+        const transits = [];
+        for (const transit of this.transits) {
+            let transitData = transit;
+            if (transit.radii) {
+                transitData = transit.getData();
+            }
+            transits.push(transitData);
+        }
+        return {
+            id: this.#id,
+            start: this.#start,
+            transits: transits,
+            rotationAngle: this.#rotationAngle,
+            bounds: this.#bounds
+        };
+    }
+
+    copy() {
+        const pathData = this.getData();
+        pathData.id = crypto.randomUUID();
+        return new Path(pathData);
+    }
+
+    addEventListener(eventName, listener) {
+        if (!this.#eventListeners[eventName]) {
+            this.#eventListeners[eventName] = [];
+        }
+        this.#eventListeners[eventName].push(listener);
+    }
+
+    removeEventListener(eventName, listener) {
+        const index = this.#eventListeners[eventName].findIndex(l => l === listener);
+        if (index > -1) {
+            this.#eventListeners[eventName].splice(index, 1);
+        }
+    }
+
+    getPathInfo() {
+        let pathInfo = `M ${this.#start.x},${this.#start.y} `;
+        for (const transit of this.transits) {
+            if (transit.radii) {
+
+                pathInfo += ` ${transit.getPathInfo()}`;
+            }
+            else {
+                pathInfo += ` l ${transit.x},${transit.y}`;
+            }
+        }
+        return pathInfo;
+    }
+
+    // helpers
+    #eventListeners;
+
+    #onChange = (change, invalidateBounds) => {
+        if (this.#eventListeners[Change.ChangeEvent]) {
+            for (const listener of this.#eventListeners[Change.ChangeEvent]) {
+                listener(change, invalidateBounds);
+            }
+        }
+        if (invalidateBounds) {
+            this.#bounds = null;
+        }
+    }
+
+    #getPropertyChange(propertyName, oldValue, newValue) {
+        return new Change({
+            changeObjectType: ClipPath.name,
+            changeObjectRef: this.id,
+            changeType: ChangeType.Edit,
+            changeData: [
+                {
+                    propertyName: propertyName,
+                    oldValue: oldValue,
+                    newValue: newValue
+                }
+            ]
+        });
+    }
+}
+
+export class Path {
+
+    // constructor
+    constructor(data) {
+        this.#id = InputUtilities.cleanseString(data?.id) ?? crypto.randomUUID();
+        this.#start = InputUtilities.cleansePoint(data?.start);
+        if (data?.transits) {
+            this.#transits = [];
+            for (const transitData of data.transits) {
+                if (transitData.radii) {
+                    this.#transits.push(new Arc(transitData));
+                }
+                else {
+                    this.#transits.push(InputUtilities.cleansePoint(transitData));
+                }
+            }
+        }
+        if (data?.clipPaths) {
+            this.#clipPaths = [];
+            for (const clipPathData of data.clipPaths) {
+                clipPathData.id = null;
+                clipPathData.clipPaths = null;
+                this.#clipPaths.push(new ClipPath(clipPathData));
+            }
+        }
+        this.#rotationAngle = InputUtilities.cleanseNumber(data?.rotationAngle);
+        this.#bounds = InputUtilities.cleanseBounds(data?.bounds);
+        this.#eventListeners = {};
+    }
+
+    // properties
+    #id;
+    get id() {
+        return this.#id;
+    }
+
+    /** @type {{x: number, y: number}} */
+    #start;
+    get start() {
+        return this.#start ?? { x: 0, y: 0 };
+    }
+    set start(start) {
+        const change = this.#getPropertyChange("start", this.#start, start);
+        this.#start = start;
+        this.#onChange(change, true);
+    }
+
+    /** @type {[{x: number, y: number}|Arc]} */
+    #transits;
+    get transits() {
+        return this.#transits ?? [];
+    }
+    set transits(transits) {
+        const change = this.#getPropertyChange("transits", this.#transits, transits);
+        this.#transits = transits;
+        this.#onChange(change, true);
+    }
+
+    /** @type {[ClipPath]} */
     #clipPaths;
     get clipPaths() {
         return this.#clipPaths ?? [];

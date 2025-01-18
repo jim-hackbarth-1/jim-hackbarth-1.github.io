@@ -79,10 +79,10 @@ class FitSelectionTool {
             }
             if (this.#selectionUtilities.activityState === "Move"
                 || this.#selectionUtilities.activityState.startsWith("Resize")) {
-                this.#selectionUtilities.startChange(this.#mapWorker, transformedPoint);
+                this.#selectionUtilities.startChange(this.#mapWorker, transformedPoint, "Move");
             }
             if (this.#selectionUtilities.activityState === "Rotate") {
-                this.#selectionUtilities.rotateDown(this.#mapWorker, transformedPoint);
+                this.#selectionUtilities.startChange(this.#mapWorker, transformedPoint, "Rotate");
             }
         }
     }

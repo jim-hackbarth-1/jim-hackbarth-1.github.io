@@ -68,7 +68,7 @@ export class SelectionUtilities {
         }
     }
 
-    startChange(mapWorker, point) {
+    startChange(mapWorker, point, activityState) {
         this.selectionStartData = [];
         if (mapWorker?.map) {
             mapWorker.map.startChangeSet();
@@ -79,28 +79,140 @@ export class SelectionUtilities {
                     if (mapItemGroup.selectionStatus) {
                         for (const mapItem of mapItemGroup.mapItems) {
                             for (const path of mapItem.paths) {
-                                this.selectionStartData.push(this.#getSelectionStartPathData(mapItemGroup.id, bounds, mapItem.id, path));
+                                const clipPaths = [];
+                                if (path.clipPaths) {
+                                    for (const clipPath of path.clipPaths) {
+                                        clipPaths.push({
+                                            id: clipPath.id,
+                                            start: clipPath.start,
+                                            transits: clipPath.transits,
+                                            rotationAngle: clipPath.rotationAngle
+                                        });
+                                    }
+                                }
+                                this.selectionStartData.push({
+                                    mapItemGroupId: mapItemGroup.id,
+                                    mapItemGroupBounds: bounds,
+                                    mapItemId: mapItem.id,
+                                    path: path,
+                                    startingPathData: {
+                                        id: path.id,
+                                        start: path.start,
+                                        transits: path.transits,
+                                        rotationAngle: path.rotationAngle,
+                                        clipPaths: clipPaths
+                                    }
+                                });
                             }
                         }
                     }
                 }
-                this.changeReferenceBounds = this.#getChangeReferenceBounds(point);
+                const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(point, activityState);
+                this.changeReferenceBounds = {
+                    mapItemGroupId: boundsInfo.mapItemGroupId,
+                    bounds: boundsInfo.selectionBounds.move
+                }
             }
         }
     }
 
     completeChange(mapWorker, changeType) {
         const layer = mapWorker.map.getActiveLayer();
-        const changeSet = mapWorker.createChangeSet([{
-            changeObjectType: "Layer",
-            changeObjectRef: layer.name,
-            changeType: changeType
-            // TODO: use change set
-            //changeData: this.selectionStartData.map(s => ({ mapItemGroupId: s.mapItemGroupId, mapItemId: s.mapItemId, pathId: s.path.id, start: s.startingPathData }))
-        }]);
+        const changes = [];
+        for (const selection of this.selectionStartData) {
+            if (selection.path.start.x != selection.startingPathData.start.x || selection.path.start.y != selection.startingPathData.start.y) {
+                changes.push({
+                    changeType: "Edit",
+                    changeObjectType: "Path",
+                    propertyName: "start",
+                    oldValue: selection.startingPathData.start,
+                    newValue: selection.path.start,
+                    layerName: layer.name,
+                    mapItemGroupId: selection.mapItemGroupId,
+                    mapItemId: selection.mapItemId,
+                    pathId: selection.path.id
+                });
+            }
+            if (changeType == "Resize" || changeType == "Rotate") {
+                changes.push({
+                    changeType: "Edit",
+                    changeObjectType: "Path",
+                    propertyName: "transits",
+                    oldValue: selection.startingPathData.transits,
+                    newValue: selection.path.transits,
+                    layerName: layer.name,
+                    mapItemGroupId: selection.mapItemGroupId,
+                    mapItemId: selection.mapItemId,
+                    pathId: selection.path.id
+                });
+            }
+            if (selection.path.rotationAngle != selection.startingPathData.rotationAngle) {
+                changes.push({
+                    changeType: "Edit",
+                    changeObjectType: "Path",
+                    propertyName: "rotationAngle",
+                    oldValue: selection.startingPathData.rotationAngle,
+                    newValue: selection.path.rotationAngle,
+                    layerName: layer.name,
+                    mapItemGroupId: selection.mapItemGroupId,
+                    mapItemId: selection.mapItemId,
+                    pathId: selection.path.id
+                });
+            }
+            if (selection.path.clipPaths) {
+                for (const clipPath of selection.path.clipPaths) {
+                    const startingClipPathData = selection.startingPathData.clipPaths.find(cp => cp.id == clipPath.id);
+                    if (startingClipPathData) {
+                        if (clipPath.start.x != startingClipPathData.start.x || clipPath.start.y != startingClipPathData.start.y) {
+                            changes.push({
+                                changeType: "Edit",
+                                changeObjectType: "ClipPath",
+                                propertyName: "start",
+                                oldValue: startingClipPathData.start,
+                                newValue: clipPath.start,
+                                layerName: layer.name,
+                                mapItemGroupId: selection.mapItemGroupId,
+                                mapItemId: selection.mapItemId,
+                                pathId: selection.path.id,
+                                clipPathId: clipPath.id
+                            });
+                        }
+                        if (changeType == "Resize" || changeType == "Rotate") {
+                            changes.push({
+                                changeType: "Edit",
+                                changeObjectType: "ClipPath",
+                                propertyName: "transits",
+                                oldValue: startingClipPathData.transits,
+                                newValue: clipPath.transits,
+                                layerName: layer.name,
+                                mapItemGroupId: selection.mapItemGroupId,
+                                mapItemId: selection.mapItemId,
+                                pathId: selection.path.id,
+                                clipPathId: clipPath.id
+                            });
+                        }
+                        if (clipPath.rotationAngle != startingClipPathData.rotationAngle) {
+                            changes.push({
+                                changeType: "Edit",
+                                changeObjectType: "ClipPath",
+                                propertyName: "rotationAngle",
+                                oldValue: startingClipPathData.rotationAngle,
+                                newValue: clipPath.rotationAngle,
+                                layerName: layer.name,
+                                mapItemGroupId: selection.mapItemGroupId,
+                                mapItemId: selection.mapItemId,
+                                pathId: selection.path.id,
+                                clipPathId: clipPath.id
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        const changeSet = mapWorker.createChangeSet(changes);
         mapWorker.map.completeChangeSet(changeSet);
         this.resetSelectionBounds(mapWorker);
-    }
+    } 
 
     getSelectionChangeSet(mapWorker, layerName, oldSelections, newSelections) {
         const selectionChanges = [];
@@ -224,31 +336,6 @@ export class SelectionUtilities {
         }
         if (this.activityState === ActivityState.ResizeE) {
             this.#resizeEMove(mapWorker, startPoint, endPoint, useSingleSelectionMode, snapToOverlay);
-        }
-    }
-
-    rotateDown(mapWorker, point) {
-        this.selectionStartData = [];
-        if (mapWorker?.map) {
-            mapWorker.map.startChangeSet();
-            const layer = mapWorker.map.getActiveLayer();
-            if (layer?.mapItemGroups) {
-                for (const mapItemGroup of layer.mapItemGroups) {
-                    let bounds = mapItemGroup.bounds;
-                    if (mapItemGroup.selectionStatus) {
-                        for (const mapItem of mapItemGroup.mapItems) {
-                            for (const path of mapItem.paths) {
-                                this.selectionStartData.push(this.#getSelectionStartPathData(mapItemGroup.id, bounds, mapItem.id, path));
-                            }
-                        }
-                    }
-                }
-                const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(point, ActivityState.Rotate);
-                this.changeReferenceBounds = {
-                    mapItemGroupId: boundsInfo.mapItemGroupId,
-                    bounds: boundsInfo.selectionBounds.move
-                }
-            }
         }
     }
 
@@ -378,36 +465,6 @@ export class SelectionUtilities {
             }
         }
         return null;
-    }
-
-    #getChangeReferenceBounds(point) {
-        const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(point, ActivityState.Move);
-        return {
-            mapItemGroupId: boundsInfo.mapItemGroupId,
-            bounds: boundsInfo.selectionBounds.move
-        };
-    }
-
-    #getSelectionStartPathData(mapItemGroupId, mapItemGroupBounds, mapItemId, path) {
-        const clipPaths = [];
-        for (const clipPath of path.clipPaths) {
-            clipPaths.push({
-                id: clipPath.id,
-                start: clipPath.start,
-                transits: clipPath.transits
-            });
-        }
-        return {
-            mapItemGroupId: mapItemGroupId,
-            mapItemGroupBounds: mapItemGroupBounds,
-            mapItemId: mapItemId,
-            path: path,
-            startingPathData: {
-                start: path.start,
-                transits: path.transits,
-                clipPaths: clipPaths
-            }
-        };
     }
 
     #rotatePath(path, theta, centerOfRotation, startingPathData, mapWorker) {

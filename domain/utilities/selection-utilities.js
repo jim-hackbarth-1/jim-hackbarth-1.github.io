@@ -71,7 +71,7 @@ export class SelectionUtilities {
     startChange(mapWorker, point) {
         this.selectionStartData = [];
         if (mapWorker?.map) {
-            mapWorker.map.startChange();
+            mapWorker.map.startChangeSet();
             const layer = mapWorker.map.getActiveLayer();
             if (layer?.mapItemGroups) {
                 for (const mapItemGroup of layer.mapItemGroups) {
@@ -91,14 +91,53 @@ export class SelectionUtilities {
 
     completeChange(mapWorker, changeType) {
         const layer = mapWorker.map.getActiveLayer();
-        const change = mapWorker.createChange({
+        const changeSet = mapWorker.createChangeSet([{
             changeObjectType: "Layer",
             changeObjectRef: layer.name,
-            changeType: changeType,
-            changeData: this.selectionStartData.map(s => ({ mapItemGroupId: s.mapItemGroupId, mapItemId: s.mapItemId, pathId: s.path.id, start: s.startingPathData }))
-        });
-        mapWorker.map.completeChange(change);
+            changeType: changeType
+            // TODO: use change set
+            //changeData: this.selectionStartData.map(s => ({ mapItemGroupId: s.mapItemGroupId, mapItemId: s.mapItemId, pathId: s.path.id, start: s.startingPathData }))
+        }]);
+        mapWorker.map.completeChangeSet(changeSet);
         this.resetSelectionBounds(mapWorker);
+    }
+
+    getSelectionChangeSet(mapWorker, layerName, oldSelections, newSelections) {
+        const selectionChanges = [];
+        for (const selection of oldSelections) {
+            const match = newSelections.find(s => s.mapItemGroupId === selection.mapItemGroupId);
+            const selectionStatus = match?.selectionStatus ?? undefined;
+            if (!match || selection.selectionStatus != selectionStatus) {
+                selectionChanges.push({
+                    mapItemGroupId: selection.mapItemGroupId,
+                    oldValue: selection.selectionStatus,
+                    newValue: selectionStatus
+                });
+            }
+        }
+        for (const selection of newSelections) {
+            const match = oldSelections.find(s => s.mapItemGroupId === selection.mapItemGroupId);
+            const selectionStatus = match?.selectionStatus ?? undefined;
+            if (!match || selection.selectionStatus != selectionStatus) {
+                if (!selectionChanges.some(change => change.mapItemGroupId == match?.mapItemGroupId)) {
+                    selectionChanges.push({
+                        mapItemGroupId: selection.mapItemGroupId,
+                        oldValue: selectionStatus,
+                        newValue: selection.selectionStatus
+                    });
+                }
+            }
+        }
+        const changes = selectionChanges.map(change => ({
+            changeType: "Edit",
+            changeObjectType: "MapItemGroup",
+            propertyName: "selectionStatus",
+            oldValue: change.oldValue,
+            newValue: change.newValue,
+            layerName: layerName,
+            mapItemGroupId: change.mapItemGroupId
+        }));
+        return mapWorker.createChangeSet(changes);
     }
 
     move(mapWorker, startPoint, endPoint, useLockMode, useSingleSelectionMode, snapToOverlay) {
@@ -191,7 +230,7 @@ export class SelectionUtilities {
     rotateDown(mapWorker, point) {
         this.selectionStartData = [];
         if (mapWorker?.map) {
-            mapWorker.map.startChange();
+            mapWorker.map.startChangeSet();
             const layer = mapWorker.map.getActiveLayer();
             if (layer?.mapItemGroups) {
                 for (const mapItemGroup of layer.mapItemGroups) {

@@ -1,5 +1,5 @@
 ﻿
-import { Change, ChangeType, InputUtilities, MapItem, SelectionStatusType } from "../references.js";
+import { Change, ChangeSet, ChangeType, InputUtilities, MapItem, SelectionStatusType } from "../references.js";
 
 export class MapItemGroup {
 
@@ -36,13 +36,13 @@ export class MapItemGroup {
                 this.#removeChangeEventListeners(mapItem);
             }
         }
-        const change = this.#getPropertyChange("mapItems", this.#mapItems, mapItems);
+        const changeSet = this.#getPropertyChange("mapItems", this.#getListData(this.#mapItems), this.#getListData(mapItems));
         this.#validateUniqueIds(mapItems);
         this.#mapItems = mapItems ?? [];
         for (const mapItem of this.#mapItems) {
             this.#addChangeEventListeners(mapItem);
         }
-        this.#onChange(change, true);
+        this.#onChange(changeSet, true);
     }
 
     /** @type {SelectionStatusType}  */
@@ -51,9 +51,9 @@ export class MapItemGroup {
         return this.#selectionStatus;
     }
     set selectionStatus(selectionStatus) {
-        const change = this.#getPropertyChange("selectionStatus", this.#selectionStatus, selectionStatus);
+        const changeSet = this.#getPropertyChange("selectionStatus", this.#selectionStatus, selectionStatus);
         this.#selectionStatus = selectionStatus;
-        this.#onChange(change, false);
+        this.#onChange(changeSet, false);
     }
 
     /** @type {x: number, y: number, width: number, height: number} */
@@ -85,7 +85,7 @@ export class MapItemGroup {
     getData() {
         return {
             id: this.#id,
-            mapItems: this.#mapItems ? this.#mapItems.map(mi => mi.getData()) : null,
+            mapItems: this.#getListData(this.#mapItems),
             selectionStatus: this.#selectionStatus,
             bounds: this.#bounds
         };
@@ -99,6 +99,9 @@ export class MapItemGroup {
     }
 
     removeEventListener(eventName, listener) {
+        if (!this.#eventListeners[eventName]) {
+            this.#eventListeners[eventName] = [];
+        }
         const index = this.#eventListeners[eventName].findIndex(l => l === listener);
         if (index > -1) {
             this.#eventListeners[eventName].splice(index, 1);
@@ -112,15 +115,17 @@ export class MapItemGroup {
         if (this.mapItems.some(mi => mi.id == mapItem.id)) {
             throw new Error(ErrorMessage.ItemAlreadyExistsInList);
         }
-        const change = new Change({
-            changeObjectType: MapItemGroup.name,
-            changeObjectRef: this.id,
+        const changeData = {
             changeType: ChangeType.Insert,
-            changeData: [{ mapItemId: mapItem.id, index: this.mapItems.length }]
-        });
+            changeObjectType: MapItemGroup.name,
+            propertyName: "mapItems",
+            itemIndex: this.mapItems.length,
+            itemValue: mapItem.getData()
+        };
+        const changeSet = new ChangeSet({ changes: [changeData] });
         this.#mapItems.push(mapItem);
         this.#addChangeEventListeners(mapItem);
-        this.#onChange(change, true);
+        this.#onChange(changeSet, true);
     }
 
     insertMapItem(mapItem, index) {
@@ -133,29 +138,33 @@ export class MapItemGroup {
         if (index < 0 || index > this.mapItems.length) {
             throw new Error(ErrorMessage.InvalidIndex);
         }
-        const change = new Change({
-            changeObjectType: MapItemGroup.name,
-            changeObjectRef: this.id,
+        const changeData = {
             changeType: ChangeType.Insert,
-            changeData: [{ mapItemId: mapItem.id, index: index }]
-        });
+            changeObjectType: MapItemGroup.name,
+            propertyName: "mapItems",
+            itemIndex: index,
+            itemValue: mapItem.getData()
+        };
+        const changeSet = new ChangeSet({ changes: [changeData] });
         this.#mapItems.splice(index, 0, mapItem);
         this.#addChangeEventListeners(mapItem);
-        this.#onChange(change, true);
+        this.#onChange(changeSet, true);
     }
 
     removeMapItem(mapItem) {
         const index = this.#mapItems.findIndex(mi => mi.id === mapItem.id);
         if (index > -1) {
-            const change = new Change({
-                changeObjectType: MapItemGroup.name,
-                changeObjectRef: this.id,
+            const changeData = {
                 changeType: ChangeType.Delete,
-                changeData: [{ mapItemId: mapItem.id, index: index }]
-            });
-            this.#mapItems.splice(index, 1);
-            this.#removeChangeEventListeners(mapItem);
-            this.#onChange(change, true);
+                changeObjectType: MapItemGroup.name,
+                propertyName: "mapItems",
+                itemIndex: index,
+                itemValue: mapItem.getData()
+            };
+            const changeSet = new ChangeSet({ changes: [changeData] });
+            const deleted = this.#mapItems.splice(index, 1);
+            this.#removeChangeEventListeners(deleted[0]);
+            this.#onChange(changeSet, true);
         }
     }
 
@@ -256,13 +265,69 @@ export class MapItemGroup {
         }
     }
 
+    applyChange(change, undoing) {
+        if (change.changeType == ChangeType.Edit) {
+            this.#applyPropertyChange(change.propertyName, undoing ? change.oldValue : change.newValue);
+        }
+        if (change.changeType == ChangeType.Insert) {
+            if (undoing) {
+                this.#applyPropertyDelete(change.propertyName, change.itemValue);
+            }
+            else {
+                this.#applyPropertyInsert(change.propertyName, change.itemIndex, change.itemValue);
+            }
+        }
+        if (change.changeType == ChangeType.Delete) {
+            if (undoing) {
+                this.#applyPropertyInsert(change.propertyName, change.itemIndex, change.itemValue);
+            }
+            else {
+                this.#applyPropertyDelete(change.propertyName, change.itemValue);
+            }
+        }
+    }
+
+    #applyPropertyChange(propertyName, propertyValue) {
+        switch (propertyName) {
+            case "selectionStatus":
+                this.selectionStatus = InputUtilities.cleanseString(propertyValue);
+                break;
+            case "mapItems":
+                let mapItems = [];
+                if (propertyValue) {
+                    for (const mapItem of propertyValue) {
+                        mapItems.push(new MapItem(mapItem));
+                    }
+                }
+                this.mapItems = mapItems;
+                break;
+        }
+    }
+
+    #applyPropertyInsert(propertyName, index, value) {
+        if (propertyName == "mapItems") {
+            this.insertMapItem(new MapItem(value), index);
+        }
+    }
+
+    #applyPropertyDelete(propertyName, value) {
+        if (propertyName == "mapItems") {
+            this.removeMapItem(new MapItem(value));
+        }
+    }
+
     // helpers
     #eventListeners;
 
-    #onChange = (change, invalidateBounds) => {
+    #onChange = (changeSet, invalidateBounds) => {
         if (this.#eventListeners[Change.ChangeEvent]) {
+            if (changeSet?.changes) {
+                for (const change of changeSet.changes) {
+                    change.mapItemGroupId = this.id;
+                }
+            }
             for (const listener of this.#eventListeners[Change.ChangeEvent]) {
-                listener(change, invalidateBounds);
+                listener(changeSet, invalidateBounds);
             }
         }
         if (invalidateBounds) {
@@ -270,19 +335,8 @@ export class MapItemGroup {
         }
     }
 
-    #getPropertyChange(propertyName, oldValue, newValue) {
-        return new Change({
-            changeObjectType: MapItemGroup.name,
-            changeObjectRef: this.id,
-            changeType: ChangeType.Edit,
-            changeData: [
-                {
-                    propertyName: propertyName,
-                    oldValue: oldValue,
-                    newValue: newValue
-                }
-            ]
-        });
+    #getPropertyChange(propertyName, v1, v2) {
+        return ChangeSet.getPropertyChange(MapItemGroup.name, propertyName, v1, v2);
     }
 
     #addChangeEventListeners(source) {
@@ -348,5 +402,9 @@ export class MapItemGroup {
                 ids.push(mapItem.id);
             }
         }
+    }
+
+    #getListData(list) {
+        return list ? list.map(x => x.getData ? x.getData() : x) : null;
     }
 }

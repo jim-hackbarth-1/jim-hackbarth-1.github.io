@@ -1,5 +1,5 @@
 ﻿
-import { Change, ChangeType, EntityReference, InputUtilities } from "../references.js";
+import { Change, ChangeSet, ChangeType, EntityReference, InputUtilities } from "../references.js";
 
 /** @readonly @enum {string} */
 export const ToolType = {
@@ -141,9 +141,9 @@ export class Tool {
         return this.#moduleSrc;
     }
     set moduleSrc(moduleSrc) {
-        const change = this.#getPropertyChange("moduleSrc", this.#moduleSrc, moduleSrc);
+        const changeSet = this.#getPropertyChange("moduleSrc", this.#moduleSrc, moduleSrc);
         this.#moduleSrc = moduleSrc;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {string}  */
@@ -152,9 +152,9 @@ export class Tool {
         return this.#thumbnailSrc;
     }
     set thumbnailSrc(thumbnailSrc) {
-        const change = this.#getPropertyChange("thumbnailSrc", this.#thumbnailSrc, thumbnailSrc);
+        const changeSet = this.#getPropertyChange("thumbnailSrc", this.#thumbnailSrc, thumbnailSrc);
         this.#thumbnailSrc = thumbnailSrc;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {string}  */
@@ -163,9 +163,9 @@ export class Tool {
         return this.#cursorSrc;
     }
     set cursorSrc(cursorSrc) {
-        const change = this.#getPropertyChange("cursorSrc", this.#cursorSrc, cursorSrc);
+        const changeSet = this.#getPropertyChange("cursorSrc", this.#cursorSrc, cursorSrc);
         this.#cursorSrc = cursorSrc;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {{x: number, y: number}} */
@@ -174,9 +174,9 @@ export class Tool {
         return this.#cursorHotspot;
     }
     set cursorHotspot(cursorHotspot) {
-        const change = this.#getPropertyChange("cursorHotspot", this.#cursorHotspot, cursorHotspot);
+        const changeSet = this.#getPropertyChange("cursorHotspot", this.#cursorHotspot, cursorHotspot);
         this.#cursorHotspot = cursorHotspot;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {ToolType}  */
@@ -185,9 +185,9 @@ export class Tool {
         return this.#toolType;
     }
     set toolType(toolType) {
-        const change = this.#getPropertyChange("toolType", this.#toolType, toolType);
+        const changeSet = this.#getPropertyChange("toolType", this.#toolType, toolType);
         this.#toolType = toolType;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     // methods
@@ -210,35 +210,57 @@ export class Tool {
     }
 
     removeEventListener(eventName, listener) {
+        if (!this.#eventListeners[eventName]) {
+            this.#eventListeners[eventName] = [];
+        }
         const index = this.#eventListeners[eventName].findIndex(l => l === listener);
         if (index > -1) {
             this.#eventListeners[eventName].splice(index, 1);
+        }
+    }
+    applyChange(change, undoing) {
+        if (change.changeType == ChangeType.Edit) {
+            this.#applyPropertyChange(change.propertyName, undoing ? change.oldValue : change.newValue);
+        }
+    }
+
+    #applyPropertyChange(propertyName, propertyValue) {
+        switch (propertyName) {
+            case "moduleSrc":
+                this.moduleSrc = InputUtilities.cleanseString(propertyValue);
+                break;
+            case "thumbnailSrc":
+                this.thumbnailSrc = InputUtilities.cleanseSvg(propertyValue);
+                break;
+            case "cursorSrc":
+                this.cursorSrc = InputUtilities.cleanseSvg(propertyValue);
+                break;
+            case "cursorHotspot":
+                this.cursorHotspot = InputUtilities.cleansePoint(propertyValue);
+                break;
+            case "toolType":
+                this.toolType = InputUtilities.cleanseString(propertyValue);
+                break;
         }
     }
 
     // helpers
     #eventListeners;
 
-    #onChange = (change) => {
+    #onChange = (changeSet) => {
         if (this.#eventListeners[Change.ChangeEvent]) {
+            if (changeSet?.changes) {
+                for (const change of changeSet.changes) {
+                    change.toolRef = this.ref.getData();
+                }
+            }
             for (const listener of this.#eventListeners[Change.ChangeEvent]) {
-                listener(change);
+                listener(changeSet);
             }
         }
     }
 
-    #getPropertyChange(propertyName, oldValue, newValue) {
-        return new Change({
-            changeObjectType: Tool.name,
-            changeObjectRef: this.ref,
-            changeType: ChangeType.Edit,
-            changeData: [
-                {
-                    propertyName: propertyName,
-                    oldValue: oldValue,
-                    newValue: newValue
-                }
-            ]
-        });
+    #getPropertyChange(propertyName, v1, v2) {
+        return ChangeSet.getPropertyChange(Tool.name, propertyName, v1, v2);
     } 
 }

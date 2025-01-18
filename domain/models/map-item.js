@@ -1,5 +1,5 @@
 ﻿
-import { Change, ChangeType, EntityReference, InputUtilities, Path } from "../references.js";
+import { Change, ChangeSet, ChangeType, EntityReference, InputUtilities, Path } from "../references.js";
 
 export class MapItem {
 
@@ -41,13 +41,13 @@ export class MapItem {
                 this.#removeChangeEventListeners(path);
             }
         }
-        const change = this.#getPropertyChange("paths", this.#paths, paths);
+        const changeSet = this.#getPropertyChange("paths", this.#getListData(this.#paths), this.#getListData(paths));
         this.#validateUniqueIds(paths);
         this.#paths = paths ?? [];
         for (const path of this.#paths) {
             this.#addChangeEventListeners(path);
         }
-        this.#onChange(change, true);
+        this.#onChange(changeSet, true);
     }
 
     /** @type {EntityReference}  */
@@ -59,9 +59,9 @@ export class MapItem {
         if (!mapItemTemplateRef) {
             throw new Error(ErrorMessage.NullValue);
         }
-        const change = this.#getPropertyChange("mapItemTemplateRef", this.#mapItemTemplateRef, mapItemTemplateRef);
+        const changeSet = this.#getPropertyChange("mapItemTemplateRef", this.#mapItemTemplateRef, mapItemTemplateRef);
         this.#mapItemTemplateRef = mapItemTemplateRef;
-        this.#onChange(change, true);
+        this.#onChange(changeSet, true);
     }
 
     /** @type {number}  */
@@ -70,9 +70,9 @@ export class MapItem {
         return this.#z;
     }
     set z(z) {
-        const change = this.#getPropertyChange("z", this.#z, z);
+        const changeSet = this.#getPropertyChange("z", this.#z, z);
         this.#z = z;
-        this.#onChange(change, false);
+        this.#onChange(changeSet, false);
     }
 
     /** @type {boolean}  */
@@ -81,9 +81,9 @@ export class MapItem {
         return this.#isHidden;
     }
     set isHidden(isHidden) {
-        const change = this.#getPropertyChange("isHidden", this.#isHidden, isHidden);
+        const changeSet = this.#getPropertyChange("isHidden", this.#isHidden, isHidden);
         this.#isHidden = isHidden;
-        this.#onChange(change, false);
+        this.#onChange(changeSet, false);
     }
 
     /** @type {boolean}  */
@@ -92,9 +92,9 @@ export class MapItem {
         return this.#isCaptionVisible;
     }
     set isCaptionVisibile(isCaptionVisible) {
-        const change = this.#getPropertyChange("isCaptionVisible", this.#isCaptionVisible, isCaptionVisible);
+        const changeSet = this.#getPropertyChange("isCaptionVisible", this.#isCaptionVisible, isCaptionVisible);
         this.#isCaptionVisible = isCaptionVisible;
-        this.#onChange(change, false);
+        this.#onChange(changeSet, false);
     }
 
     /** @type {string}  */
@@ -103,9 +103,9 @@ export class MapItem {
         return this.#captionText;
     }
     set captionText(captionText) {
-        const change = this.#getPropertyChange("captionText", this.#captionText, captionText);
+        const changeSet = this.#getPropertyChange("captionText", this.#captionText, captionText);
         this.#captionText = captionText;
-        this.#onChange(change, false);
+        this.#onChange(changeSet, false);
     }
 
     /** @type {{x: number, y: number}} */
@@ -114,9 +114,9 @@ export class MapItem {
         return this.#captionLocation;
     }
     set captionLocation(captionLocation) {
-        const change = this.#getPropertyChange("captionLocation", this.#captionLocation, captionLocation);
+        const changeSet = this.#getPropertyChange("captionLocation", this.#captionLocation, captionLocation);
         this.#captionLocation = captionLocation;
-        this.#onChange(change, false);
+        this.#onChange(changeSet, false);
     }
 
     /** @type {x: number, y: number, width: number, height: number} */
@@ -148,7 +148,7 @@ export class MapItem {
     getData() {
         return {
             id: this.#id,
-            paths: this.#paths ? this.#paths.map(p => p.getData()) : null,
+            paths: this.#getListData(this.#paths),
             mapItemTemplateRef: this.#mapItemTemplateRef.getData(),
             z: this.#z,
             isHidden: this.#isHidden,
@@ -167,6 +167,9 @@ export class MapItem {
     }
 
     removeEventListener(eventName, listener) {
+        if (!this.#eventListeners[eventName]) {
+            this.#eventListeners[eventName] = [];
+        }
         const index = this.#eventListeners[eventName].findIndex(l => l === listener);
         if (index > -1) {
             this.#eventListeners[eventName].splice(index, 1);
@@ -180,15 +183,17 @@ export class MapItem {
         if (this.paths.some(p => p.id == path.id)) {
             throw new Error(ErrorMessage.ItemAlreadyExistsInList);
         }
-        const change = new Change({
-            changeObjectType: MapItem.name,
-            changeObjectRef: this.id,
+        const changeData = {
             changeType: ChangeType.Insert,
-            changeData: [{ pathId: path.id, index: this.paths.length }]
-        });
+            changeObjectType: MapItem.name,
+            propertyName: "paths",
+            itemIndex: this.paths.length,
+            itemValue: path.getData()
+        };
+        const changeSet = new ChangeSet({ changes: [changeData] });
         this.#paths.push(path);
         this.#addChangeEventListeners(path);
-        this.#onChange(change, true);
+        this.#onChange(changeSet, true);
     }
 
     insertPath(path, index) {
@@ -201,29 +206,33 @@ export class MapItem {
         if (index < 0 || index > this.paths.length) {
             throw new Error(ErrorMessage.InvalidIndex);
         }
-        const change = new Change({
-            changeObjectType: MapItem.name,
-            changeObjectRef: this.id,
+        const changeData = {
             changeType: ChangeType.Insert,
-            changeData: [{ pathId: path.id, index: index }]
-        });
+            changeObjectType: MapItem.name,
+            propertyName: "paths",
+            itemIndex: index,
+            itemValue: path.getData()
+        };
+        const changeSet = new ChangeSet({ changes: [changeData] });
         this.#paths.splice(index, 0, path);
         this.#addChangeEventListeners(path);
-        this.#onChange(change, true);
+        this.#onChange(changeSet, true);
     }
 
     removePath(path) {
         const index = this.#paths.findIndex(p => p.id === path.id);
         if (index > -1) {
-            const change = new Change({
-                changeObjectType: MapItem.name,
-                changeObjectRef: this.id,
+            const changeData = {
                 changeType: ChangeType.Delete,
-                changeData: [{ pathId: path.id, index: index }]
-            });
-            this.#paths.splice(index, 1);
-            this.#removeChangeEventListeners(path);
-            this.#onChange(change, true);
+                changeObjectType: MapItem.name,
+                propertyName: "paths",
+                itemIndex: index,
+                itemValue: path.getData()
+            };
+            const changeSet = new ChangeSet({ changes: [changeData] });
+            const deleted = this.#paths.splice(index, 1);
+            this.#removeChangeEventListeners(deleted[0]);
+            this.#onChange(changeSet, true);
         }
     }
 
@@ -275,13 +284,84 @@ export class MapItem {
         return false;
     }
 
+    applyChange(change, undoing) {
+        if (change.changeType == ChangeType.Edit) {
+            this.#applyPropertyChange(change.propertyName, undoing ? change.oldValue : change.newValue);
+        }
+        if (change.changeType == ChangeType.Insert) {
+            if (undoing) {
+                this.#applyPropertyDelete(change.propertyName, change.itemValue);
+            }
+            else {
+                this.#applyPropertyInsert(change.propertyName, change.itemIndex, change.itemValue);
+            }
+        }
+        if (change.changeType == ChangeType.Delete) {
+            if (undoing) {
+                this.#applyPropertyInsert(change.propertyName, change.itemIndex, change.itemValue);
+            }
+            else {
+                this.#applyPropertyDelete(change.propertyName, change.itemValue);
+            }
+        }
+    }
+
+    #applyPropertyChange(propertyName, propertyValue) {
+        switch (propertyName) {
+            case "paths":
+                let paths = [];
+                if (propertyValue) {
+                    for (const path of propertyValue) {
+                        paths.push(new Path(path));
+                    }
+                }
+                this.paths = paths;
+                break;
+            case "mapItemTemplateRef":
+                this.mapItemTemplateRef = new EntityReference(propertyValue);
+                break;
+            case "z":
+                this.z = InputUtilities.cleanseNumber(propertyValue);
+                break;
+            case "isHidden":
+                this.isHidden = InputUtilities.cleanseBoolean(propertyValue);
+                break;
+            case "isCaptionVisible":
+                this.isCaptionVisible = InputUtilities.cleanseBoolean(propertyValue);
+                break;
+            case "captionText":
+                this.captionText = InputUtilities.cleanseString(propertyValue);
+                break;
+            case "captionLocation":
+                this.captionLocation = InputUtilities.cleansePoint(propertyValue);
+                break;
+        }
+    }
+
+    #applyPropertyInsert(propertyName, index, value) {
+        if (propertyName == "paths") {
+            this.insertPath(new Path(value), index);
+        }
+    }
+
+    #applyPropertyDelete(propertyName, value) {
+        if (propertyName == "paths") {
+            this.removePath(new Path(value));
+        }
+    }
+
     // helpers
     #eventListeners;
 
-    #onChange = (change, invalidateBounds) => {
+    #onChange = (changeSet, invalidateBounds) => {
         if (this.#eventListeners[Change.ChangeEvent]) {
+            if (changeSet?.changes) {
+                for (const change of changeSet.changes) {
+                    change.mapItemId = this.id;
+                }
+            }
             for (const listener of this.#eventListeners[Change.ChangeEvent]) {
-                listener(change, invalidateBounds);
+                listener(changeSet, invalidateBounds);
             }
         }
         if (invalidateBounds) {
@@ -289,19 +369,8 @@ export class MapItem {
         }
     }
 
-    #getPropertyChange(propertyName, oldValue, newValue) {
-        return new Change({
-            changeObjectType: MapItem.name,
-            changeObjectRef: this.id,
-            changeType: ChangeType.Edit,
-            changeData: [
-                {
-                    propertyName: propertyName,
-                    oldValue: oldValue,
-                    newValue: newValue
-                }
-            ]
-        });
+    #getPropertyChange(propertyName, v1, v2) {
+        return ChangeSet.getPropertyChange(MapItem.name, propertyName, v1, v2);
     }
 
     #addChangeEventListeners(source) {
@@ -326,5 +395,9 @@ export class MapItem {
                 ids.push(path.id);
             }
         }
+    }
+
+    #getListData(list) {
+        return list ? list.map(x => x.getData ? x.getData() : x) : null;
     }
 }

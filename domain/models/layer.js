@@ -1,5 +1,5 @@
 ﻿
-import { Change, ChangeType, InputUtilities, MapItemGroup, SelectionStatusType } from "../references.js";
+import { Change, ChangeSet, ChangeType, ErrorMessage, InputUtilities, MapItemGroup, SelectionStatusType } from "../references.js";
 
 export class Layer {
 
@@ -25,9 +25,9 @@ export class Layer {
         return this.#name;
     }
     set name(name) {
-        const change = this.#getPropertyChange("name", this.#name, name);
+        const changeSet = this.#getPropertyChange("name", this.#name, name);
         this.#name = name;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {boolean}  */
@@ -36,9 +36,9 @@ export class Layer {
         return this.#name;
     }
     set isHidden(isHidden) {
-        const change = this.#getPropertyChange("isHidden", this.#isHidden, isHidden);
+        const changeSet = this.#getPropertyChange("isHidden", this.#isHidden, isHidden);
         this.#isHidden = isHidden;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {MapItemGroup[]}  */
@@ -53,24 +53,20 @@ export class Layer {
                 this.#removeChangeEventListeners(mapItemGroup);
             }
         }
-        const change = this.#getPropertyChange("mapItemGroups", this.#mapItemGroups, mapItemGroups);
+        const changeSet = this.#getPropertyChange("mapItemGroups", this.#getListData(this.#mapItemGroups), this.#getListData(mapItemGroups));
         this.#mapItemGroups = mapItemGroups ?? [];
         for (const mapItemGroup of this.#mapItemGroups) {
             this.#addChangeEventListeners(mapItemGroup);
         }
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     // methods
     getData() {
-        const mapItemGroups = [];
-        for (const mapItemGroup of this.#mapItemGroups) {
-            mapItemGroups.push(mapItemGroup.getData());
-        }
         return {
             name: this.#name,
             isHidden: this.#isHidden,
-            mapItemGroups: mapItemGroups
+            mapItemGroups: this.#getListData(this.#mapItemGroups)
         };
     }
 
@@ -82,6 +78,9 @@ export class Layer {
     }
 
     removeEventListener(eventName, listener) {
+        if (!this.#eventListeners[eventName]) {
+            this.#eventListeners[eventName] = [];
+        }
         const index = this.#eventListeners[eventName].findIndex(l => l === listener);
         if (index > -1) {
             this.#eventListeners[eventName].splice(index, 1);
@@ -95,15 +94,17 @@ export class Layer {
         if (this.mapItemGroups.some(mig => mig.id == mapItemGroup.id)) {
             throw new Error(ErrorMessage.ItemAlreadyExistsInList);
         }
-        const change = new Change({
-            changeObjectType: Layer.name,
-            changeObjectRef: this.name,
+        const changeData = {
             changeType: ChangeType.Insert,
-            changeData: [{ mapItemGroupId: mapItemGroup.id, index: this.mapItemGroups.length }]
-        });
+            changeObjectType: Layer.name,
+            propertyName: "mapItemGroups",
+            itemIndex: this.mapItemGroups.length,
+            itemValue: mapItemGroup.getData()
+        };
+        const changeSet = new ChangeSet({ changes: [changeData] });
         this.#mapItemGroups.push(mapItemGroup);
         this.#addChangeEventListeners(mapItemGroup);
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     insertMapItemGroup(mapItemGroup, index) {
@@ -116,29 +117,33 @@ export class Layer {
         if (index < 0 || index > this.mapItemGroups.length) {
             throw new Error(ErrorMessage.InvalidIndex);
         }
-        const change = new Change({
-            changeObjectType: Layer.name,
-            changeObjectRef: this.name,
+        const changeData = {
             changeType: ChangeType.Insert,
-            changeData: [{ mapItemGroupId: mapItemGroup.id, index: index }]
-        });
+            changeObjectType: Layer.name,
+            propertyName: "mapItemGroups",
+            itemIndex: index,
+            itemValue: mapItemGroup.getData()
+        };
+        const changeSet = new ChangeSet({ changes: [changeData] });
         this.#mapItemGroups.splice(index, 0, mapItemGroup);
         this.#addChangeEventListeners(mapItemGroup);
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     removeMapItemGroup(mapItemGroup) {
         const index = this.#mapItemGroups.findIndex(mig => mig.id === mapItemGroup.id);
         if (index > -1) {
-            const change = new Change({
-                changeObjectType: Layer.name,
-                changeObjectRef: this.name,
+            const changeData = {
                 changeType: ChangeType.Delete,
-                changeData: [{ mapItemGroupId: mapItemGroup.id, index: index }]
-            });
-            this.#mapItemGroups.splice(index, 1);
-            this.#removeChangeEventListeners(mapItemGroup);
-            this.#onChange(change);
+                changeObjectType: Layer.name,
+                propertyName: "mapItemGroups",
+                itemIndex: index,
+                itemValue: mapItemGroup.getData()
+            };
+            const changeSet = new ChangeSet({ changes: [changeData] });
+            const deleted = this.#mapItemGroups.splice(index, 1);
+            this.#removeChangeEventListeners(deleted[0]);
+            this.#onChange(changeSet);
         }
     }
 
@@ -225,30 +230,78 @@ export class Layer {
         return selectionBounds;
     }
 
-    // helpers
-    #eventListeners;
-
-    #onChange = (change) => {
-        if (this.#eventListeners[Change.ChangeEvent]) {
-            for (const listener of this.#eventListeners[Change.ChangeEvent]) {
-                listener(change);
+    applyChange(change, undoing) {
+        if (change.changeType == ChangeType.Edit) {
+            this.#applyPropertyChange(change.propertyName, undoing ? change.oldValue : change.newValue);
+        }
+        if (change.changeType == ChangeType.Insert) {
+            if (undoing) {
+                this.#applyPropertyDelete(change.propertyName, change.itemValue);
+            }
+            else {
+                this.#applyPropertyInsert(change.propertyName, change.itemIndex, change.itemValue);
+            }
+        }
+        if (change.changeType == ChangeType.Delete) {
+            if (undoing) {
+                this.#applyPropertyInsert(change.propertyName, change.itemIndex, change.itemValue);
+            }
+            else {
+                this.#applyPropertyDelete(change.propertyName, change.itemValue);
             }
         }
     }
 
-    #getPropertyChange(propertyName, oldValue, newValue) {
-        return new Change({
-            changeObjectType: Layer.name,
-            changeObjectRef: this.name,
-            changeType: ChangeType.Edit,
-            changeData: [
-                {
-                    propertyName: propertyName,
-                    oldValue: oldValue,
-                    newValue: newValue
+    #applyPropertyChange(propertyName, propertyValue) {
+        switch (propertyName) {
+            case "name":
+                this.name = InputUtilities.cleanseString(propertyValue);
+                break;
+            case "isHidden":
+                this.isHidden = InputUtilities.cleanseBoolean(propertyValue);
+                break;
+            case "mapItemGroups":
+                let mapItemGroups = [];
+                if (propertyValue) {
+                    for (const mapItemGroup of propertyValue) {
+                        mapItemGroups.push(new MapItemGroup(mapItemGroup));
+                    }
                 }
-            ]
-        });
+                this.mapItemGroups = mapItemGroups;
+                break;
+        }
+    }
+
+    #applyPropertyInsert(propertyName, index, value) {
+        if (propertyName == "mapItemGroups") {
+            this.insertMapItemGroup(new MapItemGroup(value), index);
+        }
+    }
+
+    #applyPropertyDelete(propertyName, value) {
+        if (propertyName == "mapItemGroups") {
+            this.removeMapItemGroup(new MapItemGroup(value));
+        }
+    }
+
+    // helpers
+    #eventListeners;
+
+    #onChange = (changeSet) => {
+        if (this.#eventListeners[Change.ChangeEvent]) {
+            if (changeSet?.changes) {
+                for (const change of changeSet.changes) {
+                    change.layerName = this.name;
+                }
+            }
+            for (const listener of this.#eventListeners[Change.ChangeEvent]) {
+                listener(changeSet);
+            }
+        }
+    }
+
+    #getPropertyChange(propertyName, v1, v2) {
+        return ChangeSet.getPropertyChange(Layer.name, propertyName, v1, v2);
     }
 
     #addChangeEventListeners(source) {
@@ -322,5 +375,9 @@ export class Layer {
                 ids.push(mapItemGroup.id);
             }
         }
+    }
+
+    #getListData(list) {
+        return list ? list.map(x => x.getData ? x.getData() : x) : null;
     }
 }

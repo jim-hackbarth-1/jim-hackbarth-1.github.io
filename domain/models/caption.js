@@ -1,7 +1,7 @@
 ﻿
 import {
     Change,
-    ChangeType,
+    ChangeSet,
     ColorFill,
     ColorStroke,
     GradientFill,
@@ -71,9 +71,9 @@ export class Caption {
         return this.#defaultText;
     }
     set defaultText(defaultText) {
-        const change = this.#getPropertyChange("defaultText", this.#defaultText, defaultText);
+        const changeSet = this.#getPropertyChange("defaultText", this.#defaultText, defaultText);
         this.#defaultText = defaultText;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {number}  */
@@ -82,9 +82,9 @@ export class Caption {
         return this.#opacity;
     }
     set opacity(opacity) {
-        const change = this.#getPropertyChange("opacity", this.#opacity, opacity);
+        const changeSet = this.#getPropertyChange("opacity", this.#opacity, opacity);
         this.#opacity = opacity;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {string}  */
@@ -93,9 +93,9 @@ export class Caption {
         return this.#font;
     }
     set font(font) {
-        const change = this.#getPropertyChange("font", this.#font, font);
+        const changeSet = this.#getPropertyChange("font", this.#font, font);
         this.#font = font;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {number}  */
@@ -104,9 +104,9 @@ export class Caption {
         return this.#fontSize;
     }
     set fontSize(fontSize) {
-        const change = this.#getPropertyChange("fontSize", this.#fontSize, fontSize);
+        const changeSet = this.#getPropertyChange("fontSize", this.#fontSize, fontSize);
         this.#fontSize = fontSize;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {string}  */
@@ -115,9 +115,9 @@ export class Caption {
         return this.#fontColor;
     }
     set fontColor(fontColor) {
-        const change = this.#getPropertyChange("fontColor", this.#fontColor, fontColor);
+        const changeSet = this.#getPropertyChange("fontColor", this.#fontColor, fontColor);
         this.#fontColor = fontColor;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {string}  */
@@ -126,9 +126,9 @@ export class Caption {
         return this.#fontVariantCaps;
     }
     set fontVariantCaps(fontVariantCaps) {
-        const change = this.#getPropertyChange("fontVariantCaps", this.#fontVariantCaps, fontVariantCaps);
+        const changeSet = this.#getPropertyChange("fontVariantCaps", this.#fontVariantCaps, fontVariantCaps);
         this.#fontVariantCaps = fontVariantCaps;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {string}  */
@@ -137,9 +137,9 @@ export class Caption {
         return this.#fontOutlineColor;
     }
     set fontOutlineColor(fontOutlineColor) {
-        const change = this.#getPropertyChange("fontOutlineColor", this.#fontOutlineColor, fontOutlineColor);
+        const changeSet = this.#getPropertyChange("fontOutlineColor", this.#fontOutlineColor, fontOutlineColor);
         this.#fontOutlineColor = fontOutlineColor;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {Shadow}  */
@@ -148,9 +148,9 @@ export class Caption {
         return this.#fontShadow;
     }
     set fontShadow(fontShadow) {
-        const change = this.#getPropertyChange("fontShadow", this.#fontShadow, fontShadow);
+        const changeSet = this.#getPropertyChange("fontShadow", this.#fontShadow, fontShadow);
         this.#fontShadow = fontShadow;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {string}  */
@@ -159,9 +159,9 @@ export class Caption {
         return this.#align;
     }
     set align(align) {
-        const change = this.#getPropertyChange("align", this.#align, align);
+        const changeSet = this.#getPropertyChange("align", this.#align, align);
         this.#align = align;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {string}  */
@@ -170,9 +170,9 @@ export class Caption {
         return this.#baseline;
     }
     set baseline(baseline) {
-        const change = this.#getPropertyChange("baseline", this.#baseline, baseline);
+        const changeSet = this.#getPropertyChange("baseline", this.#baseline, baseline);
         this.#baseline = baseline;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {ColorFill}  */
@@ -181,9 +181,9 @@ export class Caption {
         return this.#backgroundFill;
     }
     set backgroundFill(backgroundFill) {
-        const change = this.#getPropertyChange("backgroundFill", this.#backgroundFill, backgroundFill);
+        const changeSet = this.#getPropertyChange("backgroundFill", this.#backgroundFill, backgroundFill);
         this.#backgroundFill = backgroundFill;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {ColorStroke}  */
@@ -192,9 +192,9 @@ export class Caption {
         return this.#borderStroke;
     }
     set borderStroke(borderStroke) {
-        const change = this.#getPropertyChange("borderStroke", this.#borderStroke, borderStroke);
+        const changeSet = this.#getPropertyChange("borderStroke", this.#borderStroke, borderStroke);
         this.#borderStroke = borderStroke;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {Shadow}  */
@@ -203,9 +203,9 @@ export class Caption {
         return this.#shadow;
     }
     set shadow(shadow) {
-        const change = this.#getPropertyChange("shadow", this.#shadow, shadow);
+        const changeSet = this.#getPropertyChange("shadow", this.#shadow, shadow);
         this.#shadow = shadow;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     // methods
@@ -235,34 +235,103 @@ export class Caption {
     }
 
     removeEventListener(eventName, listener) {
+        if (!this.#eventListeners[eventName]) {
+            this.#eventListeners[eventName] = [];
+        }
         const index = this.#eventListeners[eventName].findIndex(l => l === listener);
         if (index > -1) {
             this.#eventListeners[eventName].splice(index, 1);
         }
     }
 
+    applyChange(change, undoing) {
+        if (change.changeType == ChangeType.Edit) {
+            this.#applyPropertyChange(change.propertyName, undoing ? change.oldValue : change.newValue);
+        }
+    }
+
+    #applyPropertyChange(propertyName, propertyValue) {
+        switch (propertyName) {
+            case "defaultText":
+                this.defaultText = InputUtilities.cleanseString(propertyValue);
+                break;
+            case "opacity":
+                this.opacity = InputUtilities.cleanseNumber(propertyValue);
+                break;
+            case "font":
+                this.font = InputUtilities.cleanseString(propertyValue);
+                break;
+            case "fontSize":
+                this.fontSize = InputUtilities.cleanseNumber(propertyValue);
+                break;
+            case "fontColor":
+                this.fontColor = InputUtilities.cleanseString(propertyValue);
+                break;
+            case "fontVariantCaps":
+                this.fontVariantCaps = InputUtilities.cleanseString(propertyValue);
+                break;
+            case "fontOutlineColor":
+                this.fontOutlineColor = InputUtilities.cleanseString(propertyValue);
+                break;
+            case "fontShadow":
+                this.fontShadow = propertyValue ? new Shadow(propertyValue) : null;
+                break;
+            case "align":
+                this.align = InputUtilities.cleanseString(propertyValue);
+                break;
+            case "baseline":
+                this.baseline = InputUtilities.cleanseString(propertyValue);
+                break;
+            case "backgroundFill":
+                let fill = null;
+                if (propertyValue?.color) {
+                    fill = new ColorFill(propertyValue);
+                }
+                if (propertyValue?.gradientType) {
+                    fill = new GradientFill(propertyValue);
+                }
+                if (propertyValue?.imageSrc) {
+                    fill = new TileFill(propertyValue);
+                }
+                if (propertyValue?.imageSources) {
+                    fill = new ImageArrayFill(propertyValue);
+                }
+                this.backgroundFill = fill;
+                break;
+            case "borderStroke":
+                let stroke = null;
+                if (propertyValue?.color) {
+                    stroke = new ColorStroke(propertyValue);
+                }
+                if (propertyValue?.gradientType) {
+                    stroke = new GradientStroke(propertyValue);
+                }
+                if (propertyValue?.imageSrc) {
+                    stroke = new TileStroke(propertyValue);
+                }
+                if (propertyValue?.imageSources) {
+                    stroke = new ImageArrayStroke(propertyValue);
+                }
+                this.borderStroke = stroke;
+                break;
+            case "shadow":
+                this.shadow = propertyValue ? new Shadow(propertyValue) : null;
+                break;
+        }
+    }
+
     // helpers
     #eventListeners;
 
-    #onChange = (change) => {
+    #onChange = (changeSet) => {
         if (this.#eventListeners[Change.ChangeEvent]) {
             for (const listener of this.#eventListeners[Change.ChangeEvent]) {
-                listener(change);
+                listener(changeSet);
             }
         }
     }
 
-    #getPropertyChange(propertyName, oldValue, newValue) {
-        return new Change({
-            changeObjectType: Caption.name,
-            changeType: ChangeType.Edit,
-            changeData: [
-                {
-                    propertyName: propertyName,
-                    oldValue: oldValue,
-                    newValue: newValue
-                }
-            ]
-        });
+    #getPropertyChange(propertyName, v1, v2) {
+        return ChangeSet.getPropertyChange(Caption.name, propertyName, v1, v2);
     }
 }

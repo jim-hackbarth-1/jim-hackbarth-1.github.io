@@ -119,17 +119,14 @@ class ZoomDialogModel {
         const map = await MapWorkerClient.getMap();
         MapWorkerClient.postWorkerMessage({
             messageType: MapWorkerInputMessageType.UpdateMap,
-            change: {
-                changeObjectType: Map.name,
-                changeObjectRef: map.ref,
-                changeType: ChangeType.Edit,
-                changeData: [
-                    {
-                        propertyName: "zoom",
-                        oldValue: map.zoom,
-                        newValue: zoom
-                    }
-                ]
+            changeSet: {
+                changes: [{
+                    changeType: ChangeType.Edit,
+                    changeObjectType: Map.name,
+                    propertyName: "zoom",
+                    oldValue: map.zoom,
+                    newValue: zoom
+                }]
             }
         });
         this.#displayCurrentZoom();
@@ -164,17 +161,18 @@ class ZoomDialogModel {
         // set pan and zoom
         MapWorkerClient.postWorkerMessage({
             messageType: MapWorkerInputMessageType.UpdateMap,
-            change: {
-                changeObjectType: Map.name,
-                changeObjectRef: map.ref,
-                changeType: ChangeType.Edit,
-                changeData: [
+            changeSet: {
+                changes: [
                     {
+                        changeType: ChangeType.Edit,
+                        changeObjectType: Map.name,
                         propertyName: "zoom",
                         oldValue: map.zoom,
                         newValue: zoom
                     },
                     {
+                        changeType: ChangeType.Edit,
+                        changeObjectType: Map.name,
                         propertyName: "pan",
                         oldValue: map.pan,
                         newValue: pan

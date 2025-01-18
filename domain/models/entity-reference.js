@@ -5,13 +5,10 @@ export class EntityReference {
 
     // constructor
     constructor(data) {
-        data = EntityReference.#cleanseData(data);
-        if (data) {
-            this.#versionId = data.versionId;
-            this.#isBuiltIn = data.isBuiltIn;
-            this.#isFromTemplate = data.isFromTemplate;
-            this.#name = data.name;
-        }
+        this.#versionId = InputUtilities.cleanseNumber(data?.versionId);
+        this.#isBuiltIn = InputUtilities.cleanseBoolean(data?.isBuiltIn);
+        this.#isFromTemplate = InputUtilities.cleanseBoolean(data?.isFromTemplate);
+        this.#name = InputUtilities.cleanseString(data?.name);
     }
 
     // properties
@@ -64,16 +61,16 @@ export class EntityReference {
             && name1 === name2;
     }
 
-    // helpers
-    static #cleanseData(data) {
-        if (!data) {
-            return null;
+    validateUniqueEntityReferences(entityReferences) {
+        if (entityReferences) {
+            const foundReferences = [];
+            for (const entityReference of entityReferences) {
+                const foundReference = foundReferences.find(r => EntityReference.areEqual(r, entityReference));
+                if (foundReference) {
+                    throw new Error(ErrorMessage.ItemAlreadyExistsInList);
+                }
+                foundReferences.push(entityReference);
+            }
         }
-        return {
-            versionId: InputUtilities.cleanseNumber(data.versionId),
-            isBuiltIn: InputUtilities.cleanseBoolean(data.isBuiltIn),
-            isFromTemplate: InputUtilities.cleanseBoolean(data.isFromTemplate),
-            name: InputUtilities.cleanseString(data.name)
-        };
     }
 }

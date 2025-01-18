@@ -3,6 +3,7 @@ import {
     BaseFill,
     BaseStroke,
     Caption,
+    ChangeSet,
     ChangeType,
     ColorFill,
     ColorStroke,
@@ -82,9 +83,9 @@ export class MapItemTemplate {
         return this.#thumbnailSrc;
     }
     set thumbnailSrc(thumbnailSrc) {
-        const change = this.#getPropertyChange("thumbnailSrc", this.#thumbnailSrc, thumbnailSrc);
+        const changeSet = this.#getPropertyChange("thumbnailSrc", this.#thumbnailSrc, thumbnailSrc);
         this.#thumbnailSrc = thumbnailSrc;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {BaseFill[]}  */
@@ -93,9 +94,9 @@ export class MapItemTemplate {
         return this.#fills;
     }
     set fills(fills) {
-        const change = this.#getPropertyChange("fills", this.#fills, fills);
+        const changeSet = this.#getPropertyChange("fills", this.#getListData(this.#fills), this.#getListData(fills));
         this.#fills = fills;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {BaseStroke[]}  */
@@ -104,9 +105,9 @@ export class MapItemTemplate {
         return this.#strokes;
     }
     set strokes(strokes) {
-        const change = this.#getPropertyChange("strokes", this.#strokes, strokes);
+        const changeSet = this.#getPropertyChange("strokes", this.#getListData(this.#strokes), this.#getListData(strokes));
         this.#strokes = strokes;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {Shadow}  */
@@ -115,9 +116,9 @@ export class MapItemTemplate {
         return this.#shadow;
     }
     set shadow(shadow) {
-        const change = this.#getPropertyChange("shadow", this.#shadow, shadow);
+        const changeSet = this.#getPropertyChange("shadow", this.#shadow, shadow);
         this.#shadow = shadow;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {number}  */
@@ -126,9 +127,9 @@ export class MapItemTemplate {
         return this.#z;
     }
     set z(z) {
-        const change = this.#getPropertyChange("z", this.#z, z);
+        const changeSet = this.#getPropertyChange("z", this.#z, z);
         this.#z = z;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {Caption}  */
@@ -137,11 +138,11 @@ export class MapItemTemplate {
         return this.#caption;
     }
     set caption(caption) {
-        const change = this.#getPropertyChange("caption", this.#caption, caption);
+        const changeSet = this.#getPropertyChange("caption", this.#caption, caption);
         this.#removeChangeEventListeners(this.#caption);
         this.#caption = caption;
         this.#addChangeEventListeners(this.#caption);
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     /** @type {string}  */
@@ -150,26 +151,18 @@ export class MapItemTemplate {
         return this.#tags;
     }
     set tags(tags) {
-        const change = this.#getPropertyChange("tags", this.#tags, tags);
+        const changeSet = this.#getPropertyChange("tags", this.#tags, tags);
         this.#tags = tags;
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     // methods
     getData() {
-        const fills = [];
-        for (const fill of this.fills) {
-            fills.push(fill.getData());
-        }
-        const strokes = [];
-        for (const stroke of this.strokes) {
-            strokes.push(stroke.getData());
-        }
         return {
             ref: this.#ref ? this.#ref.getData() : null,
             thumbnailSrc: this.#thumbnailSrc,
-            fills: fills,
-            strokes: strokes,
+            fills: this.#getListData(this.#fills),
+            strokes: this.#getListData(this.#strokes),
             shadow: this.#shadow ? this.#shadow.getData() : null,
             z: this.#z,
             caption: this.#caption ? this.#caption.getData() : null,
@@ -185,6 +178,9 @@ export class MapItemTemplate {
     }
 
     removeEventListener(eventName, listener) {
+        if (!this.#eventListeners[eventName]) {
+            this.#eventListeners[eventName] = [];
+        }
         const index = this.#eventListeners[eventName].findIndex(l => l === listener);
         if (index > -1) {
             this.#eventListeners[eventName].splice(index, 1);
@@ -195,47 +191,56 @@ export class MapItemTemplate {
         if (!fill) {
             throw new Error(ErrorMessage.NullValue);
         }
-        const change = new Change({
-            changeObjectType: MapItemTemplate.name,
-            changeObjectRef: this.ref,
+        if (this.fills.some(f => f.id == fill.id)) {
+            throw new Error(ErrorMessage.ItemAlreadyExistsInList);
+        }
+        const changeData = {
             changeType: ChangeType.Insert,
-            changeData: { propertyName: "fills", indices: [this.fills.length] }
-        });
+            changeObjectType: MapItemTemplate.name,
+            propertyName: "fills",
+            itemIndex: this.fills.length,
+            itemValue: fill.getData()
+        };
+        const changeSet = new ChangeSet({ changes: [changeData] });
         this.#fills.push(fill);
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     insertFill(fill, index) {
         if (!fill) {
             throw new Error(ErrorMessage.NullValue);
         }
+        if (this.fills.some(f => f.id == fill.id)) {
+            throw new Error(ErrorMessage.ItemAlreadyExistsInList);
+        }
         if (index < 0 || index > this.fills.length) {
             throw new Error(ErrorMessage.InvalidIndex);
         }
-        const change = new Change({
-            changeObjectType: MapItemTemplate.name,
-            changeObjectRef: this.ref,
+        const changeData = {
             changeType: ChangeType.Insert,
-            changeData: { propertyName: "fills", indices: [index] }
-        });
+            changeObjectType: MapItemTemplate.name,
+            propertyName: "fills",
+            itemIndex: index,
+            itemValue: fill.getData()
+        };
+        const changeSet = new ChangeSet({ changes: [changeData] });
         this.#fills.splice(index, 0, fill);
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     removeFill(fill) {
-        const index = this.#fills.findIndex(f => f === fill);
+        const index = this.#fills.findIndex(f => f.id === fill.id);
         if (index > -1) {
-            const change = new Change({
-                changeObjectType: MapItemTemplate.name,
-                changeObjectRef: this.ref,
+            const changeData = {
                 changeType: ChangeType.Delete,
-                changeData: {
-                    propertyName: "fills",
-                    fills: [{ fillData: fill.getData(), index: index }]
-                }
-            });
+                changeObjectType: MapItemTemplate.name,
+                propertyName: "fills",
+                itemIndex: index,
+                itemValue: fill.getData()
+            };
+            const changeSet = new ChangeSet({ changes: [changeData] });
             this.#fills.splice(index, 1);
-            this.#onChange(change);
+            this.#onChange(changeSet);
         }
     }
 
@@ -247,47 +252,56 @@ export class MapItemTemplate {
         if (!stroke) {
             throw new Error(ErrorMessage.NullValue);
         }
-        const change = new Change({
-            changeObjectType: MapItemTemplate.name,
-            changeObjectRef: this.ref,
+        if (this.strokes.some(s => s.id == stroke.id)) {
+            throw new Error(ErrorMessage.ItemAlreadyExistsInList);
+        }
+        const changeData = {
             changeType: ChangeType.Insert,
-            changeData: { propertyName: "strokes", indices: [this.strokes.length] }
-        });
+            changeObjectType: MapItemTemplate.name,
+            propertyName: "strokes",
+            itemIndex: this.strokes.length,
+            itemValue: stroke.getData()
+        };
+        const changeSet = new ChangeSet({ changes: [changeData] });
         this.#strokes.push(stroke);
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     insertStroke(stroke, index) {
         if (!stroke) {
             throw new Error(ErrorMessage.NullValue);
         }
+        if (this.strokes.some(s => s.id == stroke.id)) {
+            throw new Error(ErrorMessage.ItemAlreadyExistsInList);
+        }
         if (index < 0 || index > this.strokes.length) {
             throw new Error(ErrorMessage.InvalidIndex);
         }
-        const change = new Change({
-            changeObjectType: MapItemTemplate.name,
-            changeObjectRef: this.ref,
+        const changeData = {
             changeType: ChangeType.Insert,
-            changeData: { propertyName: "strokes", indices: [index] }
-        });
+            changeObjectType: MapItemTemplate.name,
+            propertyName: "strokes",
+            itemIndex: index,
+            itemValue: stroke.getData()
+        };
+        const changeSet = new ChangeSet({ changes: [changeData] });
         this.#strokes.splice(index, 0, stroke);
-        this.#onChange(change);
+        this.#onChange(changeSet);
     }
 
     removeStroke(stroke) {
-        const index = this.#strokes.findIndex(s => s === stroke);
+        const index = this.#strokes.findIndex(s => s.id === stroke.id);
         if (index > -1) {
-            const change = new Change({
-                changeObjectType: MapItemTemplate.name,
-                changeObjectRef: this.ref,
+            const changeData = {
                 changeType: ChangeType.Delete,
-                changeData: {
-                    propertyName: "strokes",
-                    strokes: [{ strokeData: stroke.getData(), index: index }]
-                }
-            });
+                changeObjectType: MapItemTemplate.name,
+                propertyName: "strokes",
+                itemIndex: index,
+                itemValue: stroke.getData()
+            };
+            const changeSet = new ChangeSet({ changes: [changeData] });
             this.#strokes.splice(index, 1);
-            this.#onChange(change);
+            this.#onChange(changeSet);
         }
     }
 
@@ -295,30 +309,168 @@ export class MapItemTemplate {
         this.strokes = [];
     }
 
-    // helpers
-    #eventListeners;
-
-    #onChange = (change) => {
-        if (this.#eventListeners[Change.ChangeEvent]) {
-            for (const listener of this.#eventListeners[Change.ChangeEvent]) {
-                listener(change);
+    applyChange(change, undoing) {
+        if (change.changeType == ChangeType.Edit) {
+            this.#applyPropertyChange(change.propertyName, undoing ? change.oldValue : change.newValue);
+        }
+        if (change.changeType == ChangeType.Insert) {
+            if (undoing) {
+                this.#applyPropertyDelete(change.propertyName, change.itemValue);
+            }
+            else {
+                this.#applyPropertyInsert(change.propertyName, change.itemIndex, change.itemValue);
+            }
+        }
+        if (change.changeType == ChangeType.Delete) {
+            if (undoing) {
+                this.#applyPropertyInsert(change.propertyName, change.itemIndex, change.itemValue);
+            }
+            else {
+                this.#applyPropertyDelete(change.propertyName, change.itemValue);
             }
         }
     }
 
-    #getPropertyChange(propertyName, oldValue, newValue) {
-        return new Change({
-            changeObjectType: MapItemTemplate.name,
-            changeObjectRef: this.ref,
-            changeType: ChangeType.Edit,
-            changeData: [
-                {
-                    propertyName: propertyName,
-                    oldValue: oldValue,
-                    newValue: newValue
+    #applyPropertyChange(propertyName, propertyValue) {
+        switch (propertyName) {
+            case "thumbnailSrc":
+                this.thumbnailSrc = InputUtilities.cleanseSvg(propertyValue);
+                break;
+            case "fills":
+                let fills = [];
+                if (propertyValue) {
+                    for (const fill of propertyValue) {
+                        if (fill.color) {
+                            this.addFill(new ColorFill(value));
+                        }
+                        if (fill.gradientType) {
+                            this.addFill(new GradientFill(value));
+                        }
+                        if (fill.imageSrc) {
+                            this.addFill(new TileFill(value));
+                        }
+                        if (fill.imageSources) {
+                            this.addFill(new ImageArrayFill(value));
+                        }
+                    }
                 }
-            ]
-        });
+                this.fills = fills;
+                break;
+            case "strokes":
+                let strokes = [];
+                if (propertyValue) {
+                    for (const stroke of propertyValue) {
+                        if (stroke.color) {
+                            this.addStroke(new ColorStroke(value));
+                        }
+                        if (stroke.gradientType) {
+                            this.addStroke(new GradientStroke(value));
+                        }
+                        if (stroke.imageSrc) {
+                            this.addStroke(new TileStroke(value));
+                        }
+                        if (stroke.imageSources) {
+                            this.addStroke(new ImageArrayStroke(value));
+                        }
+                    }
+                }
+                this.strokes = strokes;
+                break;
+            case "shadow":
+                this.shadow = propertyValue ? new Shadow(propertyValue) : null;
+                break;
+            case "z":
+                this.z = InputUtilities.cleanseNumber(propertyValue);
+                break;
+            case "caption":
+                this.caption = propertyValue ? new Caption(propertyValue) : null;
+                break;
+            case "tags":
+                this.tags = InputUtilities.cleanseString(propertyValue);
+                break;
+        }
+    }
+
+    #applyPropertyInsert(propertyName, index, value) {
+        if (propertyName == "fills") {
+            if (value?.color) {
+                this.insertFill(new ColorFill(value), index);
+            }
+            if (value?.gradientType) {
+                this.insertFill(new GradientFill(value), index);
+            }
+            if (value?.imageSrc) {
+                this.insertFill(new TileFill(value), index);
+            }
+            if (value?.imageSources) {
+                this.insertFill(new ImageArrayFill(value), index);
+            }
+        }
+        if (propertyName == "strokes") {
+            if (value?.color) {
+                this.insertStroke(new ColorStroke(value), index);
+            }
+            if (value?.gradientType) {
+                this.insertStroke(new GradientStroke(value), index);
+            }
+            if (value?.imageSrc) {
+                this.insertStroke(new TileStroke(value), index);
+            }
+            if (value?.imageSources) {
+                this.insertStroke(new ImageArrayStroke(value), index);
+            }
+        }
+    }
+
+    #applyPropertyDelete(propertyName, value) {
+        if (propertyName == "fills") {
+            if (value?.color) {
+                this.removeFill(new ColorFill(value));
+            }
+            if (value?.gradientType) {
+                this.removeFill(new GradientFill(value));
+            }
+            if (value?.imageSrc) {
+                this.removeFill(new TileFill(value));
+            }
+            if (value?.imageSources) {
+                this.removeFill(new ImageArrayFill(value));
+            }
+        }
+        if (propertyName == "strokes") {
+            if (value?.color) {
+                this.removeFill(new ColorStroke(value));
+            }
+            if (value?.gradientType) {
+                this.removeFill(new GradientStroke(value));
+            }
+            if (value?.imageSrc) {
+                this.removeFill(new TileStroke(value));
+            }
+            if (value?.imageSources) {
+                this.removeFill(new ImageArrayStroke(value));
+            }
+        }
+    }
+
+    // helpers
+    #eventListeners;
+
+    #onChange = (changeSet) => {
+        if (this.#eventListeners[Change.ChangeEvent]) {
+            if (changeSet?.changes) {
+                for (const change of changeSet.changes) {
+                    change.mapItemTemplateRef = this.ref.getData();
+                }
+            }
+            for (const listener of this.#eventListeners[Change.ChangeEvent]) {
+                listener(changeSet);
+            }
+        }
+    }
+
+    #getPropertyChange(propertyName, v1, v2) {
+        return ChangeSet.getPropertyChange(MapItemTemplate.name, propertyName, v1, v2);
     }
 
     #addChangeEventListeners(source) {
@@ -331,5 +483,9 @@ export class MapItemTemplate {
         if (source) {
             source.removeEventListener(Change.ChangeEvent, this.#onChange);
         }
+    }
+
+    #getListData(list) {
+        return list ? list.map(x => x.getData ? x.getData() : x) : null;
     }
 }

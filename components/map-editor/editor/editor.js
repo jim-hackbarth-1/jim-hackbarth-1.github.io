@@ -50,17 +50,19 @@ export class EditorModel {
             this.#setMapCursor(message.data?.cursor);
             await MapWorkerClient.postWorkerMessage({ messageType: MapWorkerInputMessageType.CursorChanged, cursor: message.data?.cursor });
         }
-        if (message?.messageType === MapWorkerOutputMessageType.MapUpdated && message?.data?.change?.changeData) {
+        if (message?.messageType === MapWorkerOutputMessageType.MapUpdated && message?.data?.changeSet) {
             const map = await MapWorkerClient.getMap();
             this.#componentElement.querySelector("#menuEditUndo").disabled = !map.canUndo();
             this.#componentElement.querySelector("#buttonUndo").disabled = !map.canUndo();
             this.#componentElement.querySelector("#menuEditRedo").disabled = !map.canRedo();
             this.#componentElement.querySelector("#buttonRedo").disabled = !map.canRedo();
-            if (message?.data?.change?.changeObjectType == Map.name) {
-                for (const changeItem of message.data.change.changeData) {
-                    if (changeItem.propertyName === "zoom") {
-                        const zoomLabel = this.#componentElement.querySelector("#zoom-label");
-                        zoomLabel.innerHTML = parseFloat(map.zoom * 100).toFixed(0) + "%"
+            if (message?.data?.changeSet?.changes) {
+                for (const change of message.data.changeSet.changes) {
+                    if (change.changeObjectType == Map.name) {
+                        if (change.propertyName === "zoom") {
+                            const zoomLabel = this.#componentElement.querySelector("#zoom-label");
+                            zoomLabel.innerHTML = parseFloat(map.zoom * 100).toFixed(0) + "%"
+                        }
                     }
                 }
             }
@@ -534,6 +536,8 @@ export class EditorModel {
             data.mapItemTemplates = data.mapItemTemplates.filter(mit => !mit.ref.isFromTemplate);
             data.toolRefs = data.toolRefs.filter(ref => !ref.isBuiltIn && !ref.isFromTemplate);
             data.tools = data.tools.filter(t => !t.ref.isBuiltIn && !t.ref.isFromTemplate);
+            data.changeLog = null;
+            data.undoLog = null;
             json = JSON.stringify(data);
         }
         return json;

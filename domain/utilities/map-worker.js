@@ -2,6 +2,7 @@
 import {
     Arc,
     Change,
+    ChangeSet,
     ChangeType,
     DbManager,
     EntityReference,
@@ -111,7 +112,7 @@ export class MapWorker {
                     await this.#loadMap();
                     break;
                 case MapWorkerInputMessageType.UpdateMap:
-                    await this.#updateMap(message.data.change);
+                    await this.#updateMap(message.data.changeSet);
                     break;
                 case MapWorkerInputMessageType.SetActiveTool:
                     await this.#setActiveTool(message.data.toolRefData);
@@ -146,10 +147,10 @@ export class MapWorker {
         }
     }
 
-    handleMapChange = async (change) => {
+    handleMapChange = async (changeSet) => {
         if (this.map) {
             await DbManager.setMap(this.map.getData());
-            const message = { messageType: MapWorkerOutputMessageType.MapUpdated, data: { hasUnsavedChanges: this.map.hasUnsavedChanges, change: change.getData() } };
+            const message = { messageType: MapWorkerOutputMessageType.MapUpdated, data: { hasUnsavedChanges: this.map.hasUnsavedChanges, changeSet: changeSet.getData() } };
             this.postMessage(message);
         }
     }
@@ -170,8 +171,8 @@ export class MapWorker {
         return Arc.resizeArc(arc, scaleX, scaleY, resizeDirection);
     }
 
-    createChange(data) {
-        return new Change(data);
+    createChangeSet(changes) {
+        return new ChangeSet({ changes: changes });
     }
 
     createSelectionUtilities() {
@@ -211,41 +212,19 @@ export class MapWorker {
         }
     }
 
-    async #updateMap(change) {
-        const changeObjectType = change?.changeObjectType;
-        let updatedViewPort = false;
-        switch (changeObjectType) {
-            case Map.name:
-                if (change?.changeData && change?.changeType === ChangeType.Edit) {
-                    this.map.startChange();
-                    for (const changeItem of change.changeData) {
-                        if (changeItem.propertyName == "overlay") {
-                            this.map[changeItem.propertyName] = new Overlay(changeItem.newValue);
-                        }
-                        else {
-                            this.map[changeItem.propertyName] = changeItem.newValue;
-                            if (changeItem.propertyName == "zoom" || changeItem.propertyName == "pan") {
-                                updatedViewPort = true;
-                            }
-                        }
-                    }
-                    this.map.completeChange(new Change(change));
-                }
-                break;
-            default:
-                throw new Error(`Unexpected worker request type: ${messageType ?? "(null)"}`);
-        }
+    async #updateMap(changeSet) {
+        const updatedViewPort = this.map.applyChangeSet(new ChangeSet(changeSet));
         this.renderMap({ updatedViewPort: updatedViewPort });
     }
 
     async #undo() {
-        this.map.undo();
-        this.renderMap({ updatedViewPort: true }); // <-- TODO: figure out if the viewport needs updating (maybe return undone changes?);
+        const updatedViewPort = this.map.undo();
+        this.renderMap({ updatedViewPort: updatedViewPort });
     }
 
     async #redo() {
-        this.map.redo();
-        this.renderMap({ updatedViewPort: true }); // <-- TODO: figure out if the viewport needs updating (maybe return undone changes?);
+        const updatedViewPort = this.map.redo();
+        this.renderMap({ updatedViewPort: updatedViewPort });
     }
 
     async #setActiveTool(toolRefData) {
@@ -301,7 +280,6 @@ export class MapWorker {
             zoom += 0.01;
         }
         else {
-            //console.log("here");
             zoom -= 0.01;
         }
         zoom = zoom.toFixed(2);
@@ -311,14 +289,13 @@ export class MapWorker {
         if (zoom > 4) {
             zoom = 4;
         }
-        //console.log(`this.map.zoom: ${this.map.zoom}, zoom: ${zoom}`);
         if (this.map.zoom == zoom) {
             return;
         }
 
         // start wheel change
         if (this.#wheelTimeout === undefined) {
-            this.map.startChange();
+            this.map.startChangeSet();
             this.#wheelStartZoom = this.map.zoom;
         }
 
@@ -330,20 +307,15 @@ export class MapWorker {
         clearTimeout(this.#wheelTimeout);
         this.#wheelTimeout = setTimeout(() => {
             if (this.#wheelTimeout) {
-                const change = new Change({
-                    changeObjectType: Map.name,
-                    changeObjectRef: this.map.ref,
+                const changeData = {
                     changeType: ChangeType.Edit,
-                    changeData: [
-                        {
-                            propertyName: "zoom",
-                            oldValue: this.#wheelStartZoom,
-                            newValue: this.map.zoom
-                        }
-                    ]
-                });
-                //console.log(change);
-                this.map.completeChange(change);
+                    changeObjectType: Map.name,
+                    propertyName: "zoom",
+                    oldValue: this.#wheelStartZoom,
+                    newValue: this.map.zoom
+                };
+                const changeSet = new ChangeSet({ changes: [changeData] });
+                this.map.completeChangeSet(changeSet);
                 this.#wheelTimeout = undefined;
             }
             

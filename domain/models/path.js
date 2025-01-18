@@ -1,5 +1,5 @@
 ﻿
-import { Arc, Change, ChangeType, GeometryUtilities, InputUtilities } from "../references.js";
+import { Arc, Change, ChangeSet, ChangeType, GeometryUtilities, InputUtilities } from "../references.js";
 
 export class ClipPath {
 
@@ -35,9 +35,9 @@ export class ClipPath {
         return this.#start ?? { x: 0, y: 0 };
     }
     set start(start) {
-        const change = this.#getPropertyChange("start", this.#start, start);
+        const changeSet = this.#getPropertyChange("start", this.#start, start);
         this.#start = start;
-        this.#onChange(change, true);
+        this.#onChange(changeSet, true);
     }
 
     /** @type {[{x: number, y: number}|Arc]} */
@@ -46,9 +46,9 @@ export class ClipPath {
         return this.#transits ?? [];
     }
     set transits(transits) {
-        const change = this.#getPropertyChange("transits", this.#transits, transits);
+        const changeSet = this.#getPropertyChange("transits", this.#getListData(this.#transits), this.#getListData(transits));
         this.#transits = transits;
-        this.#onChange(change, true);
+        this.#onChange(changeSet, true);
     }
 
     /** @type {number} */
@@ -57,9 +57,9 @@ export class ClipPath {
         return this.#rotationAngle ?? 0;
     }
     set rotationAngle(rotationAngle) {
-        const change = this.#getPropertyChange("rotationAngle", this.#rotationAngle, rotationAngle);
+        const changeSet = this.#getPropertyChange("rotationAngle", this.#rotationAngle, rotationAngle);
         this.#rotationAngle = rotationAngle;
-        this.#onChange(change, true);
+        this.#onChange(changeSet, true);
     }
 
     /** @type {x: number, y: number, width: number, height: number} */
@@ -74,18 +74,10 @@ export class ClipPath {
 
     // methods
     getData() {
-        const transits = [];
-        for (const transit of this.transits) {
-            let transitData = transit;
-            if (transit.radii) {
-                transitData = transit.getData();
-            }
-            transits.push(transitData);
-        }
         return {
             id: this.#id,
             start: this.#start,
-            transits: transits,
+            transits: this.#getListData(this.#transits),
             rotationAngle: this.#rotationAngle,
             bounds: this.#bounds
         };
@@ -105,6 +97,9 @@ export class ClipPath {
     }
 
     removeEventListener(eventName, listener) {
+        if (!this.#eventListeners[eventName]) {
+            this.#eventListeners[eventName] = [];
+        }
         const index = this.#eventListeners[eventName].findIndex(l => l === listener);
         if (index > -1) {
             this.#eventListeners[eventName].splice(index, 1);
@@ -125,13 +120,49 @@ export class ClipPath {
         return pathInfo;
     }
 
+    applyChange(change, undoing) {
+        if (change.changeType == ChangeType.Edit) {
+            this.#applyPropertyChange(change.propertyName, undoing ? change.oldValue : change.newValue);
+        }
+    }
+
+    #applyPropertyChange(propertyName, propertyValue) {
+        switch (propertyName) {
+            case "start":
+                this.start = InputUtilities.cleansePoint(propertyValue);
+                break;
+            case "transits":
+                const transits = [];
+                if (propertyValue) {
+                    for (const transitData of propertyValue) {
+                        if (transitData.radii) {
+                            transits.push(new Arc(transitData));
+                        }
+                        else {
+                            transits.push(InputUtilities.cleansePoint(transitData));
+                        }
+                    }
+                }
+                this.transits = transits;
+                break;
+            case "rotationAngle":
+                this.rotationAngle = InputUtilities.cleanseNumber(propertyValue);
+                break;
+        }
+    }
+
     // helpers
     #eventListeners;
 
-    #onChange = (change, invalidateBounds) => {
+    #onChange = (changeSet, invalidateBounds) => {
         if (this.#eventListeners[Change.ChangeEvent]) {
+            if (changeSet?.changes) {
+                for (const change of changeSet.changes) {
+                    change.clipPathId = this.id;
+                }
+            }
             for (const listener of this.#eventListeners[Change.ChangeEvent]) {
-                listener(change, invalidateBounds);
+                listener(changeSet, invalidateBounds);
             }
         }
         if (invalidateBounds) {
@@ -139,19 +170,12 @@ export class ClipPath {
         }
     }
 
-    #getPropertyChange(propertyName, oldValue, newValue) {
-        return new Change({
-            changeObjectType: ClipPath.name,
-            changeObjectRef: this.id,
-            changeType: ChangeType.Edit,
-            changeData: [
-                {
-                    propertyName: propertyName,
-                    oldValue: oldValue,
-                    newValue: newValue
-                }
-            ]
-        });
+    #getPropertyChange(propertyName, v1, v2) {
+        return ChangeSet.getPropertyChange(ClipPath.name, propertyName, v1, v2);
+    }
+
+    #getListData(list) {
+        return list ? list.map(x => x.getData ? x.getData() : x) : null;
     }
 }
 
@@ -176,8 +200,9 @@ export class Path {
             this.#clipPaths = [];
             for (const clipPathData of data.clipPaths) {
                 clipPathData.id = null;
-                clipPathData.clipPaths = null;
-                this.#clipPaths.push(new ClipPath(clipPathData));
+                const clipPath = new ClipPath(clipPathData);
+                this.#clipPaths.push(clipPath);
+                this.#addChangeEventListeners(clipPath);
             }
         }
         this.#rotationAngle = InputUtilities.cleanseNumber(data?.rotationAngle);
@@ -197,9 +222,9 @@ export class Path {
         return this.#start ?? { x: 0, y: 0 };
     }
     set start(start) {
-        const change = this.#getPropertyChange("start", this.#start, start);
+        const changeSet = this.#getPropertyChange("start", this.#start, start);
         this.#start = start;
-        this.#onChange(change, true);
+        this.#onChange(changeSet, true);
     }
 
     /** @type {[{x: number, y: number}|Arc]} */
@@ -208,9 +233,9 @@ export class Path {
         return this.#transits ?? [];
     }
     set transits(transits) {
-        const change = this.#getPropertyChange("transits", this.#transits, transits);
+        const changeSet = this.#getPropertyChange("transits", this.#getListData(this.#transits), this.#getListData(transits));
         this.#transits = transits;
-        this.#onChange(change, true);
+        this.#onChange(changeSet, true);
     }
 
     /** @type {[ClipPath]} */
@@ -219,10 +244,18 @@ export class Path {
         return this.#clipPaths ?? [];
     }
     set clipPaths(clipPaths) {
-        const change = this.#getPropertyChange("clipPaths", this.#clipPaths, clipPaths);
+        if (this.#clipPaths) {
+            for (const clipPath of this.#clipPaths) {
+                this.#removeChangeEventListeners(clipPath);
+            }
+        }
+        const changeSet = this.#getPropertyChange("clipPaths", this.#getListData(this.#clipPaths), this.#getListData(clipPaths));
         this.#validateUniqueIds(clipPaths);
-        this.#clipPaths = clipPaths;
-        this.#onChange(change, true);
+        this.#clipPaths = clipPaths ?? [];
+        for (const clipPath of this.#clipPaths) {
+            this.#addChangeEventListeners(clipPath);
+        }
+        this.#onChange(changeSet, true);
     }
 
     /** @type {number} */
@@ -231,9 +264,9 @@ export class Path {
         return this.#rotationAngle ?? 0;
     }
     set rotationAngle(rotationAngle) {
-        const change = this.#getPropertyChange("rotationAngle", this.#rotationAngle, rotationAngle);
+        const changeSet = this.#getPropertyChange("rotationAngle", this.#rotationAngle, rotationAngle);
         this.#rotationAngle = rotationAngle;
-        this.#onChange(change, true);
+        this.#onChange(changeSet, true);
     }
 
     /** @type {x: number, y: number, width: number, height: number} */
@@ -255,26 +288,74 @@ export class Path {
 
     // methods
     getData() {
-        const transits = [];
-        const clipPaths = [];
-        for (const transit of this.transits) {
-            let transitData = transit;
-            if (transit.radii) {
-                transitData = transit.getData();
-            }
-            transits.push(transitData);
-        }
-        for (const clipPath of this.clipPaths) {
-            clipPaths.push(clipPath.getData());
-        }
         return {
             id: this.#id,
             start: this.#start,
-            transits: transits,
-            clipPaths: clipPaths,
+            transits: this.#getListData(this.#transits),
+            clipPaths: this.#getListData(this.#clipPaths),
             rotationAngle: this.#rotationAngle,
             bounds: this.#bounds
         };
+    }
+
+    addClipPath(clipPath) {
+        if (!clipPath) {
+            throw new Error(ErrorMessage.NullValue);
+        }
+        if (this.clipPaths.some(p => p.id == clipPath.id)) {
+            throw new Error(ErrorMessage.ItemAlreadyExistsInList);
+        }
+        const changeData = {
+            changeType: ChangeType.Insert,
+            changeObjectType: Path.name,
+            propertyName: "clipPaths",
+            itemIndex: this.clipPaths.length,
+            itemValue: clipPath.getData()
+        };
+        const changeSet = new ChangeSet({ changes: [changeData] });
+        this.#clipPaths.push(clipPath);
+        this.#addChangeEventListeners(clipPath);
+        this.#onChange(changeSet, true);
+    }
+
+    insertClipPath(clipPath, index) {
+        if (!clipPath) {
+            throw new Error(ErrorMessage.NullValue);
+        }
+        if (this.clipPaths.some(p => p.id == clipPath.id)) {
+            throw new Error(ErrorMessage.ItemAlreadyExistsInList);
+        }
+        if (index < 0 || index > this.clipPaths.length) {
+            throw new Error(ErrorMessage.InvalidIndex);
+        }
+        const changeData = {
+            changeType: ChangeType.Insert,
+            changeObjectType: Path.name,
+            propertyName: "clipPaths",
+            itemIndex: index,
+            itemValue: clipPath.getData()
+        };
+        const changeSet = new ChangeSet({ changes: [changeData] });
+        this.#clipPaths.splice(index, 0, clipPath);
+        this.#addChangeEventListeners(clipPath);
+        this.#onChange(changeSet, true);
+    }
+
+    removeClipPath(clipPath) {
+        const index = this.#clipPaths.findIndex(p => p.id === clipPath.id);
+        if (index > -1) {
+            const changeData = {
+                changeType: ChangeType.Delete,
+                changeObjectType: Path.name,
+                propertyName: "clipPaths",
+                itemIndex: index,
+                itemValue: clipPath.getData()
+            };
+            const changeSet = new ChangeSet({ changes: [changeData] });
+            const deleted = this.#clipPaths.splice(index, 1);
+            this.#removeChangeEventListeners(deleted[0]);
+            this.#onChange(changeSet, true);
+        }
     }
 
     copy() {
@@ -291,6 +372,9 @@ export class Path {
     }
 
     removeEventListener(eventName, listener) {
+        if (!this.#eventListeners[eventName]) {
+            this.#eventListeners[eventName] = [];
+        }
         const index = this.#eventListeners[eventName].findIndex(l => l === listener);
         if (index > -1) {
             this.#eventListeners[eventName].splice(index, 1);
@@ -332,8 +416,123 @@ export class Path {
         }
     }
 
+    applyChange(change, undoing) {
+        if (change.changeType == ChangeType.Edit) {
+            this.#applyPropertyChange(change.propertyName, undoing ? change.oldValue : change.newValue);
+        }
+        if (change.changeType == ChangeType.Insert) {
+            if (undoing) {
+                this.#applyPropertyDelete(change.propertyName, change.itemValue);
+            }
+            else {
+                this.#applyPropertyInsert(change.propertyName, change.itemIndex, change.itemValue);
+            }
+        }
+        if (change.changeType == ChangeType.Delete) {
+            if (undoing) {
+                this.#applyPropertyInsert(change.propertyName, change.itemIndex, change.itemValue);
+            }
+            else {
+                this.#applyPropertyDelete(change.propertyName, change.itemValue);
+            }
+        }
+    }
+
+    #applyPropertyChange(propertyName, propertyValue) {
+        switch (propertyName) {
+            case "start":
+                this.start = InputUtilities.cleansePoint(propertyValue);
+                break;
+            case "transits":
+                const transits = [];
+                if (propertyValue) {
+                    for (const transitData of propertyValue) {
+                        if (transitData.radii) {
+                            transits.push(new Arc(transitData));
+                        }
+                        else {
+                            transits.push(InputUtilities.cleansePoint(transitData));
+                        }
+                    }
+                }
+                this.transits = transits;
+                break;
+            case "clipPaths":
+                let clipPaths = [];
+                if (propertyValue) {
+                    for (const clipPath of propertyValue) {
+                        clipPaths.push(new ClipPath(clipPath));
+                    }
+                }
+                this.clipPaths = clipPaths;
+                break;
+            case "rotationAngle":
+                this.rotationAngle = InputUtilities.cleanseNumber(propertyValue);
+                break;
+        }
+    }
+
+    #applyPropertyInsert(propertyName, index, value) {
+        if (propertyName == "clipPaths") {
+            this.insertClipPath(new ClipPath(value), index);
+        }
+    }
+
+    #applyPropertyDelete(propertyName, value) {
+        if (propertyName == "clipPaths") {
+            this.removeClipPath(new ClipPath(value));
+        }
+    }
+
+    // helpers
+    #eventListeners;
+
+    #onChange = (changeSet, invalidateBounds) => {
+        if (this.#eventListeners[Change.ChangeEvent]) {
+            if (changeSet?.changes) {
+                for (const change of changeSet.changes) {
+                    change.pathId = this.id;
+                }
+            }
+            for (const listener of this.#eventListeners[Change.ChangeEvent]) {
+                listener(changeSet, invalidateBounds);
+            }
+        }
+        if (invalidateBounds) {
+            this.#bounds = null;
+        }
+    }
+
+    #addChangeEventListeners(source) {
+        if (source) {
+            source.addEventListener(Change.ChangeEvent, this.#onChange);
+        }
+    }
+
+    #removeChangeEventListeners(source) {
+        if (source) {
+            source.removeEventListener(Change.ChangeEvent, this.#onChange);
+        }
+    }
+
+    #getPropertyChange(propertyName, v1, v2) {
+        return ChangeSet.getPropertyChange(Path.name, propertyName, v1, v2);
+    }
+
+    #validateUniqueIds(clipPaths) {
+        if (clipPaths) {
+            const ids = [];
+            for (const clipPath of clipPaths) {
+                if (ids.includes(clipPath.id)) {
+                    throw new Error(ErrorMessage.ItemAlreadyExistsInList);
+                }
+                ids.push(clipPath.id);
+            }
+        }
+    }
+
     #isViewable(map, options) {
-        if (options?.updatedViewPort || this.inView === undefined) { 
+        if (options?.updatedViewPort || this.inView === undefined) {
             const geometryUtilities = new GeometryUtilities();
             const startInBounds = geometryUtilities.isPointInBounds(this.start, map.currentViewPort);
             if (startInBounds) {
@@ -365,47 +564,6 @@ export class Path {
         return this.#inView;
     }
 
-    // helpers
-    #eventListeners;
-
-    #onChange = (change, invalidateBounds) => {
-        if (this.#eventListeners[Change.ChangeEvent]) {
-            for (const listener of this.#eventListeners[Change.ChangeEvent]) {
-                listener(change, invalidateBounds);
-            }
-        }
-        if (invalidateBounds) {
-            this.#bounds = null;
-        }
-    }
-
-    #getPropertyChange(propertyName, oldValue, newValue) {
-        return new Change({
-            changeObjectType: Path.name,
-            changeObjectRef: this.id,
-            changeType: ChangeType.Edit,
-            changeData: [
-                {
-                    propertyName: propertyName,
-                    oldValue: oldValue,
-                    newValue: newValue
-                }
-            ]
-        });
-    }
-
-    #validateUniqueIds(clipPaths) {
-        if (clipPaths) {
-            const ids = [];
-            for (const clipPath of clipPaths) {
-                if (ids.includes(clipPath.id)) {
-                    throw new Error(ErrorMessage.ItemAlreadyExistsInList);
-                }
-                ids.push(clipPath.id);
-            }
-        }
-    }
-
     #renderClipPaths(context, pathInfo, hasFill) {
         if (this.clipPaths) {
             const outerPath = new Path2D(pathInfo);
@@ -420,5 +578,9 @@ export class Path {
             }
             context.clip(outerPath, "evenodd");
         }
+    }
+
+    #getListData(list) {
+        return list ? list.map(x => x.getData ? x.getData() : x) : null;
     }
 }

@@ -5,6 +5,7 @@ export class BaseStroke {
 
     // constructor
     constructor(data) {
+        this.#id = InputUtilities.cleanseString(data?.id) ?? crypto.randomUUID();
         this.#width = InputUtilities.cleanseNumber(data?.width) ?? 1;
         this.#opacity = InputUtilities.cleanseNumber(data?.opacity) ?? 1;
         this.#dash = [];
@@ -19,6 +20,11 @@ export class BaseStroke {
     }
 
     // properties
+    #id;
+    get id() {
+        return this.#id;
+    }
+
     /** @type {number}  */
     #width;
     get width() {
@@ -58,6 +64,7 @@ export class BaseStroke {
     // methods
     getData() {
         return {
+            id: this.#id,
             width: this.#width,
             opacity: this.#opacity,
             dash: this.#dash,

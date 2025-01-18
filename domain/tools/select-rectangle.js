@@ -231,12 +231,22 @@ class SelectRectangleTool {
         this.#pointCurrent = { x: eventData.offsetX, y: eventData.offsetY };
         const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
         const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
+        const layer = this.#mapWorker.map.getActiveLayer();
+        const oldSelections = layer.mapItemGroups
+            .filter(mig => mig.selectionStatus)
+            .map(mig => ({ mapItemGroupId: mig.id, selectionStatus: mig.selectionStatus }));
+        this.#mapWorker.map.startChangeSet();
         if (Math.abs(this.#pointDown.x - this.#pointCurrent.x) < 10 && Math.abs(this.#pointDown.y - this.#pointCurrent.y) < 10) {
             this.#selectByPoints(scale, translation);
         }
         else {
             this.#selectByPath(scale, translation);
         }
+        const newSelections = layer.mapItemGroups
+            .filter(mig => mig.selectionStatus)
+            .map(mig => ({ mapItemGroupId: mig.id, selectionStatus: mig.selectionStatus }));
+        const changeSet = this.#selectionUtilities.getSelectionChangeSet(this.#mapWorker, layer.name, oldSelections, newSelections);
+        this.#mapWorker.map.completeChangeSet(changeSet);
         this.#selectionUtilities.resetSelectionBounds(this.#mapWorker);
         this.#mapWorker.renderMap();
     }

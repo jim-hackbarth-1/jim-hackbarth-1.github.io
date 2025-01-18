@@ -5,10 +5,16 @@ export class BaseFill {
 
     // constructor
     constructor(data) {
+        this.#id = InputUtilities.cleanseString(data?.id) ?? crypto.randomUUID();
         this.#opacity = InputUtilities.cleanseNumber(data?.opacity) ?? 1;
     }
 
     // properties
+    #id;
+    get id() {
+        return this.#id;
+    }
+
     /** @type {number}  */
     #opacity;
     get opacity() {
@@ -18,6 +24,7 @@ export class BaseFill {
     // methods
     getData() {
         return {
+            id: this.#id,
             opacity: this.#opacity
         };
     }

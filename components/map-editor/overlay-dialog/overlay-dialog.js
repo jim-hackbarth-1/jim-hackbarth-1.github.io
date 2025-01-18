@@ -45,17 +45,14 @@ class OverlayDialogModel {
 
         MapWorkerClient.postWorkerMessage({
             messageType: MapWorkerInputMessageType.UpdateMap,
-            change: {
-                changeObjectType: Map.name,
-                changeObjectRef: map.ref,
-                changeType: ChangeType.Edit,
-                changeData: [
-                    {
-                        propertyName: "overlay",
-                        oldValue: map.overlay.getData(),
-                        newValue: overlayData
-                    }
-                ]
+            changeSet: {
+                changes: [{
+                    changeType: ChangeType.Edit,
+                    changeObjectType: Map.name,
+                    propertyName: "overlay",
+                    oldValue: map.overlay.getData(),
+                    newValue: overlayData
+                }]
             }
         });
     }

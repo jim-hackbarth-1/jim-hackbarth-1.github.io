@@ -89,27 +89,27 @@ class ZoomTool {
             }
 
             // set pan and zoom
-            this.#mapWorker.map.startChange();
-            const change = this.#mapWorker.createChange({
+            this.#mapWorker.map.startChangeSet();
+            const panChangeData = {
+                changeType: "Edit",
                 changeObjectType: Map.name,
                 changeObjectRef: this.#mapWorker.map.ref,
+                propertyName: "pan",
+                oldValue: this.#mapWorker.map.pan,
+                newValue: pan
+            };
+            const zoomChangeData = {
                 changeType: "Edit",
-                changeData: [
-                    {
-                        propertyName: "pan",
-                        oldValue: this.#mapWorker.map.pan,
-                        newValue: pan
-                    },
-                    {
-                        propertyName: "zoom",
-                        oldValue: this.#mapWorker.map.zoom,
-                        newValue: zoom
-                    }
-                ]
-            });
+                changeObjectType: Map.name,
+                changeObjectRef: this.#mapWorker.map.ref,
+                propertyName: "zoom",
+                oldValue: this.#mapWorker.map.zoom,
+                newValue: zoom
+            };
             this.#mapWorker.map.pan = pan;
             this.#mapWorker.map.zoom = zoom; 
-            this.#mapWorker.map.completeChange(change);
+            const changeSet = this.#mapWorker.createChangeSet([panChangeData, zoomChangeData]);
+            this.#mapWorker.map.completeChangeSet(changeSet);
 
             // render map
             this.#isDrawing = false;

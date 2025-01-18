@@ -19,7 +19,7 @@ class PanTool {
     async onActivate(mapWorker) {
         this.#mapWorker = mapWorker
         if (this.#mapWorker.map) {
-            this.#mapWorker.map.addEventListener("ChangeEvent", this.handleMapChange);
+            this.#mapWorker.map.addEventListener("AfterRenderEvent", this.handleAfterRenderEvent);
         }
         this.#isArrowPressed = false;
         this.#panIncrementIteration = 0;
@@ -47,7 +47,7 @@ class PanTool {
         }
     }
 
-    handleMapChange = async (change) => {
+    handleAfterRenderEvent = async (change) => {
         this.#drawCurrentPan();
     }
 
@@ -97,7 +97,7 @@ class PanTool {
         this.#yStart = eventData.offsetY;
         this.#xPanStart = this.#mapWorker.map.pan.x;
         this.#yPanStart = this.#mapWorker.map.pan.y;
-        this.#mapWorker.map.startChange();
+        this.#mapWorker.map.startChangeSet();
         this.#isPanning = true;
     }
 
@@ -110,19 +110,14 @@ class PanTool {
     }
 
     #panEnd() {
-        const change = this.#mapWorker.createChange({
-            changeObjectType: "Map",
-            changeObjectRef: this.#mapWorker.map.ref,
+        const changeSet = this.#mapWorker.createChangeSet([{
             changeType: "Edit",
-            changeData: [
-                {
-                    propertyName: "pan",
-                    oldValue: { x: this.#xPanStart, y: this.#yPanStart },
-                    newValue: this.#mapWorker.map.pan
-                }
-            ]
-        });
-        this.#mapWorker.map.completeChange(change);
+            changeObjectType: "Map",
+            propertyName: "pan",
+            oldValue: { x: this.#xPanStart, y: this.#yPanStart },
+            newValue: this.#mapWorker.map.pan
+        }]);
+        this.#mapWorker.map.completeChangeSet(changeSet);
         this.#isPanning = false;
     }
 

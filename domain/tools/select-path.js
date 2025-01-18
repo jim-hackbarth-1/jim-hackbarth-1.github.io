@@ -225,6 +225,11 @@ class SelectPathTool {
         this.#drawSelectionLine(eventData.offsetX, eventData.offsetY);
         this.#drawSelectionLine(this.#pointDown.x, this.#pointDown.y);
         this.#points.push({ x: eventData.offsetX, y: eventData.offsetY });
+        const layer = this.#mapWorker.map.getActiveLayer();
+        const oldSelections = layer.mapItemGroups
+            .filter(mig => mig.selectionStatus)
+            .map(mig => ({mapItemGroupId: mig.id, selectionStatus: mig.selectionStatus}));
+        this.#mapWorker.map.startChangeSet();
         if (this.#mapWorker.map) {
             if (this.#points.length < 4) {
                 this.#selectByPoints();
@@ -233,6 +238,11 @@ class SelectPathTool {
                 this.#selectByPath();
             }
         }
+        const newSelections = layer.mapItemGroups
+            .filter(mig => mig.selectionStatus)
+            .map(mig => ({ mapItemGroupId: mig.id, selectionStatus: mig.selectionStatus }));
+        const changeSet = this.#selectionUtilities.getSelectionChangeSet(this.#mapWorker, layer.name, oldSelections, newSelections);
+        this.#mapWorker.map.completeChangeSet(changeSet);
         this.#selectionUtilities.resetSelectionBounds(this.#mapWorker);
         this.#mapWorker.renderMap();
     }

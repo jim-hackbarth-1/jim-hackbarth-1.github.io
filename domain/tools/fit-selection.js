@@ -414,6 +414,7 @@ class FitSelectionTool {
         }
         if (this.#setOperationMode == "Union") {
             pathDataList = this.#mapWorker.geometryUtilities.getUnionPathDataList(path1, path2);
+            pathDataList = this.#setNewClipPaths(pathDataList);
             for (const clipPath of path1.clipPaths) {
                 if (this.#isPath1CompletelyOutsideOfPath2(clipPath, path2)) {
                     clipPaths.push(clipPath.getData());
@@ -424,10 +425,16 @@ class FitSelectionTool {
                     clipPaths.push(clipPath.getData());
                 }
             }
+            for (const pathData of pathDataList) {
+                if (path.clipPaths) {
+                    for (const clipPath of pathData.clipPaths) {
+                        clipPaths.push(clipPath);
+                    }
+                } 
+            } 
         }
         if (this.#setOperationMode == "Exclude") {
             pathDataList = this.#mapWorker.geometryUtilities.getExclusionPathDataList(path1, path2);
-            pathDataList = this.#setNewClipPaths(pathDataList);
             for (const pathData of pathDataList) {
                 clipPaths = this.#getListData(pathData.clipPaths);
             }
@@ -437,11 +444,13 @@ class FitSelectionTool {
                 }
             }
             for (const pathData of pathDataList) {
-                for (const clipPath of pathData.clipPaths) {
-                    if (this.#isPath1CompletelyOutsideOfPath2(clipPath, path2)) {
-                        clipPaths.push(clipPath.getData());
+                if (pathData.clipPaths) {
+                    for (const clipPath of pathData.clipPaths) {
+                        if (this.#isPath1CompletelyOutsideOfPath2(clipPath, path2)) {
+                            clipPaths.push(clipPath);
+                        }
                     }
-                }
+                } 
             } 
         }
         for (const pathData of pathDataList) {

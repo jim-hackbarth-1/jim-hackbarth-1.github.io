@@ -519,12 +519,11 @@ export class SelectionUtilities {
         let selectionStartData = this.selectionStartData;
         for (const selection of selectionStartData) {
             if (this.#canPathBeScaled(selection.path, scaleX, scaleY)) {
-                const originalBounds = selection.path.bounds;
+                const originalBounds = this.#getMapItemGroupBounds(mapWorker, selection.mapItemGroupId);
+                const startX = originalBounds.x + scaleX * (selection.startingPathData.start.x - originalBounds.x);
+                const startY = originalBounds.y + scaleY * (selection.startingPathData.start.y - originalBounds.y);
                 selection.path.transits = this.#getScaledTransits(selection.startingPathData.transits, scaleX, scaleY, mapWorker, "SE");
-                const newBounds = selection.path.bounds;
-                const boundsDx = newBounds.x - originalBounds.x;
-                const boundsDy = newBounds.y - originalBounds.y;
-                selection.path.start = { x: selection.path.start.x - boundsDx, y: selection.path.start.y - boundsDy };
+                selection.path.start = { x: startX, y: startY };
                 if (selection.path.clipPaths) {
                     for (const clipPath of selection.path.clipPaths) {
                         const startingPathDataClip = selection.startingPathData.clipPaths.find(p => p.id == clipPath.id);
@@ -555,12 +554,11 @@ export class SelectionUtilities {
         let selectionStartData = this.selectionStartData;
         for (const selection of selectionStartData) {
             if (this.#canPathBeScaled(selection.path, scaleX, scaleY)) {
-                const originalBounds = selection.path.bounds;
+                const originalBounds = this.#getMapItemGroupBounds(mapWorker, selection.mapItemGroupId);
+                const startX = selection.startingPathData.start.x;
+                const startY = originalBounds.y + scaleY * (selection.startingPathData.start.y - originalBounds.y);
                 selection.path.transits = this.#getScaledTransits(selection.startingPathData.transits, scaleX, scaleY, mapWorker, "S");
-                const newBounds = selection.path.bounds;
-                const boundsDx = newBounds.x - originalBounds.x;
-                const boundsDy = newBounds.y - originalBounds.y;
-                selection.path.start = { x: selection.path.start.x - boundsDx, y: selection.path.start.y - boundsDy };
+                selection.path.start = { x: startX, y: startY };
                 if (selection.path.clipPaths) {
                     for (const clipPath of selection.path.clipPaths) {
                         const startingPathDataClip = selection.startingPathData.clipPaths.find(p => p.id == clipPath.id);
@@ -595,12 +593,11 @@ export class SelectionUtilities {
         let selectionStartData = this.selectionStartData;
         for (const selection of selectionStartData) {
             if (this.#canPathBeScaled(selection.path, scaleX, scaleY)) {
-                const originalBounds = selection.path.bounds;
+                const originalBounds = this.#getMapItemGroupBounds(mapWorker, selection.mapItemGroupId);
+                const startX = originalBounds.x + originalBounds.width - scaleX * (originalBounds.x + originalBounds.width - selection.startingPathData.start.x);
+                const startY = originalBounds.y + scaleY * (selection.startingPathData.start.y - originalBounds.y);
                 selection.path.transits = this.#getScaledTransits(selection.startingPathData.transits, scaleX, scaleY, mapWorker, "SW");
-                const newBounds = selection.path.bounds;
-                const boundsDx = (newBounds.x + newBounds.width) - (originalBounds.x + originalBounds.width);
-                const boundsDy = newBounds.y - originalBounds.y;
-                selection.path.start = { x: selection.path.start.x - boundsDx, y: selection.path.start.y - boundsDy };
+                selection.path.start = { x: startX, y: startY };
                 if (selection.path.clipPaths) {
                     for (const clipPath of selection.path.clipPaths) {
                         const startingPathDataClip = selection.startingPathData.clipPaths.find(p => p.id == clipPath.id);
@@ -631,12 +628,11 @@ export class SelectionUtilities {
         let selectionStartData = this.selectionStartData;
         for (const selection of selectionStartData) {
             if (this.#canPathBeScaled(selection.path, scaleX, scaleY)) {
-                const originalBounds = selection.path.bounds;
+                const originalBounds = this.#getMapItemGroupBounds(mapWorker, selection.mapItemGroupId);
+                const startX = originalBounds.x + originalBounds.width - scaleX * (originalBounds.x + originalBounds.width - selection.startingPathData.start.x);
+                const startY = selection.startingPathData.start.y;
                 selection.path.transits = this.#getScaledTransits(selection.startingPathData.transits, scaleX, scaleY, mapWorker, "W");
-                const newBounds = selection.path.bounds;
-                const boundsDx = (newBounds.x + newBounds.width) - (originalBounds.x + originalBounds.width);
-                const boundsDy = newBounds.y - originalBounds.y;
-                selection.path.start = { x: selection.path.start.x - boundsDx, y: selection.path.start.y - boundsDy };
+                selection.path.start = { x: startX, y: startY };
                 if (selection.path.clipPaths) {
                     for (const clipPath of selection.path.clipPaths) {
                         const startingPathDataClip = selection.startingPathData.clipPaths.find(p => p.id == clipPath.id);
@@ -671,12 +667,11 @@ export class SelectionUtilities {
         let selectionStartData = this.selectionStartData;
         for (const selection of selectionStartData) {
             if (this.#canPathBeScaled(selection.path, scaleX, scaleY)) {
-                const originalBounds = selection.path.bounds;
+                const originalBounds = this.#getMapItemGroupBounds(mapWorker, selection.mapItemGroupId);
+                const startX = originalBounds.x + originalBounds.width - scaleX * (originalBounds.x + originalBounds.width - selection.startingPathData.start.x);
+                const startY = originalBounds.y + originalBounds.height - scaleY * (originalBounds.y + originalBounds.height - selection.startingPathData.start.y);
                 selection.path.transits = this.#getScaledTransits(selection.startingPathData.transits, scaleX, scaleY, mapWorker, "NW");
-                const newBounds = selection.path.bounds;
-                const boundsDx = (newBounds.x + newBounds.width) - (originalBounds.x + originalBounds.width);
-                const boundsDy = (newBounds.y + newBounds.height) - (originalBounds.y + originalBounds.height);
-                selection.path.start = { x: selection.path.start.x - boundsDx, y: selection.path.start.y - boundsDy };
+                selection.path.start = { x: startX, y: startY };
                 if (selection.path.clipPaths) {
                     for (const clipPath of selection.path.clipPaths) {
                         const startingPathDataClip = selection.startingPathData.clipPaths.find(p => p.id == clipPath.id);
@@ -707,12 +702,11 @@ export class SelectionUtilities {
         let selectionStartData = this.selectionStartData;
         for (const selection of selectionStartData) {
             if (this.#canPathBeScaled(selection.path, scaleX, scaleY)) {
-                const originalBounds = selection.path.bounds;
+                const originalBounds = this.#getMapItemGroupBounds(mapWorker, selection.mapItemGroupId);
+                const startX = selection.startingPathData.start.x;
+                const startY = originalBounds.y + originalBounds.height - scaleY * (originalBounds.y + originalBounds.height - selection.startingPathData.start.y);
                 selection.path.transits = this.#getScaledTransits(selection.startingPathData.transits, scaleX, scaleY, mapWorker, "N");
-                const newBounds = selection.path.bounds;
-                const boundsDx = newBounds.x - originalBounds.x;
-                const boundsDy = (newBounds.y + newBounds.height) - (originalBounds.y + originalBounds.height);
-                selection.path.start = { x: selection.path.start.x - boundsDx, y: selection.path.start.y - boundsDy };
+                selection.path.start = { x: startX, y: startY };
                 if (selection.path.clipPaths) {
                     for (const clipPath of selection.path.clipPaths) {
                         const startingPathDataClip = selection.startingPathData.clipPaths.find(p => p.id == clipPath.id);
@@ -747,12 +741,11 @@ export class SelectionUtilities {
         let selectionStartData = this.selectionStartData;
         for (const selection of selectionStartData) {
             if (this.#canPathBeScaled(selection.path, scaleX, scaleY)) {
-                const originalBounds = selection.path.bounds;
+                const originalBounds = this.#getMapItemGroupBounds(mapWorker, selection.mapItemGroupId);
+                const startX = originalBounds.x + scaleX * (selection.startingPathData.start.x - originalBounds.x);
+                const startY = originalBounds.y + originalBounds.height - scaleY * (originalBounds.y + originalBounds.height - selection.startingPathData.start.y);
                 selection.path.transits = this.#getScaledTransits(selection.startingPathData.transits, scaleX, scaleY, mapWorker, "NE");
-                const newBounds = selection.path.bounds;
-                const boundsDx = newBounds.x - originalBounds.x;
-                const boundsDy = (newBounds.y + newBounds.height) - (originalBounds.y + originalBounds.height);
-                selection.path.start = { x: selection.path.start.x - boundsDx, y: selection.path.start.y - boundsDy };
+                selection.path.start = { x: startX, y: startY };
                 if (selection.path.clipPaths) {
                     for (const clipPath of selection.path.clipPaths) {
                         const startingPathDataClip = selection.startingPathData.clipPaths.find(p => p.id == clipPath.id);
@@ -783,12 +776,11 @@ export class SelectionUtilities {
         let selectionStartData = this.selectionStartData;
         for (const selection of selectionStartData) {
             if (this.#canPathBeScaled(selection.path, scaleX, scaleY)) {
-                const originalBounds = selection.path.bounds;
+                const originalBounds = this.#getMapItemGroupBounds(mapWorker, selection.mapItemGroupId);
+                const startX = originalBounds.x + scaleX * (selection.startingPathData.start.x - originalBounds.x);
+                const startY = selection.startingPathData.start.y;
                 selection.path.transits = this.#getScaledTransits(selection.startingPathData.transits, scaleX, scaleY, mapWorker, "E");
-                const newBounds = selection.path.bounds;
-                const boundsDx = newBounds.x - originalBounds.x;
-                const boundsDy = newBounds.y - originalBounds.y;
-                selection.path.start = { x: selection.path.start.x - boundsDx, y: selection.path.start.y - boundsDy };
+                selection.path.start = { x: startX, y: startY };
                 if (selection.path.clipPaths) {
                     for (const clipPath of selection.path.clipPaths) {
                         const startingPathDataClip = selection.startingPathData.clipPaths.find(p => p.id == clipPath.id);
@@ -804,6 +796,12 @@ export class SelectionUtilities {
                 }
             }
         }
+    }
+
+    #getMapItemGroupBounds(mapWorker, mapItemGroupId) {
+        const layer = mapWorker.map.getActiveLayer();
+        const mapItemGroup = layer.mapItemGroups.find(mig => mig.id == mapItemGroupId);
+        return mapItemGroup.bounds;
     }
 
     #transformCanvasPoint(mapWorker, x, y) {

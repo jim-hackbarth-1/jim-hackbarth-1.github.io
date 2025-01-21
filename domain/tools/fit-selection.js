@@ -426,7 +426,7 @@ class FitSelectionTool {
                 }
             }
             for (const pathData of pathDataList) {
-                if (path.clipPaths) {
+                if (pathData.clipPaths) {
                     for (const clipPath of pathData.clipPaths) {
                         clipPaths.push(clipPath);
                     }

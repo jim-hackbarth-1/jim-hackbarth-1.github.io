@@ -63,6 +63,21 @@ export class InputUtilities {
         return null;
     }
 
+    static validateIds(list) {
+        if (list) {
+            const ids = [];
+            for (const item of list) {
+                if (!item.id) {
+                    throw new Error(ErrorMessage.NullValue);
+                }
+                if (ids.includes(item.id)) {
+                    throw new Error(ErrorMessage.ItemAlreadyExistsInList);
+                }
+                ids.push(item.id);
+            }
+        }
+    }
+
     // helpers
     static #getParser() {
         try {

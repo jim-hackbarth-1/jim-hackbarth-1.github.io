@@ -14,6 +14,7 @@ export class Layer {
                 this.#mapItemGroups.push(mapItemGroup);
                 this.#addChangeEventListeners(mapItemGroup);
             }
+            InputUtilities.validateIds(this.#mapItemGroups);
         }
         this.#eventListeners = {};
     }
@@ -47,7 +48,7 @@ export class Layer {
         return this.#mapItemGroups;
     }
     set mapItemGroups(mapItemGroups) {
-        this.#validateUniqueIds(mapItemGroups);
+        InputUtilities.validateIds(mapItemGroups);
         if (this.#mapItemGroups) {
             for (const mapItemGroup of this.#mapItemGroups) {
                 this.#removeChangeEventListeners(mapItemGroup);
@@ -361,18 +362,6 @@ export class Layer {
                 else {
                     selectionResult.mapItemGroup.selectionStatus = null;
                 }
-            }
-        }
-    }
-
-    #validateUniqueIds(mapItemGroups) {
-        if (mapItemGroups) {
-            const ids = [];
-            for (const mapItemGroup of mapItemGroups) {
-                if (ids.includes(mapItemGroup.id)) {
-                    throw new Error(ErrorMessage.ItemAlreadyExistsInList);
-                }
-                ids.push(mapItemGroup.id);
             }
         }
     }

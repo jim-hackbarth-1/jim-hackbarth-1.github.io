@@ -13,6 +13,7 @@ export class MapItemGroup {
                 this.#mapItems.push(mapItem);
                 this.#addChangeEventListeners(mapItem);
             }
+            InputUtilities.validateIds(this.#mapItems);
         }
         this.#selectionStatus = InputUtilities.cleanseString(data?.selectionStatus);
         this.#bounds = InputUtilities.cleanseBounds(data?.bounds);
@@ -37,7 +38,7 @@ export class MapItemGroup {
             }
         }
         const changeSet = this.#getPropertyChange("mapItems", this.#getListData(this.#mapItems), this.#getListData(mapItems));
-        this.#validateUniqueIds(mapItems);
+        InputUtilities.validateIds(mapItems);
         this.#mapItems = mapItems ?? [];
         for (const mapItem of this.#mapItems) {
             this.#addChangeEventListeners(mapItem);
@@ -390,18 +391,6 @@ export class MapItemGroup {
         context.stroke(circle);
         context.fillStyle = "white";
         context.fill(circle);
-    }
-
-    #validateUniqueIds(mapItems) {
-        if (mapItems) {
-            const ids = [];
-            for (const mapItem of mapItems) {
-                if (ids.includes(mapItem.id)) {
-                    throw new Error(ErrorMessage.ItemAlreadyExistsInList);
-                }
-                ids.push(mapItem.id);
-            }
-        }
     }
 
     #getListData(list) {

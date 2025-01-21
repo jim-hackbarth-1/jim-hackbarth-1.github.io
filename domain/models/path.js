@@ -204,6 +204,7 @@ export class Path {
                 this.#clipPaths.push(clipPath);
                 this.#addChangeEventListeners(clipPath);
             }
+            InputUtilities.validateIds(this.#clipPaths);
         }
         this.#rotationAngle = InputUtilities.cleanseNumber(data?.rotationAngle);
         this.#bounds = InputUtilities.cleanseBounds(data?.bounds);
@@ -250,7 +251,7 @@ export class Path {
             }
         }
         const changeSet = this.#getPropertyChange("clipPaths", this.#getListData(this.#clipPaths), this.#getListData(clipPaths));
-        this.#validateUniqueIds(clipPaths);
+        InputUtilities.validateIds(clipPaths);
         this.#clipPaths = clipPaths ?? [];
         for (const clipPath of this.#clipPaths) {
             this.#addChangeEventListeners(clipPath);
@@ -517,18 +518,6 @@ export class Path {
 
     #getPropertyChange(propertyName, v1, v2) {
         return ChangeSet.getPropertyChange(Path.name, propertyName, v1, v2);
-    }
-
-    #validateUniqueIds(clipPaths) {
-        if (clipPaths) {
-            const ids = [];
-            for (const clipPath of clipPaths) {
-                if (ids.includes(clipPath.id)) {
-                    throw new Error(ErrorMessage.ItemAlreadyExistsInList);
-                }
-                ids.push(clipPath.id);
-            }
-        }
     }
 
     #isViewable(map, options) {

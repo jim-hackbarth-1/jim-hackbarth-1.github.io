@@ -13,6 +13,7 @@ export class MapItem {
                 this.#paths.push(path);
                 this.#addChangeEventListeners(path);
             }
+            InputUtilities.validateIds(this.#paths);
         }
         this.#mapItemTemplateRef = new EntityReference(data?.mapItemTemplateRef);
         this.#z = InputUtilities.cleanseNumber(data?.z);
@@ -42,7 +43,7 @@ export class MapItem {
             }
         }
         const changeSet = this.#getPropertyChange("paths", this.#getListData(this.#paths), this.#getListData(paths));
-        this.#validateUniqueIds(paths);
+        InputUtilities.validateIds(paths);
         this.#paths = paths ?? [];
         for (const path of this.#paths) {
             this.#addChangeEventListeners(path);
@@ -382,18 +383,6 @@ export class MapItem {
     #removeChangeEventListeners(source) {
         if (source) {
             source.removeEventListener(Change.ChangeEvent, this.#onChange);
-        }
-    }
-
-    #validateUniqueIds(paths) {
-        if (paths) {
-            const ids = [];
-            for (const path of paths) {
-                if (ids.includes(path.id)) {
-                    throw new Error(ErrorMessage.ItemAlreadyExistsInList);
-                }
-                ids.push(path.id);
-            }
         }
     }
 

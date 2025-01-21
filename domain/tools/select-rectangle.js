@@ -74,10 +74,10 @@ class SelectRectangleTool {
             }
             if (this.#selectionUtilities.activityState === "Move"
                 || this.#selectionUtilities.activityState.startsWith("Resize")) {
-                this.#selectionUtilities.startChange(this.#mapWorker, transformedPoint, "Move");
+                this.#selectionUtilities.startChange(this.#mapWorker, transformedPoint, "Move", this.#isCtrlPressed);
             }
             if (this.#selectionUtilities.activityState === "Rotate") {
-                this.#selectionUtilities.startChange(this.#mapWorker, transformedPoint, "Rotate");
+                this.#selectionUtilities.startChange(this.#mapWorker, transformedPoint, "Rotate", this.#isCtrlPressed);
             }
         }
     }
@@ -93,21 +93,21 @@ class SelectRectangleTool {
             }
             if (this.#selectionUtilities.activityState === "Move") {
                 this.#selectionUtilities.move(
-                    this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isCtrlPressed, this.#isOPressed);
+                    this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isOPressed);
                 this.#mapWorker.renderMap();
             }
             if (this.#selectionUtilities.activityState.startsWith("Resize")) {
                 this.#selectionUtilities.resize(
-                    this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isCtrlPressed, this.#isOPressed);
+                    this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isOPressed);
                 this.#mapWorker.renderMap();
-                this.#selectionUtilities.drawArcsRadii(this.#mapWorker, this.#isCtrlPressed);
+                this.#selectionUtilities.drawArcsRadii(this.#mapWorker);
             }
             if (this.#selectionUtilities.activityState === "Rotate") {
                 const point = this.#transformCanvasPoint(eventData.offsetX, eventData.offsetY);
-                this.#selectionUtilities.rotateMove(this.#mapWorker, point, this.#isShiftPressed, this.#isCtrlPressed);
+                this.#selectionUtilities.rotateMove(this.#mapWorker, point, this.#isShiftPressed);
                 this.#mapWorker.renderMap();
                 this.#selectionUtilities.drawRotationIndicator(this.#mapWorker, point);
-                this.#selectionUtilities.drawArcsRadii(this.#mapWorker, this.#isCtrlPressed);
+                this.#selectionUtilities.drawArcsRadii(this.#mapWorker);
             }          
         }
     }

@@ -79,10 +79,10 @@ class FitSelectionTool {
             }
             if (this.#selectionUtilities.activityState === "Move"
                 || this.#selectionUtilities.activityState.startsWith("Resize")) {
-                this.#selectionUtilities.startChange(this.#mapWorker, transformedPoint, "Move");
+                this.#selectionUtilities.startChange(this.#mapWorker, transformedPoint, "Move", this.#isCtrlPressed);
             }
             if (this.#selectionUtilities.activityState === "Rotate") {
-                this.#selectionUtilities.startChange(this.#mapWorker, transformedPoint, "Rotate");
+                this.#selectionUtilities.startChange(this.#mapWorker, transformedPoint, "Rotate", this.#isCtrlPressed);
             }
         }
     }
@@ -102,18 +102,18 @@ class FitSelectionTool {
             }
             if (this.#selectionUtilities.activityState === "Move") {
                 this.#selectionUtilities.move(
-                    this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isCtrlPressed, this.#isOPressed);
+                    this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isOPressed);
                 preview = true;
             }
             if (this.#selectionUtilities.activityState.startsWith("Resize")) {
                 this.#selectionUtilities.resize(
-                    this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isCtrlPressed, this.#isOPressed);
+                    this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isOPressed);
                 preview = true;
                 drawArcsRadii = true;              
             }
             if (this.#selectionUtilities.activityState === "Rotate") { 
                 rotatePoint = this.#transformCanvasPoint(eventData.offsetX, eventData.offsetY);
-                this.#selectionUtilities.rotateMove(this.#mapWorker, rotatePoint, this.#isShiftPressed, this.#isCtrlPressed);
+                this.#selectionUtilities.rotateMove(this.#mapWorker, rotatePoint, this.#isShiftPressed);
                 preview = true;
                 drawRotationIndicator = true;
                 drawArcsRadii = true;
@@ -126,7 +126,7 @@ class FitSelectionTool {
             this.#selectionUtilities.drawRotationIndicator(this.#mapWorker, rotatePoint);
         }
         if (drawArcsRadii) {
-            this.#selectionUtilities.drawArcsRadii(this.#mapWorker, this.#isCtrlPressed);
+            this.#selectionUtilities.drawArcsRadii(this.#mapWorker);
         }
     }
 
@@ -416,6 +416,7 @@ class FitSelectionTool {
         }
         if (this.#setOperationMode == "Union") {
             pathDataList = this.#mapWorker.geometryUtilities.getUnionPathDataList(path1, path2);
+            console.log(pathDataList);
         }
         if (this.#setOperationMode == "Exclude") {
             pathDataList = this.#mapWorker.geometryUtilities.getExclusionPathDataList(path1, path2);

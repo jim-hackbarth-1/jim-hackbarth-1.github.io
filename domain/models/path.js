@@ -73,20 +73,14 @@ export class ClipPath {
     }
 
     // methods
-    getData() {
+    getData(copy) {
         return {
-            id: this.#id,
+            id: copy ? crypto.randomUUID() : this.#id,
             start: this.#start,
             transits: this.#getListData(this.#transits),
             rotationAngle: this.#rotationAngle,
             bounds: this.#bounds
         };
-    }
-
-    copy() {
-        const pathData = this.getData();
-        pathData.id = crypto.randomUUID();
-        return new Path(pathData);
     }
 
     addEventListener(eventName, listener) {
@@ -208,6 +202,7 @@ export class Path {
         }
         this.#rotationAngle = InputUtilities.cleanseNumber(data?.rotationAngle);
         this.#bounds = InputUtilities.cleanseBounds(data?.bounds);
+        this.#inView = InputUtilities.cleanseBoolean(data?.inView);
         this.#eventListeners = {};
     }
 
@@ -288,14 +283,15 @@ export class Path {
     }
 
     // methods
-    getData() {
+    getData(copy) {
         return {
-            id: this.#id,
+            id: copy ? crypto.randomUUID() : this.#id,
             start: this.#start,
             transits: this.#getListData(this.#transits),
-            clipPaths: this.#getListData(this.#clipPaths),
+            clipPaths: this.#getListData(this.#clipPaths, copy),
             rotationAngle: this.#rotationAngle,
-            bounds: this.#bounds
+            bounds: this.#bounds,
+            inView: this.#inView
         };
     }
 
@@ -357,12 +353,6 @@ export class Path {
             this.#removeChangeEventListeners(deleted[0]);
             this.#onChange(changeSet, true);
         }
-    }
-
-    copy() {
-        const pathData = this.getData();
-        pathData.id = crypto.randomUUID();
-        return new Path(pathData);
     }
 
     addEventListener(eventName, listener) {
@@ -569,7 +559,7 @@ export class Path {
         }
     }
 
-    #getListData(list) {
-        return list ? list.map(x => x.getData ? x.getData() : x) : null;
+    #getListData(list, copy) {
+        return list ? list.map(x => x.getData ? x.getData(copy) : x) : null;
     }
 }

@@ -114,8 +114,9 @@ class DrawPathTool {
                 mapItemTemplateRef: this.#mapWorker.activeMapItemTemplate.ref,
                 paths: [{
                     start: start,
-                    transits: points
-                }]
+                    transits: points,
+                    inView: true
+                }],
             };
             const data = {
                 mapItems: [mapItemData]

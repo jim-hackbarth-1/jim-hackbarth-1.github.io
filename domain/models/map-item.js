@@ -145,11 +145,19 @@ export class MapItem {
         return this.#bounds;
     }
 
+    /** @type {boolean} */
+    get inView() {
+        if (this.paths.some(p => p.inView)) {
+            return true;
+        }
+        return false;
+    }
+
     // methods
-    getData() {
+    getData(copy) {
         return {
-            id: this.#id,
-            paths: this.#getListData(this.#paths),
+            id: copy ? crypto.randomUUID() : this.#id,
+            paths: this.#getListData(this.#paths, copy),
             mapItemTemplateRef: this.#mapItemTemplateRef.getData(),
             z: this.#z,
             isHidden: this.#isHidden,
@@ -386,7 +394,7 @@ export class MapItem {
         }
     }
 
-    #getListData(list) {
-        return list ? list.map(x => x.getData ? x.getData() : x) : null;
+    #getListData(list, copy) {
+        return list ? list.map(x => x.getData ? x.getData(copy) : x) : null;
     }
 }

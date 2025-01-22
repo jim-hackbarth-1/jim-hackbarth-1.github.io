@@ -175,7 +175,8 @@ class DrawEllipseTool {
                             center: { x: center.x, y: -center.y },
                             radii: { x: radii.x, y: radii.y }
                         }
-                    ]
+                    ],
+                    inView: true
                 }]
             };
             const data = {

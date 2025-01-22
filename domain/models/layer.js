@@ -45,7 +45,7 @@ export class Layer {
     /** @type {MapItemGroup[]}  */
     #mapItemGroups;
     get mapItemGroups() {
-        return this.#mapItemGroups;
+        return this.#mapItemGroups ?? [];
     }
     set mapItemGroups(mapItemGroups) {
         InputUtilities.validateIds(mapItemGroups);

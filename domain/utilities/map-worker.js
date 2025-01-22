@@ -7,9 +7,9 @@ import {
     DbManager,
     EntityReference,
     GeometryUtilities,
+    Layer,
     Map,
     MapItemGroup,
-    Overlay,
     Path,
     SelectionUtilities
 } from "../references.js";
@@ -26,8 +26,11 @@ export const MapWorkerInputMessageType = {
     SetActiveMapItemTemplate: "SetActiveMapItemTemplate",
     ClientEvent: "ClientEvent",
     CursorChanged: "CursorChanged",
+    SelectAllInView: "SelectAllInView",
+    UnSelectAll: "UnSelectAll",
     Undo: "Undo",
-    Redo: "Redo"
+    Redo: "Redo",
+    DeleteSelected: "DeleteSelected"
 };
 
 export const MapWorkerOutputMessageType = {
@@ -126,11 +129,20 @@ export class MapWorker {
                 case MapWorkerInputMessageType.CursorChanged:
                     await this.#cursorChanged(message.data.cursor);
                     break;
+                case MapWorkerInputMessageType.SelectAllInView:
+                    await this.#selectAllInView();
+                    break;
+                case MapWorkerInputMessageType.UnSelectAll:
+                    await this.#unSelectAll();
+                    break;
                 case MapWorkerInputMessageType.Undo:
                     await this.#undo();
                     break;
                 case MapWorkerInputMessageType.Redo:
                     await this.#redo();
+                    break;
+                case MapWorkerInputMessageType.DeleteSelected:
+                    await this.#deleteSelected();
                     break;
                 default:
                     throw new Error(`Unexpected worker request type: ${messageType ?? "(null)"}`);
@@ -213,18 +225,84 @@ export class MapWorker {
     }
 
     async #updateMap(changeSet) {
-        const updatedViewPort = this.map.applyChangeSet(new ChangeSet(changeSet));
-        this.renderMap({ updatedViewPort: updatedViewPort });
+        this.map.applyChangeSet(new ChangeSet(changeSet));
+        this.renderMap({ updatedViewPort: true });
+    }
+
+    async #selectAllInView() {
+        const bounds = {
+            x: -this.map.pan.x,
+            y: -this.map.pan.y,
+            width: this.canvas.width / this.map.zoom,
+            height: this.canvas.height / this.map.zoom
+        }
+        const path = new Path2D(`M ${bounds.x},${bounds.y} l ${bounds.width},0 0,${bounds.height} ${-bounds.width},0 z`);
+        const layer = this.map.getActiveLayer();
+        const oldSelections = layer.mapItemGroups
+            .filter(mig => mig.selectionStatus)
+            .map(mig => ({ mapItemGroupId: mig.id, selectionStatus: mig.selectionStatus }));
+        this.map.startChangeSet();
+        layer.selectByPath(this.renderingContext, bounds, path, false);
+        const newSelections = layer.mapItemGroups
+            .filter(mig => mig.selectionStatus)
+            .map(mig => ({ mapItemGroupId: mig.id, selectionStatus: mig.selectionStatus }));
+        const selectionUtilities = this.createSelectionUtilities();
+        const changeSet = selectionUtilities.getSelectionChangeSet(this, layer.name, oldSelections, newSelections);
+        this.map.completeChangeSet(changeSet);
+        this.renderMap();
+    }
+
+    async #unSelectAll() {
+        const layer = this.map.getActiveLayer();
+        const oldSelections = layer.mapItemGroups
+            .filter(mig => mig.selectionStatus)
+            .map(mig => ({ mapItemGroupId: mig.id, selectionStatus: mig.selectionStatus }));
+        this.map.startChangeSet();
+        layer.selectByPoints(this.renderingContext, this.map, [], false);
+        const newSelections = layer.mapItemGroups
+            .filter(mig => mig.selectionStatus)
+            .map(mig => ({ mapItemGroupId: mig.id, selectionStatus: mig.selectionStatus }));
+        const selectionUtilities = this.createSelectionUtilities();
+        const changeSet = selectionUtilities.getSelectionChangeSet(this, layer.name, oldSelections, newSelections);
+        this.map.completeChangeSet(changeSet);
+        this.renderMap();
     }
 
     async #undo() {
-        const updatedViewPort = this.map.undo();
-        this.renderMap({ updatedViewPort: updatedViewPort });
+        this.map.undo();
+        this.renderMap({ updatedViewPort: true });
     }
 
     async #redo() {
-        const updatedViewPort = this.map.redo();
-        this.renderMap({ updatedViewPort: updatedViewPort });
+        this.map.redo();
+        this.renderMap({ updatedViewPort: true });
+    }
+
+    async #deleteSelected() {
+        const layer = this.map.getActiveLayer();
+        this.map.startChangeSet();
+        const changes = [];
+        const mapItemGroupsToRemove = []
+        for (let i = 0; i < layer.mapItemGroups.length; i++) {
+            const mapItemGroup = layer.mapItemGroups[i];
+            if (mapItemGroup.selectionStatus) {
+                changes.push({
+                    changeType: ChangeType.Delete,
+                    changeObjectType: Layer.name,
+                    propertyName: "mapItemGroups",
+                    itemIndex: i,
+                    itemValue: mapItemGroup.getData(),
+                    layerName: layer.name
+                })
+                mapItemGroupsToRemove.push(mapItemGroup);
+            }
+        }
+        for (const mapItemGroup of mapItemGroupsToRemove) {
+            layer.removeMapItemGroup(mapItemGroup);
+        }
+        const changeSet = this.createChangeSet(changes);
+        this.map.completeChangeSet(changeSet);
+        this.renderMap();
     }
 
     async #setActiveTool(toolRefData) {

@@ -82,11 +82,19 @@ export class MapItemGroup {
         return this.#bounds;
     }
 
+    /** @type {boolean} */
+    get inView() {
+        if (this.mapItems.some(mi => mi.inView)) {
+            return true;
+        }
+        return false;
+    }
+
     // methods
-    getData() {
+    getData(copy) {
         return {
-            id: this.#id,
-            mapItems: this.#getListData(this.#mapItems),
+            id: copy ? crypto.randomUUID() : this.#id,
+            mapItems: this.#getListData(this.#mapItems, copy),
             selectionStatus: this.#selectionStatus,
             bounds: this.#bounds
         };
@@ -393,7 +401,7 @@ export class MapItemGroup {
         context.fill(circle);
     }
 
-    #getListData(list) {
-        return list ? list.map(x => x.getData ? x.getData() : x) : null;
+    #getListData(list, copy) {
+        return list ? list.map(x => x.getData ? x.getData(copy) : x) : null;
     }
 }

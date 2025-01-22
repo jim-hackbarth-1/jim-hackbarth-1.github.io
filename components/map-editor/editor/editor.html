@@ -249,6 +249,23 @@
         <div>
             <button onclick="#model.toggleDropdown('menu-edit')" class="dropbtn top-menu-item action-text" data-dropdown-id="menu-edit">Edit</button>
             <div id="menu-edit" class="dropdown-content surface-secondary">
+                <button id="menuEditSelectAllInView" title="Select all in view" class="action-text" onclick="#model.selectAllInView()" data-kit-add-attributes="%{#model.isSelectAllInViewDisabled()}%">
+                    <div class="button-content">
+                        <div class="icon-container">
+                            <kit-component data-kit-template-path="/resources/icons/edit-select-all-in-view.html" data-kit-model="null"></kit-component>
+                        </div>
+                        <div class="button-text">Select all in view</div>
+                    </div>
+                </button>
+                <button id="menuEditUnSelectAll" title="Unselect all" class="action-text" onclick="#model.unSelectAll()" data-kit-add-attributes="%{#model.isUnSelectAllDisabled()}%">
+                    <div class="button-content">
+                        <div class="icon-container">
+                            <kit-component data-kit-template-path="/resources/icons/edit-unselect-all.html" data-kit-model="null"></kit-component>
+                        </div>
+                        <div class="button-text">Unselect all</div>
+                    </div>
+                </button>
+                <hr />
                 <button id="menuEditUndo" title="Undo" class="action-text" onclick="#model.undo()" data-kit-add-attributes="%{#model.isUndoDisabled()}%">
                     <div class="button-content">
                         <div class="icon-container">
@@ -266,7 +283,7 @@
                     </div>
                 </button>
                 <hr />
-                <button title="Cut" class="action-text" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
+                <button id="menuEditCut" title="Cut" class="action-text" onclick="#model.cut()" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
                     <div class="button-content">
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/edit-cut.html" data-kit-model="null"></kit-component>
@@ -274,7 +291,7 @@
                         <div class="button-text">Cut</div>
                     </div>
                 </button>
-                <button title="Copy" class="action-text" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
+                <button id="menuEditCopy" title="Copy" class="action-text" onclick="#model.copy()" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
                     <div class="button-content">
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/edit-copy.html" data-kit-model="null"></kit-component>
@@ -282,7 +299,7 @@
                         <div class="button-text">Copy</div>
                     </div>
                 </button>
-                <button title="Paste" class="action-text" data-kit-add-attributes="%{#model.isPasteDisabled()}%">
+                <button id="menuEditPaste" title="Paste" class="action-text" onclick="#model.paste()" data-kit-add-attributes="%{#model.isPasteDisabled()}%">
                     <div class="button-content">
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/edit-paste.html" data-kit-model="null"></kit-component>
@@ -290,7 +307,7 @@
                         <div class="button-text">Paste</div>
                     </div>
                 </button>
-                <button title="Delete" class="action-text" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
+                <button id="menuEditDelete" title="Delete" class="action-text" onclick="#model.delete()" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
                     <div class="button-content">
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/edit-delete.html" data-kit-model="null"></kit-component>
@@ -375,6 +392,20 @@
         </div>
         <div class="toolbar-group">
             <div class="group-divider"></div>
+            <button id="buttonSelectAllInView" title="Select all in view" class="action-text" onclick="#model.selectAllInView()" data-kit-add-attributes="%{#model.isSelectAllInViewDisabled()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component data-kit-template-path="/resources/icons/edit-select-all-in-view.html" data-kit-model="null"></kit-component>
+                    </div>
+                </div>
+            </button>
+            <button id="buttonUnSelectAll" title="Unselect all" class="action-text" onclick="#model.unSelectAll()" data-kit-add-attributes="%{#model.isUnSelectAllDisabled()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component data-kit-template-path="/resources/icons/edit-unselect-all.html" data-kit-model="null"></kit-component>
+                    </div>
+                </div>
+            </button>
             <button id="buttonUndo" title="Undo" class="action-text" onclick="#model.undo()" data-kit-add-attributes="%{#model.isUndoDisabled()}%">
                 <div class="button-content">
                     <div class="icon-container">
@@ -389,28 +420,28 @@
                     </div>
                 </div>
             </button>
-            <button title="Cut" class="action-text" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
+            <button id="buttonCut" title="Cut" class="action-text" onclick="#model.cut()" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
                 <div class="button-content">
                     <div class="icon-container">
                         <kit-component data-kit-template-path="/resources/icons/edit-cut.html" data-kit-model="null"></kit-component>
                     </div>
                 </div>
             </button>
-            <button title="Copy" class="action-text" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
+            <button id="buttonCopy" title="Copy" class="action-text" onclick="#model.copy()" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
                 <div class="button-content">
                     <div class="icon-container">
                         <kit-component data-kit-template-path="/resources/icons/edit-copy.html" data-kit-model="null"></kit-component>
                     </div>
                 </div>
             </button>
-            <button title="Paste" class="action-text" data-kit-add-attributes="%{#model.isPasteDisabled()}%">
+            <button id="buttonPaste" title="Paste" class="action-text" onclick="#model.paste()" data-kit-add-attributes="%{#model.isPasteDisabled()}%">
                 <div class="button-content">
                     <div class="icon-container">
                         <kit-component data-kit-template-path="/resources/icons/edit-paste.html" data-kit-model="null"></kit-component>
                     </div>
                 </div>
             </button>
-            <button title="Delete" class="action-text" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
+            <button id="buttonDelete" title="Delete" class="action-text" onclick="#model.delete()" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
                 <div class="button-content">
                     <div class="icon-container">
                         <kit-component data-kit-template-path="/resources/icons/edit-delete.html" data-kit-model="null"></kit-component>

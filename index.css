@@ -199,6 +199,7 @@ kit-if:not([data-kit-component-id]) {
     background-color: var(--theme-color-secondary);
     color: var(--theme-color-secondary-darkest);
     border-color: var(--theme-color-secondary-darkest-fixed);
+    scrollbar-color: var(--theme-color-secondary) var(--theme-color-tertiary-secondary);
 }
 
 .surface-secondary.background {
@@ -282,6 +283,7 @@ kit-if:not([data-kit-component-id]) {
     background-color: var(--theme-color-tertiary);
     color: var(--theme-color-tertiary-darkest);
     border-color: var(--theme-color-tertiary-darkest-fixed);
+    scrollbar-color: var(--theme-color-tertiary) var(--theme-color-tertiary-lightest);
 }
 
 .surface-tertiary.background {
@@ -366,6 +368,7 @@ kit-if:not([data-kit-component-id]) {
     background-color: var(--theme-color-complementary);
     color: var(--theme-color-complementary-darkest);
     border-color: var(--theme-color-complementary-darkest-fixed);
+    scrollbar-color: var(--theme-color-complementary) var(--theme-color-tertiary-complementary);
 }
 
 .surface-complementary.background {

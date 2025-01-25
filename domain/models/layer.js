@@ -34,7 +34,7 @@ export class Layer {
     /** @type {boolean}  */
     #isHidden;
     get isHidden() {
-        return this.#name;
+        return this.#isHidden;
     }
     set isHidden(isHidden) {
         const changeSet = this.#getPropertyChange("isHidden", this.#isHidden, isHidden);

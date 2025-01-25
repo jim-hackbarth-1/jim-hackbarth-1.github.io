@@ -819,6 +819,13 @@ export class Map {
             case "activeLayer":
                 this.activeLayer = InputUtilities.cleanseString(propertyValue);
                 break;
+            case "mapItemTemplates":
+                let mapItemTemplates = [];
+                for (const mapItemTemplate of propertyValue) {
+                    mapItemTemplates.push(new MapItemTemplate(mapItemTemplate));
+                }
+                this.mapItemTemplates = mapItemTemplates;
+                break;
             case "mapItemTemplateRefs":
                 let mapItemTemplateRefs = [];
                 for (const mapItemTemplateRef of propertyValue) {
@@ -864,6 +871,9 @@ export class Map {
             case "layers":
                 this.insertLayer(new Layer(value), index);
                 break;
+            case "mapItemTemplates":
+                this.insertMapItemTemplate(new MapItemTemplate(value), index);
+                break;
             case "mapItemTemplateRefs":
                 this.insertMapItemTemplateRef(new EntityReference(value), index);
                 break;
@@ -880,6 +890,9 @@ export class Map {
         switch (propertyName) {
             case "layers":
                 this.removeLayer(new Layer(value));
+                break;
+            case "mapItemTemplates":
+                this.removeMapItemTemplate(new MapItemTemplate(value));
                 break;
             case "mapItemTemplateRefs":
                 this.removeMapItemTemplateRef(new EntityReference(value));

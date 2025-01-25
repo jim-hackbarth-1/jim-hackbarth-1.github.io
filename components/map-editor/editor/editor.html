@@ -91,6 +91,11 @@
                 margin-right: -10px;
                 display: inline-block;
             }
+
+            #divActiveLayer {
+                padding-bottom:5px;
+            }
+
             /* toolbar - end */
             /* tools - start */
             #tools-and-map {
@@ -353,6 +358,14 @@
                         <div class="button-text">Overlay ...</div>
                     </div>
                 </button>
+                <button title="Layers" class="action-text" onclick="#model.showDialog('layers-dialog-component')" data-kit-add-attributes="%{#model.isLayersDisabled()}%">
+                    <div class="button-content">
+                        <div class="icon-container">
+                            <kit-component data-kit-template-path="/resources/icons/view-layers.html" data-kit-model="null"></kit-component>
+                        </div>
+                        <div class="button-text">Layers ...</div>
+                    </div>
+                </button>
                 <hr />
                 <button title="Read-only viewer" class="action-text" data-kit-add-attributes="%{#model.isReadOnlyViewerDisabled()}%">
                     <div class="button-content">
@@ -480,6 +493,14 @@
                     </div>
                 </div>
             </button>
+            <button title="Layers" class="action-text" onclick="#model.showDialog('layers-dialog-component')" data-kit-add-attributes="%{#model.isLayersDisabled()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component data-kit-template-path="/resources/icons/view-layers.html" data-kit-model="null"></kit-component>
+                    </div>
+                    <div id="divActiveLayer">%{#model.getActiveLayerName()}%</div>
+                </div>
+            </button>
         </div>
     </div>
     <div id="tools-and-map">
@@ -585,4 +606,5 @@
     <kit-component id="zoom-dialog-component" data-kit-template-path="/components/map-editor/zoom-dialog/zoom-dialog.html"></kit-component>
     <kit-component id="canvas-size-dialog-component" data-kit-template-path="/components/map-editor/canvas-size-dialog/canvas-size-dialog.html"></kit-component>
     <kit-component id="overlay-dialog-component" data-kit-template-path="/components/map-editor/overlay-dialog/overlay-dialog.html"></kit-component>
+    <kit-component id="layers-dialog-component" data-kit-template-path="/components/map-editor/layers-dialog/layers-dialog.html"></kit-component>
 </section>

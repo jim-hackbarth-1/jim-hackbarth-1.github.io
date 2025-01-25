@@ -43,12 +43,6 @@ export class EditorModel {
         this.#subscribeToTopics();
         await this.#initializeToolsAndCanvas();
         this.#initializeMapWorker();
-        await this.#clearClipboard();
-    }
-
-    async #clearClipboard() {
-        const appWindow = KitDependencyManager.getWindow();
-        await appWindow.navigator.clipboard.writeText("");
     }
 
     onMapChanged = async (message) => {
@@ -60,7 +54,7 @@ export class EditorModel {
             const map = await MapWorkerClient.getMap();
             const canSelectAllInView = (await this.isSelectAllInViewDisabled() == "disabled") ? false : true;
             const doesMapHaveSelections = this.#doesMapHaveSelections(map);
-            const canPaste = (await this.isPasteDisabled() == "disabled") ? false : true;
+            const canPaste = map && this.#doesCopyPasteHaveData();
             this.#componentElement.querySelector("#menuEditSelectAllInView").disabled = !canSelectAllInView;
             this.#componentElement.querySelector("#buttonSelectAllInView").disabled = !canSelectAllInView;
             this.#componentElement.querySelector("#menuEditUnSelectAll").disabled = !doesMapHaveSelections;
@@ -82,7 +76,11 @@ export class EditorModel {
                     if (change.changeObjectType == Map.name) {
                         if (change.propertyName === "zoom") {
                             const zoomLabel = this.#componentElement.querySelector("#zoom-label");
-                            zoomLabel.innerHTML = parseFloat(map.zoom * 100).toFixed(0) + "%"
+                            zoomLabel.innerHTML = parseFloat(map.zoom * 100).toFixed(0) + "%";
+                        }
+                        if (change.propertyName === "activeLayer") {
+                            const divActiveLayer = this.#componentElement.querySelector("#divActiveLayer");
+                            divActiveLayer.innerHTML = map.activeLayer;
                         }
                     }
                 }
@@ -151,7 +149,7 @@ export class EditorModel {
         const map = await MapWorkerClient.getMap();
         if (map) {
             const layer = map.getActiveLayer();
-            if (layer.mapItemGroups.some(mig => mig.inView)) {
+            if (layer && layer.mapItemGroups.some(mig => mig.inView)) {
                 return null;
             }
         }
@@ -201,27 +199,46 @@ export class EditorModel {
     }
 
     async isPasteDisabled() {
-        const map = await MapWorkerClient.getMap();
-        if (map) {
-            const appWindow = KitDependencyManager.getWindow();
-            appWindow.focus();
-            const text = await appWindow.navigator.clipboard.readText();
-            if (text) {
+        const doesCopyPasteHaveData = this.#doesCopyPasteHaveData();
+        if (doesCopyPasteHaveData) {
+            const map = await MapWorkerClient.getMap();
+            if (map) {
                 return null;
             }
         }
         return "disabled";
     }
 
-    #pastesSinceLastCopy = 0;
-    async copy() {
+    #doesCopyPasteHaveData() {
         const appWindow = KitDependencyManager.getWindow();
+        let text = appWindow.sessionStorage.getItem("copy-paste-has-data");
+        return (text === true.toString());
+    }
+
+    #pastesSinceLastCopy = 0;
+    async copy() {       
         const map = await MapWorkerClient.getMap();
         if (map) {
             const layer = map.getActiveLayer();
             const mapItemGroups = layer.mapItemGroups.filter(mig => mig.selectionStatus).map(x => x.getData());
-            const text = JSON.stringify(mapItemGroups);
-            await appWindow.navigator.clipboard.writeText(text);
+            const mapItemTemplates = [];
+            for (const mapItemGroup of mapItemGroups) {
+                if (mapItemGroup.mapItems) {
+                    for (const mapItem of mapItemGroup.mapItems) {
+                        const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, mapItem.mapItemTemplateRef));
+                        if (!mapItemTemplates.some(mit => EntityReference.areEqual(mit.ref, mapItemTemplate.ref))) {
+                            mapItemTemplates.push(mapItemTemplate.getData());
+                        }
+                    }
+                }
+            }
+            const data = {
+                mapItemTemplates: mapItemTemplates,
+                mapItemGroups: mapItemGroups
+            };
+            const appWindow = KitDependencyManager.getWindow();
+            appWindow.sessionStorage.setItem("copy-paste", JSON.stringify(data));
+            appWindow.sessionStorage.setItem("copy-paste-has-data", true.toString());
             const canPaste = (await this.isPasteDisabled() == "disabled") ? false : true;
             this.#componentElement.querySelector("#menuEditPaste").disabled = !canPaste;
             this.#componentElement.querySelector("#buttonPaste").disabled = !canPaste;
@@ -235,16 +252,38 @@ export class EditorModel {
     }
 
     async paste() {
-        const map = await MapWorkerClient.getMap();
+        const copyPasteHasData = this.#doesCopyPasteHaveData();
+        let map = null;
+        if (copyPasteHasData) {
+            map = await MapWorkerClient.getMap();
+        }
         if (map) {
             const appWindow = KitDependencyManager.getWindow();
-            const text = await appWindow.navigator.clipboard.readText();
+            const text = appWindow.sessionStorage.getItem("copy-paste");
             if (text) {
-                let mapItemGroupsData = JSON.parse(text);
+                const data = JSON.parse(text);
+                this.#updateMapItemTemplateDataToPaste(map, data);
+                const changes = [];
+                for (const mapItemTemplate of data.mapItemTemplates) {
+                    changes.push({
+                        changeType: ChangeType.Insert,
+                        changeObjectType: Map.name,
+                        propertyName: "mapItemTemplateRefs",
+                        itemIndex: map.mapItemTemplateRefs.length,
+                        itemValue: mapItemTemplate.ref
+                    });
+                    changes.push({
+                        changeType: ChangeType.Insert,
+                        changeObjectType: Map.name,
+                        propertyName: "mapItemTemplates",
+                        itemIndex: map.mapItemTemplates.length,
+                        itemValue: mapItemTemplate
+                    });
+                }
                 const mapItemGroups = [];
                 this.#pastesSinceLastCopy++;
                 const offset = (this.#pastesSinceLastCopy) * 15;
-                for (const mapItemGroupData of mapItemGroupsData) {
+                for (const mapItemGroupData of data.mapItemGroups) {
                     mapItemGroupData.selectionStatus = null;
                     mapItemGroupData.bounds = null;
                     if (mapItemGroupData.mapItems) {
@@ -267,14 +306,16 @@ export class EditorModel {
                     mapItemGroups.push(new MapItemGroup(mapItemGroupData));
                 }
                 const layer = map.getActiveLayer();
-                const changes = mapItemGroups.map(mig => ({
-                    changeType: ChangeType.Insert,
-                    changeObjectType: Layer.name,
-                    propertyName: "mapItemGroups",
-                    itemIndex: layer.mapItemGroups.length,
-                    itemValue: mig.getData(true),
-                    layerName: layer.name
-                }));
+                for (const mapItemGroup of mapItemGroups) {
+                    changes.push({
+                        changeType: ChangeType.Insert,
+                        changeObjectType: Layer.name,
+                        propertyName: "mapItemGroups",
+                        itemIndex: layer.mapItemGroups.length,
+                        itemValue: mapItemGroup.getData(true),
+                        layerName: layer.name
+                    })
+                }
                 MapWorkerClient.postWorkerMessage({
                     messageType: MapWorkerInputMessageType.UpdateMap,
                     changeSet: { changes: changes }
@@ -282,6 +323,29 @@ export class EditorModel {
             }
         }
     } 
+
+    #updateMapItemTemplateDataToPaste(map, data) {
+        const templatesOut = [];
+        for (const mapItemTemplate of data.mapItemTemplates) {
+            if (!map.mapItemTemplateRefs.some(ref => EntityReference.areEqual(ref, mapItemTemplate.ref))) {
+                const templateOut = mapItemTemplate;
+                const notFromTemplateRef = { ...mapItemTemplate.ref };
+                notFromTemplateRef.isFromTemplate = false;
+                if (map.mapItemTemplateRefs.some(ref => EntityReference.areEqual(ref, notFromTemplateRef))) {
+                    for (const mapItemGroup of data.mapItemGroups) {
+                        for (const mapItem of mapItemGroup.mapItems) {
+                            if (EntityReference.areEqual(mapItemTemplate.ref, mapItem.mapItemTemplateRef)) {
+                                mapItem.mapItemTemplateRef.isFromTemplate = false;
+                            }
+                        }
+                    }
+                    templateOut.ref.isFromTemplate = false;
+                }
+                templatesOut.push(templateOut);
+            }  
+        }
+        data.mapItemTemplates = templatesOut;
+    }
 
     async delete() {
         MapWorkerClient.postWorkerMessage({ messageType: MapWorkerInputMessageType.DeleteSelected });
@@ -300,6 +364,22 @@ export class EditorModel {
     async isOverlayDisabled() {
         const map = await MapWorkerClient.getMap();
         return map ? null : "disabled";
+    }
+
+    async isLayersDisabled() {
+        const map = await MapWorkerClient.getMap();
+        return map ? null : "disabled";
+    }
+
+    async getActiveLayerName() {
+        const map = await MapWorkerClient.getMap();
+        if (map) {
+            const layer = map.getActiveLayer();
+            if (layer) {
+                return layer.name ?? "";
+            }
+        }
+        return "";
     }
 
     async isReadOnlyViewerDisabled() {
@@ -541,6 +621,17 @@ export class EditorModel {
 
     async #openMap(mapData, template) {
 
+        // ensure one active layer
+        if (!mapData.layers) {
+            mapData.layers = [];
+        }
+        if (mapData.layers.length == 0) {
+            mapData.layers.push({ name: "Layer 1" });
+        }
+        if (!mapData.activeLayer) {
+            mapData.activeLayer = mapData.layers[0].name;
+        }
+
         // get map item templates
         if (!mapData.mapItemTemplateRefs) {
             mapData.mapItemTemplateRefs = [];
@@ -675,7 +766,7 @@ export class EditorModel {
     #doesMapHaveSelections(map) {
         if (map) {
             const layer = map.getActiveLayer();
-            if (layer.mapItemGroups.some(mig => mig.selectionStatus)) {
+            if (layer && layer.mapItemGroups.some(mig => mig.selectionStatus)) {
                 return true;
             }
         }

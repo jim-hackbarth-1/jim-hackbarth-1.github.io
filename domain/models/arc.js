@@ -118,80 +118,14 @@ export class Arc {
         });
     }
 
-    static resizeArc(arc, scaleX, scaleY, resizeDirection) {
-
-        // find radii endpoints
-        const theta = arc.rotationAngle * (Math.PI / 180);
-        const rxp1 = { x: arc.center.x + arc.radii.x * Math.cos(theta), y: arc.center.y + arc.radii.x * Math.sin(theta) };
-        const rxp2 = { x: arc.center.x + -arc.radii.x * Math.cos(theta), y: arc.center.y + -arc.radii.x * Math.sin(theta) };
-        const ryp1 = { x: arc.center.x + arc.radii.y * Math.sin(theta), y: arc.center.y + -arc.radii.y * Math.cos(theta) };
-        const ryp2 = { x: arc.center.x + -arc.radii.y * Math.sin(theta), y: arc.center.y + arc.radii.y * Math.cos(theta) };
-
-        // find radius to scale
-        let xResize = arc.center.x;
-        if (resizeDirection.endsWith("E")) {
-            xResize = Math.max(...[rxp1.x, rxp2.x, ryp1.x, ryp2.x]);
-        }
-        if (resizeDirection.endsWith("W")) {
-            xResize = Math.min(...[rxp1.x, rxp2.x, ryp1.x, ryp2.x]);
-        }
-        let yResize = arc.center.y;
-        if (resizeDirection.startsWith("N")) {
-            yResize = Math.min(...[rxp1.y, rxp2.y, ryp1.y, ryp2.y]);
-        }
-        if (resizeDirection.startsWith("S")) {
-            yResize = Math.max(...[rxp1.y, rxp2.y, ryp1.y, ryp2.y]);
-        }
-        let radius = "x";
-        let closestEndpoint = rxp1;
-        let d = (rxp1.x - xResize) ** 2 + (rxp1.y - yResize) ** 2;
-        let testD = (rxp2.x - xResize) ** 2 + (rxp2.y - yResize) ** 2;
-        if (testD < d) {
-            d = testD;
-            closestEndpoint = rxp2;
-        }
-        testD = (ryp1.x - xResize) ** 2 + (ryp1.y - yResize) ** 2;
-        if (testD < d) {
-            d = testD;
-            closestEndpoint = ryp1;
-            radius = "y";
-        }
-        testD = (ryp2.x - xResize) ** 2 + (ryp2.y - yResize) ** 2;
-        if (testD < d) {
-            d = testD;
-            closestEndpoint = ryp2;
-            radius = "y";
-        }
-
-        // calculate angle of rotation
-        let dx = Math.abs(closestEndpoint.x - arc.center.x) * scaleX;
-        let dy = Math.abs(closestEndpoint.y - arc.center.y) * scaleY;
-        if ((arc.rotationAngle > 90 && arc.rotationAngle < 180) || (arc.rotationAngle > 270)) {
-            dx = Math.abs(closestEndpoint.y - arc.center.y) * scaleY;
-            dy = Math.abs(closestEndpoint.x - arc.center.x) * scaleX;
-        }
-        let newTheta = 0;
-        if (radius == "x" && dx != 0) {
-            newTheta = Math.atan(dy / dx);
-        }
-        if (radius == "y" && dy != 0) {
-            newTheta = Math.atan(dx / dy);
-        }
-        newTheta = newTheta % (Math.PI * 2);
-        if (arc.rotationAngle > 90 && arc.rotationAngle < 180) {
-            newTheta += (Math.PI / 2);
-        }
-        if (arc.rotationAngle > 180 && arc.rotationAngle < 270) {
-            newTheta += Math.PI;
-        }
-        if (arc.rotationAngle > 270) {
-            newTheta += (3 * Math.PI / 2);
-        }
-        const newRotation = newTheta * (180 / Math.PI);
+    static resizeArc(arc, scaleX, scaleY) {
 
         // calculate scale considering rotation
-        let scaleXWithRotation = Math.sqrt(((scaleX * Math.cos(newTheta)) ** 2) + ((scaleY * Math.sin(newTheta)) ** 2));
-        let scaleYWithRotation = Math.sqrt(((scaleX * Math.sin(newTheta)) ** 2) + ((scaleY * Math.cos(newTheta)) ** 2));
+        const theta = arc.rotationAngle * (Math.PI / 180);
+        const cos = Math.cos(theta);
+        const sin = Math.sin(theta);
+        let scaleXWithRotation = Math.sqrt(((scaleX * cos) ** 2) + ((scaleY * sin) ** 2));
+        let scaleYWithRotation = Math.sqrt(((scaleX * sin) ** 2) + ((scaleY * cos) ** 2));
         const newRadii = { x: arc.radii.x * scaleXWithRotation, y: arc.radii.y * scaleYWithRotation };
 
         // get start and end points relative to center
@@ -199,10 +133,12 @@ export class Arc {
         const endFromCenter = { x: arc.end.x - arc.center.x, y: arc.end.y - arc.center.y };
 
         // get unrotated start and end points
-        let xStartUnrotated = startFromCenter.x * Math.cos(-theta) - startFromCenter.y * Math.sin(-theta);
-        let yStartUnrotated = startFromCenter.x * Math.sin(-theta) + startFromCenter.y * Math.cos(-theta);
-        let xEndUnrotated = endFromCenter.x * Math.cos(-theta) - endFromCenter.y * Math.sin(-theta);
-        let yEndUnrotated = endFromCenter.x * Math.sin(-theta) + endFromCenter.y * Math.cos(-theta);
+        const cosNeg = Math.cos(-theta);
+        const sinNeg = Math.sin(-theta);
+        let xStartUnrotated = startFromCenter.x * cosNeg - startFromCenter.y * sinNeg;
+        let yStartUnrotated = startFromCenter.x * sinNeg + startFromCenter.y * cosNeg;
+        let xEndUnrotated = endFromCenter.x * cosNeg - endFromCenter.y * sinNeg;
+        let yEndUnrotated = endFromCenter.x * sinNeg + endFromCenter.y * cosNeg;
 
         // scale unrotated start and end points
         xStartUnrotated = xStartUnrotated * scaleXWithRotation;
@@ -211,10 +147,10 @@ export class Arc {
         yEndUnrotated = yEndUnrotated * scaleYWithRotation;
 
         // apply rotation
-        let newXStart = xStartUnrotated * Math.cos(-newTheta) + yStartUnrotated * Math.sin(-newTheta);
-        let newYStart = -xStartUnrotated * Math.sin(-newTheta) + yStartUnrotated * Math.cos(-newTheta);
-        let newXEnd = xEndUnrotated * Math.cos(-newTheta) + yEndUnrotated * Math.sin(-newTheta);
-        let newYEnd = -xEndUnrotated * Math.sin(-newTheta) + yEndUnrotated * Math.cos(-newTheta);
+        let newXStart = xStartUnrotated * cosNeg + yStartUnrotated * sinNeg;
+        let newYStart = -xStartUnrotated * sinNeg + yStartUnrotated * cosNeg;
+        let newXEnd = xEndUnrotated * cosNeg + yEndUnrotated * sinNeg;
+        let newYEnd = -xEndUnrotated * sinNeg + yEndUnrotated * cosNeg;
 
         // get new end relative to start
         const translateX = startFromCenter.x - newXStart;
@@ -229,7 +165,7 @@ export class Arc {
             end: newEnd,
             center: newCenter,
             radii: newRadii,
-            rotationAngle: newRotation,
+            rotationAngle: arc.rotationAngle,
             largeArcFlag: arc.largeArcFlag,
             sweepFlag: arc.sweepFlag
         });

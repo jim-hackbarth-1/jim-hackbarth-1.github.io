@@ -179,8 +179,8 @@ export class MapWorker {
         return Arc.rotateArc(arc, angleRadians);
     }
 
-    resizeArc(arc, scaleX, scaleY, resizeDirection) {
-        return Arc.resizeArc(arc, scaleX, scaleY, resizeDirection);
+    resizeArc(arc, scaleX, scaleY) {
+        return Arc.resizeArc(arc, scaleX, scaleY);
     }
 
     createChangeSet(changes) {

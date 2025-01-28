@@ -73,6 +73,7 @@
             .show {
                 display: block;
             }
+
             /* menu - end */
             /* toolbar - start */
             #toolbar {
@@ -259,7 +260,7 @@
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/edit-select-all-in-view.html" data-kit-model="null"></kit-component>
                         </div>
-                        <div class="button-text">Select all in view</div>
+                        <div class="button-text">Select all in view (Ctrl+A)</div>
                     </div>
                 </button>
                 <button id="menuEditUnSelectAll" title="Unselect all" class="action-text" onclick="#model.unSelectAll()" data-kit-add-attributes="%{#model.isUnSelectAllDisabled()}%">
@@ -267,7 +268,7 @@
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/edit-unselect-all.html" data-kit-model="null"></kit-component>
                         </div>
-                        <div class="button-text">Unselect all</div>
+                        <div class="button-text">Unselect all (Ctrl+Alt+A)</div>
                     </div>
                 </button>
                 <hr />
@@ -276,7 +277,7 @@
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/edit-undo.html" data-kit-model="null"></kit-component>
                         </div>
-                        <div class="button-text">Undo</div>
+                        <div class="button-text">Undo (Ctrl+Z)</div>
                     </div>
                 </button>
                 <button id="menuEditRedo" title="Redo" class="action-text" onclick="#model.redo()" data-kit-add-attributes="%{#model.isRedoDisabled()}%">
@@ -284,7 +285,7 @@
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/edit-redo.html" data-kit-model="null"></kit-component>
                         </div>
-                        <div class="button-text">Redo</div>
+                        <div class="button-text">Redo (Ctrl+Y)</div>
                     </div>
                 </button>
                 <hr />
@@ -293,7 +294,7 @@
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/edit-cut.html" data-kit-model="null"></kit-component>
                         </div>
-                        <div class="button-text">Cut</div>
+                        <div class="button-text">Cut (Ctrl+X)</div>
                     </div>
                 </button>
                 <button id="menuEditCopy" title="Copy" class="action-text" onclick="#model.copy()" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
@@ -301,7 +302,7 @@
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/edit-copy.html" data-kit-model="null"></kit-component>
                         </div>
-                        <div class="button-text">Copy</div>
+                        <div class="button-text">Copy (Ctrl+C)</div>
                     </div>
                 </button>
                 <button id="menuEditPaste" title="Paste" class="action-text" onclick="#model.paste()" data-kit-add-attributes="%{#model.isPasteDisabled()}%">
@@ -309,7 +310,7 @@
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/edit-paste.html" data-kit-model="null"></kit-component>
                         </div>
-                        <div class="button-text">Paste</div>
+                        <div class="button-text">Paste (Ctrl+P)</div>
                     </div>
                 </button>
                 <button id="menuEditDelete" title="Delete" class="action-text" onclick="#model.delete()" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
@@ -317,7 +318,7 @@
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/edit-delete.html" data-kit-model="null"></kit-component>
                         </div>
-                        <div class="button-text">Delete</div>
+                        <div class="button-text">Delete (Del)</div>
                     </div>
                 </button>
                 <hr />

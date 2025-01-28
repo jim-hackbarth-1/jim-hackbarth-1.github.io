@@ -40,6 +40,7 @@ export class EditorModel {
     async onRenderComplete() {
         this.#componentElement = KitRenderer.getComponentElement(this.#componentId);
         this.#initializeMenu();
+        this.#initializeKeyEvents();
         this.#subscribeToTopics();
         await this.#initializeToolsAndCanvas();
         this.#initializeMapWorker();
@@ -559,21 +560,78 @@ export class EditorModel {
     }
 
     // helpers
+    static #clickHandlerRegistered;
     #initializeMenu() {
+        if (!EditorModel.#clickHandlerRegistered) {
+            const appDocument = KitDependencyManager.getDocument();
+            appDocument.addEventListener("click", (event) => this.#handleClickEvent(event));
+            EditorModel.#clickHandlerRegistered = true;
+        }
+    }
+
+    #handleClickEvent(event) {
         const appDocument = KitDependencyManager.getDocument();
-        appDocument.addEventListener('click', (event) => {
-            const dropDownId = event.target.getAttribute("data-dropdown-id");
-            const dropdowns = appDocument.getElementsByClassName("dropdown-content");
-            var i;
-            for (i = 0; i < dropdowns.length; i++) {
-                if (dropdowns[i].id != dropDownId) {
-                    var openDropdown = dropdowns[i];
-                    if (openDropdown.classList.contains('show')) {
-                        openDropdown.classList.remove('show');
-                    }
+        const dropDownId = event.target.getAttribute("data-dropdown-id");
+        const dropdowns = appDocument.getElementsByClassName("dropdown-content");
+        var i;
+        for (i = 0; i < dropdowns.length; i++) {
+            if (dropdowns[i].id != dropDownId) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
                 }
             }
-        });
+        }
+    }
+
+    static #keyDownHandlerRegistered;
+    #initializeKeyEvents() {
+        if (!EditorModel.#keyDownHandlerRegistered) {
+            const appDocument = KitDependencyManager.getDocument();
+            appDocument.addEventListener("keydown", async (event) => await this.#handleKeyDownEvent(event));
+            EditorModel.#keyDownHandlerRegistered = true;
+        }
+    }
+
+    async #handleKeyDownEvent(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (event.repeat) {
+            return;
+        }
+        const map = await MapWorkerClient.getMap();
+        const mapHasSelections = this.#doesMapHaveSelections(map);
+        if (event.key?.toLowerCase() == "a" && event.ctrlKey) {
+            if (event.altKey) {
+                if (mapHasSelections) {
+                    await this.unSelectAll();
+                }
+            }
+            else {
+                const canSelectAllInView = (await this.isSelectAllInViewDisabled() == "disabled") ? false : true;
+                if (canSelectAllInView) {
+                    await this.selectAllInView();
+                }
+            }
+        }
+        if (event.key?.toLowerCase() == "z" && event.ctrlKey && map && map.canUndo()) {
+            await this.undo();
+        }
+        if (event.key?.toLowerCase() == "y" && event.ctrlKey && map && map.canRedo()) {
+            await this.redo();
+        }
+        if (event.key?.toLowerCase() == "x" && event.ctrlKey && mapHasSelections) {
+            await this.cut();
+        }
+        if (event.key?.toLowerCase() == "c" && event.ctrlKey && mapHasSelections) {
+            await this.copy();
+        }
+        if (event.key?.toLowerCase() == "v" && event.ctrlKey && map && this.#doesCopyPasteHaveData()) {
+            await this.paste();
+        }
+        if (event.key == "Delete" && mapHasSelections) {
+            await this.delete();
+        }
     }
 
     #subscribeToTopics() {

@@ -160,22 +160,28 @@ class DrawEllipseTool {
             const xRadius = Math.abs((this.#xCurrent - this.#xStart) / 2);
             const yRadius = Math.abs((this.#yCurrent - this.#yStart) / 2);
             const radii = this.#mapWorker.geometryUtilities.transformPoint({ x: xRadius, y: yRadius }, scale);
+            const transits = [
+                {
+                    end: { x: end.x, y: end.y },
+                    center: { x: center.x, y: center.y },
+                    radii: { x: radii.x, y: radii.y }
+                },
+                {
+                    end: { x: end.x, y: -end.y },
+                    center: { x: center.x, y: -center.y },
+                    radii: { x: radii.x, y: radii.y }
+                }
+            ];
+            const bounds = this.#mapWorker.geometryUtilities.getPathBounds(start, transits);
+            if (bounds.height < 5 || bounds.width < 5) {
+                this.#mapWorker.renderMap();
+                return;
+            }
             const mapItemData = {
                 mapItemTemplateRef: this.#mapWorker.activeMapItemTemplate.ref,
                 paths: [{
                     start: start,
-                    transits: [
-                        {
-                            end: { x: end.x, y: end.y },
-                            center: { x: center.x, y: center.y },
-                            radii: { x: radii.x, y: radii.y }
-                        },
-                        {
-                            end: { x: end.x, y: -end.y },
-                            center: { x: center.x, y: -center.y },
-                            radii: { x: radii.x, y: radii.y }
-                        }
-                    ],
+                    transits: transits,
                     inView: true
                 }]
             };
@@ -183,9 +189,7 @@ class DrawEllipseTool {
                 mapItems: [mapItemData]
             };
             const mapItemGroup = this.#mapWorker.createMapItemGroup(data);
-            if (mapItemGroup.bounds.width > 5 && mapItemGroup.bounds.height > 5) {
-                this.#mapWorker.map.getActiveLayer().addMapItemGroup(mapItemGroup);
-            }
+            this.#mapWorker.map.getActiveLayer().addMapItemGroup(mapItemGroup);
         }
         this.#mapWorker.renderMap();
     }

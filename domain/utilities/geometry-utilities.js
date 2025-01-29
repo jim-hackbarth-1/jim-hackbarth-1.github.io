@@ -56,7 +56,7 @@ export class GeometryUtilities {
         };
     }
 
-    getSegmentSegmentIntersection(segment1, segment2) {
+    getSegmentSegmentIntersections(segment1, segment2) {
         const x1 = segment1.point1.x;
         const y1 = segment1.point1.y;
         const x2 = segment1.point2.x;
@@ -68,30 +68,43 @@ export class GeometryUtilities {
 
         // check cases where one or both segments are points
         if (x1 === x2 && y1 === y2 && x3 === x4 && y3 === y4) {
-            return (x1 === x3 && y1 === y3) ? segment1.point1 : null;
+            return (x1 === x3 && y1 === y3) ? [segment1.point1] : [];
         }
         if (x1 === x2 && y1 === y2) {
-            return this.isPointOnSegment(segment1.point1, segment2) ? segment1.point1 : null;
+            return this.isPointOnSegment(segment1.point1, segment2) ? [segment1.point1] : [];
         }
         if (x3 === x4 && y3 === y4) {
-            return this.isPointOnSegment(segment2.point1, segment1) ? segment2.point1 : null;
+            return this.isPointOnSegment(segment2.point1, segment1) ? [segment2.point1] : [];
         }
 
         // check for parallel segments
         const denominator = ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
         if (denominator === 0) {
-            return null;
+            const intersections = [];
+            if (this.isPointOnSegment(segment1.point1, segment2)) {
+                intersections.push(segment1.point1);
+            }
+            if (this.isPointOnSegment(segment1.point2, segment2)) {
+                intersections.push(segment1.point2);
+            }
+            if (this.isPointOnSegment(segment2.point1, segment1)) {
+                intersections.push(segment2.point1);
+            }
+            if (this.isPointOnSegment(segment2.point2, segment1)) {
+                intersections.push(segment2.point2);
+            }
+            return intersections;
         }
 
         // check segment bounds
         const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denominator;
         const ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denominator;
         if (ua < 0 || ua > 1 || ub < 0 || ub > 1) {
-            return null;
+            return [];
         }
 
         // return intersection
-        return { x: x1 + ua * (x2 - x1), y: y1 + ua * (y2 - y1) };
+        return [{ x: x1 + ua * (x2 - x1), y: y1 + ua * (y2 - y1) }];
     }
 
     getSegmentArcIntersections(segment, arcStart, arc) {
@@ -285,8 +298,7 @@ export class GeometryUtilities {
                     point1: transit2Start,
                     point2: { x: transit2Start.x + transit2.x, y: transit2Start.y + transit2.y }
                 };
-                const intersection = this.getSegmentSegmentIntersection(segment1, segment2);
-                return intersection ? [intersection] : [];
+                return this.getSegmentSegmentIntersections(segment1, segment2);
             }
         }
     }
@@ -299,7 +311,10 @@ export class GeometryUtilities {
         const transitBounds = this.getTransitBounds(transitStart, transit);
         let start2 = path.start;
         const transits = [...path.transits];
-        transits.push(this.#getPathClosingTransit(path));
+        const closingTransit = this.#getPathClosingTransit(path);
+        if (closingTransit) {
+            transits.push(closingTransit);
+        }
         for (const pathTransit of transits) {
             if (this.doesTransitIntersectBounds(start2, pathTransit, transitBounds)) {
                 const transitIntersections = this.getTransitTransitIntersections(transitStart, transit, start2, pathTransit);
@@ -327,7 +342,10 @@ export class GeometryUtilities {
         const path2Bounds = this.getPathBounds(path2.start, path2.transits); // path2.bounds;
         let transitStart = path1.start;
         const transits = [...path1.transits];
-        transits.push(this.#getPathClosingTransit(path1));
+        const closingTransit = this.#getPathClosingTransit(path1);
+        if (closingTransit) {
+            transits.push(closingTransit);
+        }
         for (const transit of transits) {
             const transitIntersections = this.getTransitPathIntersections(transitStart, transit, path2Bounds, path2);
             for (const intersection of transitIntersections) {
@@ -414,7 +432,7 @@ export class GeometryUtilities {
     }
 
     getArcBounds(start, arc) {
-        const radians = arc.rotationAngle * (Math.PI / 180);
+        const radians = (arc.rotationAngle ?? 0) * (Math.PI / 180);
         const rx = arc.radii.x;
         const ry = arc.radii.y;
         const cos = Math.cos(radians);
@@ -777,7 +795,11 @@ export class GeometryUtilities {
         for (const transit of path.transits) {
             end = this.#getTransitEndPoint(end, transit);
         }
-        return { x: path.start.x - end.x, y: path.start.y - end.y };
+        const transit = { x: path.start.x - end.x, y: path.start.y - end.y };
+        if (transit.x > 0 || transit.y > 0) {
+            return transit;
+        }
+        return null;
     }
 
     #getTransitEndPoint(start, transit) {
@@ -823,7 +845,10 @@ export class GeometryUtilities {
         let checkIfInPath = true;
         let inPath2 = false;
         const transits = [...path1.transits];
-        transits.push(this.#getPathClosingTransit(path1));
+        const closingTransit = this.#getPathClosingTransit(path1);
+        if (closingTransit) {
+            transits.push(closingTransit);
+        }
         for (const transit of transits) {
             let subTransits = this.#getTransitPathIntersectionTransits(start, transit, path2Bounds, path2);
             if (subTransits.length > 0) {

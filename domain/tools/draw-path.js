@@ -110,6 +110,11 @@ class DrawPathTool {
             const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
             const start = this.#mapWorker.geometryUtilities.transformPoint({ x: this.#xStart, y: this.#yStart }, scale, translation);
             const points = this.#points.map(pt => this.#mapWorker.geometryUtilities.transformPoint(pt, scale));
+            const bounds = this.#mapWorker.geometryUtilities.getPathBounds(start, points);
+            if (bounds.height < 5 || bounds.width < 5) {
+                this.#mapWorker.renderMap();
+                return;
+            }
             const mapItemData = {
                 mapItemTemplateRef: this.#mapWorker.activeMapItemTemplate.ref,
                 paths: [{
@@ -122,9 +127,7 @@ class DrawPathTool {
                 mapItems: [mapItemData]
             };
             const mapItemGroup = this.#mapWorker.createMapItemGroup(data);
-            if (mapItemGroup.bounds.width > 5 && mapItemGroup.bounds.height > 5) {
-                this.#mapWorker.map.getActiveLayer().addMapItemGroup(mapItemGroup);
-            }
+            this.#mapWorker.map.getActiveLayer().addMapItemGroup(mapItemGroup);
         }
         this.#mapWorker.renderMap();
     }

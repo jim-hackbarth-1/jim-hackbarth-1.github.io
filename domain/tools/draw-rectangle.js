@@ -143,16 +143,22 @@ class DrawRectangleTool {
         if (this.#mapWorker.map && this.#mapWorker.activeMapItemTemplate) {
             const start = this.#transformCanvasPoint(this.#xStart, this.#yStart);
             const end = this.#transformCanvasPoint(this.#xCurrent, this.#yCurrent);
+            const transits = [
+                { x: end.x - start.x, y: 0 },
+                { x: 0, y: end.y - start.y },
+                { x: start.x - end.x, y: 0 },
+                { x: 0, y: start.y - end.y }
+            ];
+            const bounds = this.#mapWorker.geometryUtilities.getPathBounds(start, transits);
+            if (bounds.height < 5 || bounds.width < 5) {
+                this.#mapWorker.renderMap();
+                return;
+            }
             const mapItemData = {
                 mapItemTemplateRef: this.#mapWorker.activeMapItemTemplate.ref,
                 paths: [{
                     start: start,
-                    transits: [
-                        { x: end.x - start.x, y: 0 },
-                        { x: 0, y: end.y - start.y },
-                        { x: start.x - end.x, y: 0 },
-                        { x: 0, y: start.x - end.x }
-                    ],
+                    transits: transits,
                     inView: true
                 }]
             };
@@ -160,9 +166,7 @@ class DrawRectangleTool {
                 mapItems: [mapItemData]
             };
             const mapItemGroup = this.#mapWorker.createMapItemGroup(data);
-            if (mapItemGroup.bounds.width > 5 && mapItemGroup.bounds.height > 5) {
-                this.#mapWorker.map.getActiveLayer().addMapItemGroup(mapItemGroup);
-            }
+            this.#mapWorker.map.getActiveLayer().addMapItemGroup(mapItemGroup);
         }
         this.#mapWorker.renderMap();
     }

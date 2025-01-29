@@ -169,19 +169,25 @@ class DrawArcTool {
             if (end.x < 0 && end.y < 0) {
                 sweepFlag = 1;
             }
+            const transits = [
+                {
+                    end: end,
+                    center: { x: 0, y: end.y },
+                    radii: radii,
+                    sweepFlag: sweepFlag
+                },
+                { x: -end.x, y: 0 }
+            ];
+            const bounds = this.#mapWorker.geometryUtilities.getPathBounds(start, transits);
+            if (bounds.height < 5 || bounds.width < 5) {
+                this.#mapWorker.renderMap();
+                return;
+            }
             const mapItemData = {
                 mapItemTemplateRef: this.#mapWorker.activeMapItemTemplate.ref,
                 paths: [{
                     start: start,
-                    transits: [
-                        {
-                            end: end,
-                            center: { x: 0, y: end.y },
-                            radii: radii,
-                            sweepFlag: sweepFlag
-                        },
-                        { x: -end.x, y: 0 }
-                    ],
+                    transits: transits,
                     inView: true
                 }]
             };
@@ -189,9 +195,7 @@ class DrawArcTool {
                 mapItems: [mapItemData]
             };
             const mapItemGroup = this.#mapWorker.createMapItemGroup(data);
-            if (mapItemGroup.bounds.width > 5 && mapItemGroup.bounds.height > 5) {
-                this.#mapWorker.map.getActiveLayer().addMapItemGroup(mapItemGroup);
-            }
+            this.#mapWorker.map.getActiveLayer().addMapItemGroup(mapItemGroup);
         }
         this.#mapWorker.renderMap();
     }

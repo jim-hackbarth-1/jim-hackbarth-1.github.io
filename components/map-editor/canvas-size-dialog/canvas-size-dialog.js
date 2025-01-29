@@ -23,15 +23,20 @@ class CanvasSizeDialogModel {
         componentElement.querySelector("#inputWidth").value = currentCanvasSize.width;
         const dialog = componentElement.querySelector("dialog");
         dialog.showModal();
-        dialog.addEventListener('click', function (event) {
-            var rect = dialog.getBoundingClientRect();
-            var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
-                rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
-            if (!isInDialog) {
-                dialog.close();
-            }
-        });
+        if (!this.#clickHandlerRegistered) {
+            dialog.addEventListener('click', function (event) {
+                var rect = dialog.getBoundingClientRect();
+                var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
+                    rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
+                if (!isInDialog) {
+                    dialog.close();
+                }
+            });
+            this.#clickHandlerRegistered = true;
+        }
     }
+
+    #clickHandlerRegistered;
 
     async onSizeChange() {
         this.#updateCanvasSize();

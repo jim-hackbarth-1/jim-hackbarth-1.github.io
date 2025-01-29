@@ -122,7 +122,9 @@ class DrawPathTool {
                 mapItems: [mapItemData]
             };
             const mapItemGroup = this.#mapWorker.createMapItemGroup(data);
-            this.#mapWorker.map.getActiveLayer().addMapItemGroup(mapItemGroup);
+            if (mapItemGroup.bounds.width > 5 && mapItemGroup.bounds.height > 5) {
+                this.#mapWorker.map.getActiveLayer().addMapItemGroup(mapItemGroup);
+            }
         }
         this.#mapWorker.renderMap();
     }

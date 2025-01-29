@@ -108,12 +108,17 @@ export class SelectionUtilities {
                     }
                 }
                 const boundsInfo = this.#getSelectionBoundsInfoForPointAndBoundsType(point, activityState);
-                this.changeReferenceBounds = {
-                    mapItemGroupId: boundsInfo.mapItemGroupId,
-                    bounds: boundsInfo.selectionBounds.move
+                if (boundsInfo) {
+                    this.changeReferenceBounds = {
+                        mapItemGroupId: boundsInfo.mapItemGroupId,
+                        bounds: boundsInfo.selectionBounds.move
+                    }
+                }
+                else {
+                    this.changeReferenceBounds = null;
                 }
                 if (useSingleSelectionMode) {
-                    this.selectionStartData = this.selectionStartData.filter(ssd => ssd.mapItemGroupId == boundsInfo.mapItemGroupId);
+                    this.selectionStartData = this.selectionStartData.filter(ssd => ssd.mapItemGroupId == boundsInfo?.mapItemGroupId);
                 }
             }
         }
@@ -324,6 +329,9 @@ export class SelectionUtilities {
     }
 
     resize(mapWorker, startPoint, endPoint, useLockMode, snapToOverlay) {
+        if (!this.changeReferenceBounds) {
+            return;
+        }
         if (this.activityState === ActivityState.ResizeSE) {
             this.#resizeSEMove(mapWorker, startPoint, endPoint, useLockMode, snapToOverlay);
         }
@@ -352,6 +360,9 @@ export class SelectionUtilities {
 
     rotateMove(mapWorker, currentPoint, useLockMode) {
         const referenceBounds = this.changeReferenceBounds;
+        if (!referenceBounds) {
+            return;
+        }
         const referenceCenterOfRotation = {
             x: referenceBounds.bounds.x + (referenceBounds.bounds.width / 2),
             y: referenceBounds.bounds.y + (referenceBounds.bounds.height / 2)
@@ -427,6 +438,9 @@ export class SelectionUtilities {
 
     drawRotationIndicator(mapWorker, currentPoint) {
         const referenceBounds = this.changeReferenceBounds;
+        if (!referenceBounds) {
+            return;
+        }
         const centerOfRotation = {
             x: referenceBounds.bounds.x + (referenceBounds.bounds.width / 2),
             y: referenceBounds.bounds.y + (referenceBounds.bounds.height / 2)

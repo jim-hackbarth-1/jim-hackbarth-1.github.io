@@ -20,18 +20,20 @@ class LayersDialogModel {
         await this.#reRenderDialog();
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         const dialog = componentElement.querySelector("dialog");
-        dialog.showModal();
-        
-        dialog.addEventListener('click', function (event) {
-            var rect = dialog.getBoundingClientRect();
-            var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
-                rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
-            if (!isInDialog) {
-                dialog.close();
-            }
-        });
-        
+        dialog.showModal();  
+        if (!this.#clickHandlerRegistered) {
+            dialog.addEventListener('click', function (event) {
+                var rect = dialog.getBoundingClientRect();
+                var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
+                    rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
+                if (!isInDialog) {
+                    dialog.close();
+                }
+            });
+        }
     }
+
+    #clickHandlerRegistered;
 
     #isVisible;
     isVisible() {

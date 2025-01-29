@@ -1,9 +1,9 @@
 ﻿
 export function createToolModel() {
-    return new DrawEllipseTool();
+    return new DrawArcTool();
 }
 
-class DrawEllipseTool {
+class DrawArcTool {
 
     // fields
     #mapWorker;
@@ -102,7 +102,7 @@ class DrawEllipseTool {
             point = this.#transformMapPoint(mapPoint.x, mapPoint.y);
         }
         this.#setCurrentPoint(point);
-        this.#drawEllipse();
+        this.#drawArc();
     }
 
     #setCurrentPoint(point) {
@@ -121,60 +121,66 @@ class DrawEllipseTool {
         }
     }
 
-    async #drawEnd() {   
+    async #drawEnd() {
         this.#isDrawing = false;
         await this.#addMapItemGroup();
     }
 
-    #drawEllipse() {
+    #drawArc() {
         this.#mapWorker.renderMap();
         this.#mapWorker.renderingContext.restore();
         this.#mapWorker.renderingContext.resetTransform();
         const rect = new Path2D(`M ${this.#xStart},${this.#yStart} L ${this.#xStart},${this.#yCurrent} ${this.#xCurrent},${this.#yCurrent} ${this.#xCurrent},${this.#yStart} z`);
-        const xStart = (this.#xCurrent + this.#xStart) / 2;
-        const yStart = this.#yStart;
-        const xRadius = Math.abs((this.#xCurrent - this.#xStart) / 2);
-        const yRadius = Math.abs((this.#yCurrent - this.#yStart) / 2);
-        const end = (this.#yCurrent < this.#yStart) ? -2 : 2;
-        const ellipse = new Path2D(`M ${xStart},${yStart} a ${xRadius} ${yRadius} 0 0 0 0 ${end * yRadius} a ${xRadius} ${yRadius} 0 0 0 0 ${-end * yRadius} z`);
+        const xRadius = Math.abs(this.#xCurrent - this.#xStart);
+        const yRadius = Math.abs(this.#yCurrent - this.#yStart);
+        let sweepFlag = 0;
+        let end = { x: this.#xCurrent - this.#xStart, y: this.#yCurrent - this.#yStart };
+        if (this.#xStart < this.#xCurrent && this.#yStart < this.#yCurrent) {
+            sweepFlag = 1;
+        }
+        if (this.#xStart > this.#xCurrent && this.#yStart > this.#yCurrent) {
+            sweepFlag = 1;
+        }
+        const arc = new Path2D(`M ${this.#xStart},${this.#yStart} a ${xRadius} ${yRadius} 0 0 ${sweepFlag} ${end.x} ${end.y} l ${-end.x},0 0,${-end.y} z`);
         this.#mapWorker.renderingContext.strokeStyle = "darkgray";
         this.#mapWorker.renderingContext.lineWidth = 1;
         this.#mapWorker.renderingContext.stroke(rect);
         this.#mapWorker.renderingContext.lineWidth = 3;
-        this.#mapWorker.renderingContext.stroke(ellipse);
+        this.#mapWorker.renderingContext.stroke(arc);
         this.#mapWorker.renderingContext.strokeStyle = "white";
         this.#mapWorker.renderingContext.lineWidth = 1;
-        this.#mapWorker.renderingContext.stroke(ellipse);        
+        this.#mapWorker.renderingContext.stroke(arc);
     }
 
     async #addMapItemGroup() {
         if (this.#mapWorker.map && this.#mapWorker.activeMapItemTemplate) {
             const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
             const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
-            const xStart = (this.#xCurrent + this.#xStart) / 2;
-            const yStart = this.#yStart;
-            const start = this.#mapWorker.geometryUtilities.transformPoint({ x: xStart, y: yStart }, scale, translation);
-            const yEnd = this.#yCurrent - this.#yStart;
-            const end = this.#mapWorker.geometryUtilities.transformPoint({ x: 0, y: (yEnd) }, scale);
-            const center = this.#mapWorker.geometryUtilities.transformPoint({ x: 0, y: yEnd / 2 }, scale);
-            const xRadius = Math.abs((this.#xCurrent - this.#xStart) / 2);
-            const yRadius = Math.abs((this.#yCurrent - this.#yStart) / 2);
-            const radii = this.#mapWorker.geometryUtilities.transformPoint({ x: xRadius, y: yRadius }, scale);
+            const start = this.#mapWorker.geometryUtilities.transformPoint(
+                { x: this.#xStart, y: this.#yStart }, scale, translation);
+            const end = this.#mapWorker.geometryUtilities.transformPoint(
+                { x: this.#xCurrent - this.#xStart, y: this.#yCurrent - this.#yStart }, scale);
+            const radii = this.#mapWorker.geometryUtilities.transformPoint(
+                { x: Math.abs(this.#xCurrent - this.#xStart), y: Math.abs(this.#yCurrent - this.#yStart) }, scale);
+            let sweepFlag = 0;
+            if (end.x > 0 && end.y > 0) {
+                sweepFlag = 1;
+            }
+            if (end.x < 0 && end.y < 0) {
+                sweepFlag = 1;
+            }
             const mapItemData = {
                 mapItemTemplateRef: this.#mapWorker.activeMapItemTemplate.ref,
                 paths: [{
                     start: start,
                     transits: [
                         {
-                            end: { x: end.x, y: end.y },
-                            center: { x: center.x, y: center.y },
-                            radii: { x: radii.x, y: radii.y }
+                            end: end,
+                            center: { x: 0, y: end.y },
+                            radii: radii,
+                            sweepFlag: sweepFlag
                         },
-                        {
-                            end: { x: end.x, y: -end.y },
-                            center: { x: center.x, y: -center.y },
-                            radii: { x: radii.x, y: radii.y }
-                        }
+                        { x: -end.x, y: 0 }
                     ],
                     inView: true
                 }]

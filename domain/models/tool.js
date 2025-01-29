@@ -13,6 +13,7 @@ export class BuiltInTools {
 
     static async getTools(baseUrl) {
         const selectCursorSrc = '<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g stroke="black" stroke-width="4" fill="white"><path d="M 5,5 L 80,80 A 5 5 -45 0 0 90 70 L 35,15 z" /></g></svg>';
+        const drawCursorSrc = '<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g stroke="white" stroke-width="4" fill="black"><path d="M 5,5 L 80,80 A 5 5 -45 0 0 90 70 L 35,15 z" /></g></svg>';
         if (!BuiltInTools.#tools) {
             BuiltInTools.#tools = [];
 
@@ -85,11 +86,37 @@ export class BuiltInTools {
                 ref: {
                     versionId: 1,
                     isBuiltIn: true,
+                    name: "Draw point"
+                },
+                moduleSrc: `${baseUrl}/domain/tools/draw-point.js`,
+                thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><g class="icon-text"><path d="M 15,15 L 65,65 A 2.5 2.5 -45 0 0 70 60 L 35,25 z" /></g></svg>',
+                cursorSrc: drawCursorSrc,
+                cursorHotspot: { x: 0, y: 0 },
+                toolType: ToolType.DrawingTool
+            }));
+
+            BuiltInTools.#tools.push(new Tool({
+                ref: {
+                    versionId: 1,
+                    isBuiltIn: true,
                     name: "Draw path"
                 },
                 moduleSrc: `${baseUrl}/domain/tools/draw-path.js`,
                 thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><g class="icon"><path d="M 50,5 Q 15 5, 10 15 T 20 40 T 20 60 T 20 80 T 50 85 T 80 80 T 90 45 T 55 20 z" /><path class="icon-text" d="M 15,15 L 65,65 A 2.5 2.5 -45 0 0 70 60 L 35,25 z" /></g></svg>',
-                cursorSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g stroke="white" stroke-width="4" fill="black"><path d="M 5,5 L 80,80 A 5 5 -45 0 0 90 70 L 35,15 z" /></g></svg>',
+                cursorSrc: drawCursorSrc,
+                cursorHotspot: { x: 0, y: 0 },
+                toolType: ToolType.DrawingTool
+            }));
+
+            BuiltInTools.#tools.push(new Tool({
+                ref: {
+                    versionId: 1,
+                    isBuiltIn: true,
+                    name: "Draw rectangle"
+                },
+                moduleSrc: `${baseUrl}/domain/tools/draw-rectangle.js`,
+                thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><g class="icon"><path d="M 15,15 l 40,0 0,50 -40,0 z" /><path class="icon-text" d="M 15,15 L 65,65 A 2.5 2.5 -45 0 0 70 60 L 35,25 z" /></g></svg>',
+                cursorSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g stroke="white" stroke-width="2" fill="black"><path d="M 70 10 l 20,0 0,20 -20,0 z" /><path d="M 5,5 L 80,80 A 5 5 -45 0 0 90 70 L 35,15 z" /></g></svg>',
                 cursorHotspot: { x: 0, y: 0 },
                 toolType: ToolType.DrawingTool
             }));
@@ -103,6 +130,19 @@ export class BuiltInTools {
                 moduleSrc: `${baseUrl}/domain/tools/draw-ellipse.js`,
                 thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><g class="icon"><path d="M 30 15 a 25 25 0 0 0 0 50 a 25 25 0 0 0 0 -50 z" /><path class="icon-text" d="M 15,20 L 65,70 A 2.5 2.5 -45 0 0 70 65 L 35,30 z" /></g></svg>',
                 cursorSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g stroke="white" stroke-width="4" fill="black"><path d="M 80 20 a 10 10 0 0 0 0 20 a 10 10 0 0 0 0 -20 z" /><path d="M 5,5 L 80,80 A 5 5 -45 0 0 90 70 L 35,15 z" /></g></svg>',
+                cursorHotspot: { x: 0, y: 0 },
+                toolType: ToolType.DrawingTool
+            }));
+
+            BuiltInTools.#tools.push(new Tool({
+                ref: {
+                    versionId: 1,
+                    isBuiltIn: true,
+                    name: "Draw arc"
+                },
+                moduleSrc: `${baseUrl}/domain/tools/draw-arc.js`,
+                thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><g class="icon"><path d="M 30 15 a 25 25 0 0 0 0 50" /><path class="icon-text" d="M 15,20 L 65,70 A 2.5 2.5 -45 0 0 70 65 L 35,30 z" /></g></svg>',
+                cursorSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g><path stroke="black" stroke-width="2" fill="none" d="M 80 20 a 10 10 0 0 0 0 20" /><path stroke="white" stroke-width="2" fill="black" d="M 5,5 L 80,80 A 5 5 -45 0 0 90 70 L 35,15 z" /></g></svg>',
                 cursorHotspot: { x: 0, y: 0 },
                 toolType: ToolType.DrawingTool
             }));

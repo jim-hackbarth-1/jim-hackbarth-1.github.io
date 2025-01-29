@@ -653,13 +653,22 @@ export class EditorModel {
             toolsElement.classList.remove("has-map");
             mapContainerElement.classList.remove("has-map");
         }
-        toolsElement.addEventListener("mouseleave", (event) => this.#slideTools());
-        toolsElement.addEventListener("mouseenter", (event) => this.#slideTools(true));
+        if (!EditorModel.#mouseLeaveHandlerRegistered) {
+            toolsElement.addEventListener("mouseleave", (event) => this.#slideTools());
+            EditorModel.#mouseLeaveHandlerRegistered = true;
+        }
+        if (!EditorModel.#mouseEnterHandlerRegistered) {
+            toolsElement.addEventListener("mouseenter", (event) => this.#slideTools(true));
+            EditorModel.#mouseEnterHandlerRegistered = true;
+        }
         if (map) {
             this.#toolsPinned = false;
             this.toggleToolsPinned();
         }
     }
+
+    static #mouseLeaveHandlerRegistered;
+    static #mouseEnterHandlerRegistered;
 
     #initializeMapWorker() {
         const appDocument = KitDependencyManager.getDocument();

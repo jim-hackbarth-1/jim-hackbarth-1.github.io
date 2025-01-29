@@ -39,12 +39,24 @@ export class DebugConsole {
 
     constructor() {
         const appWindow = KitDependencyManager.getWindow();
-        appWindow.addEventListener("error", (event) => {
-            this.error(`Uncaught ${event.error.message}\n ${event.error.stack}`, true);
-        });
-        appWindow.addEventListener("unhandledrejection", (event) => {
-            this.error(`Uncaught (in promise) ${event.reason.message}\n ${event.reason.stack}`, true);
-        });
+        if (!DebugConsole.#errorHandlerRegistered) {
+            appWindow.addEventListener("error", (event) => this.#handleError(event));
+            DebugConsole.#errorHandlerRegistered = true;
+        }
+        if (!DebugConsole.#promiseRejectionHandlerRegistered) {
+            appWindow.addEventListener("unhandledrejection", (event) => this.#handlePromiseRejection(event));
+            DebugConsole.#promiseRejectionHandlerRegistered = true;
+        }
+    }
+
+    static #errorHandlerRegistered;
+    #handleError(event) {
+        this.error(`Uncaught ${event.error.message}\n ${event.error.stack}`, true);
+    }
+
+    static #promiseRejectionHandlerRegistered;
+    #handlePromiseRejection(event) {
+        this.error(`Uncaught (in promise) ${event.reason.message}\n ${event.reason.stack}`, true);
     }
 
     log(data) {

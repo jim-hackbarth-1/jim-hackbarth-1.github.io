@@ -11,7 +11,8 @@ import {
     Map,
     MapItemGroup,
     Path,
-    SelectionUtilities
+    SelectionUtilities,
+    SetUtilities
 } from "../references.js";
 
 /**
@@ -101,6 +102,14 @@ export class MapWorker {
             this.#geometryUtilities = new GeometryUtilities();
         }
         return this.#geometryUtilities;
+    }
+
+    #setUtilities;
+    get setUtilities() {
+        if (!this.#setUtilities) {
+            this.#setUtilities = new SetUtilities();
+        }
+        return this.#setUtilities;
     }
 
     // methods

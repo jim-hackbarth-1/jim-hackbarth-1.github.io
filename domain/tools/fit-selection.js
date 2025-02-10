@@ -332,36 +332,36 @@ class FitSelectionTool {
     #previewSetOperation() {
         this.#mapWorker.renderMap();
 
-        // get secondary selection path(s)
+        // get primary paths
         const layer = this.#mapWorker.map.getActiveLayer();
+        const primaryPaths = [];
+        const primarySelections = layer.mapItemGroups.filter(mi => mi.selectionStatus == "Primary");
+        for (const mapItemGroup of primarySelections) {
+            for (const mapItem of mapItemGroup.mapItems) {
+                for (const path of mapItem.paths) {
+                    primaryPaths.push(path.getData());
+                }
+            }
+        }
+
+        // get secondary selection path(s)  
         const secondaryPaths = [];
         const secondarySelections = layer.mapItemGroups.filter(mi => mi.selectionStatus == "Secondary");
         for (const mapItemGroup of secondarySelections) {
             for (const mapItem of mapItemGroup.mapItems) {
                 for (const path of mapItem.paths) {
-                    secondaryPaths.push(path);
+                    secondaryPaths.push(path.getData());
                 }
             }
         }
 
-        // display set operation paths
-        const primarySelections = layer.mapItemGroups.filter(mi => mi.selectionStatus == "Primary");
-        for (const mapItemGroup of primarySelections) {
-            for (const mapItem of mapItemGroup.mapItems) {
-                for (const primaryPath of mapItem.paths) {
-                    for (const secondaryPath of secondaryPaths) {
-                        const setOperationPaths = this.#getSetOperationPaths(primaryPath, secondaryPath);
-                        for (const setOperationPath of setOperationPaths) {
-                            this.#displayPath(setOperationPath);
-                            for (const clipPath of setOperationPath.clipPaths) {
-                                this.#displayPath(clipPath);
-                            }
-                        }
-                        if (setOperationPaths.length > 0) {
-                            break;
-                        }
-                    }
-                }
+        // preview set operation
+        const setOperationPaths = this.#getSetOperationPaths(primaryPaths, secondaryPaths);
+        for (const setOperationPath of setOperationPaths) {
+            const path = this.#mapWorker.createPath(setOperationPath);
+            this.#displayPath(path);
+            for (const clipPath of path.clipPaths) {
+                this.#displayPath(clipPath);
             }
         }
     }
@@ -385,18 +385,11 @@ class FitSelectionTool {
         let mapItemPaths = [];
         for (const mapItemGroup of primarySelections) {
             for (const mapItem of mapItemGroup.mapItems) {
+                const primaryPaths = mapItem.paths.map(p => p.getData());
+                const setOperationPaths = this.#getSetOperationPaths(primaryPaths, secondaryPaths);
                 mapItemPaths = [];
-                for (const primaryPath of mapItem.paths) {
-                    for (const secondaryPath of secondaryPaths) {
-                        const setOperationPaths = this.#getSetOperationPaths(primaryPath, secondaryPath);
-                        for (const setOperationPath of setOperationPaths) {
-                            this.#mapWorker.geometryUtilities.removeExteriorClipPaths(setOperationPath);
-                            mapItemPaths.push(setOperationPath);
-                        }
-                        if (setOperationPaths.length > 0) {
-                            break;
-                        }
-                    }
+                for (const setOperationPath of setOperationPaths) {
+                    mapItemPaths.push(this.#mapWorker.createPath(setOperationPath));
                 }
                 if (mapItemPaths.length > 0) {
                     mapItem.paths = mapItemPaths;
@@ -406,105 +399,17 @@ class FitSelectionTool {
         this.#mapWorker.renderMap();
     }
 
-    #getSetOperationPaths(path1, path2) {
-        let pathDataList = [];
-        let clipPaths = [];
-        if (this.#setOperationMode == "Intersect") {
-            pathDataList = this.#mapWorker.geometryUtilities.getIntersectionPathDataList(path1, path2);
-        }
+    #getSetOperationPaths(primaryPaths, secondaryPaths) {
         if (this.#setOperationMode == "Union") {
-            pathDataList = this.#mapWorker.geometryUtilities.getUnionPathDataList(path1, path2);
-            pathDataList = this.#setNewClipPaths(pathDataList);
-            for (const clipPath of path1.clipPaths) {
-                if (this.#isPath1CompletelyOutsideOfPath2(clipPath, path2)) {
-                    clipPaths.push(clipPath.getData());
-                }
-            }
-            for (const clipPath of path2.clipPaths) {
-                if (this.#isPath1CompletelyOutsideOfPath2(clipPath, path1)) {
-                    clipPaths.push(clipPath.getData());
-                }
-            }
-            for (const pathData of pathDataList) {
-                if (pathData.clipPaths) {
-                    for (const clipPath of pathData.clipPaths) {
-                        clipPaths.push(clipPath);
-                    }
-                } 
-            } 
+            return this.#mapWorker.setUtilities.getUnionAll(primaryPaths, secondaryPaths);
+        }
+        if (this.#setOperationMode == "Intersect") {
+            return this.#mapWorker.setUtilities.getIntersectionAll(primaryPaths, secondaryPaths);
         }
         if (this.#setOperationMode == "Exclude") {
-            pathDataList = this.#mapWorker.geometryUtilities.getExclusionPathDataList(path1, path2);
-            for (const pathData of pathDataList) {
-                clipPaths = this.#getListData(pathData.clipPaths);
-            }
-            for (const clipPath of path1.clipPaths) {
-                if (this.#isPath1CompletelyOutsideOfPath2(clipPath, path2)) {
-                    clipPaths.push(clipPath.getData());
-                }
-            }
-            for (const pathData of pathDataList) {
-                if (pathData.clipPaths) {
-                    for (const clipPath of pathData.clipPaths) {
-                        if (this.#isPath1CompletelyOutsideOfPath2(clipPath, path2)) {
-                            clipPaths.push(clipPath);
-                        }
-                    }
-                } 
-            } 
+            return this.#mapWorker.setUtilities.getExclusionAll(primaryPaths, secondaryPaths);
         }
-        for (const pathData of pathDataList) {
-            pathData.clipPaths = clipPaths;
-        } 
-        const paths = [];
-        for (const pathData of pathDataList) {
-            paths.push(this.#mapWorker.createPath(pathData));
-        }
-        return paths;
-    }
-
-    #setNewClipPaths(pathDataList) {
-        if (pathDataList) {
-            for (let i = 0; i < pathDataList.length; i++) {
-                for (let j = 0; j < pathDataList.length; j++) {
-                    if (i != j) {
-                        if (this.#isPath1ContainedInPath2(pathDataList[i], pathDataList[j])) {
-                            if (!pathDataList[j].clipPaths) {
-                                pathDataList[j].clipPaths = [];
-                            }
-                            pathDataList[j].clipPaths.push(pathDataList[i]);
-                            pathDataList[i].isClipPath = true;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        return pathDataList.filter(p => !p.isClipPath);
-    }
-
-    #isPath1ContainedInPath2(path1, path2) {
-        const path2Bounds = this.#mapWorker.geometryUtilities.getPathBounds(path2.start, path2.transits);
-        const isStartInPath = this.#mapWorker.geometryUtilities.isPointInPath(path1.start, path2Bounds, path2);
-        if (isStartInPath) {
-            const intersections = this.#mapWorker.geometryUtilities.getPathPathIntersections(path1, path2);
-            if (intersections.length == 0) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    #isPath1CompletelyOutsideOfPath2(path1, path2) {
-        const path2Bounds = this.#mapWorker.geometryUtilities.getPathBounds(path2.start, path2.transits);
-        const isStartInPath = this.#mapWorker.geometryUtilities.isPointInPath(path1.start, path2Bounds, path2);
-        if (!isStartInPath) {
-            const intersections = this.#mapWorker.geometryUtilities.getPathPathIntersections(path1, path2);
-            if (intersections.length == 0) {
-                return true;
-            }
-        }
-        return false;
+        return [];
     }
 
     #displayPath(path) {
@@ -535,9 +440,5 @@ class FitSelectionTool {
             this.#selectionUtilities.moveIncrement(this.#mapWorker, dx, dy, this.#isCtrlPressed);
             this.#previewSetOperation();
         }
-    }
-
-    #getListData(list) {
-        return list ? list.map(x => x.getData ? x.getData() : x) : null;
     }
 }

@@ -236,7 +236,7 @@ export class GeometryUtilities {
             - ellipse1Coefficients.d * d * f;
         let quarticRoots = this.#getPolynomialRoots([quartC1, quartC2, quartC3, quartC4, quartC5]);
         quarticRoots = ComplexNumber.removeDuplicates(quarticRoots, 0.0001);
-        quarticRoots = ComplexNumber.removeImaginary(quarticRoots, 0.0001);
+        quarticRoots = ComplexNumber.removeImaginary(quarticRoots, 0.0001);      
         const ellipseIntersections = [];
         for (const quarticRoot of quarticRoots) {
             const denominator = b * quarticRoot.real + d;
@@ -311,8 +311,8 @@ export class GeometryUtilities {
         const transitBounds = this.getTransitBounds(transitStart, transit);
         let start2 = path.start;
         const transits = [...path.transits];
-        const closingTransit = this.#getPathClosingTransit(path);
-        if (closingTransit) {
+        const closingTransit = this.getPathClosingTransit(path);
+        if (Math.abs(closingTransit.x) > 2 || Math.abs(closingTransit.y) > 2) {
             transits.push(closingTransit);
         }
         for (const pathTransit of transits) {
@@ -339,11 +339,11 @@ export class GeometryUtilities {
 
     getPathPathIntersections(path1, path2) {
         const intersections = [];
-        const path2Bounds = this.getPathBounds(path2.start, path2.transits); // path2.bounds;
+        const path2Bounds = this.getPathBounds(path2.start, path2.transits);
         let transitStart = path1.start;
         const transits = [...path1.transits];
-        const closingTransit = this.#getPathClosingTransit(path1);
-        if (closingTransit) {
+        const closingTransit = this.getPathClosingTransit(path1);
+        if (Math.abs(closingTransit.x) > 2 || Math.abs(closingTransit.y) > 2) {
             transits.push(closingTransit);
         }
         for (const transit of transits) {
@@ -354,53 +354,9 @@ export class GeometryUtilities {
                     intersections.push(intersection);
                 }
             }
-            transitStart = this.#getTransitEndPoint(transitStart, transit);
+            transitStart = this.getTransitEndPoint(transitStart, transit);
         }
         return intersections;
-    }
-
-    getIntersectionPathDataList(path1, path2) {
-        let fragments = this.#getIntersectionPathFragments(path1, path2);
-        fragments = fragments.filter((f) => f.inPath2);
-        let path2Fragments = this.#getIntersectionPathFragments(path2, path1);
-        path2Fragments = path2Fragments.filter((f) => f.inPath2);
-        for (const fragment of path2Fragments) {
-            fragments.push(fragment);
-        }
-        return this.#getPathDataListFromFragments(fragments);
-    }
-
-    getUnionPathDataList(path1, path2) {
-        const path1Fragments = this.#getIntersectionPathFragments(path1, path2);
-        const path2Fragments = this.#getIntersectionPathFragments(path2, path1);
-        const fragments = [];
-        for (const fragment of path1Fragments) {
-            if (!fragment.inPath2) {
-                fragments.push(fragment);
-            }
-        }
-        for (const fragment of path2Fragments) {
-            if (!fragment.inPath2) {
-                fragments.push(fragment);
-            }
-        }
-        const commonFragments = this.#findCommonFragments(path1Fragments, path2Fragments);
-        for (const fragment of commonFragments) {
-            fragments.push(fragment);
-        }
-        return this.#getPathDataListFromFragments(fragments);
-    }
-
-    getExclusionPathDataList(path1, path2) {
-        let fragments = this.#getIntersectionPathFragments(path1, path2);
-        fragments = fragments.filter((f) => !f.inPath2);
-        let path2Fragments = this.#getIntersectionPathFragments(path2, path1);
-        path2Fragments = path2Fragments.filter((f) => f.inPath2);
-        for (const fragment of path2Fragments) {
-            fragments.push(fragment);
-        }
-        const pathDataList = this.#getPathDataListFromFragments(fragments);
-        return this.#convertExcludedInteriorPathsToClipPaths(pathDataList);
     }
 
     removeExteriorClipPaths(path) {
@@ -520,7 +476,7 @@ export class GeometryUtilities {
         return { x: xMin, y: yMin, width: xMax - xMin, height: yMax - yMin };
     }
 
-    isPointInPath(point, pathBounds, path, offsetCheck) {
+    isPointInPath(point, pathBounds, path) {
         if (!this.isPointInBounds(point, pathBounds)) {
             return false;
         }
@@ -531,12 +487,18 @@ export class GeometryUtilities {
         if (topRayIntersections.length == 0) {
             return false;
         }
+        if (topRayIntersections.some(pt => this.arePointsEqual(point, pt))) {
+            return true;
+        }
 
         const bottomRayPoint = { x: point.x, y: pathBounds.y + pathBounds.height + 5 };
         transit = { x: bottomRayPoint.x - point.x, y: bottomRayPoint.y - point.y };
         const bottomRayIntersections = this.getTransitPathIntersections(point, transit, pathBounds, path);
         if (bottomRayIntersections.length == 0) {
             return false;
+        }
+        if (bottomRayIntersections.some(pt => this.arePointsEqual(point, pt))) {
+            return true;
         }
 
         const leftRayPoint = { x: pathBounds.x - 5, y: point.y };
@@ -545,12 +507,18 @@ export class GeometryUtilities {
         if (leftRayIntersections.length == 0) {
             return false;
         }
+        if (leftRayIntersections.some(pt => this.arePointsEqual(point, pt))) {
+            return true;
+        }
 
         const rightRayPoint = { x: pathBounds.x + pathBounds.width + 5, y: point.y };
         transit = { x: rightRayPoint.x - point.x, y: rightRayPoint.y - point.y };
         const rightRayIntersections = this.getTransitPathIntersections(point, transit, pathBounds, path);
         if (rightRayIntersections.length == 0) {
             return false;
+        }
+        if (rightRayIntersections.some(pt => this.arePointsEqual(point, pt))) {
+            return true;
         }
 
         if (topRayIntersections.length == 1
@@ -559,23 +527,15 @@ export class GeometryUtilities {
             && rightRayIntersections.length == 1) {
             return true;
         }
-
-        let isInPath = false;
-        if (offsetCheck) {
-            isInPath = this.#evenOddIntersectionTest([topRayIntersections, bottomRayIntersections, leftRayIntersections, bottomRayIntersections]);
-        }
-        else {
-            const offsetPoint = { x: point.x + 2, y: point.y + 2 };
-            isInPath = this.isPointInPath(offsetPoint, pathBounds, path, true);
-        }
+        const isInPath = this.#evenOddIntersectionTest([topRayIntersections, bottomRayIntersections, leftRayIntersections, rightRayIntersections]);
         return isInPath;
     }
 
     isEllipsePointOnArc(point, arcStart, arc) {
         const center = { x: arcStart.x + arc.center.x, y: arcStart.y + arc.center.y };      
-        let startAngle = this.#getPointAngle(arcStart, center);
-        let endAngle = this.#getPointAngle({ x: arcStart.x + arc.end.x, y: arcStart.y + arc.end.y }, center);
-        let pointAngle = this.#getPointAngle(point, center);
+        let startAngle = this.getPointAngle(arcStart, center);
+        let endAngle = this.getPointAngle({ x: arcStart.x + arc.end.x, y: arcStart.y + arc.end.y }, center);
+        let pointAngle = this.getPointAngle(point, center);
         endAngle -= startAngle;
         if (endAngle < 0) {
             endAngle += 360;
@@ -619,7 +579,57 @@ export class GeometryUtilities {
         return false;
     }
 
+    getPointAngle(point, center) {
+        const pointQuadrant = this.#getQuadrant(point, center);
+        let pointAngle = Math.PI / 2;
+        if (center.y < point.y) {
+            pointAngle = -pointAngle;
+        }
+        if (point.x != center.x) {
+            pointAngle = Math.atan((point.y - center.y) / (point.x - center.x));
+        }
+        if (pointQuadrant === 1 || pointQuadrant == 4) {
+            pointAngle = Math.PI * 2 - pointAngle;
+        }
+        else {
+            pointAngle = Math.PI - pointAngle;
+        }
+        pointAngle = pointAngle * 180 / Math.PI;
+        pointAngle = pointAngle % 360;
+        return pointAngle;
+    }
+
+    arePointsEqual(point1, point2, maxDifference) {
+        if (!maxDifference) {
+            maxDifference = 2;
+        }
+        return (Math.abs(point1.x - point2.x) <= maxDifference) && (Math.abs(point1.y - point2.y) <= maxDifference)
+    }
+
+    getTransitEndPoint(start, transit) {
+        if (transit.radii) {
+            return { x: start.x + transit.end.x, y: start.y + transit.end.y };
+        }
+        else {
+            return { x: start.x + transit.x, y: start.y + transit.y };
+        }
+    }
+
+    getPathClosingTransit(pathInfo) {
+        let end = pathInfo.start;
+        for (const transit of pathInfo.transits) {
+            end = this.getTransitEndPoint(end, transit);
+        }
+        return { x: pathInfo.start.x - end.x, y: pathInfo.start.y - end.y };
+    }
+
     // helpers
+    #getQuadrant(point, center) {
+        return (point.x <= center.x)
+            ? (point.y <= center.y) ? 2 : 3
+            : (point.y <= center.y) ? 1 : 4;
+    }
+
     #getPointAngleToOrigin(point) {
         if (point.x === 0) {
             return (point.y > 0) ? 90 : 270;
@@ -790,459 +800,6 @@ export class GeometryUtilities {
         return roots;
     }
 
-    #getPathClosingTransit(path) {
-        let end = path.start;
-        for (const transit of path.transits) {
-            end = this.#getTransitEndPoint(end, transit);
-        }
-        const transit = { x: path.start.x - end.x, y: path.start.y - end.y };
-        if (transit.x > 0 || transit.y > 0) {
-            return transit;
-        }
-        return null;
-    }
-
-    #getTransitEndPoint(start, transit) {
-        if (transit.radii) {
-            return { x: start.x + transit.end.x, y: start.y + transit.end.y };
-        }
-        else {
-            return { x: start.x + transit.x, y: start.y + transit.y };
-        }
-    }
-
-    #getIntersectionPathFragments(path1, path2) {
-        const transitInfoList = this.#getIntersectionTransitInfo(path1, path2);
-        let fragments = [];
-        let currentFragment = null;
-        let end = null;
-        for (const transitInfo of transitInfoList) {
-            if (currentFragment?.inPath2 != transitInfo.inPath2) {
-                if (currentFragment) {
-                    currentFragment.end = end;
-                    fragments.push(currentFragment);
-                }
-                currentFragment = {
-                    start: transitInfo.start,
-                    transitInfoList: [],
-                    inPath2: transitInfo.inPath2
-                }
-            }
-            currentFragment.transitInfoList.push(transitInfo);
-            end = transitInfo.end;
-        }
-        if (currentFragment) {
-            currentFragment.end = end
-            fragments.push(currentFragment);
-        }
-        return fragments;
-    }
-
-    #getIntersectionTransitInfo(path1, path2) {
-        const transitInfoList = [];
-        let start = path1.start;
-        const path2Bounds = this.getPathBounds(path2.start, path2.transits); // path2.bounds;
-        let checkIfInPath = true;
-        let inPath2 = false;
-        const transits = [...path1.transits];
-        const closingTransit = this.#getPathClosingTransit(path1);
-        if (closingTransit) {
-            transits.push(closingTransit);
-        }
-        for (const transit of transits) {
-            let subTransits = this.#getTransitPathIntersectionTransits(start, transit, path2Bounds, path2);
-            if (subTransits.length > 0) {
-                for (const subTransit of subTransits) {
-                    transitInfoList.push({
-                        start: subTransit.start,
-                        end: subTransit.end,
-                        transit: subTransit.transit,
-                        inPath2: this.#isTransitInPath(subTransit.start, subTransit.transit, path2Bounds, path2)
-                    });
-                }
-                checkIfInPath = true;
-            }
-            else {
-                if (checkIfInPath) {
-                    inPath2 = this.#isTransitInPath(start, transit, path2Bounds, path2);
-                    checkIfInPath = false;
-                }
-                transitInfoList.push({
-                    start: start,
-                    end: this.#getTransitEndPoint(start, transit),
-                    transit: transit,
-                    inPath2: inPath2
-                });
-            }
-            start = this.#getTransitEndPoint(start, transit);
-        }
-        return transitInfoList;
-    }
-
-    #getTransitPathIntersectionTransits(transitStart, transit, pathBounds, path) {
-        let intersections = this.getTransitPathIntersections(transitStart, transit, pathBounds, path);
-        if (intersections.length == 0) {
-            return [];
-        }
-        if (transit.radii) {
-            intersections = this.#sortArcPointsByAngleFromStart(transitStart, transit, intersections);
-        }
-        else {
-            intersections = this.#sortLinePointsByDistanceFromStart(transitStart, intersections);
-        }
-        const subTransits = [];
-        let subTransitStart = transitStart;
-        let tempTransit = transit;
-        let transitSplit;
-        for (const intersection of intersections) {
-            transitSplit = this.#splitTransit(subTransitStart, tempTransit, intersection);
-            subTransits.push(transitSplit[0]);
-            subTransitStart = transitSplit[1].start;
-            tempTransit = transitSplit[1].transit;
-        }
-        subTransits.push(transitSplit[1]);
-        return subTransits;
-    }
-
-    #isTransitInPath(start, transit, pathBounds, path) {
-        if (transit.radii) {
-            const point1 = { x: start.x + transit.end.x, y: start.y };
-            const point2 = { x: start.x, y: start.y + transit.end.y };
-            const intersections = this.getSegmentArcIntersections({ point1: point1, point2: point2 }, start, transit);
-            for (const intersection of intersections) {
-                if (this.isPointInPath(intersection, pathBounds, path)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        else {
-            const midPoint = { x: start.x + transit.x / 2, y: start.y + transit.y / 2 };
-            return this.isPointInPath(midPoint, pathBounds, path);
-        }
-    }
-
-    #sortArcPointsByAngleFromStart(start, arc, points) {
-        const center = { x: start.x + arc.center.x, y: start.y + arc.center.y };
-        let startAngle = this.#getPointAngle(start, center);
-        const geometryUtilities = this;
-        function compareAngleFromCenter(point1, point2) {
-            let pointAngle1 = geometryUtilities.#getPointAngle(point1, center);
-            pointAngle1 -= startAngle;
-            if (pointAngle1 < 0) {
-                pointAngle1 += 360;
-            }
-            let pointAngle2 = geometryUtilities.#getPointAngle(point2, center);
-            pointAngle2 -= startAngle;
-            if (pointAngle2 < 0) {
-                pointAngle2 += 360;
-            }
-            if (pointAngle1 < pointAngle2) {
-                return -1;
-            }
-            if (pointAngle1 > pointAngle2) {
-                return 1;
-            }
-            return 0;
-        }
-        let temp = points.sort(compareAngleFromCenter);
-        if (arc.sweepFlag == 1) {
-            temp = temp.reverse();
-        }
-        return temp;
-    }
-
-    #getPointAngle(point, center) {
-        const pointQuadrant = this.#getQuadrant(point, center);
-        let pointAngle = Math.PI / 2;
-        if (center.y < point.y) {
-            pointAngle = -pointAngle;
-        }
-        if (point.x != center.x) {
-            pointAngle = Math.atan((point.y - center.y) / (point.x - center.x));
-        }
-        if (pointQuadrant === 1 || pointQuadrant == 4) {
-            pointAngle = Math.PI * 2 - pointAngle;
-        }
-        else {
-            pointAngle = Math.PI - pointAngle;
-        }
-        pointAngle = pointAngle * 180 / Math.PI;
-        pointAngle = pointAngle % 360;
-        return pointAngle;
-    }
-
-    #getQuadrant(point, center) {
-        return (point.x <= center.x)
-            ? (point.y <= center.y) ? 2 : 3
-            : (point.y <= center.y) ? 1 : 4;
-    }
-
-    #sortLinePointsByDistanceFromStart(start, points) {
-        function compareDistanceFromStart(point1, point2) {
-            const distance1 = Math.abs(start.x - point1.x) + Math.abs(start.y - point1.y);
-            const distance2 = Math.abs(start.x - point2.x) + Math.abs(start.y - point2.y);
-            if (distance1 < distance2) {
-                return -1;
-            }
-            if (distance1 > distance2) {
-                return 1;
-            }
-            return 0;
-        }
-        return points.sort(compareDistanceFromStart);
-    }
-
-    #splitTransit(start, transit, splitPoint) {
-        let splitArc = false;
-        if (transit.radii) {
-            if (transit.largeArcFlag == 1) {
-                splitArc = true;
-            }
-            else {
-                const distance = Math.sqrt(Math.abs(start.x - transit.end.x) ** 2 + Math.abs(start.y - transit.end.y) ** 2);
-                splitArc = (distance > 10);
-            }
-        }
-        if (splitArc) {
-            const arc1 = transit.copy();
-            arc1.end = { x: splitPoint.x - start.x, y: splitPoint.y - start.y };
-            const arc2 = transit.copy();
-            const transit2End = { x: start.x + transit.end.x, y: start.y + transit.end.y };
-            const transit2Center = { x: start.x + transit.center.x, y: start.y + transit.center.y };
-            arc2.end = { x: transit2End.x - splitPoint.x, y: transit2End.y - splitPoint.y };
-            arc2.center = { x: transit2Center.x - splitPoint.x, y: transit2Center.y - splitPoint.y };
-            return [
-                { start: start, end: splitPoint, transit: arc1 },
-                { start: splitPoint, end: transit2End, transit: arc2 }
-            ];
-        }
-        else {
-            const transit2End = { x: start.x + transit.x, y: start.y + transit.y };
-            return [
-                { start: start, end: splitPoint, transit: { x: splitPoint.x - start.x, y: splitPoint.y - start.y } },
-                { start: splitPoint, end: transit2End, transit: { x: transit2End.x - splitPoint.x, y: transit2End.y - splitPoint.y } }
-            ];
-        }
-    }
-
-    #getPathDataListFromFragments(fragments) {
-        if (fragments.length == 0) {
-            return [];
-        }
-        const pathDataList = [];
-        for (let i = 0; i < fragments.length; i++) {
-            fragments[i].index = i;
-        }
-        let currentFragment = fragments[0];
-        let currentPathData = {
-            start: currentFragment.start,
-            transits: []
-        };
-        let count = 0;
-        while (currentFragment) {
-
-            // limit number of intersections
-            count++;
-            if (count > 100) {
-                return [];
-            }
-            // add current fragment transits
-            for (const transitInfo of currentFragment.transitInfoList) {
-                currentPathData.transits.push(transitInfo.transit);
-            }
-
-            // mark current fragment as traversed
-            fragments[currentFragment.index].isTraversed = true;
-
-            // find next fragment
-            let lastFragmentEnd = currentFragment.end;
-            let nearestFragmentInfo = this.#getNearestFragmentInfo(currentFragment, fragments);
-            if (nearestFragmentInfo.index > -1 && nearestFragmentInfo.distance < 5) {
-                currentFragment = fragments[nearestFragmentInfo.index];
-                if (nearestFragmentInfo.isNearestAtEnd) {
-                    currentFragment = this.#reverseFragment(currentFragment);
-                }
-                let transit = { x: currentFragment.start.x - lastFragmentEnd.x, y: currentFragment.start.y - lastFragmentEnd.y };
-                currentPathData.transits.push(transit);
-            }
-            else {
-                currentFragment = fragments.find((f) => !f.isTraversed);
-                if (currentFragment) {
-                    pathDataList.push(currentPathData);
-                    currentPathData = {
-                        start: currentFragment.start,
-                        transits: []
-                    }
-                }
-            }
-        }
-        pathDataList.push(currentPathData);
-        for (const pathData of pathDataList) {
-            const transits = [];
-            for (const transit of pathData.transits) {
-                if (transit.radii || transit.x != 0 || transit.y != 0) {
-                    transits.push(transit);
-                }
-            }
-            pathData.transits = transits;
-        }
-        return pathDataList;
-    }
-
-    #getNearestFragmentInfo(currentFragment, fragments) {
-        let minDistance = 10000;
-        let index = -1;
-        let isNearestAtEnd = null;
-        const currentIndex = currentFragment.index;
-        const end = currentFragment.end;
-        for (let i = 0; i < fragments.length; i++) {
-            if (i != currentIndex && !fragments[i].isTraversed) {
-                let distance = Math.sqrt((end.x - fragments[i].start.x) ** 2 + (end.y - fragments[i].start.y) ** 2);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    index = i;
-                    isNearestAtEnd = false;
-                }
-                distance = Math.sqrt((end.x - fragments[i].end.x) ** 2 + (end.y - fragments[i].end.y) ** 2);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    index = i;
-                    isNearestAtEnd = true;
-                }
-            }
-        }
-        return { index: index, isNearestAtEnd: isNearestAtEnd, distance: minDistance };
-    }
-
-    #reverseFragment(fragment) {
-        const transitInfoList = [];
-        for (let i = fragment.transitInfoList.length - 1; i > -1; i--) {
-            transitInfoList.push(this.#reverseTransitInfo(fragment.transitInfoList[i]));
-        }
-        return {
-            start: fragment.end,
-            end: fragment.start,
-            index: fragment.index,
-            transitInfoList: transitInfoList
-        };
-    }
-
-    #reverseTransitInfo(transitInfo) {
-        return {
-            start: transitInfo.end,
-            end: transitInfo.start,
-            transit: this.#reverseTransit(transitInfo.start, transitInfo.transit)
-        }
-    }
-
-    #reverseTransit(start, transit) {
-        if (transit.radii) {
-            const arc = transit.copy();
-            const end = { x: start.x + transit.end.x, y: start.y + transit.end.y };
-            const center = { x: start.x + transit.center.x, y: start.y + transit.center.y };
-            const cdx = end.x - center.x;
-            const cdy = end.y - center.y;
-            const newEnd = { x: -transit.end.x, y: -transit.end.y };
-            const newCenter = { x: -cdx, y: -cdy };
-            arc.end = newEnd;
-            arc.center = newCenter;
-            arc.sweepFlag = transit.sweepFlag == 0 ? 1 : 0;
-            return arc;
-        }
-        else {
-            return { x: -transit.x, y: -transit.y };
-        }
-    }
-
-    #findCommonFragments(path1Fragments, path2Fragments) {
-        const commonFragments = [];
-        const foundIndices = [];
-        const intersectionFragments = [];
-        for (const fragment of path1Fragments) {
-            if (fragment.inPath2) {
-                intersectionFragments.push(fragment);
-            }
-        }
-        for (const fragment of path2Fragments) {
-            if (fragment.inPath2) {
-                intersectionFragments.push(fragment);
-            }
-        }
-        for (let i = 0; i < intersectionFragments.length; i++) {
-            if (!foundIndices.includes(i)) {
-                const candidate = intersectionFragments[i];
-                let j = intersectionFragments.findIndex((fragment, index) =>
-                    (i != index) && this.#areFragmentsEqual(candidate, fragment)
-                );
-                if (j > -1 && !foundIndices.includes(i) && !foundIndices.includes(j)) {
-                    foundIndices.push(i);
-                    foundIndices.push(j);
-                    commonFragments.push(intersectionFragments[i]);
-                }
-            }
-        }
-        return commonFragments;
-    }
-
-    #areFragmentsEqual(fragment1, fragment2) {
-        if (fragment1.transitInfoList.length != fragment2.transitInfoList.length) {
-            return false;
-        }
-        let startEqual = this.#arePointsEqual(fragment1.start, fragment2.start);
-        let endEqual = this.#arePointsEqual(fragment1.end, fragment2.end);
-        if (!(startEqual && endEqual)) {
-            fragment2 = this.#reverseFragment(fragment2);
-            startEqual = this.#arePointsEqual(fragment1.start, fragment2.start);
-            endEqual = this.#arePointsEqual(fragment1.end, fragment2.end);
-        }
-        if (!(startEqual && endEqual)) {
-            return false;
-        }
-        for (let i = 0; i < fragment1.transitInfoList.length; i++) {
-            if (!this.#areTransitsEqual(fragment1.transitInfoList[i].transit, fragment2.transitInfoList[i].transit)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    #arePointsEqual(point1, point2, maxDifference) {
-        if (!maxDifference) {
-            maxDifference = 2; // <-- should be one?
-        }
-        return (Math.abs(point1.x - point2.x) <= maxDifference) && (Math.abs(point1.y - point2.y) <= maxDifference)
-    }
-
-    #areTransitsEqual(transit1, transit2) {
-        let transit1IsArc = false;
-        if (transit1.radii) {
-            transit1IsArc = true;
-        }
-        let transit2IsArc = false;
-        if (transit2.radii) {
-            transit2IsArc = true;
-        }
-        if (transit1IsArc != transit2IsArc) {
-            return false;
-        }
-        if (transit1IsArc) {
-            return transit1.end.x == transit2.end.x
-                && transit1.end.y == transit2.end.y
-                && transit1.center.x == transit2.center.x
-                && transit1.center.y == transit2.center.y
-                && transit1.radii.x == transit2.radii.x
-                && transit1.radii.y == transit2.radii.y
-                && transit1.rotationAngle == transit2.rotationAngle
-                && transit1.largeArcFlag == transit2.largeArcFlag
-                && transit1.sweepFlag == transit2.sweepFlag;
-        }
-        else {
-            return transit1.x == transit2.x
-                && transit1.y == transit2.y;
-        }
-    }
-
     #evenOddIntersectionTest(intersectionsList) {
         let evens = 0;
         let odds = 0;
@@ -1256,31 +813,6 @@ export class GeometryUtilities {
         }
         return (odds >= evens);
     } 
-
-    #convertExcludedInteriorPathsToClipPaths(pathDataListIn) {
-        const pathDataListWorking = [];
-        for (let i = 0; i < pathDataListIn.length; i++) {
-            pathDataListIn[i].clipPaths = [];
-            pathDataListWorking.push({
-                pathData: pathDataListIn[i],
-                bounds: this.getPathBounds(pathDataListIn[i].start, pathDataListIn[i].transits),
-                index: i,
-                isClip: false
-            });
-        }
-        for (const pathDataInfo1 of pathDataListWorking) {
-            for (const pathDataInfo2 of pathDataListWorking) {
-                if (pathDataInfo1.index != pathDataInfo2.index) {
-                    if (this.isPointInPath(pathDataInfo1.pathData.start, pathDataInfo2.bounds, pathDataInfo2.pathData)) {
-                        pathDataInfo1.isClip = true;
-                        pathDataInfo2.pathData.clipPaths.push(pathDataInfo1.pathData);
-                        break;
-                    }
-                }
-            }
-        }
-        return pathDataListWorking.filter(x => !x.isClip).map(x => x.pathData);
-    }
 }
 
 class ComplexNumber {

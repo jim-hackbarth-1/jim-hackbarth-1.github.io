@@ -594,13 +594,16 @@ export class EditorModel {
     }
 
     async #handleKeyDownEvent(event) {
-        event.preventDefault();
-        event.stopPropagation();
+        
         if (event.repeat) {
             return;
         }
         const map = await MapWorkerClient.getMap();
         const mapHasSelections = this.#doesMapHaveSelections(map);
+        if (event.ctrlKey) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
         if (event.key?.toLowerCase() == "a" && event.ctrlKey) {
             if (event.altKey) {
                 if (mapHasSelections) {

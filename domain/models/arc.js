@@ -84,10 +84,6 @@ export class Arc {
         return `a ${this.radii.x} ${this.radii.y} ${this.rotationAngle} ${this.largeArcFlag} ${this.sweepFlag} ${this.end.x} ${this.end.y}`;
     }
 
-    copy() {
-        return new Arc(this.getData());
-    }
-
     static getBounds(start, arc) {
         const geometryUtilities = new GeometryUtilities();
         return geometryUtilities.getArcBounds(start, arc);

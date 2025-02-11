@@ -174,6 +174,7 @@ class DrawArcTool {
                     end: end,
                     center: { x: 0, y: end.y },
                     radii: radii,
+                    rotationAngle: 0,
                     sweepFlag: sweepFlag
                 },
                 { x: -end.x, y: 0 }

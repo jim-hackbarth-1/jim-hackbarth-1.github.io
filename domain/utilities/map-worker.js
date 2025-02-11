@@ -245,13 +245,20 @@ export class MapWorker {
             width: this.canvas.width / this.map.zoom,
             height: this.canvas.height / this.map.zoom
         }
-        const path = new Path2D(`M ${bounds.x},${bounds.y} l ${bounds.width},0 0,${bounds.height} ${-bounds.width},0 z`);
+        const path = {
+            start: {x: bounds.x, y:bounds.y},
+            transits: [
+                { x: bounds.width, y: 0 },
+                { x: 0, y: bounds.height },
+                { x: -bounds.width, y: 0 }
+            ]
+        };
         const layer = this.map.getActiveLayer();
         const oldSelections = layer.mapItemGroups
             .filter(mig => mig.selectionStatus)
             .map(mig => ({ mapItemGroupId: mig.id, selectionStatus: mig.selectionStatus }));
         this.map.startChangeSet();
-        layer.selectByPath(this.renderingContext, bounds, path, false);
+        layer.selectByPath(this.geometryUtilities, bounds, path, false, false);
         const newSelections = layer.mapItemGroups
             .filter(mig => mig.selectionStatus)
             .map(mig => ({ mapItemGroupId: mig.id, selectionStatus: mig.selectionStatus }));

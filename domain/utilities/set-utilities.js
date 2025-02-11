@@ -17,48 +17,19 @@ export class SetUtilities {
         let pathsOut = [];
         let pathsIn = [];
         for (const path of primaryPaths) {
-            pathsIn.push({ path: path, hasOp: false });
+            pathsIn.push(path);
         }
-        for (const path of secondaryPaths) {
-            pathsIn.push({ path: path, hasOp: false });
-        }
-        let hasOp = true;
-        while (hasOp) {
-            for (let i = 0; i < pathsIn.length; i++) {
-                for (let j = 0; j < pathsIn.length; j++) {
-                    if (i != j) {
-                        const pathI = pathsIn[i];
-                        const pathJ = pathsIn[j];
-                        if (!pathI.hasOp && !pathJ.hasOp) {
-                            const disjoint = this.#isPath1CompletelyOutsideOfPath2(pathI.path, pathJ.path);
-                            if (!disjoint) {
-                                const subset = this.#isPath1ContainedInPath2(pathI.path, pathJ.path);
-                                if (subset) {
-                                    pathI.hasOp = true;
-                                }
-                                else {
-                                    const unionPaths = this.getUnion(pathI.path, pathJ.path);
-                                    pathsOut.push({ path: unionPaths[0], hasOp: true });
-                                    pathI.hasOp = true;
-                                    pathJ.hasOp = true;
-                                }
-                            }
-                        }
-                    }
+        for (const secondaryPath of secondaryPaths) {
+            pathsOut = [];
+            for (const pathIn of pathsIn) {
+                const unionPaths = this.getUnion(pathIn, secondaryPath);
+                for (const unionPath of unionPaths) {
+                    pathsOut.push(unionPath);
                 }
             }
-            for (const path of pathsIn) {
-                if (!path.hasOp) {
-                    pathsOut.push(path);
-                }
-            }
-            hasOp = pathsOut.some(p => p.hasOp);
-            if (hasOp) {
-                pathsIn = pathsOut.map(p => ({ path: p.path, hasOp: false }));
-                pathsOut = [];
-            }
+            pathsIn = pathsOut;
         }
-        return pathsOut.map(p => p.path);
+        return pathsOut;
     }
 
     getUnion(pathInfoA, pathInfoB) {
@@ -96,12 +67,17 @@ export class SetUtilities {
 
     getIntersectionAll(primaryPaths, secondaryPaths) {
         const pathsOut = [];
-        const unionOfSecondaryPaths = this.getUnionAll(secondaryPaths, []);
-        for (const primaryPath of primaryPaths) {
-            for (const secondaryPath of unionOfSecondaryPaths) {
-                const intersections = this.getIntersection(primaryPath, secondaryPath);
-                for (const intersection of intersections) {
-                    pathsOut.push(intersection);
+        let unionOfSecondaryPaths = secondaryPaths;
+        if (secondaryPaths.length > 1) {
+            const array1 = [secondaryPaths[0]];
+            const array2 = secondaryPaths.slice(1);
+            unionOfSecondaryPaths = this.getUnionAll(array1, array2);
+        }
+        for (const secondaryPath of unionOfSecondaryPaths) {
+            for (const primaryPath of primaryPaths) {
+                const intersectionPaths = this.getIntersection(primaryPath, secondaryPath);
+                for (const intersectionPath of intersectionPaths) {
+                    pathsOut.push(intersectionPath);
                 }
             }
         }
@@ -142,15 +118,20 @@ export class SetUtilities {
     }
 
     getExclusionAll(primaryPaths, secondaryPaths) {
-        const pathsOut = [];
-        const unionOfSecondaryPaths = this.getUnionAll(secondaryPaths, []);
-        for (const primaryPath of primaryPaths) {
-            for (const secondaryPath of unionOfSecondaryPaths) {
-                const exclusions = this.getExclusion(primaryPath, secondaryPath);
-                for (const exclusion of exclusions) {
-                    pathsOut.push(exclusion);
+        let pathsOut = [];
+        let pathsIn = [];
+        for (const path of primaryPaths) {
+            pathsIn.push(path);
+        }
+        for (const secondaryPath of secondaryPaths) {
+            pathsOut = [];
+            for (const pathIn of pathsIn) {
+                const exclusionPaths = this.getExclusion(pathIn, secondaryPath);
+                for (const exclusionPath of exclusionPaths) {
+                    pathsOut.push(exclusionPath);
                 }
             }
+            pathsIn = pathsOut;
         }
         return pathsOut;
     }
@@ -307,6 +288,9 @@ export class SetUtilities {
                 fragments.push(fragment);
             }
         }
+        if (fragments.length < contiguousFragmentsA.length && fragments.every(f => f.isShared)) {
+            return [];
+        }
         return fragments;
     }
 
@@ -411,36 +395,12 @@ export class SetUtilities {
         for (let i = 0; i < pathInfos.length; i++) {
             for (let j = 0; j < pathInfos.length; j++) {
                 if (i != j) {
-                    if (this.#isPath1ContainedInPath2(pathInfos[i], pathInfos[j])) {
+                    if (this.geometryUtilities.isPath1ContainedInPath2(pathInfos[i], pathInfos[j])) {
                         pathInfos[i].isClip = true;
                     }
                 }
             }
         }
-    }
-
-    #isPath1ContainedInPath2(path1, path2) {
-        const path2Bounds = this.geometryUtilities.getPathBounds(path2.start, path2.transits);
-        const isStartInPath = this.geometryUtilities.isPointInPath(path1.start, path2Bounds, path2);
-        if (isStartInPath) {
-            const intersections = this.geometryUtilities.getPathPathIntersections(path1, path2);
-            if (intersections.length == 0) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    #isPath1CompletelyOutsideOfPath2(path1, path2) {
-        const path2Bounds = this.geometryUtilities.getPathBounds(path2.start, path2.transits);
-        const isStartInPath = this.geometryUtilities.isPointInPath(path1.start, path2Bounds, path2);
-        if (!isStartInPath) {
-            const intersections = this.geometryUtilities.getPathPathIntersections(path1, path2);
-            if (intersections.length == 0) {
-                return true;
-            }
-        }
-        return false;
     }
 
     #getClipPaths(pathInfoA, pathInfoB, setPathInfos) {
@@ -456,10 +416,15 @@ export class SetUtilities {
                 clipPaths.push(clipPath);
             }
         }
-        clipPaths = this.getUnionAll(clipPaths, []);
+        let unionOfClipPaths = clipPaths;
+        if (clipPaths.length > 1) {
+            const array1 = [clipPaths[0]];
+            const array2 = clipPaths.slice(1);
+            unionOfClipPaths = this.getUnionAll(array1, array2);
+        }
         for (const path of pathInfosOut) {
-            for (const clipPath of clipPaths) {
-                if (this.#isPath1ContainedInPath2(clipPath, path)) {
+            for (const clipPath of unionOfClipPaths) {
+                if (this.geometryUtilities.isPath1ContainedInPath2(clipPath, path)) {
                     path.clipPaths.push(clipPath);
                 }
             }
@@ -614,10 +579,10 @@ export class SetUtilities {
     #areTransitInfosEqual(transitInfo1, transitInfo2) {
         const areTransitsEqual = this.#areTransitsEqual(transitInfo1.transit, transitInfo2.transit);
         if (areTransitsEqual) {
-            let startEqualsStart = this.geometryUtilities.arePointsEqual(transitInfo1.start, transitInfo2.start);
-            let startEqualsEnd = this.geometryUtilities.arePointsEqual(transitInfo1.start, transitInfo2.end);
-            let endEqualsStart = this.geometryUtilities.arePointsEqual(transitInfo1.end, transitInfo2.start);
-            let endEqualsEnd = this.geometryUtilities.arePointsEqual(transitInfo1.end, transitInfo2.end);
+            const startEqualsStart = this.geometryUtilities.arePointsEqual(transitInfo1.start, transitInfo2.start);
+            const startEqualsEnd = this.geometryUtilities.arePointsEqual(transitInfo1.start, transitInfo2.end);
+            const endEqualsStart = this.geometryUtilities.arePointsEqual(transitInfo1.end, transitInfo2.start);
+            const endEqualsEnd = this.geometryUtilities.arePointsEqual(transitInfo1.end, transitInfo2.end);
             return (startEqualsStart && endEqualsEnd) || (startEqualsEnd && endEqualsStart);
         }
         return false;
@@ -636,19 +601,32 @@ export class SetUtilities {
             return false;
         }
         if (transit1IsArc) {
-            return transit1.end.x == transit2.end.x
-                && transit1.end.y == transit2.end.y
-                && transit1.center.x == transit2.center.x
-                && transit1.center.y == transit2.center.y
-                && transit1.radii.x == transit2.radii.x
-                && transit1.radii.y == transit2.radii.y
-                && transit1.rotationAngle == transit2.rotationAngle
-                && transit1.largeArcFlag == transit2.largeArcFlag
-                && transit1.sweepFlag == transit2.sweepFlag;
+            if (transit1.rotationAngle != transit2.rotationAngle
+                || transit1.largeArcFlag != transit2.largeArcFlag
+                || this.geometryUtilities.arePointsEqual(transit1.radii, transit2.radii)) {
+                return false;
+            }
+            if (this.geometryUtilities.arePointsEqual(transit1.end, transit2.end)
+                && this.geometryUtilities.arePointsEqual(transit1.center, transit2.center)
+                && transit1.sweepFlag == transit2.sweepFlag) {
+                return true;
+            }
+            const reverseArc = this.#reverseTransit({ x: 0, y: 0 }, transit2);
+            if (this.geometryUtilities.arePointsEqual(transit1.end, reverseArc.end)
+                && this.geometryUtilities.arePointsEqual(transit1.center, reverseArc.center)
+                && transit1.sweepFlag == reverseArc.sweepFlag) {
+                return true;
+            }
+            return false;
         }
         else {
-            return transit1.x == transit2.x
-                && transit1.y == transit2.y;
+            if (this.geometryUtilities.arePointsEqual(transit1, transit2)) {
+                return true;
+            }
+            if (this.geometryUtilities.arePointsEqual(transit1, this.#reverseTransit({ x: 0, y: 0 }, transit2))) {
+                return true;
+            }
+            return false;
         }
     }
 

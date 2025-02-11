@@ -1,5 +1,5 @@
 ﻿
-import { Change, ChangeSet, ChangeType, EntityReference, InputUtilities, Path } from "../references.js";
+import { Change, ChangeSet, ChangeType, EntityReference, GeometryUtilities, InputUtilities, Path } from "../references.js";
 
 export class MapItem {
 
@@ -256,20 +256,31 @@ export class MapItem {
         }
     }
 
-    isSelectedByPath(context, selectionBounds, selectionPath) {
+    isSelectedByPath(geometryUtilities, selectionBounds, selectionPath, mustBeContained) {
         const bounds = this.bounds;
-        if (bounds.x < selectionBounds.x
-            || bounds.x + bounds.width > selectionBounds.x + selectionBounds.width
-            || bounds.y < selectionBounds.y
-            || bounds.y + bounds.height > selectionBounds.y + selectionBounds.height) {
+        if (bounds.x + bounds.width < selectionBounds.x
+            || bounds.y + bounds.height < selectionBounds.y
+            || bounds.x > selectionBounds.x + selectionBounds.width
+            || bounds.y > selectionBounds.y + selectionBounds.height) {
             return false;
         }
-        for (const path of this.paths) {
-            if (!context.isPointInPath(selectionPath, path.start.x, path.start.y)) {
-                return false;
+        if (mustBeContained) {
+            for (const path of this.paths) {
+                if (!geometryUtilities.isPath1ContainedInPath2(path, selectionPath)) {
+                    return false;
+                }
             }
+            return true;
         }
-        return true;
+        else {
+            for (const path of this.paths) {
+                if (geometryUtilities.isPath1ContainedInPath2(path, selectionPath)
+                    || geometryUtilities.hasPathPathIntersections(path, selectionPath)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     isSelectedByPoints(context, map, points) {

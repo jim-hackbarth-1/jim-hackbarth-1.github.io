@@ -278,14 +278,18 @@ class SelectPathTool {
             }
         }
         const selectionBounds = { x: xMin, y: yMin, width: xMax - xMin, height: yMax - yMin };
-        let pathData = `M ${start.x},${start.y}`;
+        const transits = [];
+        let lastPoint = start;
         for (const point of points) {
-            pathData += ` L ${point.x},${point.y}`;
+            transits.push({ x: point.x - lastPoint.x, y: point.y - lastPoint.y });
+            lastPoint = point;
         }
-        pathData += " z";
-        const selectionPath = new Path2D(pathData);
+        const selectionPath = {
+            start: start,
+            transits: transits
+        };
         const layer = this.#mapWorker.map.getActiveLayer();
-        layer.selectByPath(this.#mapWorker.renderingContext, selectionBounds, selectionPath, this.#isAltPressed);
+        layer.selectByPath(this.#mapWorker.geometryUtilities, selectionBounds, selectionPath, this.#isAltPressed, true);
     }
 
     #drawSelectionLine(x, y) {

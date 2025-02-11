@@ -536,8 +536,7 @@ export class Path {
                     ],
                     bounds: map.currentViewPort
                 });
-                const intersections = geometryUtilities.getPathPathIntersections(path1, path2);
-                this.#inView = (intersections.length > 0);
+                this.#inView = geometryUtilities.hasPathPathIntersections(path1, path2);
             }
         }
         return this.#inView;

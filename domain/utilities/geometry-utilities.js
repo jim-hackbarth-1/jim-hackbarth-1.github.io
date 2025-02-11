@@ -260,8 +260,14 @@ export class GeometryUtilities {
     }
 
     getArcArcIntersections(arc1Start, arc1, arc2Start, arc2) {
-        const ellipseIntersections = this.getEllipseEllipseIntersections(arc1Start, arc1, arc2Start, arc2);
         const intersections = [];
+        let ellipseIntersections = [];
+        try {
+            ellipseIntersections = this.getEllipseEllipseIntersections(arc1Start, arc1, arc2Start, arc2);
+        }
+        catch (error) {
+            // TODO: log?
+        }
         for (const ellipseIntersection of ellipseIntersections) {
             const isOnArc1 = this.isEllipsePointOnArc(ellipseIntersection, arc1Start, arc1);
             const isOnArc2 = this.isEllipsePointOnArc(ellipseIntersection, arc2Start, arc2);
@@ -359,13 +365,43 @@ export class GeometryUtilities {
         return intersections;
     }
 
+    hasPathPathIntersections(path1, path2) {
+        const path2Bounds = this.getPathBounds(path2.start, path2.transits);
+        let transitStart = path1.start;
+        const transits = [...path1.transits];
+        const closingTransit = this.getPathClosingTransit(path1);
+        if (Math.abs(closingTransit.x) > 2 || Math.abs(closingTransit.y) > 2) {
+            transits.push(closingTransit);
+        }
+        for (const transit of transits) {
+            const transitIntersections = this.getTransitPathIntersections(transitStart, transit, path2Bounds, path2);
+            if (transitIntersections.length > 0) {
+                return true;
+            }
+            transitStart = this.getTransitEndPoint(transitStart, transit);
+        }
+        return false;
+    }
+
+    isPath1ContainedInPath2(path1, path2) {
+        const path2Bounds = this.getPathBounds(path2.start, path2.transits);
+        const isStartInPath = this.isPointInPath(path1.start, path2Bounds, path2);
+        if (isStartInPath) {
+            const hasIntersections = this.hasPathPathIntersections(path1, path2);
+            if (!hasIntersections) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     removeExteriorClipPaths(path) {
         const clipPaths = [];
         const bounds = this.getPathBounds(path.start, path.transits);
         for (const clipPath of path.clipPaths) {
             const isStartInPath = this.isPointInPath(clipPath.start, bounds, path);
-            const intersections = this.getPathPathIntersections(clipPath, path);
-            if (isStartInPath && intersections.length == 0) {
+            const hasIntersections = this.hasPathPathIntersections(clipPath, path);
+            if (isStartInPath && !hasIntersections) {
                 clipPaths.push(clipPath);
             }
         }

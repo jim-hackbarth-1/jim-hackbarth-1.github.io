@@ -272,10 +272,17 @@ class SelectRectangleTool {
             width: Math.abs(start.x - end.x),
             height: Math.abs(start.y - end.y)
         };
-        const pathData = `M ${bounds.x},${bounds.y} l ${bounds.width},0 0,${bounds.height} ${-bounds.width},0 z`;
-        const selectionPath = new Path2D(pathData);
+        const selectionPath = {
+            start: start,
+            transits: [
+                { x: bounds.width, y: 0 },
+                { x: 0, y: bounds.height },
+                { x: -bounds.width, y: 0 }
+            ]
+        };
+
         const layer = this.#mapWorker.map.getActiveLayer();
-        layer.selectByPath(this.#mapWorker.renderingContext, bounds, selectionPath, this.#isAltPressed);
+        layer.selectByPath(this.#mapWorker.geometryUtilities, bounds, selectionPath, this.#isAltPressed, true);
     }
 
     #moveIncrement(eventData, dx, dy) {

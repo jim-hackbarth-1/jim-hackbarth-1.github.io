@@ -199,11 +199,11 @@ export class Layer {
         }
     }
 
-    selectByPath(context, selectionBounds, selectionPath, toggleCurrentSelections) { 
+    selectByPath(geometryUtilities, selectionBounds, selectionPath, toggleCurrentSelections, mustBeContained) { 
         const selectionResults = [];
         for (const mapItemGroup of this.mapItemGroups) {
             selectionResults.push({
-                isSelected: mapItemGroup.isSelectedByPath(context, selectionBounds, selectionPath),
+                isSelected: mapItemGroup.isSelectedByPath(geometryUtilities, selectionBounds, selectionPath, mustBeContained),
                 mapItemGroup: mapItemGroup
             });
         }

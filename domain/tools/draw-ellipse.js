@@ -164,12 +164,16 @@ class DrawEllipseTool {
                 {
                     end: { x: end.x, y: end.y },
                     center: { x: center.x, y: center.y },
-                    radii: { x: radii.x, y: radii.y }
+                    radii: { x: radii.x, y: radii.y },
+                    rotationAngle: 0,
+                    sweepFlag: 0
                 },
                 {
                     end: { x: end.x, y: -end.y },
                     center: { x: center.x, y: -center.y },
-                    radii: { x: radii.x, y: radii.y }
+                    radii: { x: radii.x, y: radii.y },
+                    rotationAngle: 0,
+                    sweepFlag: 0
                 }
             ];
             const bounds = this.#mapWorker.geometryUtilities.getPathBounds(start, transits);

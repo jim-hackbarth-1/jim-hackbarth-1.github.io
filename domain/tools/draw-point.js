@@ -21,9 +21,6 @@ class DrawPointTool {
             case "pointerup":
                 await this.#onPointerUp(eventData);
                 break;
-            case "keydown":
-                this.#onKeyDown(eventData);
-                break;
             case "keyup":
                 this.#onKeyUp(eventData);
                 break;
@@ -35,15 +32,9 @@ class DrawPointTool {
         await this.#addMapItemGroup(eventData);
     }
 
-    #onKeyDown(eventData) {
-        if (eventData.key?.toLowerCase() == "o") {
-            this.#isOPressed = true;
-        }
-    }
-
     #onKeyUp(eventData) {
         if (eventData.key?.toLowerCase() == "o") {
-            this.#isOPressed = false;
+            this.#isOPressed = !this.#isOPressed;
         }
     }
 

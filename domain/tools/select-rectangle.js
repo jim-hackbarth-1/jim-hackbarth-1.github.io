@@ -11,12 +11,12 @@ class SelectRectangleTool {
     #pointDown;
     #pointCurrent;
     #selectionUtilities;
-    #isCtrlPressed;
-    #isShiftPressed;
-    #isAltPressed;
     #isArrowPressed;
     #moveIncrementIteration;
-    #isOPressed;
+    #isLockModeOn;
+    #isToggleSelectionModeOn;
+    #isSingleSelectionModeOn;
+    #isSnapToOverlayModeOn;
 
     // methods
     async onActivate(mapWorker) {
@@ -26,12 +26,12 @@ class SelectRectangleTool {
         }
         this.#selectionUtilities = this.#mapWorker.createSelectionUtilities();
         this.#cursor = "Default";
-        this.#isCtrlPressed = false;
-        this.#isShiftPressed = false;
-        this.#isAltPressed = false;
         this.#isArrowPressed = false;
         this.#moveIncrementIteration = 0;
-        this.#isOPressed = false;
+        this.#isLockModeOn = false;
+        this.#isToggleSelectionModeOn = false;
+        this.#isSingleSelectionModeOn = false;
+        this.#isSnapToOverlayModeOn = false;
     }
 
     async handleClientEvent(clientEvent) {
@@ -68,16 +68,16 @@ class SelectRectangleTool {
         if (eventData && eventData.button === 0) {
             this.#pointDown = { x: eventData.offsetX, y: eventData.offsetY };
             const transformedPoint = this.#transformCanvasPoint(eventData.offsetX, eventData.offsetY);
-            this.#selectionUtilities.setActivityState(transformedPoint, this.#isAltPressed);
+            this.#selectionUtilities.setActivityState(transformedPoint, this.#isToggleSelectionModeOn);
             if (this.#selectionUtilities.activityState === "Select") {
                 this.#selectDown(eventData);
             }
             if (this.#selectionUtilities.activityState === "Move"
                 || this.#selectionUtilities.activityState.startsWith("Resize")) {
-                this.#selectionUtilities.startChange(this.#mapWorker, transformedPoint, "Move", this.#isCtrlPressed);
+                this.#selectionUtilities.startChange(this.#mapWorker, transformedPoint, "Move", this.#isSingleSelectionModeOn);
             }
             if (this.#selectionUtilities.activityState === "Rotate") {
-                this.#selectionUtilities.startChange(this.#mapWorker, transformedPoint, "Rotate", this.#isCtrlPressed);
+                this.#selectionUtilities.startChange(this.#mapWorker, transformedPoint, "Rotate", this.#isSingleSelectionModeOn);
             }
         }
     }
@@ -93,18 +93,18 @@ class SelectRectangleTool {
             }
             if (this.#selectionUtilities.activityState === "Move") {
                 this.#selectionUtilities.move(
-                    this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isOPressed);
+                    this.#mapWorker, this.#pointDown, currentPoint, this.#isLockModeOn, this.#isSnapToOverlayModeOn);
                 this.#mapWorker.renderMap();
             }
             if (this.#selectionUtilities.activityState.startsWith("Resize")) {
                 this.#selectionUtilities.resize(
-                    this.#mapWorker, this.#pointDown, currentPoint, this.#isShiftPressed, this.#isOPressed);
+                    this.#mapWorker, this.#pointDown, currentPoint, this.#isLockModeOn, this.#isSnapToOverlayModeOn);
                 this.#mapWorker.renderMap();
                 this.#selectionUtilities.drawArcsRadii(this.#mapWorker);
             }
             if (this.#selectionUtilities.activityState === "Rotate") {
                 const point = this.#transformCanvasPoint(eventData.offsetX, eventData.offsetY);
-                this.#selectionUtilities.rotateMove(this.#mapWorker, point, this.#isShiftPressed);
+                this.#selectionUtilities.rotateMove(this.#mapWorker, point, this.#isLockModeOn);
                 this.#mapWorker.renderMap();
                 this.#selectionUtilities.drawRotationIndicator(this.#mapWorker, point);
                 this.#selectionUtilities.drawArcsRadii(this.#mapWorker);
@@ -134,14 +134,11 @@ class SelectRectangleTool {
     }
 
     #onKeyDown(eventData) {
-        if (eventData.key == "Control") {
-            this.#isCtrlPressed = true;
-        }
-        if (eventData.key == "Shift") {
-            this.#isShiftPressed = true;
+        if (eventData.key == "Control" || eventData.key == "Shift") {
+            this.#isToggleSelectionModeOn = true;
         }
         if (eventData.key == "Alt") {
-            this.#isAltPressed = true;
+            this.#isSingleSelectionModeOn = true;
         }
         if (eventData.key == "ArrowLeft") {
             this.#moveIncrement(eventData, -1, 0);
@@ -155,27 +152,24 @@ class SelectRectangleTool {
         if (eventData.key == "ArrowDown") {
             this.#moveIncrement(eventData, 0, 1);
         }
-        if (eventData.key?.toLowerCase() == "o") {
-            this.#isOPressed = true;
-        }
     }
 
     #onKeyUp(eventData) {
-        if (eventData.key == "Control") {
-            this.#isCtrlPressed = false;
-        }
-        if (eventData.key == "Shift") {
-            this.#isShiftPressed = false;
+        if (eventData.key == "Control" || eventData.key == "Shift") {
+            this.#isToggleSelectionModeOn = false;
         }
         if (eventData.key == "Alt") {
-            this.#isAltPressed = false;
+            this.#isSingleSelectionModeOn = false;
         }
         if (eventData.key?.startsWith("Arrow")) {
             this.#moveIncrementIteration = 0;
             this.#isArrowPressed = false;
         }
-        if (eventData.key?.toLowerCase() == "o") {
-            this.#isOPressed = false;
+        if (eventData.ctrlKey && eventData.key?.toLowerCase() == "o") {
+            this.#isSnapToOverlayModeOn = !this.#isSnapToOverlayModeOn;
+        }
+        if (eventData.ctrlKey && eventData.key?.toLowerCase() == "l") {
+            this.#isLockModeOn = !this.#isLockModeOn;
         }
     }
 
@@ -258,7 +252,7 @@ class SelectRectangleTool {
         ];
         const transformedPoints = points.map(pt => this.#mapWorker.geometryUtilities.transformPoint(pt, scale, translation));
         const layer = this.#mapWorker.map.getActiveLayer();
-        layer.selectByPoints(this.#mapWorker.renderingContext, this.#mapWorker.map, transformedPoints, this.#isAltPressed);
+        layer.selectByPoints(this.#mapWorker.renderingContext, this.#mapWorker.map, transformedPoints, this.#isToggleSelectionModeOn);
     }
 
     #selectByPath(scale, translation) {
@@ -282,7 +276,7 @@ class SelectRectangleTool {
         };
 
         const layer = this.#mapWorker.map.getActiveLayer();
-        layer.selectByPath(this.#mapWorker.geometryUtilities, bounds, selectionPath, this.#isAltPressed, true);
+        layer.selectByPath(this.#mapWorker.geometryUtilities, bounds, selectionPath, this.#isToggleSelectionModeOn, true);
     }
 
     #moveIncrement(eventData, dx, dy) {
@@ -298,7 +292,7 @@ class SelectRectangleTool {
         let maxIteration = Math.min(this.#mapWorker.map.currentViewPort.width, this.#mapWorker.map.currentViewPort.height);
         maxIteration = maxIteration * this.#mapWorker.map.zoom;
         if (this.#moveIncrementIteration < maxIteration && this.#isArrowPressed) {
-            this.#selectionUtilities.moveIncrement(this.#mapWorker, dx, dy, this.#isCtrlPressed);
+            this.#selectionUtilities.moveIncrement(this.#mapWorker, dx, dy, this.#isSingleSelectionModeOn);
             this.#mapWorker.renderMap();
         }
     }

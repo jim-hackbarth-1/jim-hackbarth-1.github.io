@@ -66,9 +66,6 @@ class DrawRectangleTool {
         if (eventData.key == "Shift") {
             this.#isShiftPressed = true;
         }
-        if (eventData.key?.toLowerCase() == "o") {
-            this.#isOPressed = true;
-        }
     }
 
     #onKeyUp(eventData) {
@@ -76,7 +73,7 @@ class DrawRectangleTool {
             this.#isShiftPressed = false;
         }
         if (eventData.key?.toLowerCase() == "o") {
-            this.#isOPressed = false;
+            this.#isOPressed = !this.#isOPressed;
         }
     }
 

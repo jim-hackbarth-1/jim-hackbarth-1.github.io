@@ -35,8 +35,8 @@ export class SelectionUtilities {
     }
 
     // methods
-    setActivityState(point, isCtrlPressed) {
-        if (isCtrlPressed) {
+    setActivityState(point, toggleCurrentSelections) {
+        if (toggleCurrentSelections) {
             this.activityState = ActivityState.Select;
         }
         else {
@@ -534,7 +534,17 @@ export class SelectionUtilities {
         for (const selection of this.selectionStartData) {
             const newBounds = this.#getMapItemGroupBounds(mapWorker, selection.mapItemGroupId);
             const offset = { x: newBounds.x - selection.mapItemGroupBounds.x, y: newBounds.y - selection.mapItemGroupBounds.y };
-            selection.path.start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            const start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            if (snapToOverlay) {
+                const bounds = mapWorker.geometryUtilities.getPathBounds(start, selection.path.transits);
+                const se = { x: bounds.x + bounds.width, y: bounds.y + bounds.height };
+                const snap = mapWorker.map.overlay.getNearestOverlayPoint(se);
+                const snapX = snap.x - se.x;
+                const snapY = snap.y - se.y;
+                start.x += snapX;
+                start.y += snapY;
+            }
+            selection.path.start = start;
             if (selection.path.clipPaths) {
                 for (const clipPath of selection.path.clipPaths) {
                     clipPath.start = { x: clipPath.start.x - offset.x, y: clipPath.start.y - offset.y };
@@ -557,7 +567,15 @@ export class SelectionUtilities {
         for (const selection of this.selectionStartData) {
             const newBounds = this.#getMapItemGroupBounds(mapWorker, selection.mapItemGroupId);
             const offset = { x: 0, y: newBounds.y - selection.mapItemGroupBounds.y };
-            selection.path.start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            const start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            if (snapToOverlay) {
+                const bounds = mapWorker.geometryUtilities.getPathBounds(start, selection.path.transits);
+                const s = { x: bounds.x + (bounds.width / 2), y: bounds.y + bounds.height };
+                const snap = mapWorker.map.overlay.getNearestOverlayPoint(s);
+                const snapY = snap.y - s.y;
+                start.y += snapY;
+            }
+            selection.path.start = start;
             if (selection.path.clipPaths) {
                 for (const clipPath of selection.path.clipPaths) {
                     clipPath.start = { x: clipPath.start.x - offset.x, y: clipPath.start.y - offset.y };
@@ -587,7 +605,17 @@ export class SelectionUtilities {
                 x: (newBounds.x + newBounds.width) - (selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width),
                 y: newBounds.y - selection.mapItemGroupBounds.y
             };
-            selection.path.start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            const start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            if (snapToOverlay) {
+                const bounds = mapWorker.geometryUtilities.getPathBounds(start, selection.path.transits);
+                const s = { x: bounds.x, y: bounds.y + bounds.height };
+                const snap = mapWorker.map.overlay.getNearestOverlayPoint(s);
+                const snapX = snap.x - s.x;
+                const snapY = snap.y - s.y;
+                start.x += snapX;
+                start.y += snapY;
+            }
+            selection.path.start = start;
             if (selection.path.clipPaths) {
                 for (const clipPath of selection.path.clipPaths) {
                     clipPath.start = { x: clipPath.start.x - offset.x, y: clipPath.start.y - offset.y };
@@ -610,7 +638,15 @@ export class SelectionUtilities {
         for (const selection of this.selectionStartData) {
             const newBounds = this.#getMapItemGroupBounds(mapWorker, selection.mapItemGroupId);
             const offset = { x: (newBounds.x + newBounds.width) - (selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width), y: 0 };
-            selection.path.start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            const start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            if (snapToOverlay) {
+                const bounds = mapWorker.geometryUtilities.getPathBounds(start, selection.path.transits);
+                const w = { x: bounds.x, y: bounds.y + (bounds.height / 2) };
+                const snap = mapWorker.map.overlay.getNearestOverlayPoint(w);
+                const snapX = snap.x - w.x;
+                start.x += snapX;
+            }
+            selection.path.start = start;
             if (selection.path.clipPaths) {
                 for (const clipPath of selection.path.clipPaths) {
                     clipPath.start = { x: clipPath.start.x - offset.x, y: clipPath.start.y - offset.y };
@@ -640,7 +676,17 @@ export class SelectionUtilities {
                 x: (newBounds.x + newBounds.width) - (selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width),
                 y: (newBounds.y + newBounds.height) - (selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height)
             };
-            selection.path.start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            let start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            if (snapToOverlay) {
+                const bounds = mapWorker.geometryUtilities.getPathBounds(start, selection.path.transits);
+                const nw = { x: bounds.x, y: bounds.y };
+                const snap = mapWorker.map.overlay.getNearestOverlayPoint(nw);
+                const snapX = snap.x - nw.x;
+                const snapY = snap.y - nw.y;
+                start.x += snapX;
+                start.y += snapY;
+            }
+            selection.path.start = start;
             if (selection.path.clipPaths) {
                 for (const clipPath of selection.path.clipPaths) {
                     clipPath.start = { x: clipPath.start.x - offset.x, y: clipPath.start.y - offset.y };
@@ -663,7 +709,15 @@ export class SelectionUtilities {
         for (const selection of this.selectionStartData) {
             const newBounds = this.#getMapItemGroupBounds(mapWorker, selection.mapItemGroupId);
             const offset = { x: 0, y: (newBounds.y + newBounds.height) - (selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height) };
-            selection.path.start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            const start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            if (snapToOverlay) {
+                const bounds = mapWorker.geometryUtilities.getPathBounds(start, selection.path.transits);
+                const n = { x: bounds.x + (bounds.width / 2), y: bounds.y };
+                const snap = mapWorker.map.overlay.getNearestOverlayPoint(n);
+                const snapY = snap.y - n.y;
+                start.y += snapY;
+            }
+            selection.path.start = start;
             if (selection.path.clipPaths) {
                 for (const clipPath of selection.path.clipPaths) {
                     clipPath.start = { x: clipPath.start.x - offset.x, y: clipPath.start.y - offset.y };
@@ -693,7 +747,17 @@ export class SelectionUtilities {
                 x: newBounds.x - selection.mapItemGroupBounds.x,
                 y: (newBounds.y + newBounds.height) - (selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height)
             };
-            selection.path.start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            const start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            if (snapToOverlay) {
+                const bounds = mapWorker.geometryUtilities.getPathBounds(start, selection.path.transits);
+                const ne = { x: bounds.x + bounds.width, y: bounds.y };
+                const snap = mapWorker.map.overlay.getNearestOverlayPoint(ne);
+                const snapX = snap.x - ne.x;
+                const snapY = snap.y - ne.y;
+                start.x += snapX;
+                start.y += snapY;
+            }
+            selection.path.start = start;
             if (selection.path.clipPaths) {
                 for (const clipPath of selection.path.clipPaths) {
                     clipPath.start = { x: clipPath.start.x - offset.x, y: clipPath.start.y - offset.y };
@@ -716,7 +780,15 @@ export class SelectionUtilities {
         for (const selection of this.selectionStartData) {
             const newBounds = this.#getMapItemGroupBounds(mapWorker, selection.mapItemGroupId);
             const offset = { x: newBounds.x - selection.mapItemGroupBounds.x, y: 0 };
-            selection.path.start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            const start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            if (snapToOverlay) {
+                const bounds = mapWorker.geometryUtilities.getPathBounds(start, selection.path.transits);
+                const e = { x: bounds.x + bounds.width, y: bounds.y + (bounds.height / 2) };
+                const snap = mapWorker.map.overlay.getNearestOverlayPoint(e);
+                const snapX = snap.x - e.x;
+                start.x += snapX;
+            }
+            selection.path.start = start;
             if (selection.path.clipPaths) {
                 for (const clipPath of selection.path.clipPaths) {
                     clipPath.start = { x: clipPath.start.x - offset.x, y: clipPath.start.y - offset.y };

@@ -66,9 +66,6 @@ class DrawEllipseTool {
         if (eventData.key == "Shift") {
             this.#isShiftPressed = true;
         }
-        if (eventData.key?.toLowerCase() == "o") {
-            this.#isOPressed = true;
-        }
     }
 
     #onKeyUp(eventData) {
@@ -76,7 +73,7 @@ class DrawEllipseTool {
             this.#isShiftPressed = false;
         }
         if (eventData.key?.toLowerCase() == "o") {
-            this.#isOPressed = false;
+            this.#isOPressed = !this.#isOPressed;
         }
     }
 

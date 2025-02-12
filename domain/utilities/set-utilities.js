@@ -375,20 +375,35 @@ export class SetUtilities {
     }
 
     #findNextContiguousFragment(end, contiguousFragments) {
-        let nextFragment = null;
-        let distance = -1;
+        const candidates = [];
         for (const fragment of contiguousFragments) {
             if (!fragment.isProcessed) {
                 const startDistance = Math.abs(end.x - fragment.start.x) + Math.abs(end.y - fragment.start.y);
                 const endDistance = Math.abs(end.x - fragment.end.x) + Math.abs(end.y - fragment.end.y);
                 const testDistance = Math.min(startDistance, endDistance);
-                if (testDistance < 5 && (testDistance < distance || distance < 0)) {
-                    nextFragment = fragment;
-                    distance = testDistance;
+                if (testDistance < 5) {
+                    candidates.push({ fragment: fragment, isShared: fragment.isShared, testDistance: testDistance });
                 }
             }
         }
-        return nextFragment;
+        if (candidates.length == 0) {
+            return null;
+        }
+        function sortCandidates(candidate1, candidate2) {
+            if (candidate1.isShared == candidate2.isShared) {
+                return (candidate1.testDistance > candidate2.testDistance) ? 1 : -1;
+            }
+            else {
+                return candidate1.isShared ? 1 : -1;
+            }
+        }
+        const sortedCandidates = candidates.sort(sortCandidates);
+        if (sortedCandidates.length > 1) {
+            for (let i = 1; i < sortedCandidates.length; i++) {
+                sortedCandidates[i].fragment.isProcessed = true;
+            }
+        }
+        return sortedCandidates[0].fragment;
     }
 
     #markClipPaths(pathInfos) {

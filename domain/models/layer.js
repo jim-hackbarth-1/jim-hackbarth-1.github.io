@@ -317,43 +317,28 @@ export class Layer {
         }
     }
 
-    #processSelectionResults(selectionResults, toggleCurrentSelections) {
-        let selectionStatus = SelectionStatusType.Primary;
-        let currentPrimaryId = selectionResults.find(r => r.mapItemGroup.selectionStatus == SelectionStatusType.Primary)?.mapItemGroup.id;
+    #processSelectionResults(selectionResults, toggleCurrentSelections) { 
         if (toggleCurrentSelections) {
             for (const selectionResult of selectionResults) {
                 if (selectionResult.isSelected) {
-                    switch (selectionResult.mapItemGroup.selectionStatus) {
-                        case SelectionStatusType.Primary:
-                            selectionResult.mapItemGroup.selectionStatus = SelectionStatusType.Secondary;
-                            break;
-                        case SelectionStatusType.Secondary:
-                            selectionResult.mapItemGroup.selectionStatus = null;
-                            break;
-                        default:
-                            selectionResult.mapItemGroup.selectionStatus = selectionStatus;
-                            selectionStatus = SelectionStatusType.Secondary;
+                    if (selectionResult.mapItemGroup.selectionStatus) {
+                        selectionResult.mapItemGroup.selectionStatus = null;
                     }
-                }
-                else {
-                    if (selectionResult.mapItemGroup.selectionStatus == SelectionStatusType.Primary) {
+                    else {
                         selectionResult.mapItemGroup.selectionStatus = SelectionStatusType.Secondary;
                     }
                 }
             }
             let currentPrimary = selectionResults.find(r => r.mapItemGroup.selectionStatus == SelectionStatusType.Primary);
             if (!currentPrimary) {
-                currentPrimary = selectionResults.find(
-                    r => r.mapItemGroup.selectionStatus == SelectionStatusType.Secondary && r.mapItemGroup.id != currentPrimaryId);
-                if (!currentPrimary) {
-                    currentPrimary = selectionResults.find(r => r.mapItemGroup.selectionStatus == SelectionStatusType.Secondary);
-                }
+                currentPrimary = selectionResults.find(r => r.mapItemGroup.selectionStatus == SelectionStatusType.Secondary);
                 if (currentPrimary) {
                     currentPrimary.mapItemGroup.selectionStatus = SelectionStatusType.Primary;
                 }
             }
         }
         else {
+            let selectionStatus = SelectionStatusType.Primary;
             for (const selectionResult of selectionResults) {
                 if (selectionResult.isSelected) {
                     selectionResult.mapItemGroup.selectionStatus = selectionStatus;

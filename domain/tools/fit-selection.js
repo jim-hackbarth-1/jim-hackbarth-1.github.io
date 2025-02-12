@@ -13,13 +13,9 @@ class FitSelectionTool {
     #pathDark;
     #pathLight;
     #selectionUtilities;
-    #isCtrlPressed;
-    #isShiftPressed;
-    #isAltPressed;
     #setOperationMode;
     #isArrowPressed;
     #moveIncrementIteration;
-    #isOPressed;
     #isLockModeOn;
     #isToggleSelectionModeOn;
     #isSingleSelectionModeOn;
@@ -377,7 +373,7 @@ class FitSelectionTool {
         for (const mapItemGroup of secondarySelections) {
             for (const mapItem of mapItemGroup.mapItems) {
                 for (const path of mapItem.paths) {
-                    secondaryPaths.push(path);
+                    secondaryPaths.push(path.getData());
                 }
             }
         }

@@ -521,13 +521,8 @@ export class SetUtilities {
     #splitTransit(start, transit, splitPoint, intersectingPathBounds, intersectingPath) {
         let splitArc = false;
         if (transit.radii) {
-            if (transit.largeArcFlag == 1) {
-                splitArc = true;
-            }
-            else {
-                const distance = Math.sqrt(Math.abs(start.x - transit.end.x) ** 2 + Math.abs(start.y - transit.end.y) ** 2);
-                splitArc = (distance > 10);
-            }
+            const distance = Math.sqrt(Math.abs(start.x - transit.end.x) ** 2 + Math.abs(start.y - transit.end.y) ** 2);
+            splitArc = (distance > 10);
         }
         if (splitArc) {
             const arc1 = this.#copyArcInfo(transit);
@@ -558,7 +553,6 @@ export class SetUtilities {
             center: arcInfo.center,
             radii: arcInfo.radii,
             rotationAngle: arcInfo.rotationAngle,
-            largeArcFlag: arcInfo.largeArcFlag,
             sweepFlag: arcInfo.sweepFlag
         };
     }
@@ -617,7 +611,6 @@ export class SetUtilities {
         }
         if (transit1IsArc) {
             if (transit1.rotationAngle != transit2.rotationAngle
-                || transit1.largeArcFlag != transit2.largeArcFlag
                 || this.geometryUtilities.arePointsEqual(transit1.radii, transit2.radii)) {
                 return false;
             }

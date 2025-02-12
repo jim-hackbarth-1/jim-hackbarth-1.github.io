@@ -595,7 +595,7 @@ export class EditorModel {
 
     async #handleKeyDownEvent(event) {
 
-        if (event.ctrlKey || event.key?.startsWith("Arrow")) {
+        if (event.ctrlKey || event.key?.toLowerCase() == "enter" || event.key?.startsWith("Arrow")) {
             event.preventDefault();
             event.stopPropagation();
         }

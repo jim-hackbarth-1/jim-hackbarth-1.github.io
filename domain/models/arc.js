@@ -9,7 +9,6 @@ export class Arc {
         this.#center = InputUtilities.cleansePoint(data?.center);
         this.#radii = InputUtilities.cleansePoint(data?.radii);
         this.#rotationAngle = InputUtilities.cleanseNumber(data?.rotationAngle);
-        this.#largeArcFlag = InputUtilities.cleanseNumber(data?.largeArcFlag);
         this.#sweepFlag = InputUtilities.cleanseNumber(data?.sweepFlag);
     }
 
@@ -51,15 +50,6 @@ export class Arc {
     }
 
     /** @type {number} */
-    #largeArcFlag;
-    get largeArcFlag() {
-        return this.#largeArcFlag ?? 0;
-    }
-    set largeArcFlag(largeArcFlag) {
-        this.#largeArcFlag = largeArcFlag;
-    }
-
-    /** @type {number} */
     #sweepFlag;
     get sweepFlag() {
         return this.#sweepFlag ?? 0;
@@ -75,13 +65,13 @@ export class Arc {
             center: this.#center,
             radii: this.#radii,
             rotationAngle: this.#rotationAngle,
-            largeArcFlag: this.#largeArcFlag,
             sweepFlag: this.#sweepFlag
         };
     }
 
     getPathInfo() {
-        return `a ${this.radii.x} ${this.radii.y} ${this.rotationAngle} ${this.largeArcFlag} ${this.sweepFlag} ${this.end.x} ${this.end.y}`;
+        const largeArcFlag = 0;
+        return `a ${this.radii.x} ${this.radii.y} ${this.rotationAngle} ${largeArcFlag} ${this.sweepFlag} ${this.end.x} ${this.end.y}`;
     }
 
     static getBounds(start, arc) {
@@ -109,7 +99,6 @@ export class Arc {
             center: arcCenter,
             radii: arc.radii,
             rotationAngle: rotationAngle,
-            largeArcFlag: arc.largeArcFlag,
             sweepFlag: arc.sweepFlag
         });
     }
@@ -162,7 +151,6 @@ export class Arc {
             center: newCenter,
             radii: newRadii,
             rotationAngle: arc.rotationAngle,
-            largeArcFlag: arc.largeArcFlag,
             sweepFlag: arc.sweepFlag
         });
     }

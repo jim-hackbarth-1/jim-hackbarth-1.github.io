@@ -17,6 +17,7 @@ export class Overlay {
         this.#size = InputUtilities.cleanseNumber(data?.size);
         this.#color = InputUtilities.cleanseString(data?.color);
         this.#opacity = InputUtilities.cleanseNumber(data?.opacity);
+        this.#isSnapToOverlayEnabled = InputUtilities.cleanseBoolean(data?.isSnapToOverlayEnabled);
     }
 
     // properties
@@ -44,13 +45,20 @@ export class Overlay {
         return this.#opacity ?? 0.5;
     }
 
+    /** @type {boolean}  */
+    #isSnapToOverlayEnabled;
+    get isSnapToOverlayEnabled() {
+        return this.#isSnapToOverlayEnabled;
+    }
+
     // methods
     getData() {
         return {
             pattern: this.#pattern,
             size: this.#size,
             color: this.#color,
-            opacity: this.#opacity
+            opacity: this.#opacity,
+            isSnapToOverlayEnabled: this.#isSnapToOverlayEnabled
         };
     }
 

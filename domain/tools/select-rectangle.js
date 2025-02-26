@@ -16,7 +16,6 @@ class SelectRectangleTool {
     #isLockModeOn;
     #isToggleSelectionModeOn;
     #isSingleSelectionModeOn;
-    #isSnapToOverlayModeOn;
 
     // methods
     async onActivate(mapWorker) {
@@ -31,7 +30,6 @@ class SelectRectangleTool {
         this.#isLockModeOn = false;
         this.#isToggleSelectionModeOn = false;
         this.#isSingleSelectionModeOn = false;
-        this.#isSnapToOverlayModeOn = false;
     }
 
     async handleClientEvent(clientEvent) {
@@ -92,13 +90,11 @@ class SelectRectangleTool {
                 this.#selectMove(eventData);
             }
             if (this.#selectionUtilities.activityState === "Move") {
-                this.#selectionUtilities.move(
-                    this.#mapWorker, this.#pointDown, currentPoint, this.#isLockModeOn, this.#isSnapToOverlayModeOn);
+                this.#selectionUtilities.move(this.#mapWorker, this.#pointDown, currentPoint, this.#isLockModeOn);
                 this.#mapWorker.renderMap();
             }
             if (this.#selectionUtilities.activityState.startsWith("Resize")) {
-                this.#selectionUtilities.resize(
-                    this.#mapWorker, this.#pointDown, currentPoint, this.#isLockModeOn, this.#isSnapToOverlayModeOn);
+                this.#selectionUtilities.resize(this.#mapWorker, this.#pointDown, currentPoint, this.#isLockModeOn);
                 this.#mapWorker.renderMap();
                 this.#selectionUtilities.drawArcsRadii(this.#mapWorker);
             }
@@ -134,11 +130,8 @@ class SelectRectangleTool {
     }
 
     #onKeyDown(eventData) {
-        if (eventData.key == "Control" || eventData.key == "Shift") {
+        if (eventData.key == "Shift" || eventData.key == "Control" || eventData.key == "Alt") {
             this.#isToggleSelectionModeOn = true;
-        }
-        if (eventData.key == "Alt") {
-            this.#isSingleSelectionModeOn = true;
         }
         if (eventData.key == "ArrowLeft") {
             this.#moveIncrement(eventData, -1, 0);
@@ -152,24 +145,24 @@ class SelectRectangleTool {
         if (eventData.key == "ArrowDown") {
             this.#moveIncrement(eventData, 0, 1);
         }
+        if (eventData.key?.toLowerCase() == "o" && !eventData.repeat) {
+            this.#mapWorker.toggleSnapToOverlayMode();
+        }
+        if (eventData.key?.toLowerCase() == "l" && !eventData.repeat) {
+            this.#isLockModeOn = !this.#isLockModeOn;
+        }
+        if (eventData.key?.toLowerCase() == "s" && !eventData.repeat) {
+            this.#isSingleSelectionModeOn = !this.#isSingleSelectionModeOn;
+        }
     }
 
     #onKeyUp(eventData) {
-        if (eventData.key == "Control" || eventData.key == "Shift") {
+        if (eventData.key == "Shift" || eventData.key == "Control" || eventData.key == "Alt") {
             this.#isToggleSelectionModeOn = false;
-        }
-        if (eventData.key == "Alt") {
-            this.#isSingleSelectionModeOn = false;
         }
         if (eventData.key?.startsWith("Arrow")) {
             this.#moveIncrementIteration = 0;
             this.#isArrowPressed = false;
-        }
-        if (eventData.ctrlKey && eventData.key?.toLowerCase() == "o") {
-            this.#isSnapToOverlayModeOn = !this.#isSnapToOverlayModeOn;
-        }
-        if (eventData.ctrlKey && eventData.key?.toLowerCase() == "l") {
-            this.#isLockModeOn = !this.#isLockModeOn;
         }
     }
 

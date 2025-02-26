@@ -7,12 +7,10 @@ class DrawPointTool {
 
     // fields
     #mapWorker;
-    #isOPressed;
 
     // methods
     async onActivate(mapWorker) {
         this.#mapWorker = mapWorker;
-        this.#isOPressed = false;
     }
 
     async handleClientEvent(clientEvent) {
@@ -21,8 +19,8 @@ class DrawPointTool {
             case "pointerup":
                 await this.#onPointerUp(eventData);
                 break;
-            case "keyup":
-                this.#onKeyUp(eventData);
+            case "keydown":
+                this.#onKeyDown(eventData);
                 break;
         }
     }
@@ -32,16 +30,16 @@ class DrawPointTool {
         await this.#addMapItemGroup(eventData);
     }
 
-    #onKeyUp(eventData) {
-        if (eventData.key?.toLowerCase() == "o") {
-            this.#isOPressed = !this.#isOPressed;
+    #onKeyDown(eventData) {
+        if (eventData.key?.toLowerCase() == "o" && !eventData.repeat) {
+            this.#mapWorker.toggleSnapToOverlayMode();
         }
     }
 
     async #addMapItemGroup(eventData) {
         if (eventData && this.#mapWorker.map && this.#mapWorker.activeMapItemTemplate) {
             let point = this.#transformCanvasPoint(eventData.offsetX, eventData.offsetY);
-            if (this.#isOPressed) {
+            if (this.#mapWorker.map.overlay.isSnapToOverlayEnabled) {
                 point = this.#mapWorker.map.overlay.getNearestOverlayPoint(point);
             }
             const size = 5;

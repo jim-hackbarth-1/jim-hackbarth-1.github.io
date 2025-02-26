@@ -10,6 +10,7 @@ import {
     Layer,
     Map,
     MapItemGroup,
+    Overlay,
     Path,
     SelectionUtilities,
     SetUtilities
@@ -198,6 +199,12 @@ export class MapWorker {
 
     createSelectionUtilities() {
         return new SelectionUtilities();
+    }
+
+    toggleSnapToOverlayMode() {
+        const overlayData = this.map.overlay.getData();
+        overlayData.isSnapToOverlayEnabled = !overlayData.isSnapToOverlayEnabled;
+        this.map.overlay = new Overlay(overlayData);
     }
 
     renderMap(options) {

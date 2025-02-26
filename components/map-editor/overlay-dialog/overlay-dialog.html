@@ -3,8 +3,8 @@
     <style>
         @scope (.overlay-dialog-component) {
             :scope {
-                height: 350px;
-                width: 175px;
+                height: 400px;
+                width: 200px;
                 border: 1px solid var(--theme-color-tertiary-darkest);
             }
 
@@ -49,6 +49,18 @@
                 width: 75px;
             }
 
+            .checkmark {
+                border-radius: 3px;
+                background-color: var(--theme-color-tertiary-lightest);
+                border-color: var(--theme-color-tertiary-darkest);
+            }
+
+            #snapLabel:hover input ~ .checkmark {
+                background-color: var(--theme-color-tertiary-lighter);
+                border-color: var(--theme-color-tertiary-darkest);
+                box-shadow: var(--theme-color-tertiary-lightest) 1px 1px 3px 0 inset, var(--theme-color-tertiary-lightest) -1px -1px 3px 0 inset;
+            }
+
             input[type="number"]:invalid + .invalid::after {
                 content: "✖";
                 background-color: var(--theme-color-complementary-lighter);
@@ -65,7 +77,7 @@
                 border: 1px solid var(--theme-color-tertiary-darkest);
             }
 
-            input[type="number"]:not([disabled]):hover {
+            input[type="number"]:not([disabled]):hover, select:hover {
                 box-shadow: var(--theme-color-tertiary-lightest) 1px 1px 3px 0 inset, var(--theme-color-tertiary-lightest) -1px -1px 3px 0 inset;
             }
         }
@@ -111,6 +123,14 @@
                 <label>Opacity(%):</label>
                 <input id="inputOpacity" title="Opacity(%)" type="number" min="0" max="100" required onchange="#model.onOverlayChange()" />
                 <span class="invalid"></span>
+            </div>
+            <div>
+                <label>Snap enabled:</label>
+                <br/>
+                <label class="checkbox" id="snapLabel" title="Snap enabled">
+                    <input type="checkbox" id="inputSnap" onchange="#model.onOverlayChange()" />
+                    <span class="checkmark"></span>
+                </label>
             </div>
         </div>
     </section>

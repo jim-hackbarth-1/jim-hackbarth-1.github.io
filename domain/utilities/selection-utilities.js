@@ -273,7 +273,7 @@ export class SelectionUtilities {
         return mapWorker.createChangeSet(changes);
     }
 
-    move(mapWorker, startPoint, endPoint, useLockMode, snapToOverlay) {
+    move(mapWorker, startPoint, endPoint, useLockMode) {
         let dx = (endPoint.x - startPoint.x) / mapWorker.map.zoom;
         let dy = (endPoint.y - startPoint.y) / mapWorker.map.zoom;
         if (useLockMode) {
@@ -284,6 +284,7 @@ export class SelectionUtilities {
                 dx = 0;
             }
         }
+        const snapToOverlay = mapWorker.map.overlay.isSnapToOverlayEnabled;
         let selectionStartData = this.selectionStartData;
         for (const selection of selectionStartData) {
             const start = { x: selection.startingPathData.start.x + dx, y: selection.startingPathData.start.y + dy }
@@ -328,10 +329,11 @@ export class SelectionUtilities {
         }
     }
 
-    resize(mapWorker, startPoint, endPoint, useLockMode, snapToOverlay) {
+    resize(mapWorker, startPoint, endPoint, useLockMode) {
         if (!this.changeReferenceBounds) {
             return;
         }
+        const snapToOverlay = mapWorker.map.overlay.isSnapToOverlayEnabled;
         if (this.activityState === ActivityState.ResizeSE) {
             this.#resizeSEMove(mapWorker, startPoint, endPoint, useLockMode, snapToOverlay);
         }

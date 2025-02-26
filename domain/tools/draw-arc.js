@@ -13,13 +13,13 @@ class DrawArcTool {
     #yCurrent;
     #isDrawing;
     #isShiftPressed;
-    #isOPressed;
+    #isLockModeOn;
 
     // methods
     async onActivate(mapWorker) {
         this.#mapWorker = mapWorker;
         this.#isShiftPressed = false;
-        this.#isOPressed = false;
+        this.#isLockModeOn = false;
     }
 
     async handleClientEvent(clientEvent) {
@@ -66,21 +66,24 @@ class DrawArcTool {
         if (eventData.key == "Shift") {
             this.#isShiftPressed = true;
         }
+        if (eventData.key?.toLowerCase() == "o" && !eventData.repeat) {
+            this.#mapWorker.toggleSnapToOverlayMode();
+        }
+        if (eventData.key?.toLowerCase() == "l" && !eventData.repeat) {
+            this.#isLockModeOn = !this.#isLockModeOn;
+        }
     }
 
     #onKeyUp(eventData) {
         if (eventData.key == "Shift") {
             this.#isShiftPressed = false;
         }
-        if (eventData.key?.toLowerCase() == "o") {
-            this.#isOPressed = !this.#isOPressed;
-        }
     }
 
     #drawStart(eventData) {
         this.#mapWorker.renderingContext.setLineDash([5, 10]);
         let start = { x: eventData.offsetX, y: eventData.offsetY };
-        if (this.#isOPressed) {
+        if (this.#mapWorker.map.overlay.isSnapToOverlayEnabled) {
             let mapPoint = this.#transformCanvasPoint(start.x, start.y);
             mapPoint = this.#mapWorker.map.overlay.getNearestOverlayPoint(mapPoint);
             start = this.#transformMapPoint(mapPoint.x, mapPoint.y);
@@ -93,7 +96,7 @@ class DrawArcTool {
 
     #draw(eventData) {
         let point = { x: eventData.offsetX, y: eventData.offsetY };
-        if (this.#isOPressed) {
+        if (this.#mapWorker.map.overlay.isSnapToOverlayEnabled) {
             let mapPoint = this.#transformCanvasPoint(point.x, point.y);
             mapPoint = this.#mapWorker.map.overlay.getNearestOverlayPoint(mapPoint);
             point = this.#transformMapPoint(mapPoint.x, mapPoint.y);
@@ -104,7 +107,7 @@ class DrawArcTool {
 
     #setCurrentPoint(point) {
         this.#xCurrent = point.x;
-        if (this.#isShiftPressed) {
+        if (this.#isShiftPressed || this.#isLockModeOn) {
             const xDelta = Math.abs(this.#xCurrent - this.#xStart);
             if (point.y < this.#yStart) {
                 this.#yCurrent = this.#yStart - xDelta;

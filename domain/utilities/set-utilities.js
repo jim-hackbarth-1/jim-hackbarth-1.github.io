@@ -24,7 +24,9 @@ export class SetUtilities {
             for (const pathIn of pathsIn) {
                 const unionPaths = this.getUnion(pathIn, secondaryPath);
                 for (const unionPath of unionPaths) {
-                    pathsOut.push(unionPath);
+                    if (!pathsOut.some(p => this.geometryUtilities.arePointsEqual(p.start, unionPath.start))) {
+                        pathsOut.push(unionPath);
+                    }
                 }
             }
             pathsIn = pathsOut;
@@ -205,7 +207,7 @@ export class SetUtilities {
         const end = this.geometryUtilities.getTransitEndPoint(start, transit);
         if ((intersections.length == 0) || (intersections.length == 1 && this.geometryUtilities.arePointsEqual(intersections[0], end))) {
             let isTranitIntersecting = isIntersecting;
-            if (testIsIntersecting) {
+            if (testIsIntersecting || transit.radii) {
                 isTranitIntersecting = this.#isTransitInPath(start, transit, intersectingPathBounds, intersectingPath);
             }
             return [new TransitInfo(start, transit, isTranitIntersecting)];
@@ -264,7 +266,7 @@ export class SetUtilities {
     #getUnionFragments(contiguousFragmentsA, contiguousFragmentsB) {
         const fragments = [];
         for (const fragment of contiguousFragmentsA) {
-            if (!fragment.isIntersecting || fragment.isShared) {
+            if (!fragment.isIntersecting) {
                 fragments.push(fragment);
             }
         }

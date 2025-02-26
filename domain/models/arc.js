@@ -104,7 +104,94 @@ export class Arc {
     }
 
     static resizeArc(arc, scaleX, scaleY) {
+        if (arc.radii.x == arc.radii.y) {
+            arc.rotationAngle = 0;
+        }
+        if (arc.rotationAngle % 90 == 0) {
+            return Arc.#resizeArcAxisAligned(arc, scaleX, scaleY);
+        }
+        const scaledEllipsePoints = Arc.#getScaledEllipsePoints(arc, scaleX, scaleY);
+        const coefficients = Arc.#findEllipseCoefficients(scaledEllipsePoints);
+        if (!coefficients) {
+            return Arc.#resizeArcAxisAligned(arc, scaleX, scaleY);
+        }
+        let A, B, C, D, E, F;
+        [A, B, C, D, E, F] = [coefficients.A, coefficients.B, coefficients.C, coefficients.D, coefficients.E, coefficients.F];
+        const rotationAngle = (1 / 2) * Math.atan2(-B, C - A) * (180 / Math.PI);
+        const disc = B ** 2 - 4 * A * C;
+        const rx = -Math.sqrt(2 * (A * E ** 2 + C * D ** 2 - B * D * E + disc * F) * ((A + C) + Math.sqrt((A - C) ** 2 + B ** 2))) / disc;
+        const ry = -Math.sqrt(2 * (A * E ** 2 + C * D ** 2 - B * D * E + disc * F) * ((A + C) - Math.sqrt((A - C) ** 2 + B ** 2))) / disc;
+        const scaledEnd = { x: arc.end.x * scaleX, y: arc.end.y * scaleY };
+        const scaledCenter = { x: arc.center.x * scaleX, y: arc.center.y * scaleY };
+        return new Arc({
+            end: scaledEnd,
+            center: scaledCenter,
+            radii: { x: rx, y: ry },
+            rotationAngle: rotationAngle,
+            sweepFlag: arc.sweepFlag
+        });
 
+    }
+
+    static #getScaledEllipsePoints(arc, scaleX, scaleY) {
+        const extrema = Arc.#getEllipseExtrema(arc);
+        const scaledExtrema = {
+            top: { x: extrema.top.x * scaleX, y: extrema.top.y * scaleY },
+            left: { x: extrema.left.x * scaleX, y: extrema.left.y * scaleY },
+            bottom: { x: extrema.bottom.x * scaleX, y: extrema.bottom.y * scaleY },
+            right: { x: extrema.right.x * scaleX, y: extrema.right.y * scaleY }
+        };
+        const scaledEnd = { x: arc.end.x * scaleX, y: arc.end.y * scaleY };
+        const scaledCenter = { x: arc.center.x * scaleX, y: arc.center.y * scaleY };
+        const scaledEndRelativeToScaledCenter = { x: scaledEnd.x - scaledCenter.x, y: scaledEnd.y - scaledCenter.y };
+        const ellipsePoints = [scaledExtrema.top, scaledExtrema.right, scaledExtrema.bottom, scaledExtrema.left];
+        if (!this.#arePointsEqual(scaledExtrema.top, scaledEndRelativeToScaledCenter)
+            && !this.#arePointsEqual(scaledExtrema.bottom, scaledEndRelativeToScaledCenter)
+            && !this.#arePointsEqual(scaledExtrema.left, scaledEndRelativeToScaledCenter)
+            && !this.#arePointsEqual(scaledExtrema.right, scaledEndRelativeToScaledCenter)) {
+            ellipsePoints.push(scaledEndRelativeToScaledCenter);
+        }
+        if (ellipsePoints.length == 4) {
+            const scaledStartRelativeToScaledCenter = { x: -scaledCenter.x * scaleX, y: -scaledCenter.y };
+            if (!this.#arePointsEqual(scaledExtrema.top, scaledStartRelativeToScaledCenter)
+                && !this.#arePointsEqual(scaledExtrema.bottom, scaledStartRelativeToScaledCenter)
+                && !this.#arePointsEqual(scaledExtrema.left, scaledStartRelativeToScaledCenter)
+                && !this.#arePointsEqual(scaledExtrema.right, scaledStartRelativeToScaledCenter)) {
+                ellipsePoints.push(scaledStartRelativeToScaledCenter);
+            }
+        }
+        return ellipsePoints;
+    }
+
+    static #getEllipseExtrema(ellipse) {
+        const radians = (ellipse.rotationAngle ?? 0) * (Math.PI / 180);
+        const rx = ellipse.radii.x;
+        const ry = ellipse.radii.y;
+        const cos = Math.cos(radians);
+        const sin = Math.sin(radians);
+        let xRight = Math.sqrt(rx ** 2 * cos ** 2 + ry ** 2 * sin ** 2);
+        let yRight = -((ry ** 2 - rx ** 2) * Math.sin(2 * radians)) / (2 * Math.sqrt(rx ** 2 * cos ** 2 + ry ** 2 * sin ** 2));
+        let xLeft = -xRight;
+        let yLeft = -yRight;
+        let xTop = ((ry ** 2 - rx ** 2) * Math.sin(2 * radians)) / (2 * Math.sqrt(rx ** 2 * sin ** 2 + ry ** 2 * cos ** 2));
+        let yTop = -Math.sqrt(rx ** 2 * sin ** 2 + ry ** 2 * cos ** 2);
+        let xBottom = -xTop;
+        let yBottom = -yTop;
+        const top = { x: xTop, y: yTop };
+        const left = { x: xLeft, y: yLeft };
+        const bottom = { x: xBottom, y: yBottom };
+        const right = { x: xRight, y: yRight };
+        return { top: top, left: left, bottom: bottom, right: right };
+    }
+
+    static #arePointsEqual(point1, point2, maxDifference) {
+        if (!maxDifference) {
+            maxDifference = 2;
+        }
+        return (Math.abs(point1.x - point2.x) <= maxDifference) && (Math.abs(point1.y - point2.y) <= maxDifference)
+    }
+
+    static #resizeArcAxisAligned(arc, scaleX, scaleY) {
         // calculate scale considering rotation
         const theta = arc.rotationAngle * (Math.PI / 180);
         const cos = Math.cos(theta);
@@ -153,5 +240,51 @@ export class Arc {
             rotationAngle: arc.rotationAngle,
             sweepFlag: arc.sweepFlag
         });
+    }
+
+    static #findEllipseCoefficients(points) {
+        if (points.length != 5) {
+            return null;
+        }
+        const matrix = [];
+        for (const pt of points) {
+            matrix.push([pt.x * pt.x, pt.x * pt.y, pt.y * pt.y, pt.x, pt.y, -1]);
+        }
+        const coefficients = Arc.#gaussJordanEllimination(matrix);
+        const [A, B, C, D, E] = coefficients;
+        const F = 1;
+        if (B * B - 4 * A * C >= 0) {
+            // coefficients do not define an ellipse
+            return null;
+        }
+        return { A, B, C, D, E, F };
+    }
+
+    static #gaussJordanEllimination(matrix) {
+        const n = matrix.length;
+        for (let i = 0; i < n; i++) {
+            let maxRow = i;
+            for (let k = i + 1; k < n; k++) {
+                if (Math.abs(matrix[k][i]) > Math.abs(matrix[maxRow][i])) {
+                    maxRow = k;
+                }
+            }
+            [matrix[i], matrix[maxRow]] = [matrix[maxRow], matrix[i]];
+            for (let k = 0; k < n; k++) {
+                if (k !== i) {
+                    const factor = matrix[k][i] / matrix[i][i];
+                    for (let j = i; j < n + 1; j++) {
+                        matrix[k][j] -= factor * matrix[i][j];
+                    }
+                } else {
+                    const factor = matrix[i][i];
+                    for (let j = i; j < n + 1; j++) {
+                        matrix[i][j] /= factor;
+                    }
+                }
+            }
+        }
+        const result = matrix.map(row => row[n]);
+        return result;
     }
 }

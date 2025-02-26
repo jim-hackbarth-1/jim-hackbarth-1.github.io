@@ -517,302 +517,305 @@ export class SelectionUtilities {
     }
 
     #resizeSEMove(mapWorker, startPoint, endPoint, useLockMode, snapToOverlay) {
-        let end = endPoint;
-        if (snapToOverlay) {
-            let mapPoint = this.#transformCanvasPoint(mapWorker, end.x, end.y);
-            mapPoint = mapWorker.map.overlay.getNearestOverlayPoint(mapPoint);
-            end = this.#transformMapPoint(mapWorker, mapPoint.x, mapPoint.y);
-        }
-        let dx = (end.x - startPoint.x) / mapWorker.map.zoom;
-        let dy = (end.y - startPoint.y) / mapWorker.map.zoom;
+        const dx = (endPoint.x - startPoint.x) / mapWorker.map.zoom;
+        const dy = (endPoint.y - startPoint.y) / mapWorker.map.zoom;
+        let defaultScaleX = (this.changeReferenceBounds.bounds.width + dx) / this.changeReferenceBounds.bounds.width;
+        let defaultScaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
         if (useLockMode) {
-            dy = dx;
-        }      
-        const scaleX = (this.changeReferenceBounds.bounds.width + dx) / this.changeReferenceBounds.bounds.width;
-        const scaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
-        this.#scaleSelections(mapWorker, scaleX, scaleY)
+            defaultScaleY = defaultScaleX;
+        }
         for (const selection of this.selectionStartData) {
-            const newBounds = this.#getMapItemGroupBounds(mapWorker, selection.mapItemGroupId);
-            const offset = { x: newBounds.x - selection.mapItemGroupBounds.x, y: newBounds.y - selection.mapItemGroupBounds.y };
-            const start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            let scaleX = defaultScaleX;
+            let scaleY = defaultScaleY;
             if (snapToOverlay) {
-                const bounds = mapWorker.geometryUtilities.getPathBounds(start, selection.path.transits);
-                const se = { x: bounds.x + bounds.width, y: bounds.y + bounds.height };
-                const snap = mapWorker.map.overlay.getNearestOverlayPoint(se);
-                const snapX = snap.x - se.x;
-                const snapY = snap.y - se.y;
-                start.x += snapX;
-                start.y += snapY;
+                const scaledWidth = selection.mapItemGroupBounds.width * defaultScaleX;
+                const scaledHeight = selection.mapItemGroupBounds.height * defaultScaleY;
+                const br = { x: selection.mapItemGroupBounds.x + scaledWidth, y: selection.mapItemGroupBounds.y + scaledHeight };
+                const overlayPoint = mapWorker.map.overlay.getNearestOverlayPoint(br);
+                scaleX = (overlayPoint.x - selection.mapItemGroupBounds.x) / selection.mapItemGroupBounds.width;
+                scaleY = (overlayPoint.y - selection.mapItemGroupBounds.y) / selection.mapItemGroupBounds.height;
             }
-            selection.path.start = start;
+            this.#scaleSelection(mapWorker, selection, scaleX, scaleY);
+            let scaledXRelativeToMig = (selection.startingPathData.start.x - selection.mapItemGroupBounds.x) * scaleX;
+            let scaledYRelativeToMig = (selection.startingPathData.start.y - selection.mapItemGroupBounds.y) * scaleY;
+            let startX = selection.mapItemGroupBounds.x + scaledXRelativeToMig;
+            let startY = selection.mapItemGroupBounds.y + scaledYRelativeToMig;
+            selection.path.start = { x: startX, y: startY };
             if (selection.path.clipPaths) {
                 for (const clipPath of selection.path.clipPaths) {
-                    clipPath.start = { x: clipPath.start.x - offset.x, y: clipPath.start.y - offset.y };
+                    const startingPathData = selection.startingPathData.clipPaths.find(x => x.id == clipPath.id);
+                    scaledXRelativeToMig = (startingPathData.start.x - selection.mapItemGroupBounds.x) * scaleX;
+                    scaledYRelativeToMig = (startingPathData.start.y - selection.mapItemGroupBounds.y) * scaleY;
+                    startX = selection.mapItemGroupBounds.x + scaledXRelativeToMig;
+                    startY = selection.mapItemGroupBounds.y + scaledYRelativeToMig;
+                    clipPath.start = { x: startX, y: startY };
                 }
             }
         }
     }
 
     #resizeSMove(mapWorker, startPoint, endPoint, snapToOverlay) {
-        let end = endPoint;
-        if (snapToOverlay) {
-            let mapPoint = this.#transformCanvasPoint(mapWorker, end.x, end.y);
-            mapPoint = mapWorker.map.overlay.getNearestOverlayPoint(mapPoint);
-            end = this.#transformMapPoint(mapWorker, mapPoint.x, mapPoint.y);
-        }
-        const dy = (end.y - startPoint.y) / mapWorker.map.zoom;
-        const scaleX = 1;
-        const scaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
-        this.#scaleSelections(mapWorker, scaleX, scaleY)
+        const dy = (endPoint.y - startPoint.y) / mapWorker.map.zoom;
+        let defaultScaleX = 1;
+        let defaultScaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
         for (const selection of this.selectionStartData) {
-            const newBounds = this.#getMapItemGroupBounds(mapWorker, selection.mapItemGroupId);
-            const offset = { x: 0, y: newBounds.y - selection.mapItemGroupBounds.y };
-            const start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            let scaleX = defaultScaleX;
+            let scaleY = defaultScaleY;
             if (snapToOverlay) {
-                const bounds = mapWorker.geometryUtilities.getPathBounds(start, selection.path.transits);
-                const s = { x: bounds.x + (bounds.width / 2), y: bounds.y + bounds.height };
-                const snap = mapWorker.map.overlay.getNearestOverlayPoint(s);
-                const snapY = snap.y - s.y;
-                start.y += snapY;
+                const scaledWidth = selection.mapItemGroupBounds.width * defaultScaleX;
+                const scaledHeight = selection.mapItemGroupBounds.height * defaultScaleY;
+                const br = { x: selection.mapItemGroupBounds.x + scaledWidth, y: selection.mapItemGroupBounds.y + scaledHeight };
+                const overlayPoint = mapWorker.map.overlay.getNearestOverlayPoint(br);
+                scaleY = (overlayPoint.y - selection.mapItemGroupBounds.y) / selection.mapItemGroupBounds.height;
             }
-            selection.path.start = start;
+            this.#scaleSelection(mapWorker, selection, scaleX, scaleY);
+            let scaledXRelativeToMig = (selection.startingPathData.start.x - selection.mapItemGroupBounds.x) * scaleX;
+            let scaledYRelativeToMig = (selection.startingPathData.start.y - selection.mapItemGroupBounds.y) * scaleY;
+            let startX = selection.mapItemGroupBounds.x + scaledXRelativeToMig;
+            let startY = selection.mapItemGroupBounds.y + scaledYRelativeToMig;
+            selection.path.start = { x: startX, y: startY };
             if (selection.path.clipPaths) {
                 for (const clipPath of selection.path.clipPaths) {
-                    clipPath.start = { x: clipPath.start.x - offset.x, y: clipPath.start.y - offset.y };
+                    const startingPathData = selection.startingPathData.clipPaths.find(x => x.id == clipPath.id);
+                    scaledXRelativeToMig = (startingPathData.start.x - selection.mapItemGroupBounds.x) * scaleX;
+                    scaledYRelativeToMig = (startingPathData.start.y - selection.mapItemGroupBounds.y) * scaleY;
+                    startX = selection.mapItemGroupBounds.x + scaledXRelativeToMig;
+                    startY = selection.mapItemGroupBounds.y + scaledYRelativeToMig;
+                    clipPath.start = { x: startX, y: startY };
                 }
             }
         }
     }
 
     #resizeSWMove(mapWorker, startPoint, endPoint, useLockMode, snapToOverlay) {
-        let end = endPoint;
-        if (snapToOverlay) {
-            let mapPoint = this.#transformCanvasPoint(mapWorker, end.x, end.y);
-            mapPoint = mapWorker.map.overlay.getNearestOverlayPoint(mapPoint);
-            end = this.#transformMapPoint(mapWorker, mapPoint.x, mapPoint.y);
-        }
-        let dx = (startPoint.x - end.x) / mapWorker.map.zoom;
-        let dy = (end.y - startPoint.y) / mapWorker.map.zoom;
+        const dx = (startPoint.x - endPoint.x) / mapWorker.map.zoom;
+        const dy = (endPoint.y - startPoint.y) / mapWorker.map.zoom;
+        let defaultScaleX = (this.changeReferenceBounds.bounds.width + dx) / this.changeReferenceBounds.bounds.width;
+        let defaultScaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
         if (useLockMode) {
-            dy = dx;
-        } 
-        const scaleX = (this.changeReferenceBounds.bounds.width + dx) / this.changeReferenceBounds.bounds.width;
-        const scaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
-        this.#scaleSelections(mapWorker, scaleX, scaleY)
+            defaultScaleY = defaultScaleX;
+        }
         for (const selection of this.selectionStartData) {
-            const newBounds = this.#getMapItemGroupBounds(mapWorker, selection.mapItemGroupId);
-            const offset = {
-                x: (newBounds.x + newBounds.width) - (selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width),
-                y: newBounds.y - selection.mapItemGroupBounds.y
-            };
-            const start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            let scaleX = defaultScaleX;
+            let scaleY = defaultScaleY;
             if (snapToOverlay) {
-                const bounds = mapWorker.geometryUtilities.getPathBounds(start, selection.path.transits);
-                const s = { x: bounds.x, y: bounds.y + bounds.height };
-                const snap = mapWorker.map.overlay.getNearestOverlayPoint(s);
-                const snapX = snap.x - s.x;
-                const snapY = snap.y - s.y;
-                start.x += snapX;
-                start.y += snapY;
+                const scaledWidth = selection.mapItemGroupBounds.width * defaultScaleX;
+                const scaledHeight = selection.mapItemGroupBounds.height * defaultScaleY;
+                const bl = {
+                    x: selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - scaledWidth,
+                    y: selection.mapItemGroupBounds.y + scaledHeight
+                };
+                const overlayPoint = mapWorker.map.overlay.getNearestOverlayPoint(bl);
+                scaleX = (selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - overlayPoint.x) / selection.mapItemGroupBounds.width;
+                scaleY = (overlayPoint.y - selection.mapItemGroupBounds.y) / selection.mapItemGroupBounds.height;
             }
-            selection.path.start = start;
+            this.#scaleSelection(mapWorker, selection, scaleX, scaleY);
+            let scaledXRelativeToMig = (selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - selection.startingPathData.start.x) * scaleX;
+            let scaledYRelativeToMig = (selection.startingPathData.start.y - selection.mapItemGroupBounds.y) * scaleY;
+            let startX = selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - scaledXRelativeToMig;
+            let startY = selection.mapItemGroupBounds.y + scaledYRelativeToMig;
+            selection.path.start = { x: startX, y: startY };
             if (selection.path.clipPaths) {
                 for (const clipPath of selection.path.clipPaths) {
-                    clipPath.start = { x: clipPath.start.x - offset.x, y: clipPath.start.y - offset.y };
+                    const startingPathData = selection.startingPathData.clipPaths.find(x => x.id == clipPath.id);
+                    scaledXRelativeToMig = (selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - startingPathData.start.x) * scaleX;
+                    scaledYRelativeToMig = (startingPathData.start.y - selection.mapItemGroupBounds.y) * scaleY;
+                    startX = selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - scaledXRelativeToMig;
+                    startY = selection.mapItemGroupBounds.y + scaledYRelativeToMig;
+                    clipPath.start = { x: startX, y: startY };
                 }
             }
         }
     }
 
     #resizeWMove(mapWorker, startPoint, endPoint, snapToOverlay) {
-        let end = endPoint;
-        if (snapToOverlay) {
-            let mapPoint = this.#transformCanvasPoint(mapWorker, end.x, end.y);
-            mapPoint = mapWorker.map.overlay.getNearestOverlayPoint(mapPoint);
-            end = this.#transformMapPoint(mapWorker, mapPoint.x, mapPoint.y);
-        }
-        const dx = (startPoint.x - end.x) / mapWorker.map.zoom;
-        const scaleX = (this.changeReferenceBounds.bounds.width + dx) / this.changeReferenceBounds.bounds.width;
-        const scaleY = 1;
-        this.#scaleSelections(mapWorker, scaleX, scaleY)
+        const dx = (startPoint.x - endPoint.x) / mapWorker.map.zoom;
+        let defaultScaleX = (this.changeReferenceBounds.bounds.width + dx) / this.changeReferenceBounds.bounds.width;
+        let defaultScaleY = 1;
         for (const selection of this.selectionStartData) {
-            const newBounds = this.#getMapItemGroupBounds(mapWorker, selection.mapItemGroupId);
-            const offset = { x: (newBounds.x + newBounds.width) - (selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width), y: 0 };
-            const start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            let scaleX = defaultScaleX;
+            let scaleY = defaultScaleY;
             if (snapToOverlay) {
-                const bounds = mapWorker.geometryUtilities.getPathBounds(start, selection.path.transits);
-                const w = { x: bounds.x, y: bounds.y + (bounds.height / 2) };
-                const snap = mapWorker.map.overlay.getNearestOverlayPoint(w);
-                const snapX = snap.x - w.x;
-                start.x += snapX;
+                const scaledWidth = selection.mapItemGroupBounds.width * defaultScaleX;
+                const scaledHeight = selection.mapItemGroupBounds.height * defaultScaleY;
+                const bl = {
+                    x: selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - scaledWidth,
+                    y: selection.mapItemGroupBounds.y + scaledHeight
+                };
+                const overlayPoint = mapWorker.map.overlay.getNearestOverlayPoint(bl);
+                scaleX = (selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - overlayPoint.x) / selection.mapItemGroupBounds.width;
             }
-            selection.path.start = start;
+            this.#scaleSelection(mapWorker, selection, scaleX, scaleY);
+            let scaledXRelativeToMig = (selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - selection.startingPathData.start.x) * scaleX;
+            let scaledYRelativeToMig = (selection.startingPathData.start.y - selection.mapItemGroupBounds.y) * scaleY;
+            let startX = selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - scaledXRelativeToMig;
+            let startY = selection.mapItemGroupBounds.y + scaledYRelativeToMig;
+            selection.path.start = { x: startX, y: startY };
             if (selection.path.clipPaths) {
                 for (const clipPath of selection.path.clipPaths) {
-                    clipPath.start = { x: clipPath.start.x - offset.x, y: clipPath.start.y - offset.y };
+                    const startingPathData = selection.startingPathData.clipPaths.find(x => x.id == clipPath.id);
+                    scaledXRelativeToMig = (selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - startingPathData.start.x) * scaleX;
+                    scaledYRelativeToMig = (startingPathData.start.y - selection.mapItemGroupBounds.y) * scaleY;
+                    startX = selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - scaledXRelativeToMig;
+                    startY = selection.mapItemGroupBounds.y + scaledYRelativeToMig;
+                    clipPath.start = { x: startX, y: startY };
                 }
             }
         }
     }
 
     #resizeNWMove(mapWorker, startPoint, endPoint, useLockMode, snapToOverlay) {
-        let end = endPoint;
-        if (snapToOverlay) {
-            let mapPoint = this.#transformCanvasPoint(mapWorker, end.x, end.y);
-            mapPoint = mapWorker.map.overlay.getNearestOverlayPoint(mapPoint);
-            end = this.#transformMapPoint(mapWorker, mapPoint.x, mapPoint.y);
-        }
-        let dx = (startPoint.x - end.x) / mapWorker.map.zoom;
-        let dy = (startPoint.y - end.y) / mapWorker.map.zoom;
+        const dx = (startPoint.x - endPoint.x) / mapWorker.map.zoom;
+        const dy = (startPoint.y - endPoint.y) / mapWorker.map.zoom;
+        let defaultScaleX = (this.changeReferenceBounds.bounds.width + dx) / this.changeReferenceBounds.bounds.width;
+        let defaultScaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
         if (useLockMode) {
-            dy = dx;
-        } 
-        const scaleX = (this.changeReferenceBounds.bounds.width + dx) / this.changeReferenceBounds.bounds.width;
-        const scaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
-        this.#scaleSelections(mapWorker, scaleX, scaleY)
+            defaultScaleY = defaultScaleX;
+        }
         for (const selection of this.selectionStartData) {
-            const newBounds = this.#getMapItemGroupBounds(mapWorker, selection.mapItemGroupId);
-            const offset = {
-                x: (newBounds.x + newBounds.width) - (selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width),
-                y: (newBounds.y + newBounds.height) - (selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height)
-            };
-            let start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            let scaleX = defaultScaleX;
+            let scaleY = defaultScaleY;
             if (snapToOverlay) {
-                const bounds = mapWorker.geometryUtilities.getPathBounds(start, selection.path.transits);
-                const nw = { x: bounds.x, y: bounds.y };
-                const snap = mapWorker.map.overlay.getNearestOverlayPoint(nw);
-                const snapX = snap.x - nw.x;
-                const snapY = snap.y - nw.y;
-                start.x += snapX;
-                start.y += snapY;
+                const scaledWidth = selection.mapItemGroupBounds.width * defaultScaleX;
+                const scaledHeight = selection.mapItemGroupBounds.height * defaultScaleY;
+                const tl = {
+                    x: selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - scaledWidth,
+                    y: selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - scaledHeight
+                };
+                const overlayPoint = mapWorker.map.overlay.getNearestOverlayPoint(tl);
+                scaleX = (selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - overlayPoint.x) / selection.mapItemGroupBounds.width;
+                scaleY = (selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - overlayPoint.y) / selection.mapItemGroupBounds.height;
             }
-            selection.path.start = start;
+            this.#scaleSelection(mapWorker, selection, scaleX, scaleY);
+            let scaledXRelativeToMig = (selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - selection.startingPathData.start.x) * scaleX;
+            let scaledYRelativeToMig = (selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - selection.startingPathData.start.y) * scaleY;
+            let startX = selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - scaledXRelativeToMig;
+            let startY = selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - scaledYRelativeToMig;
+            selection.path.start = { x: startX, y: startY };
             if (selection.path.clipPaths) {
                 for (const clipPath of selection.path.clipPaths) {
-                    clipPath.start = { x: clipPath.start.x - offset.x, y: clipPath.start.y - offset.y };
+                    const startingPathData = selection.startingPathData.clipPaths.find(x => x.id == clipPath.id);
+                    scaledXRelativeToMig = (selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - startingPathData.start.x) * scaleX;
+                    scaledYRelativeToMig = (selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - startingPathData.start.y) * scaleY;
+                    startX = selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - scaledXRelativeToMig;
+                    startY = selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - scaledYRelativeToMig;
+                    clipPath.start = { x: startX, y: startY };
                 }
             }
         }
     }
 
     #resizeNMove(mapWorker, startPoint, endPoint, snapToOverlay) {
-        let end = endPoint;
-        if (snapToOverlay) {
-            let mapPoint = this.#transformCanvasPoint(mapWorker, end.x, end.y);
-            mapPoint = mapWorker.map.overlay.getNearestOverlayPoint(mapPoint);
-            end = this.#transformMapPoint(mapWorker, mapPoint.x, mapPoint.y);
-        }
-        const dy = (startPoint.y - end.y) / mapWorker.map.zoom;
-        const scaleX = 1;
-        const scaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
-        this.#scaleSelections(mapWorker, scaleX, scaleY)
+        const dy = (startPoint.y - endPoint.y) / mapWorker.map.zoom;
+        let defaultScaleX = 1;
+        let defaultScaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
         for (const selection of this.selectionStartData) {
-            const newBounds = this.#getMapItemGroupBounds(mapWorker, selection.mapItemGroupId);
-            const offset = { x: 0, y: (newBounds.y + newBounds.height) - (selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height) };
-            const start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            let scaleX = defaultScaleX;
+            let scaleY = defaultScaleY;
             if (snapToOverlay) {
-                const bounds = mapWorker.geometryUtilities.getPathBounds(start, selection.path.transits);
-                const n = { x: bounds.x + (bounds.width / 2), y: bounds.y };
-                const snap = mapWorker.map.overlay.getNearestOverlayPoint(n);
-                const snapY = snap.y - n.y;
-                start.y += snapY;
+                const scaledWidth = selection.mapItemGroupBounds.width * defaultScaleX;
+                const scaledHeight = selection.mapItemGroupBounds.height * defaultScaleY;
+                const tl = {
+                    x: selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - scaledWidth,
+                    y: selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - scaledHeight
+                };
+                const overlayPoint = mapWorker.map.overlay.getNearestOverlayPoint(tl);
+                scaleY = (selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - overlayPoint.y) / selection.mapItemGroupBounds.height;
             }
-            selection.path.start = start;
+            this.#scaleSelection(mapWorker, selection, scaleX, scaleY);
+            let scaledXRelativeToMig = (selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - selection.startingPathData.start.x) * scaleX;
+            let scaledYRelativeToMig = (selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - selection.startingPathData.start.y) * scaleY;
+            let startX = selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - scaledXRelativeToMig;
+            let startY = selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - scaledYRelativeToMig;
+            selection.path.start = { x: startX, y: startY };
             if (selection.path.clipPaths) {
                 for (const clipPath of selection.path.clipPaths) {
-                    clipPath.start = { x: clipPath.start.x - offset.x, y: clipPath.start.y - offset.y };
+                    const startingPathData = selection.startingPathData.clipPaths.find(x => x.id == clipPath.id);
+                    scaledXRelativeToMig = (selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - startingPathData.start.x) * scaleX;
+                    scaledYRelativeToMig = (selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - startingPathData.start.y) * scaleY;
+                    startX = selection.mapItemGroupBounds.x + selection.mapItemGroupBounds.width - scaledXRelativeToMig;
+                    startY = selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - scaledYRelativeToMig;
+                    clipPath.start = { x: startX, y: startY };
                 }
             }
         }
     }
 
     #resizeNEMove(mapWorker, startPoint, endPoint, useLockMode, snapToOverlay) {
-        let end = endPoint;
-        if (snapToOverlay) {
-            let mapPoint = this.#transformCanvasPoint(mapWorker, end.x, end.y);
-            mapPoint = mapWorker.map.overlay.getNearestOverlayPoint(mapPoint);
-            end = this.#transformMapPoint(mapWorker, mapPoint.x, mapPoint.y);
-        }
-        let dx = (end.x - startPoint.x) / mapWorker.map.zoom;
-        let dy = (startPoint.y - end.y) / mapWorker.map.zoom;
+        const dx = (endPoint.x - startPoint.x) / mapWorker.map.zoom;
+        const dy = (startPoint.y - endPoint.y) / mapWorker.map.zoom;
+        let defaultScaleX = (this.changeReferenceBounds.bounds.width + dx) / this.changeReferenceBounds.bounds.width;
+        let defaultScaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
         if (useLockMode) {
-            dy = dx;
-        } 
-        const scaleX = (this.changeReferenceBounds.bounds.width + dx) / this.changeReferenceBounds.bounds.width;
-        const scaleY = (this.changeReferenceBounds.bounds.height + dy) / this.changeReferenceBounds.bounds.height;
-        this.#scaleSelections(mapWorker, scaleX, scaleY)
+            defaultScaleY = defaultScaleX;
+        }
         for (const selection of this.selectionStartData) {
-            const newBounds = this.#getMapItemGroupBounds(mapWorker, selection.mapItemGroupId);
-            const offset = {
-                x: newBounds.x - selection.mapItemGroupBounds.x,
-                y: (newBounds.y + newBounds.height) - (selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height)
-            };
-            const start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            let scaleX = defaultScaleX;
+            let scaleY = defaultScaleY;
             if (snapToOverlay) {
-                const bounds = mapWorker.geometryUtilities.getPathBounds(start, selection.path.transits);
-                const ne = { x: bounds.x + bounds.width, y: bounds.y };
-                const snap = mapWorker.map.overlay.getNearestOverlayPoint(ne);
-                const snapX = snap.x - ne.x;
-                const snapY = snap.y - ne.y;
-                start.x += snapX;
-                start.y += snapY;
+                const scaledWidth = selection.mapItemGroupBounds.width * defaultScaleX;
+                const scaledHeight = selection.mapItemGroupBounds.height * defaultScaleY;
+                const tr = {
+                    x: selection.mapItemGroupBounds.x + scaledWidth,
+                    y: selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - scaledHeight
+                };
+                const overlayPoint = mapWorker.map.overlay.getNearestOverlayPoint(tr);
+                scaleX = (overlayPoint.x - selection.mapItemGroupBounds.x) / selection.mapItemGroupBounds.width;
+                scaleY = (selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - overlayPoint.y) / selection.mapItemGroupBounds.height;
             }
-            selection.path.start = start;
+            this.#scaleSelection(mapWorker, selection, scaleX, scaleY);
+            let scaledXRelativeToMig = (selection.startingPathData.start.x - selection.mapItemGroupBounds.x) * scaleX;
+            let scaledYRelativeToMig = (selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - selection.startingPathData.start.y) * scaleY;
+            let startX = selection.mapItemGroupBounds.x + scaledXRelativeToMig;
+            let startY = selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - scaledYRelativeToMig;
+            selection.path.start = { x: startX, y: startY };
             if (selection.path.clipPaths) {
                 for (const clipPath of selection.path.clipPaths) {
-                    clipPath.start = { x: clipPath.start.x - offset.x, y: clipPath.start.y - offset.y };
+                    const startingPathData = selection.startingPathData.clipPaths.find(x => x.id == clipPath.id);
+                    scaledXRelativeToMig = (startingPathData.start.x - selection.mapItemGroupBounds.x) * scaleX;
+                    scaledYRelativeToMig = (selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - startingPathData.start.y) * scaleY;
+                    startX = selection.mapItemGroupBounds.x + scaledXRelativeToMig;
+                    startY = selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - scaledYRelativeToMig;
+                    clipPath.start = { x: startX, y: startY };
                 }
             }
         }
     }
 
     #resizeEMove(mapWorker, startPoint, endPoint, snapToOverlay) {
-        let end = endPoint;
-        if (snapToOverlay) {
-            let mapPoint = this.#transformCanvasPoint(mapWorker, end.x, end.y);
-            mapPoint = mapWorker.map.overlay.getNearestOverlayPoint(mapPoint);
-            end = this.#transformMapPoint(mapWorker, mapPoint.x, mapPoint.y);
-        }
-        const dx = (end.x - startPoint.x) / mapWorker.map.zoom;
-        const scaleX = (this.changeReferenceBounds.bounds.width + dx) / this.changeReferenceBounds.bounds.width;
-        const scaleY = 1;
-        this.#scaleSelections(mapWorker, scaleX, scaleY)
+        const dx = (endPoint.x - startPoint.x) / mapWorker.map.zoom;
+        let defaultScaleX = (this.changeReferenceBounds.bounds.width + dx) / this.changeReferenceBounds.bounds.width;
+        let defaultScaleY = 1;
         for (const selection of this.selectionStartData) {
-            const newBounds = this.#getMapItemGroupBounds(mapWorker, selection.mapItemGroupId);
-            const offset = { x: newBounds.x - selection.mapItemGroupBounds.x, y: 0 };
-            const start = { x: selection.path.start.x - offset.x, y: selection.path.start.y - offset.y };
+            let scaleX = defaultScaleX;
+            let scaleY = defaultScaleY;
             if (snapToOverlay) {
-                const bounds = mapWorker.geometryUtilities.getPathBounds(start, selection.path.transits);
-                const e = { x: bounds.x + bounds.width, y: bounds.y + (bounds.height / 2) };
-                const snap = mapWorker.map.overlay.getNearestOverlayPoint(e);
-                const snapX = snap.x - e.x;
-                start.x += snapX;
+                const scaledWidth = selection.mapItemGroupBounds.width * defaultScaleX;
+                const scaledHeight = selection.mapItemGroupBounds.height * defaultScaleY;
+                const tr = {
+                    x: selection.mapItemGroupBounds.x + scaledWidth,
+                    y: selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - scaledHeight
+                };
+                const overlayPoint = mapWorker.map.overlay.getNearestOverlayPoint(tr);
+                scaleX = (overlayPoint.x - selection.mapItemGroupBounds.x) / selection.mapItemGroupBounds.width;
             }
-            selection.path.start = start;
+            this.#scaleSelection(mapWorker, selection, scaleX, scaleY);
+            let scaledXRelativeToMig = (selection.startingPathData.start.x - selection.mapItemGroupBounds.x) * scaleX;
+            let scaledYRelativeToMig = (selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - selection.startingPathData.start.y) * scaleY;
+            let startX = selection.mapItemGroupBounds.x + scaledXRelativeToMig;
+            let startY = selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - scaledYRelativeToMig;
+            selection.path.start = { x: startX, y: startY };
             if (selection.path.clipPaths) {
                 for (const clipPath of selection.path.clipPaths) {
-                    clipPath.start = { x: clipPath.start.x - offset.x, y: clipPath.start.y - offset.y };
+                    const startingPathData = selection.startingPathData.clipPaths.find(x => x.id == clipPath.id);
+                    scaledXRelativeToMig = (startingPathData.start.x - selection.mapItemGroupBounds.x) * scaleX;
+                    scaledYRelativeToMig = (selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - startingPathData.start.y) * scaleY;
+                    startX = selection.mapItemGroupBounds.x + scaledXRelativeToMig;
+                    startY = selection.mapItemGroupBounds.y + selection.mapItemGroupBounds.height - scaledYRelativeToMig;
+                    clipPath.start = { x: startX, y: startY };
                 }
             }
         }
-    }
-
-    #getMapItemGroupBounds(mapWorker, mapItemGroupId) {
-        const layer = mapWorker.map.getActiveLayer();
-        const mapItemGroup = layer.mapItemGroups.find(mig => mig.id == mapItemGroupId);
-        return mapItemGroup.bounds;
-    }
-
-    #transformCanvasPoint(mapWorker, x, y) {
-        const scale = { x: 1 / mapWorker.map.zoom, y: 1 / mapWorker.map.zoom };
-        const translation = { x: -mapWorker.map.pan.x, y: -mapWorker.map.pan.y };
-        return mapWorker.geometryUtilities.transformPoint({ x: x, y: y }, scale, translation);
-    }
-
-    #transformMapPoint(mapWorker, x, y) {
-        const scale = { x: mapWorker.map.zoom, y: mapWorker.map.zoom };
-        const translation = { x: mapWorker.map.pan.x, y: mapWorker.map.pan.y };
-        return mapWorker.geometryUtilities.transformPoint({ x: x, y: y }, scale, translation);
     }
 
     #canPathBeScaled(path, scaleX, scaleY) {
@@ -840,17 +843,15 @@ export class SelectionUtilities {
         return scaledTransits;
     }
 
-    #scaleSelections(mapWorker, scaleX, scaleY) {
-        for (const selection of this.selectionStartData) {
-            if (this.#canPathBeScaled(selection.path, scaleX, scaleY)) {
-                selection.path.transits = this.#getScaledTransits(selection.startingPathData.transits, scaleX, scaleY, mapWorker);
-                if (selection.path.clipPaths) {
-                    for (const clipPath of selection.path.clipPaths) {
-                        const startingPathDataClip = selection.startingPathData.clipPaths.find(p => p.id == clipPath.id);
-                        if (startingPathDataClip) {
-                            if (this.#canPathBeScaled(clipPath, scaleX, scaleY)) {
-                                clipPath.transits = this.#getScaledTransits(startingPathDataClip.transits, scaleX, scaleY, mapWorker);
-                            }
+    #scaleSelection(mapWorker, selection, scaleX, scaleY) {
+        if (this.#canPathBeScaled(selection.path, scaleX, scaleY)) {
+            selection.path.transits = this.#getScaledTransits(selection.startingPathData.transits, scaleX, scaleY, mapWorker);
+            if (selection.path.clipPaths) {
+                for (const clipPath of selection.path.clipPaths) {
+                    const startingPathDataClip = selection.startingPathData.clipPaths.find(p => p.id == clipPath.id);
+                    if (startingPathDataClip) {
+                        if (this.#canPathBeScaled(clipPath, scaleX, scaleY)) {
+                            clipPath.transits = this.#getScaledTransits(startingPathDataClip.transits, scaleX, scaleY, mapWorker);
                         }
                     }
                 }

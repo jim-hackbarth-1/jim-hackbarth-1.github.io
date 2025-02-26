@@ -73,7 +73,6 @@
             .show {
                 display: block;
             }
-
             /* menu - end */
             /* toolbar - start */
             #toolbar {
@@ -94,9 +93,8 @@
             }
 
             #divActiveLayer {
-                padding-bottom:5px;
+                padding-bottom: 5px;
             }
-
             /* toolbar - end */
             /* tools - start */
             #tools-and-map {
@@ -151,12 +149,17 @@
                 display: flex;
             }
 
+            .surface-secondary .action-control {
+                background-color: var(--theme-color-secondary);
+            }
+
             .tool-button {
                 padding: 4px 4px 2px 4px;
             }
 
             .tool-button.active {
                 box-shadow: var(--theme-color-secondary-darkest) 1px 1px 3px 0 inset, var(--theme-color-secondary-darkest) -1px -1px 3px 0 inset;
+                background-color: var(--theme-color-secondary-lighter);
             }
 
             #tools .icon {

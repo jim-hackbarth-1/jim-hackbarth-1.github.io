@@ -59,6 +59,7 @@ export class Overlay {
             return;
         }
         context.strokeStyle = this.color;
+        context.setLineDash([]);
         context.lineWidth = 0.5 / map.zoom;
         context.globalAlpha = this.opacity;
         switch (this.pattern) {

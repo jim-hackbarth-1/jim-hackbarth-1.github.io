@@ -39,7 +39,8 @@ export function getOverlandTemplate() {
                     { versionId: 1, isBuiltIn: true, name: "Draw path" },
                     { versionId: 1, isBuiltIn: true, name: "Draw rectangle" },
                     { versionId: 1, isBuiltIn: true, name: "Draw ellipse" },
-                    { versionId: 1, isBuiltIn: true, name: "Draw arc" }
+                    { versionId: 1, isBuiltIn: true, name: "Draw arc" },
+                    { versionId: 1, isBuiltIn: true, name: "Draw polytransit" }
                 ]
             ],
             mapItemTemplatePalettes: [[blueRegion.ref]]

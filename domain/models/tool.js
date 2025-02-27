@@ -146,6 +146,20 @@ export class BuiltInTools {
                 cursorHotspot: { x: 0, y: 0 },
                 toolType: ToolType.DrawingTool
             }));
+
+            BuiltInTools.#tools.push(new Tool({
+                ref: {
+                    versionId: 1,
+                    isBuiltIn: true,
+                    name: "Draw polytransit"
+                },
+                moduleSrc: `${baseUrl}/domain/tools/draw-polytransit.js`,
+                thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><g class="icon"><path  d="M 30,10 l 0,20 -20,20 20,20, 0,20 40,0 0,-20 a 20 20 0 0 0 0 -40 l 0,-20 -20,10 z" /><path class="icon-text" d="M 30,30 l 50,50 a 2.5 2.5 -45 0 0 5 -5 l -35,-35 z" /></g></svg>',
+                cursorSrc: drawCursorSrc,
+                cursorHotspot: { x: 0, y: 0 },
+                toolType: ToolType.DrawingTool
+            }));
+
         }
         return BuiltInTools.#tools;
     }

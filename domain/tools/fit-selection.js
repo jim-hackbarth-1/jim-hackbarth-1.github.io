@@ -25,6 +25,7 @@ class FitSelectionTool {
         this.#mapWorker = mapWorker;
         if (this.#mapWorker.map) {
             this.#mapWorker.map.addEventListener("ChangeEvent", this.handleMapChange);
+            this.#mapWorker.map.addEventListener("AfterRenderEvent", this.handleAfterRenderEvent);
         }
         this.#selectionUtilities = this.#mapWorker.createSelectionUtilities();
         this.#cursor = "Default";
@@ -34,6 +35,7 @@ class FitSelectionTool {
         this.#isLockModeOn = false;
         this.#isToggleSelectionModeOn = false;
         this.#isSingleSelectionModeOn = false;
+        this.#previewSetOperation();
     }
 
     async handleClientEvent(clientEvent) {
@@ -58,7 +60,11 @@ class FitSelectionTool {
     }
 
     handleMapChange = async (change) => {
-        this.#selectionUtilities.selectionBounds = null;
+        this.#selectionUtilities.selectionBounds = null;      
+    }
+
+    handleAfterRenderEvent = async (change) => {
+        this.#previewSetOperation(true);
     }
 
     async onCursorChange(cursor) {
@@ -320,9 +326,11 @@ class FitSelectionTool {
         this.#mapWorker.renderingContext.stroke(this.#pathLight);
     }
 
-    #previewSetOperation() {
-        this.#mapWorker.renderMap();
-
+    #previewSetOperation(doNotPreRenderMap) {
+        if (!doNotPreRenderMap) {
+            this.#mapWorker.renderMap();
+        }
+        
         // get primary paths
         const layer = this.#mapWorker.map.getActiveLayer();
         const primaryPaths = [];

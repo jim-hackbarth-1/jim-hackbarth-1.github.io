@@ -20,6 +20,9 @@ class DrawPolytransitTool {
     // methods
     async onActivate(mapWorker) {
         this.#mapWorker = mapWorker;
+        if (this.#mapWorker.map) {
+            this.#mapWorker.map.addEventListener("ChangeEvent", this.handleMapChange);
+        }
         this.#isShiftPressed = false;
         this.#isLockModeOn = false;
         this.#isArcModeOn = false;
@@ -43,6 +46,11 @@ class DrawPolytransitTool {
                 this.#onKeyUp(eventData);
                 break;
         }
+    }
+
+    handleMapChange = async (change) => {
+        this.#initializeTransitInfo();
+        this.#drawTransitInfo();
     }
 
     // helpers

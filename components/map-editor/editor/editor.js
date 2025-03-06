@@ -781,6 +781,11 @@ export class EditorModel {
                 const rotateCursor = `url(${cursorSrc}) 15 15, crosshair`;
                 canvas.style.cursor = rotateCursor;
                 break;
+            case "ResizeAll":
+                const cursorSrc2 = `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100"><g stroke="black" stroke-width="2" fill="white" stroke-linecap="round"><path d="M 5,5 l 0,20 5,-5 30,30 -30,30 -5,-5 0,20 20,0 -5,-5 30,-30 30,30 -5,5 20,0 0,-20 -5,5 -30,-30 30,-30 5,5 0,-20 -20,0 5,5 -30,30 -30,-30 5,-5 z"></path></g></svg>')}`;
+                const resizeAllCursor = `url(${cursorSrc2}) 15 15, crosshair`;
+                canvas.style.cursor = resizeAllCursor;
+                break;
             case "ResizeNW":
                 canvas.style.cursor = "nw-resize";
                 break;

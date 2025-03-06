@@ -185,6 +185,10 @@ export class MapWorker {
         return new Path(data);
     }
 
+    createArc(data) {
+        return new Arc(data);
+    }
+
     rotateArc(arc, angleRadians) {
         return Arc.rotateArc(arc, angleRadians);
     }
@@ -330,6 +334,14 @@ export class MapWorker {
 
     async #setActiveTool(toolRefData) {
         this.#activeTool = null;
+        if (this.#activeToolModel && this.map) {
+            if (this.#activeToolModel.handleMapChange) {
+                this.map.removeEventListener("ChangeEvent", this.#activeToolModel.handleMapChange);
+            }
+            if (this.#activeToolModel.handleAfterRenderEvent) {
+                this.map.removeEventListener("AfterRenderEvent", this.#activeToolModel.handleAfterRenderEvent);
+            }
+        }
         this.#activeToolModel = null;
         if (toolRefData && this.map) {
             const toolRef = new EntityReference(toolRefData);
@@ -338,7 +350,8 @@ export class MapWorker {
             this.#activeTool = tool;
             this.#activeToolModel = toolModule.createToolModel();
             if (this.activeToolModel && this.activeToolModel.onActivate) {
-                return await this.activeToolModel.onActivate(this);
+                await this.activeToolModel.onActivate(this);
+                this.renderMap();
             }
         }
     }
@@ -350,7 +363,7 @@ export class MapWorker {
             const mapItemTemplate = this.map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, mapItemTemplateRef));
             this.#activeMapItemTemplate = mapItemTemplate;
             if (this.activeToolModel && this.activeToolModel.onMapItemTemplateActivated) {
-                return await this.activeToolModel.onMapItemTemplateActivated();
+                await this.activeToolModel.onMapItemTemplateActivated();
             }
         }
     }

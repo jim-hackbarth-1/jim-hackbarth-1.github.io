@@ -30,6 +30,7 @@ export function getOverlandTemplate() {
                     { versionId: 1, isBuiltIn: true, name: "Zoom" }
                 ],
                 [
+                    { versionId: 1, isBuiltIn: true, name: "Edit transits" },
                     { versionId: 1, isBuiltIn: true, name: "Fit selection" }
                 ]
             ],

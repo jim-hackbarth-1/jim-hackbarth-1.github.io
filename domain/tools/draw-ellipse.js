@@ -162,15 +162,29 @@ class DrawEllipseTool {
             const radii = this.#mapWorker.geometryUtilities.transformPoint({ x: xRadius, y: yRadius }, scale);
             const transits = [
                 {
-                    end: { x: end.x, y: end.y },
-                    center: { x: center.x, y: center.y },
+                    end: { x: -radii.x, y: radii.y },
+                    center: { x: 0, y: radii.y },
                     radii: { x: radii.x, y: radii.y },
                     rotationAngle: 0,
                     sweepFlag: 0
                 },
                 {
-                    end: { x: end.x, y: -end.y },
-                    center: { x: center.x, y: -center.y },
+                    end: { x: radii.x, y: radii.y },
+                    center: { x: radii.x, y: 0 },
+                    radii: { x: radii.x, y: radii.y },
+                    rotationAngle: 0,
+                    sweepFlag: 0
+                },
+                {
+                    end: { x: radii.x, y: -radii.y },
+                    center: { x: 0, y: -radii.y },
+                    radii: { x: radii.x, y: radii.y },
+                    rotationAngle: 0,
+                    sweepFlag: 0
+                },
+                {
+                    end: { x: -radii.x, y: -radii.y },
+                    center: { x: -radii.x, y: 0 },
                     radii: { x: radii.x, y: radii.y },
                     rotationAngle: 0,
                     sweepFlag: 0

@@ -73,6 +73,19 @@ export class BuiltInTools {
                 ref: {
                     versionId: 1,
                     isBuiltIn: true,
+                    name: "Edit transits"
+                },
+                moduleSrc: `${baseUrl}/domain/tools/edit-transits.js`,
+                thumbnailSrc: '<svg aria-hidden="true" focusable="false" viewBox="0 0 100 100" height="25" width="25"><g class="icon"><path d="M 10,50 l 0,40 80,0 0,-50" /><path stroke-dasharray="4" d="M 90,50 l -20,-40 -60,40" /><path d="M 10,50 m -4,-4 l 8,0 0,8 -8,0 z" /><path d="M 90,50 m -4,-4 l 8,0 0,8 -8,0 z" /><path d="M 70,10 m -4,-4 l 8,0 0,8 -8,0 z" /></g></svg>',
+                cursorSrc: selectCursorSrc,
+                cursorHotspot: { x: 0, y: 0 },
+                toolType: ToolType.EditingTool
+            }));
+
+            BuiltInTools.#tools.push(new Tool({
+                ref: {
+                    versionId: 1,
+                    isBuiltIn: true,
                     name: "Fit selection"
                 },
                 moduleSrc: `${baseUrl}/domain/tools/fit-selection.js`,

@@ -430,6 +430,16 @@ class EditTransitsTool {
             width: size,
             height: size
         };
+        const clipPaths = [];
+        if (path.clipPaths) {
+            for (const clipPath of path.clipPaths) {
+                clipPaths.push({
+                    id: clipPath.id,
+                    start: clipPath.start,
+                    transits: clipPath.transits
+                });
+            }
+        }
         return {
             mapItemGroupId: mapItemGroup.id,
             mapItemId: mapItem.id,
@@ -439,7 +449,7 @@ class EditTransitsTool {
                 id: path.id,
                 start: path.start,
                 transits: path.transits,
-                clipPaths: path.clipPaths
+                clipPaths: clipPaths
             },
             bounds: bounds,
             transitIndex: transitIndex
@@ -485,35 +495,45 @@ class EditTransitsTool {
         const mapItemGroup = layer.mapItemGroups.find(mig => mig.id == this.#boundsItem.mapItemGroupId);
         const mapItem = mapItemGroup.mapItems.find(mi => mi.id == this.#boundsItem.mapItemId);
         let path = mapItem.paths.find(p => p.id == this.#boundsItem.pathId);
+        let clipPathId = null;
         if (this.#boundsItem.clipPathId) {
             path = path.clipPaths.find(cp => cp.id == this.#boundsItem.clipPathId);
+            clipPathId = path.id;
         }
-        this.#updatePath(path, dx, dy);
+        this.#updatePath(path, dx, dy, clipPathId);
         this.#displayTransitEndpoints();
     }
 
-    #updatePath(path, dx, dy) {
+    #updatePath(path, dx, dy, clipPathId) {
         const transitIndex = this.#boundsItem.transitIndex;        
         const newTransits = [...path.transits];
         if (transitIndex > -1) { 
-            newTransits[transitIndex] = this.#getUpdatedTransit(transitIndex, dx, dy);
+            newTransits[transitIndex] = this.#getUpdatedTransit(transitIndex, dx, dy, clipPathId);
         }
         else {           
-            const originalStart = this.#boundsItem.startingPathInfo.start;
+            let originalStart = this.#boundsItem.startingPathInfo.start;
+            if (clipPathId) {
+                const clipPath = this.#boundsItem.startingPathInfo.clipPaths.find(cp => cp.id == clipPathId);
+                originalStart = clipPath.start;
+            }
             path.start = { x: originalStart.x + dx, y: originalStart.y + dy };
             const endPoint = this.#getPathEndPoint(path);
             if (this.#arePointsEqual(path.start, endPoint)) {
-                newTransits[newTransits.length - 1] = this.#getUpdatedTransit(newTransits.length - 1, dx, dy);
+                newTransits[newTransits.length - 1] = this.#getUpdatedTransit(newTransits.length - 1, dx, dy, clipPathId);
             }
         }
         if (transitIndex < newTransits.length - 1) {
-            newTransits[transitIndex + 1] = this.#getUpdatedTransit(transitIndex + 1, -dx, -dy);
+            newTransits[transitIndex + 1] = this.#getUpdatedTransit(transitIndex + 1, -dx, -dy, clipPathId);
         }  
         path.transits = newTransits;
     }
 
-    #getUpdatedTransit(transitIndex, dx, dy) {
-        const transit = this.#boundsItem.startingPathInfo.transits[transitIndex];
+    #getUpdatedTransit(transitIndex, dx, dy, clipPathId) {
+        let transit = this.#boundsItem.startingPathInfo.transits[transitIndex];
+        if (clipPathId) {
+            const clipPath = this.#boundsItem.startingPathInfo.clipPaths.find(cp => cp.id == clipPathId);
+            transit = clipPath.transits[transitIndex];
+        }
         if (transit.radii && Math.abs(transit.end.x + dx) > 5 && Math.abs(transit.end.y + dy) > 5) {
             const end = { x: transit.end.x + dx, y: transit.end.y + dy };
             let sweepFlag = transit.sweepFlag;

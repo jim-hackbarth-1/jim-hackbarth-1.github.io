@@ -575,6 +575,7 @@ class EditTransitsTool {
         const mapItemGroup = layer.mapItemGroups.find(mig => mig.id == this.#boundsItem.mapItemGroupId);
         const mapItem = mapItemGroup.mapItems.find(mi => mi.id == this.#boundsItem.mapItemId);
         const newPathInfo = mapItem.paths.find(p => p.id == this.#boundsItem.pathId);
+        this.#mapWorker.geometryUtilities.removeExteriorClipPaths(newPathInfo);
         const changes = [
             {
                 changeType: "Edit",

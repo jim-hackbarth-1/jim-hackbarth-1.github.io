@@ -22,7 +22,6 @@ class OverlayDialogModel {
         componentElement.querySelector("#inputSize").value = map.overlay.size;
         componentElement.querySelector("#inputColor").value = map.overlay.color;
         componentElement.querySelector("#inputOpacity").value = map.overlay.opacity * 100;
-        componentElement.querySelector("#inputSnap").checked = map.overlay.isSnapToOverlayEnabled;
         const dialog = componentElement.querySelector("dialog");
         dialog.showModal();
         if (!this.#clickHandlerRegistered) {
@@ -45,8 +44,7 @@ class OverlayDialogModel {
         const size = Number(componentElement.querySelector("#inputSize").value);
         const color = componentElement.querySelector("#inputColor").value;
         const opacity = (Number(componentElement.querySelector("#inputOpacity").value) / 100).toFixed(2);
-        const isSnapEnabled = componentElement.querySelector("#inputSnap").checked;
-        const overlayData = { pattern: pattern, size: size, color: color, opacity: opacity, isSnapToOverlayEnabled: isSnapEnabled };
+        const overlayData = { pattern: pattern, size: size, color: color, opacity: opacity };
         const map = await MapWorkerClient.getMap();
 
         MapWorkerClient.postWorkerMessage({

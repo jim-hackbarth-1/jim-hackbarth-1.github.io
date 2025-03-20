@@ -18,6 +18,7 @@ class SelectPathTool {
     #isLockModeOn;
     #isToggleSelectionModeOn;
     #isSingleSelectionModeOn;
+    #isSnapToOverlayModeOn;
 
     // methods
     async onActivate(mapWorker) {
@@ -29,9 +30,12 @@ class SelectPathTool {
         this.#cursor = "Default";
         this.#isArrowPressed = false;
         this.#moveIncrementIteration = 0;
-        this.#isLockModeOn = false;
         this.#isToggleSelectionModeOn = false;
-        this.#isSingleSelectionModeOn = false;
+        this.#initializeToolOptions();    
+    }
+
+    async onApplyToolOption(toolOptionInfo) {
+        this.#updateToolOptionValue(toolOptionInfo.name, toolOptionInfo.value, false);
     }
 
     async handleClientEvent(clientEvent) {
@@ -64,6 +68,28 @@ class SelectPathTool {
     }
 
     // helpers
+    #updateToolOptionValue(name, value, notifyMapWorker) {
+        if (name == "LockMode") {
+            this.#isLockModeOn = value;
+        }
+        if (name == "SnapToOverlay") {
+            this.#isSnapToOverlayModeOn = value;
+        }
+        if (name == "SingleSelectionMode") {
+            this.#isSingleSelectionModeOn = value;
+        }
+        if (notifyMapWorker) {
+            this.#mapWorker.setToolOptionValue(name, value);
+        }
+    }
+
+    #initializeToolOptions() {
+        this.#mapWorker.initializeToolOptions(["LockMode", "SingleSelectionMode", "SnapToOverlay"]);
+        this.#isLockModeOn = this.#mapWorker.getToolOption("LockMode").isToggledOn;
+        this.#isSingleSelectionModeOn = this.#mapWorker.getToolOption("SingleSelectionMode").isToggledOn;
+        this.#isSnapToOverlayModeOn = this.#mapWorker.getToolOption("SnapToOverlay").isToggledOn;
+    }
+
     #onPointerDown(eventData) {
         if (eventData && eventData.button === 0) {
             this.#pointDown = { x: eventData.offsetX, y: eventData.offsetY };
@@ -148,14 +174,14 @@ class SelectPathTool {
         if (eventData.key == "ArrowDown") {
             this.#moveIncrement(eventData, 0, 1);
         }
-        if (eventData.key?.toLowerCase() == "o" && !eventData.repeat) {
-            this.#mapWorker.toggleSnapToOverlayMode();
+        if (eventData.altKey && eventData.key?.toLowerCase() == "o" && !eventData.repeat) {
+            this.#updateToolOptionValue("SnapToOverlay", !this.#isSnapToOverlayModeOn, true);
         }
-        if (eventData.key?.toLowerCase() == "l" && !eventData.repeat) {
-            this.#isLockModeOn = !this.#isLockModeOn;
+        if (eventData.altKey && eventData.key?.toLowerCase() == "l" && !eventData.repeat) {
+            this.#updateToolOptionValue("LockMode", !this.#isLockModeOn, true);
         }
-        if (eventData.key?.toLowerCase() == "s" && !eventData.repeat) {
-            this.#isSingleSelectionModeOn = !this.#isSingleSelectionModeOn;
+        if (eventData.altKey && eventData.key?.toLowerCase() == "s" && !eventData.repeat) {
+            this.#updateToolOptionValue("SingleSelectionMode", !this.#isSingleSelectionModeOn, true);
         }
     }
 

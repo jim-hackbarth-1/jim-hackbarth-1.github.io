@@ -10,7 +10,8 @@ import {
     MapItemGroup,
     MapWorkerClient,
     MapWorkerInputMessageType,
-    MapWorkerOutputMessageType
+    MapWorkerOutputMessageType,
+    ToolOption
 } from "../../../domain/references.js";
 import { KitComponent, KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
 
@@ -51,6 +52,10 @@ export class EditorModel {
             this.#setMapCursor(message.data?.cursor);
             await MapWorkerClient.postWorkerMessage({ messageType: MapWorkerInputMessageType.CursorChanged, cursor: message.data?.cursor });
         }
+        if (message?.messageType === MapWorkerOutputMessageType.ChangeToolOptions) {
+            this.#componentElement.querySelector("#menuEditToolOptions").disabled = !this.#hasVisibleToolOption();
+            this.#componentElement.querySelector("#buttonToolOptions").disabled = !this.#hasVisibleToolOption();
+        }
         if (message?.messageType === MapWorkerOutputMessageType.MapUpdated && message?.data?.changeSet) {
             const map = await MapWorkerClient.getMap();
             const canSelectAllInView = (await this.isSelectAllInViewDisabled() == "disabled") ? false : true;
@@ -72,6 +77,8 @@ export class EditorModel {
             this.#componentElement.querySelector("#buttonPaste").disabled = !canPaste;
             this.#componentElement.querySelector("#menuEditDelete").disabled = !doesMapHaveSelections;
             this.#componentElement.querySelector("#buttonDelete").disabled = !doesMapHaveSelections;
+            this.#componentElement.querySelector("#menuEditToolOptions").disabled = !this.#hasVisibleToolOption();
+            this.#componentElement.querySelector("#buttonToolOptions").disabled = !this.#hasVisibleToolOption();
             if (message?.data?.changeSet?.changes) {
                 for (const change of message.data.changeSet.changes) {
                     if (change.changeObjectType == Map.name) {
@@ -192,6 +199,14 @@ export class EditorModel {
 
     async redo() {
         MapWorkerClient.postWorkerMessage({ messageType: MapWorkerInputMessageType.Redo });
+    }
+
+    async isToolOptionsDisabled() {
+        const map = await MapWorkerClient.getMap();
+        if (map && this.#hasVisibleToolOption()) {
+            return null;
+        }
+        return "disabled";
     }
 
     async isEditSelectionDisabled() {
@@ -816,6 +831,11 @@ export class EditorModel {
             default:
                 canvas.style.cursor = this.#toolCursor;
         }
+    }
+
+    #hasVisibleToolOption() {
+        const toolOptions = MapWorkerClient.getToolOptions();
+        return (toolOptions && toolOptions.some(option => option.isVisible));
     }
 
     static #getBaseUrl() {

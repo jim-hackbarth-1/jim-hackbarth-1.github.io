@@ -16,6 +16,7 @@ class DrawPolytransitTool {
     #isLockModeOn;
     #isArcModeOn;
     #sweepFlag;
+    #isSnapToOverlayModeOn;
 
     // methods
     async onActivate(mapWorker) {
@@ -24,10 +25,12 @@ class DrawPolytransitTool {
             this.#mapWorker.map.addEventListener("ChangeEvent", this.handleMapChange);
         }
         this.#isShiftPressed = false;
-        this.#isLockModeOn = false;
-        this.#isArcModeOn = false;
-        this.#sweepFlag = 0;
+        this.#initializeToolOptions();  
         this.#initializeTransitInfo();
+    }
+
+    async onApplyToolOption(toolOptionInfo) {
+        await this.#updateToolOptionValue(toolOptionInfo.name, toolOptionInfo.value, false);
     }
 
     async handleClientEvent(clientEvent) {
@@ -54,6 +57,94 @@ class DrawPolytransitTool {
     }
 
     // helpers
+    async #updateToolOptionValue(name, value, notifyMapWorker) {
+        if (name == "AcceptChanges") {
+            await this.#addMapItemGroup();
+            return;
+        }
+        if (name == "ArcMode") {
+            this.#isArcModeOn = value;
+            this.#drawCandidate();
+        }
+        if (name == "CancelChanges") {
+            this.#initializeTransitInfo();
+            this.#drawTransitInfo();
+            return;
+        }
+        if (name == "LockMode") {
+            this.#isLockModeOn = value;
+        }
+        if (name == "RemoveLastPoint") {
+            if (this.#points.length > 1) {
+                this.#points.pop();
+                this.#transits.pop();
+                this.#last = this.#points[this.#points.length - 1];
+            }
+            this.#drawTransitInfo();
+            return;
+        }
+        if (name == "SnapToOverlay") {
+            this.#isSnapToOverlayModeOn = value;
+        }
+        if (name == "SweepFlag") {
+            this.#sweepFlag = value ? 1 : 0;
+            this.#drawCandidate();
+        }
+        if (notifyMapWorker) {
+            this.#mapWorker.setToolOptionValue(name, value);
+        }
+    }
+
+    #initializeToolOptions() {
+        this.#mapWorker.initializeToolOptions(["AcceptChanges", "CancelChanges", "LockMode", "SnapToOverlay"]);
+        this.#isLockModeOn = this.#mapWorker.getToolOption("LockMode").isToggledOn;
+        this.#isSnapToOverlayModeOn = this.#mapWorker.getToolOption("SnapToOverlay").isToggledOn;
+        const arcMode = this.#mapWorker.getToolOption("ArcMode");
+        if (arcMode) {
+            arcMode.isVisible = true;
+        }
+        else {
+            this.#mapWorker.addToolOption({
+                name: "ArcMode",
+                label: "Arc mode",
+                keyboardEventInfo: { key: "A", requiresAltKey: true },
+                description: "Draw arc transits",
+                typeName: "BooleanToolOption",
+                isVisible: true,
+                isToggledOn: false
+            });
+        }
+        const sweepFlag = this.#mapWorker.getToolOption("SweepFlag");
+        if (sweepFlag) {
+            sweepFlag.isVisible = true;
+        }
+        else {
+            this.#mapWorker.addToolOption({
+                name: "SweepFlag",
+                label: "Sweep flag",
+                keyboardEventInfo: { key: "S", requiresAltKey: true },
+                description: "Draw arcs counter-clockwise around center",
+                typeName: "BooleanToolOption",
+                isVisible: true,
+                isToggledOn: false
+            });
+        }
+        const removeLastPoint = this.#mapWorker.getToolOption("RemoveLastPoint");
+        if (removeLastPoint) {
+            removeLastPoint.isVisible = true;
+        }
+        else {
+            this.#mapWorker.addToolOption({
+                name: "RemoveLastPoint",
+                label: "Remove last point",
+                keyboardEventInfo: { key: "Backspace", requiresAltKey: true },
+                description: "Remove the last poly-transit point",
+                isVisible: true
+            });
+        }
+        this.#mapWorker.postChangeToolOptionsMessage();
+    }
+
     #initializeTransitInfo() {
         this.#start = null;
         this.#last = null;
@@ -79,34 +170,27 @@ class DrawPolytransitTool {
         if (eventData.key == "Shift") {
             this.#isShiftPressed = true;
         }
-        if (eventData.key?.toLowerCase() == "o" && !eventData.repeat) {
-            this.#mapWorker.toggleSnapToOverlayMode();
+        if (eventData.altKey && eventData.key?.toLowerCase() == "o" && !eventData.repeat) {
+            await this.#updateToolOptionValue("SnapToOverlay", !this.#isSnapToOverlayModeOn, true);
         }
-        if (eventData.key?.toLowerCase() == "l" && !eventData.repeat) {
-            this.#isLockModeOn = !this.#isLockModeOn;
+        if (eventData.altKey && eventData.key?.toLowerCase() == "l" && !eventData.repeat) {
+            await this.#updateToolOptionValue("LockMode", !this.#isLockModeOn, true);
         }
-        if (eventData.key?.toLowerCase() == "a" && !eventData.repeat) {
-            this.#isArcModeOn = !this.#isArcModeOn;
-            this.#drawCandidate();
+        if (eventData.altKey && eventData.key?.toLowerCase() == "a" && !eventData.repeat) {
+            await this.#updateToolOptionValue("ArcMode", !this.#isArcModeOn, true);
         }
-        if (eventData.key?.toLowerCase() == "s" && !eventData.repeat) {
-            this.#sweepFlag = this.#sweepFlag == 1 ? 0 : 1;
-            this.#drawCandidate();
+        if (eventData.altKey && eventData.key?.toLowerCase() == "s" && !eventData.repeat) {
+            const sweepFlag = (this.#sweepFlag == 1) ? 0 : 1;
+            await this.#updateToolOptionValue("SweepFlag", sweepFlag, true);
         }
-        if (eventData.key == "Backspace") {
-            if (this.#points.length > 1) {
-                this.#points.pop();
-                this.#transits.pop();
-                this.#last = this.#points[this.#points.length - 1];
-            }
-            this.#drawTransitInfo();
+        if (eventData.altKey && eventData.key == "Backspace") {
+            await this.#updateToolOptionValue("RemoveLastPoint", null, false);
         }
-        if (eventData.key == "Escape") {
-            this.#initializeTransitInfo();
-            this.#drawTransitInfo();
+        if (eventData.altKey && eventData.key == "Escape") {
+            await this.#updateToolOptionValue("CancelChanges", null, false);
         }
-        if (eventData.key == "Enter") {
-            await this.#addMapItemGroup();
+        if (eventData.altKey && eventData.key == "Enter") {
+            await this.#updateToolOptionValue("AcceptChanges", null, false);
         }
     }
 
@@ -157,7 +241,7 @@ class DrawPolytransitTool {
             point.x = x;
             point.y = y;
         }
-        if (this.#mapWorker.map.overlay.isSnapToOverlayEnabled) {
+        if (this.#isSnapToOverlayModeOn) {
             point = this.#transformCanvasPoint(point.x, point.y);
             point = this.#mapWorker.map.overlay.getNearestOverlayPoint(point);
             point = this.#transformMapPoint(point.x, point.y);
@@ -255,7 +339,7 @@ class DrawPolytransitTool {
     }
 
     async #addMapItemGroup() {
-        if (this.#mapWorker.map && this.#mapWorker.activeMapItemTemplate) {
+        if (this.#mapWorker.map && this.#mapWorker.activeMapItemTemplate && this.#start) {
             const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
             const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
             const start = this.#mapWorker.geometryUtilities.transformPoint(this.#start, scale, translation);

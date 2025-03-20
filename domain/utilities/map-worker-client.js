@@ -1,6 +1,14 @@
 ﻿
 import { KitDependencyManager } from "../../ui-kit.js";
-import { DbManager, Map, MapWorkerInputMessageType, MapWorkerOutputMessageType } from "../references.js";
+import {
+    BooleanToolOption,
+    DbManager,
+    Map,
+    MapWorkerInputMessageType,
+    MapWorkerOutputMessageType,
+    StatesToolOption,
+    ToolOption
+} from "../references.js";
 
 export class MapWorkerClient {
 
@@ -64,9 +72,26 @@ export class MapWorkerClient {
         return this.#currentCanvasSize ?? { height: 0, width: 0 };
     }
 
+    static #toolOptions;
+    static getToolOptions() {
+        return MapWorkerClient.#toolOptions;
+    }
+    static clearToolOptions() {
+        MapWorkerClient.#toolOptions = null;
+    }
+
     static postWorkerMessage(message) {
         if (MapWorkerClient.#mapWorker) {
             MapWorkerClient.#mapWorker.postMessage(message);
+        }
+    }
+
+    static applyToolOption(toolOptionInfo) {
+        if (MapWorkerClient.#mapWorker) {
+            MapWorkerClient.#mapWorker.postMessage({
+                messageType: MapWorkerInputMessageType.ApplyToolOption,
+                toolOptionInfo: toolOptionInfo 
+            });
         }
     }
 
@@ -78,6 +103,10 @@ export class MapWorkerClient {
             KitDependencyManager.getConsole().error(message.data.error);
         }
         if (message?.data?.messageType === MapWorkerOutputMessageType.ChangeCursor) {
+            await MapWorkerClient.mapChangeListener(message.data);
+        }
+        if (message?.data?.messageType === MapWorkerOutputMessageType.ChangeToolOptions) {
+            MapWorkerClient.#toolOptions = MapWorkerClient.#getToolOptions(message.data.data.toolOptions);
             await MapWorkerClient.mapChangeListener(message.data);
         }
         if (message?.data?.messageType === MapWorkerOutputMessageType.MapUpdated && MapWorkerClient.mapChangeListener) {
@@ -161,5 +190,23 @@ export class MapWorkerClient {
             x: event.x,
             y: event.y
         }
+    }
+
+    static #getToolOptions(toolOptionsData) {
+        const toolOptions = [];
+        if (toolOptionsData) {
+            for (const toolOptionData of toolOptionsData) {
+                if (toolOptionData.typeName == "ToolOption") {
+                    toolOptions.push(new ToolOption(toolOptionData));
+                }
+                if (toolOptionData.typeName == "BooleanToolOption") {
+                    toolOptions.push(new BooleanToolOption(toolOptionData));
+                }
+                if (toolOptionData.typeName == "StatesToolOption") {
+                    toolOptions.push(new StatesToolOption(toolOptionData));
+                }
+            }
+        }
+        return toolOptions;
     }
 }

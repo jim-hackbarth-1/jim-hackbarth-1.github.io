@@ -19,6 +19,7 @@ class FitSelectionTool {
     #isLockModeOn;
     #isToggleSelectionModeOn;
     #isSingleSelectionModeOn;
+    #isSnapToOverlayModeOn;
 
     // methods
     async onActivate(mapWorker) {
@@ -29,13 +30,15 @@ class FitSelectionTool {
         }
         this.#selectionUtilities = this.#mapWorker.createSelectionUtilities();
         this.#cursor = "Default";
-        this.#setOperationMode = "Intersect";
         this.#isArrowPressed = false;
         this.#moveIncrementIteration = 0;
-        this.#isLockModeOn = false;
         this.#isToggleSelectionModeOn = false;
-        this.#isSingleSelectionModeOn = false;
+        this.#initializeToolOptions();  
         this.#previewSetOperation();
+    }
+
+    async onApplyToolOption(toolOptionInfo) {
+        this.#updateToolOptionValue(toolOptionInfo.name, toolOptionInfo.value, false);
     }
 
     async handleClientEvent(clientEvent) {
@@ -72,6 +75,37 @@ class FitSelectionTool {
     }
 
     // helpers
+    #updateToolOptionValue(name, value, notifyMapWorker) {
+        if (name == "AcceptChanges") {
+            this.#performSetOperation();
+            return;
+        }
+        if (name == "LockMode") {
+            this.#isLockModeOn = value;
+        }
+        if (name == "SnapToOverlay") {
+            this.#isSnapToOverlayModeOn = value;
+        }
+        if (name == "SingleSelectionMode") {
+            this.#isSingleSelectionModeOn = value;
+        }
+        if (name == "SetOperationMode") {
+            this.#setOperationMode = value;
+        }
+        if (notifyMapWorker) {
+            this.#mapWorker.setToolOptionValue(name, value);
+        }
+        this.#previewSetOperation();
+    }
+
+    #initializeToolOptions() {
+        this.#mapWorker.initializeToolOptions(["AcceptChanges", "LockMode", "SetOperationMode", "SingleSelectionMode", "SnapToOverlay"]);
+        this.#isLockModeOn = this.#mapWorker.getToolOption("LockMode").isToggledOn;
+        this.#setOperationMode = this.#mapWorker.getToolOption("SetOperationMode").currentStateName;
+        this.#isSingleSelectionModeOn = this.#mapWorker.getToolOption("SingleSelectionMode").isToggledOn;
+        this.#isSnapToOverlayModeOn = this.#mapWorker.getToolOption("SnapToOverlay").isToggledOn;
+    }
+
     #onPointerDown(eventData) {
         if (eventData && eventData.button === 0) {
             this.#pointDown = { x: eventData.offsetX, y: eventData.offsetY };
@@ -168,36 +202,32 @@ class FitSelectionTool {
         if (eventData.key == "ArrowDown") {
             this.#moveIncrement(eventData, 0, 1);
         }
-        if (eventData.key?.toLowerCase() == "o" && !eventData.repeat) {
-            this.#mapWorker.toggleSnapToOverlayMode();
+        if (eventData.altKey && eventData.key?.toLowerCase() == "o" && !eventData.repeat) {
+            this.#updateToolOptionValue("SnapToOverlay", !this.#isSnapToOverlayModeOn, true);
         }
-        if (eventData.key?.toLowerCase() == "l" && !eventData.repeat) {
-            this.#isLockModeOn = !this.#isLockModeOn;
+        if (eventData.altKey && eventData.key?.toLowerCase() == "l" && !eventData.repeat) {
+            this.#updateToolOptionValue("LockMode", !this.#isLockModeOn, true);
         }
-        if (eventData.key?.toLowerCase() == "s" && !eventData.repeat) {
-            this.#isSingleSelectionModeOn = !this.#isSingleSelectionModeOn;
+        if (eventData.altKey && eventData.key?.toLowerCase() == "s" && !eventData.repeat) {
+            this.#updateToolOptionValue("SingleSelectionMode", !this.#isSingleSelectionModeOn, true);
+        }
+        if (eventData.altKey && eventData.key?.toLowerCase() == "i" && !eventData.repeat) {
+            this.#updateToolOptionValue("SetOperationMode", "Intersect", true);
+        }
+        if (eventData.altKey && eventData.key?.toLowerCase() == "u" && !eventData.repeat) {
+            this.#updateToolOptionValue("SetOperationMode", "Union", true);
+        }
+        if (eventData.altKey && eventData.key?.toLowerCase() == "x" && !eventData.repeat) {
+            this.#updateToolOptionValue("SetOperationMode", "Exclude", true);
+        }
+        if (eventData.altKey && eventData.key == "Enter") {
+            this.#updateToolOptionValue("AcceptChanges", null, false);
         }
     }
 
     #onKeyUp(eventData) {
         if (eventData.key == "Shift" || eventData.key == "Control" || eventData.key == "Alt") {
             this.#isToggleSelectionModeOn = false;
-        }
-        if (eventData.key?.toLowerCase() == "i") {
-            this.#setOperationMode = "Intersect";
-            this.#previewSetOperation();
-        }
-        if (eventData.key?.toLowerCase() == "u") {
-            this.#setOperationMode = "Union";
-            this.#previewSetOperation();
-        }
-        if (eventData.key?.toLowerCase() == "x") {
-            this.#setOperationMode = "Exclude";
-            this.#previewSetOperation();
-        }
-        if (eventData.key == "Enter") {
-            this.#performSetOperation();
-            this.#mapWorker.renderMap();
         }
         if (eventData.key?.startsWith("Arrow")) {
             this.#moveIncrementIteration = 0;

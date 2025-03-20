@@ -3,8 +3,8 @@
     <style>
         @scope (.overlay-dialog-component) {
             :scope {
-                height: 400px;
-                width: 200px;
+                height: 340px;
+                width: 175px;
                 border: 1px solid var(--theme-color-tertiary-darkest);
             }
 
@@ -123,14 +123,6 @@
                 <label>Opacity(%):</label>
                 <input id="inputOpacity" title="Opacity(%)" type="number" min="0" max="100" required onchange="#model.onOverlayChange()" />
                 <span class="invalid"></span>
-            </div>
-            <div>
-                <label>Snap enabled:</label>
-                <br/>
-                <label class="checkbox" id="snapLabel" title="Snap enabled">
-                    <input type="checkbox" id="inputSnap" onchange="#model.onOverlayChange()" />
-                    <span class="checkmark"></span>
-                </label>
             </div>
         </div>
     </section>

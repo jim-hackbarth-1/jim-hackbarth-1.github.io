@@ -284,7 +284,7 @@ export class SelectionUtilities {
                 dx = 0;
             }
         }
-        const snapToOverlay = mapWorker.map.overlay.isSnapToOverlayEnabled;
+        const snapToOverlay = mapWorker.getToolOption("SnapToOverlay").isToggledOn;
         let selectionStartData = this.selectionStartData;
         for (const selection of selectionStartData) {
             const start = { x: selection.startingPathData.start.x + dx, y: selection.startingPathData.start.y + dy }
@@ -333,7 +333,7 @@ export class SelectionUtilities {
         if (!this.changeReferenceBounds) {
             return;
         }
-        const snapToOverlay = mapWorker.map.overlay.isSnapToOverlayEnabled;
+        const snapToOverlay = mapWorker.getToolOption("SnapToOverlay").isToggledOn;
         if (this.activityState === ActivityState.ResizeSE) {
             this.#resizeSEMove(mapWorker, startPoint, endPoint, useLockMode, snapToOverlay);
         }

@@ -313,7 +313,7 @@
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/edit-paste.html" data-kit-model="null"></kit-component>
                         </div>
-                        <div class="button-text">Paste (Ctrl+P)</div>
+                        <div class="button-text">Paste (Ctrl+V)</div>
                     </div>
                 </button>
                 <button id="menuEditDelete" title="Delete" class="action-text" onclick="#model.delete()" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
@@ -325,6 +325,14 @@
                     </div>
                 </button>
                 <hr />
+                <button id="menuEditToolOptions" title="Tool options" class="action-text" onclick="#model.showDialog('tool-options-dialog-component')" data-kit-add-attributes="%{#model.isToolOptionsDisabled()}%">
+                    <div class="button-content">
+                        <div class="icon-container">
+                            <kit-component data-kit-template-path="/resources/icons/tool-options.html" data-kit-model="null"></kit-component>
+                        </div>
+                        <div class="button-text">Tool options ...</div>
+                    </div>
+                </button>
                 <button title="Edit selections" class="action-text" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
                     <div class="button-content">
                         <div class="icon-container">
@@ -462,6 +470,13 @@
                 <div class="button-content">
                     <div class="icon-container">
                         <kit-component data-kit-template-path="/resources/icons/edit-delete.html" data-kit-model="null"></kit-component>
+                    </div>
+                </div>
+            </button>
+            <button id="buttonToolOptions" title="Tool options" class="action-text" onclick="#model.showDialog('tool-options-dialog-component')" data-kit-add-attributes="%{#model.isToolOptionsDisabled()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component data-kit-template-path="/resources/icons/tool-options.html" data-kit-model="null"></kit-component>
                     </div>
                 </div>
             </button>
@@ -607,6 +622,7 @@
     <kit-component id="file-new-dialog-component" data-kit-template-path="/components/map-editor/file-new-dialog/file-new-dialog.html"></kit-component>
     <kit-component id="file-save-dialog-component" data-kit-template-path="/components/map-editor/file-save-dialog/file-save-dialog.html"></kit-component>
     <kit-component id="file-open-dialog-component" data-kit-template-path="/components/map-editor/file-open-dialog/file-open-dialog.html"></kit-component>
+    <kit-component id="tool-options-dialog-component" data-kit-template-path="/components/map-editor/tool-options-dialog/tool-options-dialog.html"></kit-component>
     <kit-component id="zoom-dialog-component" data-kit-template-path="/components/map-editor/zoom-dialog/zoom-dialog.html"></kit-component>
     <kit-component id="canvas-size-dialog-component" data-kit-template-path="/components/map-editor/canvas-size-dialog/canvas-size-dialog.html"></kit-component>
     <kit-component id="overlay-dialog-component" data-kit-template-path="/components/map-editor/overlay-dialog/overlay-dialog.html"></kit-component>

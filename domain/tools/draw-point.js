@@ -7,10 +7,16 @@ class DrawPointTool {
 
     // fields
     #mapWorker;
+    #isSnapToOverlayModeOn;
 
     // methods
     async onActivate(mapWorker) {
         this.#mapWorker = mapWorker;
+        this.#initializeToolOptions();  
+    }
+
+    async onApplyToolOption(toolOptionInfo) {
+        this.#updateToolOptionValue(toolOptionInfo.name, toolOptionInfo.value, false);
     }
 
     async handleClientEvent(clientEvent) {
@@ -26,20 +32,34 @@ class DrawPointTool {
     }
 
     // helpers
+    #updateToolOptionValue(name, value, notifyMapWorker) {
+        if (name == "SnapToOverlay") {
+            this.#isSnapToOverlayModeOn = value;
+        }
+        if (notifyMapWorker) {
+            this.#mapWorker.setToolOptionValue(name, value);
+        }
+    }
+
+    #initializeToolOptions() {
+        this.#mapWorker.initializeToolOptions(["SnapToOverlay"]);
+        this.#isSnapToOverlayModeOn = this.#mapWorker.getToolOption("SnapToOverlay").isToggledOn;
+    }
+
     async #onPointerUp(eventData) {
         await this.#addMapItemGroup(eventData);
     }
 
     #onKeyDown(eventData) {
-        if (eventData.key?.toLowerCase() == "o" && !eventData.repeat) {
-            this.#mapWorker.toggleSnapToOverlayMode();
+        if (eventData.altKey && eventData.key?.toLowerCase() == "o" && !eventData.repeat) {
+            this.#updateToolOptionValue("SnapToOverlay", !this.#isSnapToOverlayModeOn, true);
         }
     }
 
     async #addMapItemGroup(eventData) {
         if (eventData && this.#mapWorker.map && this.#mapWorker.activeMapItemTemplate) {
             let point = this.#transformCanvasPoint(eventData.offsetX, eventData.offsetY);
-            if (this.#mapWorker.map.overlay.isSnapToOverlayEnabled) {
+            if (this.#isSnapToOverlayModeOn) {
                 point = this.#mapWorker.map.overlay.getNearestOverlayPoint(point);
             }
             const size = 5;

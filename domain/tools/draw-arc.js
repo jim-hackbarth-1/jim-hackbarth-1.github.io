@@ -14,12 +14,17 @@ class DrawArcTool {
     #isDrawing;
     #isShiftPressed;
     #isLockModeOn;
+    #isSnapToOverlayModeOn;
 
     // methods
     async onActivate(mapWorker) {
         this.#mapWorker = mapWorker;
         this.#isShiftPressed = false;
-        this.#isLockModeOn = false;
+        this.#initializeToolOptions();    
+    }
+
+    async onApplyToolOption(toolOptionInfo) {
+        this.#updateToolOptionValue(toolOptionInfo.name, toolOptionInfo.value, false);
     }
 
     async handleClientEvent(clientEvent) {
@@ -44,6 +49,24 @@ class DrawArcTool {
     }
 
     // helpers
+    #updateToolOptionValue(name, value, notifyMapWorker) {
+        if (name == "LockMode") {
+            this.#isLockModeOn = value;
+        }
+        if (name == "SnapToOverlay") {
+            this.#isSnapToOverlayModeOn = value;
+        }
+        if (notifyMapWorker) {
+            this.#mapWorker.setToolOptionValue(name, value);
+        }
+    }
+
+    #initializeToolOptions() {
+        this.#mapWorker.initializeToolOptions(["LockMode", "SnapToOverlay"]);
+        this.#isLockModeOn = this.#mapWorker.getToolOption("LockMode").isToggledOn;
+        this.#isSnapToOverlayModeOn = this.#mapWorker.getToolOption("SnapToOverlay").isToggledOn;
+    }
+
     async #onPointerDown(eventData) {
         if (eventData && eventData.button === 0 && this.#mapWorker.activeMapItemTemplate) {
             this.#drawStart(eventData);
@@ -66,11 +89,11 @@ class DrawArcTool {
         if (eventData.key == "Shift") {
             this.#isShiftPressed = true;
         }
-        if (eventData.key?.toLowerCase() == "o" && !eventData.repeat) {
-            this.#mapWorker.toggleSnapToOverlayMode();
+        if (eventData.altKey && eventData.key?.toLowerCase() == "o" && !eventData.repeat) {
+            this.#updateToolOptionValue("SnapToOverlay", !this.#isSnapToOverlayModeOn, true);
         }
-        if (eventData.key?.toLowerCase() == "l" && !eventData.repeat) {
-            this.#isLockModeOn = !this.#isLockModeOn;
+        if (eventData.altKey && eventData.key?.toLowerCase() == "l" && !eventData.repeat) {
+            this.#updateToolOptionValue("LockMode", !this.#isLockModeOn, true);
         }
     }
 
@@ -83,7 +106,7 @@ class DrawArcTool {
     #drawStart(eventData) {
         this.#mapWorker.renderingContext.setLineDash([5, 10]);
         let start = { x: eventData.offsetX, y: eventData.offsetY };
-        if (this.#mapWorker.map.overlay.isSnapToOverlayEnabled) {
+        if (this.#isSnapToOverlayModeOn) {
             let mapPoint = this.#transformCanvasPoint(start.x, start.y);
             mapPoint = this.#mapWorker.map.overlay.getNearestOverlayPoint(mapPoint);
             start = this.#transformMapPoint(mapPoint.x, mapPoint.y);
@@ -96,7 +119,7 @@ class DrawArcTool {
 
     #draw(eventData) {
         let point = { x: eventData.offsetX, y: eventData.offsetY };
-        if (this.#mapWorker.map.overlay.isSnapToOverlayEnabled) {
+        if (this.#isSnapToOverlayModeOn) {
             let mapPoint = this.#transformCanvasPoint(point.x, point.y);
             mapPoint = this.#mapWorker.map.overlay.getNearestOverlayPoint(mapPoint);
             point = this.#transformMapPoint(mapPoint.x, mapPoint.y);

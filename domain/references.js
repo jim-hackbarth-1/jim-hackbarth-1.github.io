@@ -32,3 +32,4 @@ export * from "./utilities/map-worker-client.js";
 export * from "./utilities/map-worker.js";
 export * from "./utilities/selection-utilities.js";
 export * from "./utilities/set-utilities.js";
+export * from "./utilities/tool-option.js";

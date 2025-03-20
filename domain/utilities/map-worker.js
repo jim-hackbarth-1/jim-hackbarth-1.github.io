@@ -1,6 +1,7 @@
 ﻿
 import {
     Arc,
+    BooleanToolOption,
     Change,
     ChangeSet,
     ChangeType,
@@ -13,7 +14,10 @@ import {
     Overlay,
     Path,
     SelectionUtilities,
-    SetUtilities
+    SetUtilities,
+    SharedToolOptions,
+    StatesToolOption,
+    ToolOption
 } from "../references.js";
 
 /**
@@ -32,14 +36,16 @@ export const MapWorkerInputMessageType = {
     UnSelectAll: "UnSelectAll",
     Undo: "Undo",
     Redo: "Redo",
-    DeleteSelected: "DeleteSelected"
+    DeleteSelected: "DeleteSelected",
+    ApplyToolOption: "ApplyToolOption"
 };
 
 export const MapWorkerOutputMessageType = {
     DebugInfo: "DebugInfo",
     Error: "Error",
     MapUpdated: "MapUpdated",
-    ChangeCursor: "ChangeCursor"
+    ChangeCursor: "ChangeCursor",
+    ChangeToolOptions: "ChangeToolOptions"
 }
 
 onmessage = (message) => {
@@ -154,6 +160,9 @@ export class MapWorker {
                 case MapWorkerInputMessageType.DeleteSelected:
                     await this.#deleteSelected();
                     break;
+                case MapWorkerInputMessageType.ApplyToolOption:
+                    await this.#applyToolOption(message.data.toolOptionInfo);
+                    break;
                 default:
                     throw new Error(`Unexpected worker request type: ${messageType ?? "(null)"}`);
             }
@@ -205,16 +214,63 @@ export class MapWorker {
         return new SelectionUtilities();
     }
 
-    toggleSnapToOverlayMode() {
-        const overlayData = this.map.overlay.getData();
-        overlayData.isSnapToOverlayEnabled = !overlayData.isSnapToOverlayEnabled;
-        this.map.overlay = new Overlay(overlayData);
-    }
-
     renderMap(options) {
         if (this.canvas && this.renderingContext && this.map) {
             this.map.render(this.canvas, this.renderingContext, options);
         }
+    }
+    
+    initializeToolOptions(toolOptionNames) {
+        const toolOptions = this.#getToolOptions();
+        for (const toolOption of toolOptions) {
+            toolOption.isVisible = toolOptionNames.includes(toolOption.name);
+        }
+        this.#toolOptions = toolOptions;
+        this.postChangeToolOptionsMessage();
+    }
+
+    getToolOption(toolOptionName) {
+        const toolOptions = this.#getToolOptions();
+        return toolOptions.find(toolOption => toolOption.name == toolOptionName);
+    }
+
+    setToolOptionValue(name, value) {
+        const toolOptions = this.#getToolOptions();
+        const toolOption = toolOptions.find(option => option.name == name);
+        if (toolOption?.typeName == "StatesToolOption") {
+            toolOption.currentStateName = value;
+        }
+        if (toolOption?.typeName == "BooleanToolOption") {
+            toolOption.isToggledOn = value;
+        }
+        this.postChangeToolOptionsMessage();
+    }
+
+    addToolOption(toolOptionData) {
+        let toolOption = null;
+        switch (toolOptionData.typeName) {
+            case "StatesToolOption":
+                toolOption = new StatesToolOption(toolOptionData);
+                break;
+            case "BooleanToolOption":
+                toolOption = new BooleanToolOption(toolOptionData);
+                break;
+            default:
+                toolOption = new ToolOption(toolOptionData);
+                break;
+        }
+        const toolOptions = this.#getToolOptions();
+        toolOptions.push(toolOption);
+        this.#toolOptions = toolOptions;
+    }
+
+    postChangeToolOptionsMessage() {
+        const toolOptionsData = [];
+        const currentToolOptions = this.#getToolOptions();
+        for (const option of currentToolOptions) {
+            toolOptionsData.push(option.getData());
+        }
+        this.postMessage({ messageType: MapWorkerOutputMessageType.ChangeToolOptions, data: { toolOptions: toolOptionsData } });
     }
 
     // helpers
@@ -225,6 +281,7 @@ export class MapWorker {
         this.renderingContext.save();
         this.#baseUrl = baseUrl;
         await this.#loadMap();
+        this.initializeToolOptions([]);
     }
 
     async #loadMap() {
@@ -241,7 +298,7 @@ export class MapWorker {
             else {
                 this.renderingContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
             }
-        }
+        }      
     }
 
     async #updateMap(changeSet) {
@@ -334,6 +391,7 @@ export class MapWorker {
 
     async #setActiveTool(toolRefData) {
         this.#activeTool = null;
+        this.initializeToolOptions([]);
         if (this.#activeToolModel && this.map) {
             if (this.#activeToolModel.handleMapChange) {
                 this.map.removeEventListener("ChangeEvent", this.#activeToolModel.handleMapChange);
@@ -450,5 +508,20 @@ export class MapWorker {
             });
         }
         catch { }
+    }
+
+    #toolOptions;
+    #getToolOptions() {
+        if (!this.#toolOptions) {
+            this.#toolOptions = SharedToolOptions.getAll();
+        }
+        return this.#toolOptions;
+    }
+
+    async #applyToolOption(toolOptionInfo) {
+        this.setToolOptionValue(toolOptionInfo.name, toolOptionInfo.value);
+        if (this.activeToolModel && this.activeToolModel.onApplyToolOption) {
+            await this.activeToolModel.onApplyToolOption(toolOptionInfo);
+        }
     }
 }

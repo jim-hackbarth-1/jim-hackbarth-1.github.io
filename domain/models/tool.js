@@ -285,29 +285,10 @@ export class Tool {
             this.#eventListeners[eventName].splice(index, 1);
         }
     }
+
     applyChange(change, undoing) {
         if (change.changeType == ChangeType.Edit) {
             this.#applyPropertyChange(change.propertyName, undoing ? change.oldValue : change.newValue);
-        }
-    }
-
-    #applyPropertyChange(propertyName, propertyValue) {
-        switch (propertyName) {
-            case "moduleSrc":
-                this.moduleSrc = InputUtilities.cleanseString(propertyValue);
-                break;
-            case "thumbnailSrc":
-                this.thumbnailSrc = InputUtilities.cleanseSvg(propertyValue);
-                break;
-            case "cursorSrc":
-                this.cursorSrc = InputUtilities.cleanseSvg(propertyValue);
-                break;
-            case "cursorHotspot":
-                this.cursorHotspot = InputUtilities.cleansePoint(propertyValue);
-                break;
-            case "toolType":
-                this.toolType = InputUtilities.cleanseString(propertyValue);
-                break;
         }
     }
 
@@ -330,4 +311,24 @@ export class Tool {
     #getPropertyChange(propertyName, v1, v2) {
         return ChangeSet.getPropertyChange(Tool.name, propertyName, v1, v2);
     } 
+
+    #applyPropertyChange(propertyName, propertyValue) {
+        switch (propertyName) {
+            case "moduleSrc":
+                this.moduleSrc = InputUtilities.cleanseString(propertyValue);
+                break;
+            case "thumbnailSrc":
+                this.thumbnailSrc = InputUtilities.cleanseSvg(propertyValue);
+                break;
+            case "cursorSrc":
+                this.cursorSrc = InputUtilities.cleanseSvg(propertyValue);
+                break;
+            case "cursorHotspot":
+                this.cursorHotspot = InputUtilities.cleansePoint(propertyValue);
+                break;
+            case "toolType":
+                this.toolType = InputUtilities.cleanseString(propertyValue);
+                break;
+        }
+    }
 }

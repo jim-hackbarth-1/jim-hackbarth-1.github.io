@@ -5,9 +5,9 @@ export class ToolPalette {
 
     // constructor
     constructor(data) {
-        this.#editingToolPalettes = this.#getPalettes(data?.editingToolPalettes);
-        this.#drawingToolPalettes = this.#getPalettes(data?.drawingToolPalettes);
-        this.#mapItemTemplatePalettes = this.#getPalettes(data?.mapItemTemplatePalettes);
+        this.#editingToolPalettes = this.getPalettes(data?.editingToolPalettes);
+        this.#drawingToolPalettes = this.getPalettes(data?.drawingToolPalettes);
+        this.#mapItemTemplatePalettes = this.getPalettes(data?.mapItemTemplatePalettes);
         this.#eventListeners = {};
     }
 
@@ -19,7 +19,7 @@ export class ToolPalette {
     }
     set editingToolPalettes(editingToolPalettes) {
         const changeSet = this.#getPropertyChange(
-            "editingToolPalettes", this.#getPalettesData(this.#editingToolPalettes), this.#getPalettesData(editingToolPalettes));
+            "editingToolPalettes", this.getPalettesData(this.#editingToolPalettes), this.getPalettesData(editingToolPalettes));
         this.#editingToolPalettes = editingToolPalettes ?? [];
         this.#onChange(changeSet);
     }
@@ -31,7 +31,7 @@ export class ToolPalette {
     }
     set drawingToolPalettes(drawingToolPalettes) {
         const changeSet = this.#getPropertyChange(
-            "drawingToolPalettes", this.#getPalettesData(this.#drawingToolPalettes), this.#getPalettesData(drawingToolPalettes));
+            "drawingToolPalettes", this.getPalettesData(this.#drawingToolPalettes), this.getPalettesData(drawingToolPalettes));
         this.#drawingToolPalettes = drawingToolPalettes ?? [];
         this.#onChange(changeSet);
     }
@@ -43,7 +43,7 @@ export class ToolPalette {
     }
     set mapItemTemplatePalettes(mapItemTemplatePalettes) {
         const changeSet = this.#getPropertyChange(
-            "mapItemTemplatePalettes", this.#getPalettesData(this.#mapItemTemplatePalettes), this.#getPalettesData(mapItemTemplatePalettes));
+            "mapItemTemplatePalettes", this.getPalettesData(this.#mapItemTemplatePalettes), this.getPalettesData(mapItemTemplatePalettes));
         this.#mapItemTemplatePalettes = mapItemTemplatePalettes ?? [];
         this.#onChange(changeSet);
     }
@@ -51,9 +51,9 @@ export class ToolPalette {
     // methods
     getData() {
         return {
-            editingToolPalettes: this.#getPalettesData(this.#editingToolPalettes),
-            drawingToolPalettes: this.#getPalettesData(this.#drawingToolPalettes),
-            mapItemTemplatePalettes: this.#getPalettesData(this.#mapItemTemplatePalettes)
+            editingToolPalettes: this.getPalettesData(this.#editingToolPalettes),
+            drawingToolPalettes: this.getPalettesData(this.#drawingToolPalettes),
+            mapItemTemplatePalettes: this.getPalettesData(this.#mapItemTemplatePalettes)
         };
     }
 
@@ -239,6 +239,41 @@ export class ToolPalette {
         this.mapItemTemplatePalettes = [];
     }
 
+    getPalettes(palettesData) {
+        const palettes = [];
+        if (palettesData) {
+            for (const paletteData of palettesData) {
+                const refs = [];
+                for (const ref of paletteData) {
+                    refs.push(new EntityReference(ref));
+                }
+                palettes.push(refs);
+            }
+        }
+        return palettes;
+    }
+
+    getPalettesData(palettes) {
+        let palettesData = null;
+        if (palettes && palettes.length > 0) {
+            palettesData = [];
+            for (const palette of palettes) {
+                const refs = [];
+                for (const ref of palette) {
+                    refs.push(ref.getData());
+                }
+                palettesData.push(refs);
+            }
+        }
+        return palettesData;
+    }
+
+    applyChange(change, undoing) {
+        if (change.changeType == ChangeType.Edit) {
+            this.#applyPropertyChange(change.propertyName, undoing ? change.oldValue : change.newValue);
+        }
+    }
+
     // helpers
     #eventListeners;
 
@@ -254,32 +289,17 @@ export class ToolPalette {
         return ChangeSet.getPropertyChange(ToolPalette.name, propertyName, v1, v2);
     }
 
-    #getPalettes(palettesData) {
-        const palettes = [];
-        if (palettesData) {
-            for (const paletteData of palettesData) {
-                const refs = [];
-                for (const ref of paletteData) {
-                    refs.push(new EntityReference(ref));
-                }
-                palettes.push(refs);
-            }
+    #applyPropertyChange(propertyName, propertyValue) {
+        switch (propertyName) {
+            case "editingToolPalettes":
+                this.editingToolPalettes = this.getPalettes(propertyValue);
+                break;
+            case "drawingToolPalettes":
+                this.drawingToolPalettes = this.getPalettes(propertyValue);
+                break;
+            case "mapItemTemplatePalettes":
+                this.mapItemTemplatePalettes = this.getPalettes(propertyValue);
+                break;
         }
-        return palettes;
-    }
-
-    #getPalettesData(palettes) {
-        let palettesData = null;
-        if (palettes && palettes.length > 0) {
-            palettesData = [];
-            for (const palette of palettes) {
-                const refs = [];
-                for (const ref of palette) {
-                    refs.push(ref.getData());
-                }
-                palettesData.push(refs);
-            }
-        }
-        return palettesData;
     }
 }

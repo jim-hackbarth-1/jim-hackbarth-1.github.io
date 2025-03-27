@@ -748,6 +748,9 @@ export class Map {
                             tool = this.tools.find(t => EntityReference.areEqual(t.ref, changeRef));
                             tool.applyChange(change, undoing);
                             break;
+                        case ToolPalette.name:
+                            this.toolPalette.applyChange(change, undoing);
+                            break;
                         case MapItemTemplate.name:
                             changeRef = new EntityReference(change.mapItemTemplateRef);
                             mapItemTemplate = this.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, changeRef));

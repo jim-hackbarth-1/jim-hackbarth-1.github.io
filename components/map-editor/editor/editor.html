@@ -527,7 +527,7 @@
             <header id="tools-header" class="surface-secondary">
                 <div>Tools</div>
                 <div class="spacer"></div>
-                <button title="Edit tools" class="action-text">
+                <button title="Edit tool palette" class="action-text" onclick="#model.showDialog('tool-palette-dialog-component')">
                     <div>...</div>
                 </button>
                 <button title="Pin tool palette" class="action-text" onclick="#model.toggleToolsPinned()">
@@ -537,81 +537,83 @@
                 </button>
             </header>
             <section>
-                <div class="surface-secondary background tool-types">
-                    <header class="surface-secondary">
-                        <div>Editing tools</div>
-                        <div class="spacer"></div>
-                        <button title="Reset tools" class="action-text" onclick="#model.onToolReset()">
-                            <div class="icon-container">
-                                <kit-component data-kit-template-path="/resources/icons/reset.html" data-kit-model="null"></kit-component>
-                            </div>
-                        </button>
-                    </header>
-                    <section>
-                        <kit-array data-kit-array="#model.getToolPalettes('EditingTools')" data-kit-array-ref="palettes" data-kit-item-index-ref="paletteIndex">
-                            <div>
-                                <kit-array class="tool-palette" data-kit-array="#model.getToolPaletteItems('EditingTools', #paletteIndex)" data-kit-item-ref="tool">
-                                    <button id="%{#tool.id}%"
-                                            onclick="#model.onToolSelected(#tool.id, #tool.data.ref)"
-                                            class="tool-button action-control editing-tool-button"
-                                            title="%{#tool.data.ref.name}%">
-                                        %{#tool.data.thumbnailSrc}%
-                                    </button>
-                                </kit-array>
-                            </div>
-                        </kit-array>
-                    </section>
-                </div>
-                <div id="drawing-tools" class="surface-secondary background tool-types">
-                    <header class="surface-secondary">
-                        <div>Drawing tools</div>
-                        <div class="spacer"></div>
-                        <button title="Reset tools" class="action-text" onclick="#model.onToolReset()">
-                            <div class="icon-container">
-                                <kit-component data-kit-template-path="/resources/icons/reset.html" data-kit-model="null"></kit-component>
-                            </div>
-                        </button>
-                    </header>
-                    <section>
-                        <kit-array data-kit-array="#model.getToolPalettes('DrawingTools')" data-kit-item-index-ref="paletteIndex">
-                            <div>
-                                <kit-array class="tool-palette" data-kit-array="#model.getToolPaletteItems('DrawingTools', #paletteIndex)" data-kit-item-ref="tool">
-                                    <button id="%{#tool.id}%"
-                                            onclick="#model.onToolSelected(#tool.id, #tool.data.ref)"
-                                            class="tool-button action-control drawing-tool-button"
-                                            title="%{#tool.data.ref.name}%">
-                                        %{#tool.data.thumbnailSrc}%
-                                    </button>
-                                </kit-array>
-                            </div>
-                        </kit-array>
-                    </section>
-                </div>
-                <div id="map-item-templates" class="surface-secondary background tool-types">
-                    <header class="surface-secondary">
-                        <div>Map item templates</div>
-                        <div class="spacer"></div>
-                        <button title="Reset map item templates" class="action-text" onclick="#model.onMapItemTemplateReset()">
-                            <div class="icon-container">
-                                <kit-component data-kit-template-path="/resources/icons/reset.html" data-kit-model="null"></kit-component>
-                            </div>
-                        </button>
-                    </header>
-                    <section>
-                        <kit-array data-kit-array="#model.getToolPalettes('MapItemTemplates')" data-kit-item-index-ref="paletteIndex">
-                            <div>
-                                <kit-array class="tool-palette" data-kit-array="#model.getToolPaletteItems('MapItemTemplates', #paletteIndex)" data-kit-item-ref="mapItemTemplate">
-                                    <button id="%{#mapItemTemplate.id}%"
-                                            onclick="#model.onMapItemTemplateSelected(#mapItemTemplate.id, #mapItemTemplate.data.ref)"
-                                            class="tool-button action-control map-item-template-button"
-                                            title="%{#mapItemTemplate.data.ref.name}%">
-                                        %{#mapItemTemplate.data.thumbnailSrc}%
-                                    </button>
-                                </kit-array>
-                            </div>
-                        </kit-array>
-                    </section>
-                </div>
+                <kit-if id="tool-palette-content" data-kit-condition="true">
+                    <div class="surface-secondary background tool-types">
+                        <header class="surface-secondary">
+                            <div>Editing tools</div>
+                            <div class="spacer"></div>
+                            <button title="Reset tools" class="action-text" onclick="#model.onToolReset()">
+                                <div class="icon-container">
+                                    <kit-component data-kit-template-path="/resources/icons/reset.html" data-kit-model="null"></kit-component>
+                                </div>
+                            </button>
+                        </header>
+                        <section>
+                            <kit-array data-kit-array="#model.getToolPalettes('EditingTools')" data-kit-array-ref="palettes" data-kit-item-index-ref="paletteIndex">
+                                <div>
+                                    <kit-array class="tool-palette" data-kit-array="#model.getToolPaletteItems('EditingTools', #paletteIndex)" data-kit-item-ref="tool">
+                                        <button id="%{#tool.id}%"
+                                                onclick="#model.onToolSelected(#tool.id, #tool.data.ref)"
+                                                class="tool-button action-control editing-tool-button"
+                                                title="%{#tool.data.ref.name}%">
+                                            %{#tool.data.thumbnailSrc}%
+                                        </button>
+                                    </kit-array>
+                                </div>
+                            </kit-array>
+                        </section>
+                    </div>
+                    <div id="drawing-tools" class="surface-secondary background tool-types">
+                        <header class="surface-secondary">
+                            <div>Drawing tools</div>
+                            <div class="spacer"></div>
+                            <button title="Reset tools" class="action-text" onclick="#model.onToolReset()">
+                                <div class="icon-container">
+                                    <kit-component data-kit-template-path="/resources/icons/reset.html" data-kit-model="null"></kit-component>
+                                </div>
+                            </button>
+                        </header>
+                        <section>
+                            <kit-array data-kit-array="#model.getToolPalettes('DrawingTools')" data-kit-item-index-ref="paletteIndex">
+                                <div>
+                                    <kit-array class="tool-palette" data-kit-array="#model.getToolPaletteItems('DrawingTools', #paletteIndex)" data-kit-item-ref="tool">
+                                        <button id="%{#tool.id}%"
+                                                onclick="#model.onToolSelected(#tool.id, #tool.data.ref)"
+                                                class="tool-button action-control drawing-tool-button"
+                                                title="%{#tool.data.ref.name}%">
+                                            %{#tool.data.thumbnailSrc}%
+                                        </button>
+                                    </kit-array>
+                                </div>
+                            </kit-array>
+                        </section>
+                    </div>
+                    <div id="map-item-templates" class="surface-secondary background tool-types">
+                        <header class="surface-secondary">
+                            <div>Map item templates</div>
+                            <div class="spacer"></div>
+                            <button title="Reset map item templates" class="action-text" onclick="#model.onMapItemTemplateReset()">
+                                <div class="icon-container">
+                                    <kit-component data-kit-template-path="/resources/icons/reset.html" data-kit-model="null"></kit-component>
+                                </div>
+                            </button>
+                        </header>
+                        <section>
+                            <kit-array data-kit-array="#model.getToolPalettes('MapItemTemplates')" data-kit-item-index-ref="paletteIndex">
+                                <div>
+                                    <kit-array class="tool-palette" data-kit-array="#model.getToolPaletteItems('MapItemTemplates', #paletteIndex)" data-kit-item-ref="mapItemTemplate">
+                                        <button id="%{#mapItemTemplate.id}%"
+                                                onclick="#model.onMapItemTemplateSelected(#mapItemTemplate.id, #mapItemTemplate.data.ref)"
+                                                class="tool-button action-control map-item-template-button"
+                                                title="%{#mapItemTemplate.data.ref.name}%">
+                                            %{#mapItemTemplate.data.thumbnailSrc}%
+                                        </button>
+                                    </kit-array>
+                                </div>
+                            </kit-array>
+                        </section>
+                    </div>
+                </kit-if>
             </section>
         </div>
         <div id="map-container" class="surface-primary background">
@@ -627,4 +629,5 @@
     <kit-component id="canvas-size-dialog-component" data-kit-template-path="/components/map-editor/canvas-size-dialog/canvas-size-dialog.html"></kit-component>
     <kit-component id="overlay-dialog-component" data-kit-template-path="/components/map-editor/overlay-dialog/overlay-dialog.html"></kit-component>
     <kit-component id="layers-dialog-component" data-kit-template-path="/components/map-editor/layers-dialog/layers-dialog.html"></kit-component>
+    <kit-component id="tool-palette-dialog-component" data-kit-template-path="/components/map-editor/tool-palette-dialog/tool-palette-dialog.html"></kit-component>
 </section>

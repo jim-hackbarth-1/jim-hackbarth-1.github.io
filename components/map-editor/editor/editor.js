@@ -11,7 +11,7 @@ import {
     MapWorkerClient,
     MapWorkerInputMessageType,
     MapWorkerOutputMessageType,
-    ToolOption
+    ToolPalette
 } from "../../../domain/references.js";
 import { KitComponent, KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
 
@@ -26,6 +26,7 @@ export class EditorModel {
     static SaveFileRequestTopic = "SaveFileRequestTopic";
     static OpenFileRequestTopic = "OpenFileRequestTopic";
     static CanvasResizeRequestTopic = "CanvasResizeRequestTopic";
+    static MapUpdatedNotificationTopic = "MapUpdatedNotificationTopic";
 
     // instance fields
     #componentId;
@@ -91,8 +92,12 @@ export class EditorModel {
                             divActiveLayer.innerHTML = map.activeLayer;
                         }
                     }
+                    if (change.changeObjectType == ToolPalette.name) {
+                        this.#reRenderElement("tool-palette-content");
+                    }
                 }
             }
+            KitMessenger.publish(EditorModel.MapUpdatedNotificationTopic, "updated");
         }
     }
 
@@ -866,5 +871,12 @@ export class EditorModel {
             }
         }
         return false;
+    }
+
+    async #reRenderElement(elementId) {
+        const componentElement = KitRenderer.getComponentElement(this.#componentId);
+        const element = componentElement.querySelector(`#${elementId}`);
+        const componentId = element.getAttribute("data-kit-component-id");
+        await KitRenderer.renderComponent(componentId);
     }
 }

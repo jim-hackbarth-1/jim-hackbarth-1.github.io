@@ -11,7 +11,6 @@ import {
     Layer,
     Map,
     MapItemGroup,
-    Overlay,
     Path,
     SelectionUtilities,
     SetUtilities,

@@ -669,6 +669,7 @@ class PathInfo {
         this.transits = transits;
         this.isClip = false;
         this.clipPaths = [];
+        this.inView = true;
     }
 }
 

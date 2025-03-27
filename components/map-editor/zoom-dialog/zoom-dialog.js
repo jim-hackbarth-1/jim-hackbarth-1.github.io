@@ -1,6 +1,7 @@
 ﻿
 import { ChangeType, Map, MapWorkerClient, MapWorkerInputMessageType } from "../../../domain/references.js";
-import { KitRenderer } from "../../../ui-kit.js";
+import { KitMessenger, KitRenderer } from "../../../ui-kit.js";
+import { EditorModel } from "../editor/editor.js";
 
 export function createModel() {
     return new ZoomDialogModel();
@@ -14,10 +15,13 @@ class ZoomDialogModel {
         this.componentId = componentId;
     }
 
-    async onRenderComplete() {      
+    async onRenderComplete() {    
+        KitMessenger.subscribe(EditorModel.MapUpdatedNotificationTopic, this.componentId, this.onMapUpdated.name);
     }
 
     async showDialog() {
+        this.#isVisible = true;
+        await this.#reRenderElement("kitIfVisible");
         this.#zoomPercent = 100;
         const map = await MapWorkerClient.getMap();
         if (map) {
@@ -28,11 +32,13 @@ class ZoomDialogModel {
         const dialog = componentElement.querySelector("dialog");
         dialog.showModal();
         if (!this.#clickHandlerRegistered) {
+            const me = this;
             dialog.addEventListener('click', function (event) {
                 var rect = dialog.getBoundingClientRect();
                 var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
                     rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
                 if (!isInDialog) {
+                    me.#isVisible = false;
                     dialog.close();
                 }
             });
@@ -40,6 +46,11 @@ class ZoomDialogModel {
     }
 
     #clickHandlerRegistered;
+
+    #isVisible;
+    isVisible() {
+        return this.#isVisible
+    }
 
     getZoom() {
         return parseFloat(this.#zoomPercent).toFixed(0) + "%"
@@ -189,7 +200,16 @@ class ZoomDialogModel {
         this.#displayCurrentZoom();
     }
 
+    async onMapUpdated(message) {
+        const map = await MapWorkerClient.getMap();
+        if (map && this.#isVisible) {
+            this.#zoomPercent = map.zoom * 100;
+            this.#displayCurrentZoom();
+        }
+    }
+
     closeDialog() {
+        this.#isVisible = false;
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         componentElement.querySelector("dialog").close();
     }
@@ -222,5 +242,12 @@ class ZoomDialogModel {
             }
         }
         return { x: xMin - 5, y: yMin - 5, width: xMax - xMin + 10, height: yMax - yMin + 10 };
+    }
+
+    async #reRenderElement(elementId) {
+        const componentElement = KitRenderer.getComponentElement(this.componentId);
+        const element = componentElement.querySelector(`#${elementId}`);
+        const componentId = element.getAttribute("data-kit-component-id");
+        await KitRenderer.renderComponent(componentId);
     }
 }

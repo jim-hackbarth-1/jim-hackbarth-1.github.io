@@ -27,11 +27,13 @@ class ToolOptionsDialogModel {
         const dialog = componentElement.querySelector("dialog");
         dialog.showModal();
         if (!this.#clickHandlerRegistered) {
+            const me = this;
             dialog.addEventListener('click', function (event) {
                 var rect = dialog.getBoundingClientRect();
                 var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
                     rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
                 if (!isInDialog) {
+                    me.#isVisible = false;
                     dialog.close();
                 }
             });
@@ -72,6 +74,7 @@ class ToolOptionsDialogModel {
     }
 
     closeDialog() {
+        this.#isVisible = false;
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         componentElement.querySelector("dialog").close();
     }

@@ -1,92 +1,94 @@
 ﻿
 <dialog class="zoom-dialog-component surface-tertiary background">
-    <style>
-        @scope (.zoom-dialog-component) {
-            :scope {
-                height: 150px;
-                width: 200px;
-                border: 1px solid var(--theme-color-tertiary-darkest);
-            }
+    <kit-if id="kitIfVisible" data-kit-condition="#model.isVisible()">
+        <style>
+            @scope (.zoom-dialog-component) {
+                :scope {
+                    height: 150px;
+                    width: 200px;
+                    border: 1px solid var(--theme-color-tertiary-darkest);
+                }
 
-            .zoom-controls-container {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
+                .zoom-controls-container {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
 
-            .zoom-controls-container button {
-                margin:2px;
-            }
+                .zoom-controls-container button {
+                    margin: 2px;
+                }
 
-            input[type="text"] {
-                border: 1px solid var(--theme-color-tertiary-darkest);
-                border-radius: 3px;
-                height: 35px;
-                color: var(--theme-color-tertiary-darkest);
-                background-color: var(--theme-color-tertiary-lighter);
-                display: block;
-                padding: 0 5px 0 5px;
-                text-align: center;
-                width: 75px;
-            }
+                input[type="text"] {
+                    border: 1px solid var(--theme-color-tertiary-darkest);
+                    border-radius: 3px;
+                    height: 35px;
+                    color: var(--theme-color-tertiary-darkest);
+                    background-color: var(--theme-color-tertiary-lighter);
+                    display: block;
+                    padding: 0 5px 0 5px;
+                    text-align: center;
+                    width: 75px;
+                }
 
-            input[type="text"][disabled] {
-                background-color: rgb(from var(--theme-color-tertiary-lighter) r g b / 25%);
-                border-color: rgb(from var(--theme-color-tertiary-darkest) r g b / 25%);
-            }
+                input[type="text"][disabled] {
+                    background-color: rgb(from var(--theme-color-tertiary-lighter) r g b / 25%);
+                    border-color: rgb(from var(--theme-color-tertiary-darkest) r g b / 25%);
+                }
 
-            input[type="text"]::placeholder {
-                color: var(--theme-color-tertiary-darker);
-            }
+                input[type="text"]::placeholder {
+                    color: var(--theme-color-tertiary-darker);
+                }
 
-            input[type="text"][disabled]::placeholder {
-                color: rgb(from var(--theme-color-tertiary-darker) r g b / 25%);
-            }
+                input[type="text"][disabled]::placeholder {
+                    color: rgb(from var(--theme-color-tertiary-darker) r g b / 25%);
+                }
 
-            input[type="text"]:focus {
-                background-color: var(--theme-color-tertiary-lightest);
-                border: 1px solid var(--theme-color-tertiary-darkest);
-            }
+                input[type="text"]:focus {
+                    background-color: var(--theme-color-tertiary-lightest);
+                    border: 1px solid var(--theme-color-tertiary-darkest);
+                }
 
-            input[type="text"]:not([disabled]):hover {
-                box-shadow: var(--theme-color-tertiary-lightest) 1px 1px 3px 0 inset, var(--theme-color-tertiary-lightest) -1px -1px 3px 0 inset;
+                input[type="text"]:not([disabled]):hover {
+                    box-shadow: var(--theme-color-tertiary-lightest) 1px 1px 3px 0 inset, var(--theme-color-tertiary-lightest) -1px -1px 3px 0 inset;
+                }
             }
-        }
-    </style>
-    <header class="surface-tertiary">
-        <div class="icon-container">
-            <kit-component data-kit-template-path="/resources/icons/view-zoom.html" data-kit-model="null"></kit-component>
-        </div>
-        <div>
-            <h1>Zoom</h1>
-        </div>
-        <div class="spacer"></div>
-        <div>
-            <button title="Close" class="action-text" onclick="#model.closeDialog();">
-                <div class="icon-container">
-                    <kit-component data-kit-template-path="/resources/icons/file-close.html" data-kit-model="null"></kit-component>
-                </div>
-            </button>
-        </div>
-    </header>
-    <section>
-        <div class="zoom-controls-container">
-            <button id="zoom-out" class="action-control" title="Zoom out" onclick="#model.zoomOut();">-</button>
-            <input type="text" list="zoom-levels" id="zoom-current" title="Zoom" placeholder="Zoom" value="%{#model.getZoom()}%" onchange="#model.onZoomChange(this.value)" onmousedown="this.value = '';" onblur="#model.onZoomBlur()" />
-            <datalist id="zoom-levels">
-                <option value="25%"></option>
-                <option value="50%"></option>
-                <option value="75%"></option>
-                <option value="100%"></option>
-                <option value="125%"></option>
-                <option value="150%"></option>
-                <option value="200%"></option>
-                <option value="400%"></option>
-            </datalist>
-            <button id="zoom-in" class="action-control" title="Zoom in" onclick="#model.zoomIn();">+</button>
-        </div>
-        <div class="zoom-controls-container">
-            <button id="zoom-to-fit" class="action-text" title="Zoom to fit map contents" onclick="#model.zoomToFit();">Zoom to fit</button>
-        </div>
-    </section>
+        </style>
+        <header class="surface-tertiary">
+            <div class="icon-container">
+                <kit-component data-kit-template-path="/resources/icons/view-zoom.html" data-kit-model="null"></kit-component>
+            </div>
+            <div>
+                <h1>Zoom</h1>
+            </div>
+            <div class="spacer"></div>
+            <div>
+                <button title="Close" class="action-text" onclick="#model.closeDialog();">
+                    <div class="icon-container">
+                        <kit-component data-kit-template-path="/resources/icons/file-close.html" data-kit-model="null"></kit-component>
+                    </div>
+                </button>
+            </div>
+        </header>
+        <section>
+            <div class="zoom-controls-container">
+                <button id="zoom-out" class="action-control" title="Zoom out" onclick="#model.zoomOut();">-</button>
+                <input type="text" list="zoom-levels" id="zoom-current" title="Zoom" placeholder="Zoom" value="%{#model.getZoom()}%" onchange="#model.onZoomChange(this.value)" onmousedown="this.value = '';" onblur="#model.onZoomBlur()" />
+                <datalist id="zoom-levels">
+                    <option value="25%"></option>
+                    <option value="50%"></option>
+                    <option value="75%"></option>
+                    <option value="100%"></option>
+                    <option value="125%"></option>
+                    <option value="150%"></option>
+                    <option value="200%"></option>
+                    <option value="400%"></option>
+                </datalist>
+                <button id="zoom-in" class="action-control" title="Zoom in" onclick="#model.zoomIn();">+</button>
+            </div>
+            <div class="zoom-controls-container">
+                <button id="zoom-to-fit" class="action-text" title="Zoom to fit map contents" onclick="#model.zoomToFit();">Zoom to fit</button>
+            </div>
+        </section>
+    </kit-if>
 </dialog>

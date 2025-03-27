@@ -13,7 +13,7 @@
     --editor-tool-width: 200px;
     --editor-tool-left: 0px;
     --theme-dark-mode: 0;
-    --theme-hue-primary: 240; /* 300 pink (default spring) */
+    --theme-hue-primary: 300; /* 300 pink (default spring) */
 }
 
 :scope[data-app-theme="summer"] {
@@ -37,19 +37,19 @@
     --theme-darker: max(30% - 100% * var(--theme-dark-mode), 100% * var(--theme-dark-mode) - 26%); /* 30% | 74% */
     --theme-darkest: max(10% - 100% * var(--theme-dark-mode), 100% * var(--theme-dark-mode) - 2%); /* 30% | 98% */
     --theme-color-primary: hsl(var(--theme-hue-primary) 30% 70%);
-    --theme-color-primary-lighter: hsl(var(--theme-hue-primary) 75% var(--theme-lighter));
+    --theme-color-primary-lighter: hsl(var(--theme-hue-primary) 50% var(--theme-lighter));
     --theme-color-primary-lightest: hsl(var(--theme-hue-primary) 100% var(--theme-lightest));
     --theme-color-primary-darker: hsl(var(--theme-hue-primary) 75% var(--theme-darker));
     --theme-color-primary-darkest: hsl(var(--theme-hue-primary) 100% var(--theme-darkest));
     --theme-color-primary-darkest-fixed: hsl(var(--theme-hue-primary) 100% 10%);
     --theme-color-secondary: hsl(var(--theme-hue-secondary) 30% 70%);
-    --theme-color-secondary-lighter: hsl(var(--theme-hue-secondary) 75% var(--theme-lighter));
+    --theme-color-secondary-lighter: hsl(var(--theme-hue-secondary) 50% var(--theme-lighter));
     --theme-color-secondary-lightest: hsl(var(--theme-hue-secondary) 100% var(--theme-lightest));
     --theme-color-secondary-darker: hsl(var(--theme-hue-secondary) 75% var(--theme-darker));
     --theme-color-secondary-darkest: hsl(var(--theme-hue-secondary) 100% var(--theme-darkest));
     --theme-color-secondary-darkest-fixed: hsl(var(--theme-hue-secondary) 100% 10%);
     --theme-color-tertiary: hsl(var(--theme-hue-tertiary) 30% 70%);
-    --theme-color-tertiary-lighter: hsl(var(--theme-hue-tertiary) 75% var(--theme-lighter));
+    --theme-color-tertiary-lighter: hsl(var(--theme-hue-tertiary) 50% var(--theme-lighter));
     --theme-color-tertiary-lightest: hsl(var(--theme-hue-tertiary) 100% var(--theme-lightest));
     --theme-color-tertiary-darker: hsl(var(--theme-hue-tertiary) 75% var(--theme-darker));
     --theme-color-tertiary-darkest: hsl(var(--theme-hue-tertiary) 100% var(--theme-darkest));

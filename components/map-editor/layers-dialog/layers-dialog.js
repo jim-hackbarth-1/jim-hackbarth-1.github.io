@@ -1,6 +1,7 @@
 ﻿
 import { ChangeSet, ChangeType, InputUtilities, Layer, Map, MapWorkerClient, MapWorkerInputMessageType } from "../../../domain/references.js";
-import { KitDependencyManager, KitRenderer } from "../../../ui-kit.js";
+import { KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
+import { EditorModel } from "../editor/editor.js";
 
 export function createModel() {
     return new LayersDialogModel();
@@ -13,6 +14,7 @@ class LayersDialogModel {
     }
 
     async onRenderComplete() {
+        KitMessenger.subscribe(EditorModel.MapUpdatedNotificationTopic, this.componentId, this.onMapUpdated.name);
     }
 
     async showDialog() {
@@ -22,11 +24,13 @@ class LayersDialogModel {
         const dialog = componentElement.querySelector("dialog");
         dialog.showModal();  
         if (!this.#clickHandlerRegistered) {
+            const me = this;
             dialog.addEventListener('click', function (event) {
                 var rect = dialog.getBoundingClientRect();
                 var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
                     rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
                 if (!isInDialog) {
+                    me.#isVisible = false;
                     dialog.close();
                 }
             });
@@ -399,6 +403,12 @@ class LayersDialogModel {
         await this.#reRenderDialog();
     }
 
+    async onMapUpdated(message) {
+        if (this.#isVisible) {
+            await this.#reRenderDialog();
+        }
+    }
+
     closeDialog() {
         this.#isVisible = false;
         const componentElement = KitRenderer.getComponentElement(this.componentId);
@@ -407,11 +417,15 @@ class LayersDialogModel {
 
     // helpers
     async #reRenderDialog() {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const kitIfVisibleElement = componentElement.querySelector("#kitIfVisible");
-        const componentId = kitIfVisibleElement.getAttribute("data-kit-component-id");
-        await KitRenderer.renderComponent(componentId);
+        await this.#reRenderElement("kitIfVisible");
         await this.#loadActiveLayerList();
+    }
+
+    async #reRenderElement(elementId) {
+        const componentElement = KitRenderer.getComponentElement(this.componentId);
+        const element = componentElement.querySelector(`#${elementId}`);
+        const componentId = element.getAttribute("data-kit-component-id");
+        await KitRenderer.renderComponent(componentId);
     }
 
     async #loadActiveLayerList() {

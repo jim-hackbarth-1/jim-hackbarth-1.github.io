@@ -425,6 +425,12 @@ class FitSelectionTool {
                 }
             }
         }
+
+        // unselect secondary selections
+        for (const mapItemGroup of secondarySelections) {
+            mapItemGroup.selectionStatus = null;
+        }
+
         this.#mapWorker.renderMap();
     }
 

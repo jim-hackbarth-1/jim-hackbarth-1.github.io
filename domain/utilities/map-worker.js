@@ -403,7 +403,11 @@ export class MapWorker {
         if (toolRefData && this.map) {
             const toolRef = new EntityReference(toolRefData);
             const tool = this.map.tools.find(t => EntityReference.areEqual(t.ref, toolRef));
-            const toolModule = await import(tool.moduleSrc);
+            let moduleSrc = tool.moduleSrc;
+            if (moduleSrc.startsWith("data-")) {
+                moduleSrc = `data:text/javascript;base64,${moduleSrc.substring(5) }`;
+            }
+            const toolModule = await import(moduleSrc);
             this.#activeTool = tool;
             this.#activeToolModel = toolModule.createToolModel();
             if (this.activeToolModel && this.activeToolModel.onActivate) {

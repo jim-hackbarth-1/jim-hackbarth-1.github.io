@@ -108,9 +108,9 @@ export class InputUtilities {
         "foreignObject", "g", "image", "line", "linearGradient",
         "marker", "mask", "metadata", "mpath", "path",
         "pattern", "polygon", "polyline", "radialGradient", "rect",
-        "script", "set", "stop", "style", "svg",
-        "switch", "symbol", "text", "textPath", "title",
-        "tspan", "use", "view"
+        "script", "set", "stop", "style", "switch",
+        "symbol", "text", "textPath", "title", "tspan",
+        "use", "view"
     ];
 
     static #allowedSvgAttributes = [
@@ -149,16 +149,19 @@ export class InputUtilities {
         "transform-origin", "type", "underline-position", "underline-thickness", "unicode-bidi",
         "values", "vector-effect", "viewBox", "visibility", "width",
         "word-spacing", "writing-mode", "x", "x1", "x2",
-        "xChannelSelector", "y", "y1", "y2", "yChannelSelector",
-        "z"
+        "xChannelSelector", "xmlns", "y", "y1", "y2",
+        "yChannelSelector", "z"
     ];
 
     static #processSvgSrcNode(docOut, parentElement, node) {
         switch (node.nodeType) {
             case 1: // element
                 if (InputUtilities.#allowedSvgTags.some(t => t.toLowerCase() == node.tagName.toLowerCase())) {
-                    const newElement = docOut.importNode(node, false);
+                    const newElement = docOut.createElement(node.tagName);
                     parentElement.appendChild(newElement);
+                    for (const attribute of node.attributes) {
+                        InputUtilities.#processSvgSrcNode(docOut, newElement, attribute);
+                    }
                     for (const childNode of node.childNodes) {
                         InputUtilities.#processSvgSrcNode(docOut, newElement, childNode);
                     }
@@ -166,11 +169,11 @@ export class InputUtilities {
                 break;
             case 2: // attribute
                 if (InputUtilities.#allowedSvgAttributes.some(a => a.toLowerCase() == node.name.toLowerCase())) {
-                    parentElement.setAttribute(node.name, Tool.cleanseString(node.value));
+                    parentElement.setAttribute(node.name, InputUtilities.cleanseString(node.value));
                 }
                 break;
             case 3: // text
-                parentElement.text = Tool.cleanseString(text);
+                parentElement.text = InputUtilities.cleanseString(node.textContent);
                 break;
         }
     }

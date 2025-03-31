@@ -4,13 +4,13 @@ import { Map } from "../references.js";
 export function getOverlandTemplate() {
     const blueRegion = {
         ref: { name: "Blue Region" },
-        thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" stroke="green" stroke-width="2" fill="lightblue" rx="10" /></svg>',
+        thumbnailSrc: '<rect x="10" y="10" width="80" height="80" stroke="green" stroke-width="2" fill="lightblue" rx="10" />',
         fills: [{ color: "lightblue" }],
         strokes: [{ color: "green", width: 3 }],
     };
     const greenRegion = {
         ref: { name: "Green Region" },
-        thumbnailSrc: '<svg xmlns="http://www.w3.org/2000/svg" height="25" width="25" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" stroke="darkslategrey" stroke-width="2" fill="darkseagreen" rx="10" /></svg>',
+        thumbnailSrc: '<rect x="10" y="10" width="80" height="80" stroke="darkslategrey" stroke-width="2" fill="darkseagreen" rx="10" />',
         fills: [{ color: "darkseagreen" }],
         strokes: [{ color: "darkslategrey", width: 3 }],
     };

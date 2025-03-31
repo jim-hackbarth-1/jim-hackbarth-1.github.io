@@ -485,7 +485,8 @@ export class EditorModel {
         this.#componentElement.querySelector(`#${id}`).classList.add("active");
         const map = await MapWorkerClient.getMap();
         const tool = map.tools.find(t => EntityReference.areEqual(t.ref, ref));
-        const cursorSrc = `data:image/svg+xml;base64,${btoa(tool.cursorSrc)}`;
+        let cursorSrc = `<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100">${tool.cursorSrc}</svg>`;
+        cursorSrc = `data:image/svg+xml;base64,${btoa(cursorSrc)}`;
         this.#toolCursor = `url(${cursorSrc}) ${tool.cursorHotspot.x} ${tool.cursorHotspot.y}, crosshair`;
         this.#setMapCursor();
         const refData = tool?.ref ? tool.ref.getData() : null;
@@ -614,11 +615,6 @@ export class EditorModel {
     }
 
     async #handleKeyDownEvent(event) {
-
-        if (event.ctrlKey || event.key?.toLowerCase() == "enter" || event.key?.startsWith("Arrow")) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
         if (event.repeat) {
             return;
         }

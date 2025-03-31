@@ -1,0 +1,123 @@
+﻿<kit-if id="if-visible" data-kit-condition="#model.tool != null">
+    <fieldset data-kit-add-attributes="%{#model.isDisabled()}%">
+        <div>
+            <kit-if data-kit-condition="!#model.tool.ref.isBuiltIn && !#model.tool.ref.isFromTemplate">
+                <button id="button-save"
+                        class="action-control"
+                        title="Save"
+                        data-kit-add-attributes="%{#model.isSaveDisabled()}%"
+                        onclick="#model.save();">
+                    Save
+                </button>
+            </kit-if>
+            <kit-if data-kit-condition="#model.tool.ref.isBuiltIn">
+                <label><i>Built in (read-only)</i></label>
+            </kit-if>
+            <kit-if data-kit-condition="#model.tool.ref.isFromTemplate">
+                <label><i>From template (read-only)</i></label>
+            </kit-if>
+        </div>
+        <div>
+            <label>Name:<span class="validation-message">%{#model.validationResult?.name ?? ""}%</span></label>
+            <input id="tool-name"
+                   type="text"
+                   placeholder="Name"
+                   maxlength="30"
+                   style="width:400px;"
+                   value="%{#model.tool.ref.name}%"
+                   onchange="#model.update()"
+                   onkeydown="#model.onKeyDown(event)" />
+        </div>
+        <div>
+            <label>Version:<span class="validation-message">%{#model.validationResult?.version ?? ""}%</span></label>
+            <input id="tool-version"
+                   type="number"
+                   min="1"
+                   max="1000"
+                   onchange="#model.update()"
+                   data-kit-add-attributes="value=%{#model.tool.ref.versionId}%"
+                   onkeydown="#model.onKeyDown(event)" />
+        </div>
+        <div>
+            <label>Tool type:</label>
+            <label class="radio-button-2">
+                <input id="tool-type-drawing"
+                       type="radio"
+                       name="toolType"
+                       onchange="#model.update()"
+                       data-kit-add-attributes="%{#model.isToolTypeChecked(#model.tool.toolType, 'DrawingTool')}%" />
+                <span class="checkmark"></span>
+                <span>Drawing tool</span>
+            </label>
+            <label class="radio-button-2">
+                <input id="tool-type-editing"
+                       type="radio"
+                       name="toolType"
+                       onchange="#model.update()"
+                       data-kit-add-attributes="%{#model.isToolTypeChecked(#model.tool.toolType, 'EditingTool')}%" />
+                <span class="checkmark"></span>
+                <span>Editing tool</span>
+            </label>
+        </div>
+        <div>
+            <label>Thumbnail:<span class="validation-message">%{#model.validationResult?.thumbnail ?? ""}%</span></label>
+            <textarea id="tool-thumbnail"
+                      maxlength="1000"
+                      autocomplete="off"
+                      autocorrect="off"
+                      autocapitalize="off"
+                      spellcheck="false"
+                      onchange="#model.update()"
+                      onkeydown="#model.onKeyDown(event)">%{#model.tool.thumbnailSrc}%
+            </textarea>
+        </div>
+        <div>
+            <label>Cursor:<span class="validation-message">%{#model.validationResult?.cursor ?? ""}%</span></label>
+            <textarea id="tool-cursor"
+                      maxlength="1000"
+                      autocomplete="off"
+                      autocorrect="off"
+                      autocapitalize="off"
+                      spellcheck="false"
+                      onchange="#model.update()"
+                      onkeydown="#model.onKeyDown(event)">%{#model.tool.cursorSrc}%
+            </textarea>
+        </div>
+        <div>
+            <label>Cursor hot spot:<span class="validation-message">%{#model.validationResult?.cursorHotspot ?? ""}%</span></label>
+            <div>
+                <label class="inline-label">x:</label>
+                <input id="tool-cursor-hot-spot-x"
+                       type="number"
+                       min="0"
+                       max="100"
+                       onchange="#model.update()"
+                       data-kit-add-attributes="value=%{#model.tool.cursorHotspot.x}%"
+                       onkeydown="#model.onKeyDown(event)" />
+            </div>
+            <div>
+                <label class="inline-label">y:</label>
+                <input id="tool-cursor-hot-spot-y"
+                       type="number"
+                       min="0"
+                       max="100"
+                       onchange="#model.update()"
+                       data-kit-add-attributes="value=%{#model.tool.cursorHotspot.y}%"
+                       onkeydown="#model.onKeyDown(event)" />
+            </div>
+        </div>
+        <div>
+            <label>Source:<span class="validation-message">%{#model.validationResult?.source ?? ""}%</span></label>
+            <textarea id="tool-source"
+                      maxlength="200000"
+                      style="height:550px;"
+                      autocomplete="off"
+                      autocorrect="off"
+                      autocapitalize="off"
+                      spellcheck="false"
+                      onchange="#model.update()"
+                      onkeydown="#model.onKeyDown(event)">%{#model.getToolSource()}%
+            </textarea>
+        </div>
+    </fieldset>
+</kit-if>

@@ -1,6 +1,6 @@
 ﻿
 import { KitMessenger, KitRenderer } from "../../../ui-kit.js";
-import { ChangeSet, ChangeType, EntityReference, MapWorkerClient, MapWorkerInputMessageType, ToolPalette, ToolType } from "../../../domain/references.js";
+import { ChangeSet, ChangeType, EntityReference, Map, MapWorkerClient, MapWorkerInputMessageType, Tool, ToolPalette, ToolSource, ToolType } from "../../../domain/references.js";
 import { EditorModel } from "../editor/editor.js";
 
 export function createModel() {
@@ -19,10 +19,23 @@ class ToolPaletteDialogModel {
     }
 
     async onMapUpdated(message) {
-        if (this.#isVisible) {
+        if (this.#isVisible) { 
+            const map = await MapWorkerClient.getMap();
+            if (this.#currentTool) {
+                this.#currentTool = map.tools.find(t => EntityReference.areEqual(t.ref, this.#currentTool.ref));
+            }
             await this.#reRenderElement("kitIfVisible");
             this.#applyDetailsState();
         }
+    }
+
+    onDetailsToggleEvent(event) {
+        const detailsState = this.#getDetailsState();
+        const stateItem = detailsState.find(x => x.id == event.target.id);
+        if (stateItem) {
+            stateItem.isOpen = event.target.open;
+        }
+        this.#detailsState = detailsState;
     }
 
     // properties
@@ -45,22 +58,15 @@ class ToolPaletteDialogModel {
                 var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
                     rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
                 if (!isInDialog) {
-                    me.#isVisible = false;
-                    dialog.close();
+                    me.closeDialog();
                 }
             });
             this.#clickHandlerRegistered = true;
         }
-        if (!this.#toggleDetailsHandlerRegistered) {
-            const detailsElements = componentElement.querySelectorAll("details");
-            for (const detailsElement of detailsElements) {
-                detailsElement.addEventListener("toggle", async (event) => await this.#handleDetailsToggleEvent(event));
-            }
-            this.#toggleDetailsHandlerRegistered = true;
-        }
     }
 
     closeDialog() {
+        this.#currentTool = null;
         this.#isVisible = false;
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         componentElement.querySelector("dialog").close();
@@ -374,9 +380,161 @@ class ToolPaletteDialogModel {
         await this.#updateMap(changes);
     }
 
+    async getTools() {
+        const map = await MapWorkerClient.getMap();
+        let tools = map.tools;
+        function sortTools(tool1, tool2) {
+            if (tool1.ref.name < tool2.ref.name) {
+                return -1;
+            }
+            if (tool1.ref.name > tool2.ref.name) {
+                return 1;
+            }
+            return 0;
+        }
+        tools.sort(sortTools);
+
+        return tools.map(t => ({
+            elementId: `${t.ref.name}-${t.ref.versionId}${t.ref.isBuiltIn ? "-builtin" : ""}${t.ref.isFromTemplate ? "-fromtemplate" : ""}`,
+            thumbnailSrc: t.thumbnailSrc,
+            name: t.ref.name,
+            toolTypeLabel: t.toolType == ToolType.EditingTool ? "Editing tool" : "Drawing tool",
+            referenceTypeLabel: t.ref.isBuiltIn ? "built-in" : t.ref.isFromTemplate ? "from template" : "custom tool",
+            versionLabel: `version ${t.ref.versionId}`
+        }));
+    }
+
+    async addTool() {
+        let moduleSrc = `data-${btoa(ToolSource.Default)}`
+        const thumbnailSrc = `<g class="icon"><path d="M 30,10 l -20,0 0,20 M 10,70 l 0,20 20,0 M 70,90 l 20,0 0,-20 M 90,30 l 0,-20 -20,0" /></g>`;
+        const cursorSrc = `<g stroke="black" stroke-width="4" fill="white"><path d="M 5,5 L 80,80 A 5 5 -45 0 0 90 70 L 35,15 z" /></g>`;
+        const name = await this.#getNewToolName();
+        const tool = new Tool({
+            ref: {
+                versionId: 1,
+                isBuiltIn: false,
+                isFromTemplate: false,
+                name: name
+            },
+            moduleSrc: moduleSrc,
+            thumbnailSrc: thumbnailSrc,
+            cursorSrc: cursorSrc,
+            cursorHotspot: { x: 0, y: 0 },
+            toolType: ToolType.DrawingTool
+        });
+
+        const map = await MapWorkerClient.getMap();
+        const changes = [
+            {
+                changeType: ChangeType.Insert,
+                changeObjectType: Map.name,
+                propertyName: "tools",
+                itemIndex: map.tools.length,
+                itemValue: tool.getData()
+            },
+            {
+                changeType: ChangeType.Insert,
+                changeObjectType: Map.name,
+                propertyName: "toolRefs",
+                itemIndex: map.toolRefs.length,
+                itemValue: tool.ref.getData()
+            }
+        ];
+        this.#setCurrentTool(tool);
+        await this.#updateMap(changes);
+    }
+
+    async deleteTool() {
+        if (this.#currentTool && !this.#currentTool.ref.isBuiltIn && !this.#currentTool.ref.isFromTemplate) {
+            const map = await MapWorkerClient.getMap();
+            const toolIndex = map.tools.findIndex(t => EntityReference.areEqual(t.ref, this.#currentTool.ref));
+            const toolRefIndex = map.toolRefs.findIndex(tr => EntityReference.areEqual(tr, this.#currentTool.ref));
+            const changes = [
+                {
+                    changeType: ChangeType.Delete,
+                    changeObjectType: Map.name,
+                    propertyName: "tools",
+                    itemIndex: toolIndex,
+                    itemValue: this.#currentTool.getData()
+                },
+                {
+                    changeType: ChangeType.Delete,
+                    changeObjectType: Map.name,
+                    propertyName: "toolRefs",
+                    itemIndex: toolRefIndex,
+                    itemValue: this.#currentTool.ref.getData()
+                }
+            ];
+
+            const isInEditingToolPalettes = this.#isToolInPalettes(map.toolPalette.editingToolPalettes, this.#currentTool.ref);
+            if (isInEditingToolPalettes) {
+                const oldEditingToolsData = map.toolPalette.getPalettesData(map.toolPalette.editingToolPalettes);
+                let newEditingToolsData = this.#removeToolFromPalettesData(oldEditingToolsData, this.#currentTool.ref);
+                changes.push({
+                    changeType: ChangeType.Edit,
+                    changeObjectType: ToolPalette.name,
+                    propertyName: "editingToolPalettes",
+                    oldValue: oldEditingToolsData,
+                    newValue: newEditingToolsData
+                });
+            }
+
+            const isInDrawingToolPalettes = this.#isToolInPalettes(map.toolPalette.drawingToolPalettes, this.#currentTool.ref);
+            if (isInDrawingToolPalettes) {
+                const oldDrawingToolsData = map.toolPalette.getPalettesData(map.toolPalette.drawingToolPalettes);
+                let newDrawingToolsData = this.#removeToolFromPalettesData(oldDrawingToolsData, this.#currentTool.ref);
+                changes.push({
+                    changeType: ChangeType.Edit,
+                    changeObjectType: ToolPalette.name,
+                    propertyName: "drawingToolPalettes",
+                    oldValue: oldDrawingToolsData,
+                    newValue: newDrawingToolsData
+                });
+            }
+
+            this.#setCurrentTool(null);
+            await this.#updateMap(changes);
+        }
+    }
+
+    async selectTool(elementId) {
+        const componentElement = KitRenderer.getComponentElement(this.componentId);
+        const toolElements = componentElement.querySelectorAll(".tool-item");
+        for (const toolElement of toolElements) {
+            const toolElementId = toolElement.id;
+            if (elementId == toolElementId) {
+                toolElement.setAttribute("data-selected", "true");
+            }
+            else {
+                toolElement.setAttribute("data-selected", "false");
+            }
+        }
+        const operationInfo = elementId.split("-");
+        const name = operationInfo[0];
+        const version = parseInt(operationInfo[1]);
+        const isFromTemplate = operationInfo[2] == "fromtemplate";
+        const isBuiltIn = operationInfo[2] == "builtin";
+        const canDelete = !isFromTemplate && !isBuiltIn;
+        const deleteButton = componentElement.querySelector("#delete-tool-button");
+        deleteButton.disabled = !canDelete;
+        const ref = new EntityReference({
+            name: name,
+            versionId: version,
+            isBuiltIn: isBuiltIn,
+            isFromTemplate: isFromTemplate
+        });
+        const map = await MapWorkerClient.getMap();
+        const tool = map.tools.find(t => EntityReference.areEqual(t.ref, ref));
+        await this.#setCurrentTool(tool);
+    }
+
+    getCurrentTool() {
+        return this.#currentTool?.getData();
+    }
+
     // helpers
     #clickHandlerRegistered;
-    #toggleDetailsHandlerRegistered;
+    #currentTool;
 
     #detailsState;
     #getDetailsState() {
@@ -440,13 +598,48 @@ class ToolPaletteDialogModel {
         await KitRenderer.renderComponent(componentId);
     }
 
-    async #handleDetailsToggleEvent(event) {
-        const detailsState = this.#getDetailsState();
-        const stateItem = detailsState.find(x => x.id == event.target.id);
-        if (stateItem) {
-            stateItem.isOpen = event.target.open;
-        }
-        this.#detailsState = detailsState;
+    async #setCurrentTool(tool) {
+        this.#currentTool = tool;
+        await this.#reRenderElement("currentToolForm");
     }
 
+    async #getNewToolName() {
+        const map = await MapWorkerClient.getMap();
+        let candidate = "New tool";
+        if (!map.toolRefs.some(tr => tr.name == candidate)) {
+            return candidate;
+        }
+        for (let i = 1; i <= 100; i++) {
+            candidate = `${candidate} (${i})`;
+            if (!map.toolRefs.some(tr => tr.name == candidate)) {
+                return candidate;
+            }
+        }
+        return `${candidate} (${crypto.randomUUID()})`;
+    }
+
+    #isToolInPalettes(palettes, toolRef) {
+        for (const palette of palettes) {
+            if (palette.some(x => EntityReference.areEqual(x, toolRef))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    #removeToolFromPalettesData(palettes, toolRef) {
+        const newPalettesData = [];
+        for (const palette of palettes) {
+            const newPalette = [];
+            for (const item of palette) {
+                if (!EntityReference.areEqual(item, toolRef)) {
+                    newPalette.push(item);
+                }
+            }
+            if (newPalette.length > 0) {
+                newPalettesData.push(newPalette);
+            }
+        }
+        return newPalettesData;
+    }
 }

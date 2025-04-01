@@ -24,8 +24,13 @@ class ToolPaletteDialogModel {
             if (this.#currentTool) {
                 this.#currentTool = map.tools.find(t => EntityReference.areEqual(t.ref, this.#currentTool.ref));
             }
+            let componentElement = KitRenderer.getComponentElement(this.componentId);
+            const scrollTop = componentElement.querySelector("#top-details-list").scrollTop;
             await this.#reRenderElement("kitIfVisible");
             this.#applyDetailsState();
+            setTimeout(() => {
+                componentElement.querySelector("#top-details-list").scrollTop = scrollTop;
+            }, 20);     
         }
     }
 
@@ -575,7 +580,6 @@ class ToolPaletteDialogModel {
             selectedStateItem.isOpen = true;
         }
         this.#detailsState = detailsState;
-        this.#applyDetailsState();
     }
 
     async #updateMap(changes) {

@@ -26,7 +26,8 @@ export class Change {
         this.#mapItemGroupId = data?.mapItemGroupId;
         this.#mapItemId = data?.mapItemId;
         this.#pathId = data?.pathId;
-        this.#clipPathId = data?.clipPathId;      
+        this.#clipPathId = data?.clipPathId;    
+        this.#toolRef = data?.toolRef;
     }
 
     //  properties
@@ -116,6 +117,15 @@ export class Change {
         this.#clipPathId = clipPathId;
     }
 
+    /** @type {EntityReference}  */
+    #toolRef;
+    get toolRef() {
+        return this.#toolRef;
+    }
+    set toolRef(toolRef) {
+        this.#toolRef = toolRef;
+    }
+
     // methods
     getData() {
         return {
@@ -130,7 +140,8 @@ export class Change {
             mapItemGroupId: this.#mapItemGroupId,
             mapItemId: this.#mapItemId,
             pathId: this.#pathId,
-            clipPathId: this.#clipPathId
+            clipPathId: this.#clipPathId,
+            toolRef: this.#toolRef
         };
     }
 }

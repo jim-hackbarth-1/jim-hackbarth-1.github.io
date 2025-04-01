@@ -1,6 +1,6 @@
 ﻿
 import { KitRenderer } from "../../../../ui-kit.js";
-import { ChangeSet, ChangeType, EntityReference, InputUtilities, MapWorkerClient, MapWorkerInputMessageType, ToolType } from "../../../../domain/references.js";
+import { ChangeSet, ChangeType, EntityReference, InputUtilities, MapWorkerClient, MapWorkerInputMessageType, Tool, ToolType } from "../../../../domain/references.js";
 
 export function createModel() {
     return new ToolViewModel();
@@ -12,7 +12,12 @@ class ToolViewModel {
     async onRenderStart(componentId, modelInput) {
         this.componentId = componentId;
         this.startingTool = modelInput.tool;
-        this.tool = modelInput.tool;
+        if (modelInput.tool) {
+            this.tool = new Tool(modelInput.tool).getData();
+        }
+        else {
+            this.tool = null;
+        }
         this.dialogModel = modelInput.dialogModel;
         this.validationResult = {
             isValid: false
@@ -46,7 +51,7 @@ class ToolViewModel {
         return InputUtilities.cleanseString(moduleSrc);
     }
 
-    async update() {
+    async updateRef() {
         const tool = {
             ref: {
                 isBuiltIn: this.tool?.ref.isBuiltIn,
@@ -56,31 +61,10 @@ class ToolViewModel {
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         tool.ref.name = InputUtilities.cleanseString(componentElement.querySelector("#tool-name").value.trim());
         tool.ref.versionId = parseInt(componentElement.querySelector("#tool-version").value);
-        if (componentElement.querySelector("#tool-type-drawing").checked) {
-            tool.toolType = ToolType.DrawingTool;
-        }
-        else {
-            tool.toolType = ToolType.EditingTool;
-        }
-        tool.thumbnailSrc = InputUtilities.cleanseSvg(componentElement.querySelector("#tool-thumbnail").value.trim());
-        tool.cursorSrc = InputUtilities.cleanseSvg(componentElement.querySelector("#tool-cursor").value.trim());
-        tool.cursorHotspot = InputUtilities.cleansePoint({
-            x: parseInt(componentElement.querySelector("#tool-cursor-hot-spot-x").value),
-            y: parseInt(componentElement.querySelector("#tool-cursor-hot-spot-y").value)
-        });
-        tool.moduleSrc = `data-${btoa(componentElement.querySelector("#tool-source").value.trim())}`;
         this.tool = tool;
-        this.validationResult = await this.#validate();      
-        await this.#reRenderElement("if-visible");
-    }
-
-    isSaveDisabled() {
-        return this.validationResult.isValid ? null : "disabled";
-    }
-
-    async save() {
-        const validationResult = await this.#validate();
-        if (validationResult.isValid) {
+        this.#update();
+        this.validationResult = await this.#validate();
+        if (this.validationResult.isValid) {
             const map = await MapWorkerClient.getMap();
             const toolRefIndex = map.toolRefs.findIndex(tr => EntityReference.areEqual(tr, this.startingTool.ref));
             const toolIndex = map.tools.findIndex(t => EntityReference.areEqual(t.ref, this.startingTool.ref));
@@ -116,9 +100,94 @@ class ToolViewModel {
             ];
             await this.#updateMap(changes);
         }
+        else {
+            await this.#reRenderElement("if-visible");
+        }
+    }
+
+    async updateProperty(elementId) {
+        this.#update();
+        this.validationResult = await this.#validate();
+        if (this.validationResult.isValid) {
+            const componentElement = KitRenderer.getComponentElement(this.componentId);
+            let element = componentElement.querySelector(`#${elementId}`);
+            let propertyName = null;
+            let oldValue = null;
+            let newValue = null;
+            switch (elementId) {
+                case "tool-type-drawing":
+                    propertyName = "toolType";
+                    oldValue = this.startingTool.toolType;
+                    newValue = ToolType.DrawingTool;
+                    break;
+                case "tool-type-editing":
+                    propertyName = "toolType";
+                    oldValue = this.startingTool.toolType;
+                    newValue = ToolType.EditingTool;
+                    break;
+                case "tool-thumbnail":
+                    propertyName = "thumbnailSrc";
+                    oldValue = this.startingTool.thumbnailSrc;
+                    newValue = InputUtilities.cleanseSvg(element.value.trim());
+                    break;
+                case "tool-cursor":
+                    propertyName = "cursorSrc";
+                    oldValue = this.startingTool.cursorSrc;
+                    newValue = InputUtilities.cleanseSvg(element.value.trim());
+                    break;
+                case "tool-cursor-hot-spot-x":
+                    propertyName = "cursorHotspot";
+                    oldValue = this.startingTool.cursorHotspot;
+                    newValue = { x: parseInt(element.value), y: this.startingTool.cursorHotspot.y };
+                    break;
+                case "tool-cursor-hot-spot-y":
+                    propertyName = "cursorHotspot";
+                    oldValue = this.startingTool.cursorHotspot;
+                    newValue = { x: this.startingTool.cursorHotspot.x, y: parseInt(element.value) };
+                    break;
+                case "tool-source":
+                    propertyName = "moduleSrc";
+                    oldValue = this.startingTool.moduleSrc;
+                    newValue = `data-${btoa(element.value.trim())}`
+                    break;
+            }
+            if (propertyName) {
+                const changes = [
+                    {
+                        changeType: ChangeType.Edit,
+                        changeObjectType: Tool.name,
+                        propertyName: propertyName,
+                        oldValue: oldValue,
+                        newValue: newValue,
+                        toolRef: this.startingTool.ref
+                    }
+                ];
+                await this.#updateMap(changes);
+            }
+        }
+        else {
+            await this.#reRenderElement("if-visible");
+        }
     }
 
     // helpers
+    #update() {
+        const componentElement = KitRenderer.getComponentElement(this.componentId);
+        if (componentElement.querySelector("#tool-type-drawing").checked) {
+            this.tool.toolType = ToolType.DrawingTool;
+        }
+        else {
+            this.tool.toolType = ToolType.EditingTool;
+        }
+        this.tool.thumbnailSrc = InputUtilities.cleanseSvg(componentElement.querySelector("#tool-thumbnail").value.trim());
+        this.tool.cursorSrc = InputUtilities.cleanseSvg(componentElement.querySelector("#tool-cursor").value.trim());
+        this.tool.cursorHotspot = InputUtilities.cleansePoint({
+            x: parseInt(componentElement.querySelector("#tool-cursor-hot-spot-x").value),
+            y: parseInt(componentElement.querySelector("#tool-cursor-hot-spot-y").value)
+        });
+        this.tool.moduleSrc = `data-${btoa(componentElement.querySelector("#tool-source").value.trim())}`;
+    }
+
     async #validate() {
         const validationResult = {
             isValid: false

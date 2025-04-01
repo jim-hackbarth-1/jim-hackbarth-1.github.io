@@ -437,12 +437,38 @@ export class MapWorker {
         }
         else {
             if (this.activeToolModel && this.activeToolModel.handleClientEvent) {
+                if (eventType == "pointerdown" && !this.activeMapItemTemplate) {
+                    this.#printMessage("Map item template selection required.")
+                }
                 await this.activeToolModel.handleClientEvent({
                     eventType: eventType,
                     eventData: eventData
                 });
             }
         }
+    }
+
+    #printMessage(message) {
+        const scale = 1 / this.map.zoom;
+        const translation = { x: -this.map.pan.x, y: -this.map.pan.y };
+        const fontSize = 12 * scale;
+        this.renderingContext.font = `${fontSize}px sans-serif`;
+        const bounds = this.renderingContext.measureText(message);
+        const padding = 10 * scale;
+        const width = bounds.width + padding;
+        const height = bounds.actualBoundingBoxAscent + bounds.actualBoundingBoxDescent + padding;
+        const rectStart = this.geometryUtilities.transformPoint({ x: 5, y: 5 }, scale, translation);
+        const rect = new Path2D(`M ${rectStart.x},${rectStart.y} l ${width},0 0,${height} ${-(width)},0 z`);
+        this.renderingContext.lineWidth = 2 * scale;
+        this.renderingContext.fillStyle = "white";
+        this.renderingContext.globalAlpha = 0.5;
+        this.renderingContext.fill(rect);
+        this.renderingContext.globalAlpha = 1;
+        this.renderingContext.strokeStyle = "dimgray";
+        this.renderingContext.stroke(rect);
+        const textStart = this.geometryUtilities.transformPoint({ x: 10, y: 20 }, scale, translation);
+        this.renderingContext.fillStyle = "dimgray";
+        this.renderingContext.fillText(message, textStart.x, textStart.y);
     }
     
     #wheelTimeout = undefined;

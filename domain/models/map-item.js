@@ -16,6 +16,7 @@ export class MapItem {
             InputUtilities.validateIds(this.#paths);
         }
         this.#mapItemTemplateRef = new EntityReference(data?.mapItemTemplateRef);
+        this.#zGroup = InputUtilities.cleanseNumber(data?.zGroup);
         this.#z = InputUtilities.cleanseNumber(data?.z);
         this.#isHidden = InputUtilities.cleanseBoolean(data?.isHidden);
         this.#isCaptionVisible = InputUtilities.cleanseBoolean(data?.isCaptionVisible);
@@ -63,6 +64,17 @@ export class MapItem {
         const changeSet = this.#getPropertyChange("mapItemTemplateRef", this.#mapItemTemplateRef, mapItemTemplateRef);
         this.#mapItemTemplateRef = mapItemTemplateRef;
         this.#onChange(changeSet, true);
+    }
+
+    /** @type {number}  */
+    #zGroup;
+    get zGroup() {
+        return this.#zGroup;
+    }
+    set zGroup(zGroup) {
+        const changeSet = this.#getPropertyChange("zGroup", this.#zGroup, zGroup);
+        this.#zGroup = zGroup;
+        this.#onChange(changeSet, false);
     }
 
     /** @type {number}  */
@@ -159,6 +171,7 @@ export class MapItem {
             id: copy ? crypto.randomUUID() : this.#id,
             paths: this.#getListData(this.#paths, copy),
             mapItemTemplateRef: this.#mapItemTemplateRef.getData(),
+            zGroup: this.#zGroup,
             z: this.#z,
             isHidden: this.#isHidden,
             isCaptionVisible: this.#isCaptionVisible,
@@ -339,6 +352,9 @@ export class MapItem {
                 break;
             case "mapItemTemplateRef":
                 this.mapItemTemplateRef = new EntityReference(propertyValue);
+                break;
+            case "zGroup":
+                this.zGroup = InputUtilities.cleanseNumber(propertyValue);
                 break;
             case "z":
                 this.z = InputUtilities.cleanseNumber(propertyValue);

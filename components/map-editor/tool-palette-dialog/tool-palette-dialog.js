@@ -24,13 +24,23 @@ class ToolPaletteDialogModel {
             if (this.#currentTool) {
                 this.#currentTool = map.tools.find(t => EntityReference.areEqual(t.ref, this.#currentTool.ref));
             }
-            let componentElement = KitRenderer.getComponentElement(this.componentId);
-            const scrollTop = componentElement.querySelector("#top-details-list").scrollTop;
-            await this.#reRenderElement("kitIfVisible");
-            this.#applyDetailsState();
-            setTimeout(() => {
-                componentElement.querySelector("#top-details-list").scrollTop = scrollTop;
-            }, 20);     
+            let reRender = false;
+            if (message?.data?.changeSet?.changes) {
+                const toolPaletteChange = message.data.changeSet.changes.some(c => c.changeObjectType == Map.name && c.propertyName == "toolPalette");
+                const toolInsertOrDelete = message.data.changeSet.changes.some(
+                    c => c.changeObjectType == Map.name && c.propertyName == "tools" && (c.changeType == ChangeType.Insert || c.changeType == ChangeType.Delete));
+                const toolThumbnailChange = message.data.changeSet.changes.some(c => c.changeObjectType == Tool.name && c.propertyName == "thumbnailSrc");
+                reRender = toolPaletteChange || toolInsertOrDelete || toolThumbnailChange;
+            }
+            if (reRender) {
+                let componentElement = KitRenderer.getComponentElement(this.componentId);
+                const scrollTop = componentElement.querySelector("#top-details-list").scrollTop;
+                await this.#reRenderElement("kitIfVisible");
+                this.#applyDetailsState();
+                setTimeout(() => {
+                    componentElement.querySelector("#top-details-list").scrollTop = scrollTop;
+                }, 20);
+            }     
         }
     }
 
@@ -174,7 +184,7 @@ class ToolPaletteDialogModel {
             elementId: `${i.ref.name}-${i.ref.versionId}${i.ref.isBuiltIn ? "-builtin" : ""}${i.ref.isFromTemplate ? "-fromtemplate" : ""}`,
             thumbnailSrc: i.thumbnailSrc,
             name: i.ref.name,
-            referenceTypeLabel: i.ref.isBuiltIn ? "built-in" : i.ref.isFromTemplate ? "from template" : "custom tool",
+            referenceTypeLabel: i.ref.isBuiltIn ? "built-in" : i.ref.isFromTemplate ? "from template" : "custom",
             versionLabel: `version ${i.ref.versionId}`
         }));
     }
@@ -404,7 +414,7 @@ class ToolPaletteDialogModel {
             thumbnailSrc: t.thumbnailSrc,
             name: t.ref.name,
             toolTypeLabel: t.toolType == ToolType.EditingTool ? "Editing tool" : "Drawing tool",
-            referenceTypeLabel: t.ref.isBuiltIn ? "built-in" : t.ref.isFromTemplate ? "from template" : "custom tool",
+            referenceTypeLabel: t.ref.isBuiltIn ? "built-in" : t.ref.isFromTemplate ? "from template" : "custom",
             versionLabel: `version ${t.ref.versionId}`
         }));
     }

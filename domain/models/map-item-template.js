@@ -61,7 +61,7 @@ export class MapItemTemplate {
         if (data?.shadow) {
             this.#shadow = new Shadow(data.shadow);
         }
-        this.#z = InputUtilities.cleanseNumber(data?.z);
+        this.#defaultZGroup = InputUtilities.cleanseNumber(data?.z);
         if (data?.caption) {
             this.#caption = new Caption(data.caption);
         }
@@ -122,13 +122,13 @@ export class MapItemTemplate {
     }
 
     /** @type {number}  */
-    #z;
-    get z() {
-        return this.#z;
+    #defaultZGroup;
+    get defaultZGroup() {
+        return this.#defaultZGroup;
     }
-    set z(z) {
-        const changeSet = this.#getPropertyChange("z", this.#z, z);
-        this.#z = z;
+    set defaultZGroup(defaultZGroup) {
+        const changeSet = this.#getPropertyChange("defaultZGroup", this.#defaultZGroup, defaultZGroup);
+        this.#defaultZGroup = defaultZGroup;
         this.#onChange(changeSet);
     }
 
@@ -164,7 +164,7 @@ export class MapItemTemplate {
             fills: this.#getListData(this.#fills),
             strokes: this.#getListData(this.#strokes),
             shadow: this.#shadow ? this.#shadow.getData() : null,
-            z: this.#z,
+            defaultZGroup: this.#defaultZGroup,
             caption: this.#caption ? this.#caption.getData() : null,
             tags: this.#tags
         };
@@ -379,8 +379,8 @@ export class MapItemTemplate {
             case "shadow":
                 this.shadow = propertyValue ? new Shadow(propertyValue) : null;
                 break;
-            case "z":
-                this.z = InputUtilities.cleanseNumber(propertyValue);
+            case "defaultZGroup":
+                this.defaultZGroup = InputUtilities.cleanseNumber(propertyValue);
                 break;
             case "caption":
                 this.caption = propertyValue ? new Caption(propertyValue) : null;

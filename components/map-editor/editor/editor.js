@@ -97,7 +97,7 @@ export class EditorModel {
                     }
                 }
             }
-            KitMessenger.publish(EditorModel.MapUpdatedNotificationTopic, "updated");
+            KitMessenger.publish(EditorModel.MapUpdatedNotificationTopic, message);
         }
     }
 

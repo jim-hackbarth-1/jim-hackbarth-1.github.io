@@ -1,6 +1,7 @@
 ﻿
-import { KitRenderer } from "../../../../ui-kit.js";
+import { KitMessenger, KitRenderer } from "../../../../ui-kit.js";
 import { ChangeSet, ChangeType, EntityReference, InputUtilities, MapWorkerClient, MapWorkerInputMessageType, Tool, ToolType } from "../../../../domain/references.js";
+import { EditorModel } from "../../editor/editor.js";
 
 export function createModel() {
     return new ToolViewModel();
@@ -25,6 +26,23 @@ class ToolViewModel {
     }
 
     async onRenderComplete() {
+        KitMessenger.subscribe(EditorModel.MapUpdatedNotificationTopic, this.componentId, this.onMapUpdated.name);
+    }
+
+    async onMapUpdated(message) {
+        if (this.tool) {
+            let reRender = false;
+            if (message?.data?.changeSet?.changes) {
+                const toolChange = message.data.changeSet.changes.some(c => c.changeObjectType == Tool.name);
+                reRender = toolChange;
+            }
+            if (reRender) {
+                const map = await MapWorkerClient.getMap();
+                this.startingTool = map.tools.find(t => EntityReference.areEqual(t.ref, this.startingTool.ref)).getData();
+                this.tool = new Tool(this.startingTool).getData();
+                await this.#reRenderElement("if-visible");
+            }
+        }
     }
 
     onKeyDown(event) {
@@ -261,9 +279,11 @@ class ToolViewModel {
 
     async #reRenderElement(elementId) {
         const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const element = componentElement.querySelector(`#${elementId}`);
-        const componentId = element.getAttribute("data-kit-component-id");
-        await KitRenderer.renderComponent(componentId);
+        if (componentElement) {
+            const element = componentElement.querySelector(`#${elementId}`);
+            const componentId = element.getAttribute("data-kit-component-id");
+            await KitRenderer.renderComponent(componentId);
+        }
     }
 
     async #updateMap(changes) {

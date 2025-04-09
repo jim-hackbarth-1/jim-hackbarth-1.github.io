@@ -1,0 +1,225 @@
+﻿<kit-if class="map-item-template-view-component" id="if-visible-map-item-template" data-kit-condition="#model.isVisible()">
+    <style>
+        @scope (.map-item-template-view-component) {
+
+            .fill-item {
+                display: flex;
+                padding: 0;
+                margin-bottom: 2px;
+            }
+
+            .fill-item div {
+                padding: 0;
+                margin: 0 0 0 5px;
+            }
+
+            .fill-item label {
+                display: block;
+                margin:0px 5px 10px 5px;
+            }
+        }
+    </style>
+    <fieldset data-kit-add-attributes="%{#model.isDisabled()}%">
+        <div>
+            <kit-if data-kit-condition="#model.mapItemTemplate.ref.isBuiltIn">
+                <label><i>Built in (read-only)</i></label>
+            </kit-if>
+            <kit-if data-kit-condition="#model.mapItemTemplate.ref.isFromTemplate">
+                <label><i>From template (read-only)</i></label>
+            </kit-if>
+        </div>
+        <div>
+            <label>Name:<span class="validation-message">%{#model.validationResult?.name ?? ""}%</span></label>
+            <input id="map-item-template-name"
+                   type="text"
+                   placeholder="Name"
+                   maxlength="30"
+                   style="width:400px;"
+                   value="%{#model.mapItemTemplate.ref.name}%"
+                   onchange="#model.updateRef()"
+                   onkeydown="#model.onKeyDown(event)" />
+        </div>
+        <div>
+            <label>Version:<span class="validation-message">%{#model.validationResult?.version ?? ""}%</span></label>
+            <input id="map-item-template-version"
+                   type="number"
+                   min="1"
+                   max="1000"
+                   onchange="#model.updateRef()"
+                   data-kit-add-attributes="value=%{#model.mapItemTemplate.ref.versionId}%"
+                   onkeydown="#model.onKeyDown(event)" />
+        </div>
+        <div>
+            <label>Thumbnail:<span class="validation-message">%{#model.validationResult?.thumbnail ?? ""}%</span></label>
+            <textarea id="map-item-template-thumbnail"
+                      maxlength="1000"
+                      autocomplete="off"
+                      autocorrect="off"
+                      autocapitalize="off"
+                      spellcheck="false"
+                      onchange="#model.updateProperty('map-item-template-thumbnail')"
+                      onkeydown="#model.onKeyDown(event)">%{#model.mapItemTemplate.thumbnailSrc}%
+            </textarea>
+        </div>
+        <div>
+            <label>Tags:<span class="validation-message">%{#model.validationResult?.tags ?? ""}%</span></label>
+            <input id="map-item-template-tags"
+                   type="text"
+                   maxlength="100"
+                   style="width:400px;"
+                   value="%{#model.mapItemTemplate.tags ?? ''}%"
+                   onchange="#model.updateProperty('map-item-template-tags')"
+                   onkeydown="#model.onKeyDown(event)" />
+        </div>
+        <div>
+            <label>Default z-order rendering group:<span class="validation-message">%{#model.validationResult?.defaultZGroup ?? ""}%</span></label>
+            <input id="map-item-template-default-z-group"
+                   type="number"
+                   min="-10"
+                   max="10"
+                   onchange="#model.updateProperty('map-item-template-default-z-group')"
+                   data-kit-add-attributes="value=%{#model.mapItemTemplate.defaultZGroup}%"
+                   onkeydown="#model.onKeyDown(event)" />
+        </div>
+        <div>
+            <details id="details-fills" ontoggle="#model.onDetailsToggleEvent(event)">
+                <summary class="action-control">Fills</summary>
+                <section>
+                    <div class="list-label-row">
+                        <label>Fills:</label>
+                        <div class="spacer"></div>
+                        <div>
+                            <button id="add-fill-button"
+                                    title="Add fill"
+                                    class="action-control"
+                                    data-kit-add-attributes="%{#model.isAddFillDisabled()}%"
+                                    onclick="#model.addFill();">
+                                <div class="icon-container">
+                                    <kit-component data-kit-template-path="/resources/icons/add.html" data-kit-model="null"></kit-component>
+                                </div>
+                            </button>
+                        </div>
+                        <div>
+                            <button id="delete-fill-button"
+                                    title="Delete fill"
+                                    class="action-control"
+                                    onclick="#model.deleteFill();" disabled>
+                                <div class="icon-container">
+                                    <kit-component data-kit-template-path="/resources/icons/delete.html" data-kit-model="null"></kit-component>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="fill-list" class="item-list fills-list" ondragover="#model.allowDrop(event)" ondrop="#model.dropFill(event)">
+                        <!-- dynamic content here -->
+                        <kit-array data-kit-array="#model.getFills()" data-kit-array-ref="fills" data-kit-item-ref="fill" data-kit-item-index-ref="fillIndex">
+                            <div 
+                                 id="%{#fill.id}%" 
+                                 class="fill-item action-control" 
+                                 onclick="#model.selectFill(#fill.id)" 
+                                 data-kit-add-attributes="draggable=%{#model.isDraggable()}%"
+                                 ondragstart="#model.dragItem(event)">
+                                <kit-if data-kit-condition="#fill.fillType == 'ColorFill'">
+                                    <div class="icon-container">
+                                        <svg data-fill-thumbnail="%{#fill.id}%" height="25" width="25" viewBox="0 0 100 100">
+                                            <rect x="10" y="10" width="80" height="80" stroke="dimgray" stroke-width="2" fill="%{#fill.color}%" rx="10" />
+                                        </svg>
+                                    </div>
+                                </kit-if>
+                                <div>
+                                    <label>%{#fill.label}%</label>
+                                </div>
+                                <div class="spacer"></div>
+                                <div class="move-container">
+                                    <button title="Move" class="action-text" style="height:35px;" onclick="#model.dragStartItem(event, #fill.id);">
+                                        <div class="icon-container">
+                                            <kit-component data-kit-template-path="/resources/icons/move.html" data-kit-model="null"></kit-component>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                        </kit-array>
+                        <!-- end dynamic content -->
+                    </div>
+                    <div class="surface-tertiary background">
+                        <kit-if id="currentFillForm" data-kit-condition="#model.hasCurrentFill()">
+                            <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/fill-view/fill-view.html"
+                                           data-kit-model-input="{ fill: #model.getCurrentFill(), mapItemTemplateRef: #model.getMapItemTemplateRef() }">
+                            </kit-component>
+                        </kit-if>
+                    </div>
+                </section>
+            </details>
+        </div>
+        <div>
+            <details id="details-strokes" ontoggle="#model.onDetailsToggleEvent(event)">
+                <summary class="action-control">Strokes</summary>
+                <section>
+                    <div class="list-label-row">
+                        <label>Strokes:</label>
+                        <div class="spacer"></div>
+                        <div>
+                            <button id="add-stroke-button"
+                                    title="Add stroke"
+                                    class="action-control"
+                                    data-kit-add-attributes="%{#model.isAddStrokeDisabled()}%"
+                                    onclick="#model.addStroke();">
+                                <div class="icon-container">
+                                    <kit-component data-kit-template-path="/resources/icons/add.html" data-kit-model="null"></kit-component>
+                                </div>
+                            </button>
+                        </div>
+                        <div>
+                            <button id="delete-stroke-button"
+                                    title="Delete stroke"
+                                    class="action-control"
+                                    onclick="#model.deleteStroke();" disabled>
+                                <div class="icon-container">
+                                    <kit-component data-kit-template-path="/resources/icons/delete.html" data-kit-model="null"></kit-component>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="stroke-list" class="item-list strokes-list" ondragover="#model.allowDrop(event)" ondrop="#model.dropStroke(event)">
+                        <!-- dynamic content here -->
+                        <kit-array data-kit-array="#model.getStrokes()" data-kit-array-ref="strokes" data-kit-item-ref="stroke" data-kit-item-index-ref="strokeIndex">
+                            <div 
+                                 id="%{#stroke.id}%" 
+                                 class="stroke-item action-control" 
+                                 onclick="#model.selectStroke(#stroke.id)" 
+                                 data-kit-add-attributes="draggable=%{#model.isDraggable()}%"
+                                 ondragstart="#model.dragItem(event)">
+                                <kit-if data-kit-condition="#stroke.strokeType == 'ColorStroke'">
+                                    <div class="icon-container">
+                                        <svg data-stroke-thumbnail="%{#stroke.id}%" height="25" width="25" viewBox="0 0 100 100">
+                                            <rect x="10" y="10" width="80" height="80" stroke="dimgray" stroke-width="2" fill="%{#stroke.color}%" rx="10" />
+                                        </svg>
+                                    </div>
+                                </kit-if>
+                                <div>
+                                    <label data-stroke-label="%{#stroke.id}%">%{#stroke.label}%</label>
+                                </div>
+                                <div class="spacer"></div>
+                                <div class="move-container">
+                                    <button title="Move" class="action-text" style="height:35px;" onclick="#model.dragStartItem(event, #stroke.id);">
+                                        <div class="icon-container">
+                                            <kit-component data-kit-template-path="/resources/icons/move.html" data-kit-model="null"></kit-component>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                        </kit-array>
+                        <!-- end dynamic content -->
+                    </div>
+                    <div class="surface-tertiary background">
+                        <kit-if id="currentStrokeForm" data-kit-condition="#model.hasCurrentStroke()">
+                            <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/stroke-view/stroke-view.html"
+                                           data-kit-model-input="{ stroke: #model.getCurrentStroke(), mapItemTemplateRef: #model.getMapItemTemplateRef() }">
+                            </kit-component>
+                        </kit-if>
+                    </div>
+                </section>
+            </details>
+        </div>
+    </fieldset>
+</kit-if>

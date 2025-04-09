@@ -1,13 +1,21 @@
 ﻿
 import {
+    BaseFill,
+    BaseStroke,
     Caption,
     Change,
     ChangeSet,
     ChangeType,
     ClipPath,
+    ColorFill,
+    ColorStroke,
     EntityReference,
     ErrorMessage,
     getOverlandTemplate,
+    GradientFill,
+    GradientStroke,
+    ImageArrayFill,
+    ImageArrayStroke,
     InputUtilities,
     Layer,
     MapItem,
@@ -15,6 +23,8 @@ import {
     MapItemTemplate,
     Overlay,
     Path,
+    TileFill,
+    TileStroke,
     Tool,
     ToolPalette
 } from "../references.js";
@@ -54,7 +64,7 @@ export class Map {
             }
         }
         this.#activeLayer = InputUtilities.cleanseString(data?.activeLayer);
-        this.#mapItemTemplateRefs = this.#getRefs(data?.mapItemTemplateRefs);     
+        this.#mapItemTemplateRefs = EntityReference.getRefs(data?.mapItemTemplateRefs);
         this.#mapItemTemplates = [];
         if (data?.mapItemTemplates) {
             for (const mapItemTemplateData of data.mapItemTemplates) {
@@ -63,7 +73,7 @@ export class Map {
                 this.#addChangeEventListeners(mapItemTemplate);
             }
         }
-        this.#toolRefs = this.#getRefs(data?.toolRefs);
+        this.#toolRefs = EntityReference.getRefs(data?.toolRefs);
         this.#tools = [];
         if (data?.tools) {
             for (const toolData of data.tools) {
@@ -117,7 +127,7 @@ export class Map {
         return this.#layers;
     }
     set layers(layers) {
-        this.#validateUniqueLayerNames(layers);
+        Layer.validateUniqueLayerNames(layers);
         if (this.#layers) {
             for (const layer of this.#layers) {
                 this.#removeChangeEventListeners(layer);
@@ -664,7 +674,6 @@ export class Map {
         this.#onChange(changeSet);
     }
 
-    // ~~~
     #changeLog = [];
     #undoLog = [];
     #undoing = false;
@@ -675,6 +684,11 @@ export class Map {
 
     undo() {
         let changeSet = new ChangeSet(this.#changeLog.pop());
+        const changes = [];
+        for (let i = changeSet.changes.length - 1; i > -1; i--) {
+            changes.push(changeSet.changes[i].getData());
+        }
+        changeSet = new ChangeSet({ changes: changes });
         return this.applyChangeSet(changeSet, true);
     }
 
@@ -684,6 +698,11 @@ export class Map {
 
     redo() {
         let changeSet = new ChangeSet(this.#undoLog.pop());
+        const changes = [];
+        for (let i = changeSet.changes.length - 1; i > -1; i--) {
+            changes.push(changeSet.changes[i].getData());
+        }
+        changeSet = new ChangeSet({ changes: changes });
         return this.applyChangeSet(changeSet);
     }
 
@@ -717,6 +736,8 @@ export class Map {
                 let mapItem;
                 let path;
                 let clipPath;
+                let fill;
+                let stroke;
                 for (const change of changeSet.changes) {
                     switch (change.changeObjectType) {
                         case Map.name:
@@ -790,6 +811,34 @@ export class Map {
                             path = mapItem.paths.find(p => p.id == change.pathId);
                             clipPath = path.clipPaths.find(cp => cp.id == change.clipPathId);
                             clipPath.applyChange(change, undoing);
+                            break;
+                        case BaseFill.name:
+                        case ColorFill.name:
+                        case GradientFill.name:
+                        case TileFill.name:
+                        case ImageArrayFill.name:
+                            mapItemTemplate = this.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, change.mapItemTemplateRef));
+                            fill = mapItemTemplate.fills.find(f => f.id == change.fillId);
+                            if (!fill && mapItemTemplate.caption?.backgroundFill?.id == change.fillId) {
+                                fill = mapItemTemplate.caption.backgroundFill;
+                            }
+                            if (fill) {
+                                fill.applyChange(change, undoing);
+                            }
+                            break;
+                        case BaseStroke.name:
+                        case ColorStroke.name:
+                        case GradientStroke.name:
+                        case TileStroke.name:
+                        case ImageArrayStroke.name:
+                            mapItemTemplate = this.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, change.mapItemTemplateRef));
+                            stroke = mapItemTemplate.strokes.find(s => s.id == change.strokeId);
+                            if (!stroke && mapItemTemplate.caption?.borderStroke?.id == change.strokeId) {
+                                stroke = mapItemTemplate.caption.borderStroke;
+                            }
+                            if (stroke) {
+                                stroke.applyChange(change, undoing);
+                            }
                             break;
                     }
                 }
@@ -909,8 +958,6 @@ export class Map {
         }
     }
 
-    // ~~~
-
     // helpers
     #eventListeners;
 
@@ -939,28 +986,6 @@ export class Map {
     #removeChangeEventListeners(source) {
         if (source) {
             source.removeEventListener(Change.ChangeEvent, this.#onChange);
-        }
-    }
-
-    #getRefs(refsData) {
-        const refs = [];
-        if (refsData) {
-            for (const ref of refsData) {
-                refs.push(new EntityReference(ref));
-            }
-        }
-        return refs;
-    }
-
-    #validateUniqueLayerNames(layers) {
-        if (layers) {
-            const names = [];
-            for (const layer of layers) {
-                if (names.includes(layer.name)) {
-                    throw new Error(ErrorMessage.ItemAlreadyExistsInList);
-                }
-                names.push(layer.name);
-            }
         }
     }
 

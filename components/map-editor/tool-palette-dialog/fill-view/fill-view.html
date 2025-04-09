@@ -1,0 +1,57 @@
+﻿
+<kit-if id="if-fill-visible" data-kit-condition="#model.fill != null">
+    <fieldset data-kit-add-attributes="%{#model.isDisabled()}%">
+        <!--<div>
+            <label>Opacity:<span class="validation-message">%{#model.validationResult?.opacity ?? ""}%</span></label>
+            <input id="fill-opacity"
+                   type="number"
+                   min="0"
+                   max="100"
+                   onchange="#model.updateProperty('fill-opacity')"
+                   data-kit-add-attributes="value=%{#model.fill.opacity}%"
+                   onkeydown="#model.onKeyDown(event)" />
+        </div>-->
+        <kit-if data-kit-condition="#model.getFillType() == 'ColorFill'">
+            <div>
+                <label>Color:<span class="validation-message">%{#model.validationResult?.color ?? ""}%</span></label>
+                <input id="fill-color"
+                       type="color"
+                       onchange="#model.updateProperty('fill-color')"
+                       data-kit-add-attributes="value=%{#model.fill.color}%" />
+            </div>
+        </kit-if>
+        <kit-if data-kit-condition="#model.getFillType() == 'GradientFill'">
+            <div>
+                <label>Gradient type:</label>
+                <label class="radio-button-2">
+                    <input id="fill-gradient-type-linear"
+                           type="radio"
+                           name="gradientType"
+                           onchange="#model.updateProperty('fill-gradient-type-linear')"
+                           data-kit-add-attributes="%{#model.isGradientTypeChecked(#model.fill.gradientType, 'LinearGradient')}%" />
+                    <span class="checkmark"></span>
+                    <span>Linear gradient</span>
+                </label>
+                <label class="radio-button-2">
+                    <input id="fill-gradient-type-radial"
+                           type="radio"
+                           name="gradientType"
+                           onchange="#model.updateProperty('fill-gradient-type-radial')"
+                           data-kit-add-attributes="%{#model.isGradientTypeChecked(#model.fill.gradientType, 'RadialGradient')}%" />
+                    <span class="checkmark"></span>
+                    <span>Radial gradient</span>
+                </label>
+            </div>
+        </kit-if>
+        <kit-if data-kit-condition="#model.getFillType() == 'TileFill'">
+            <div>
+                [content for tile fill]
+            </div>
+        </kit-if>
+        <kit-if data-kit-condition="#model.getFillType() == 'ImageArrayFill'">
+            <div>
+                [content for image array fill]
+            </div>
+        </kit-if>
+    </fieldset>
+</kit-if>

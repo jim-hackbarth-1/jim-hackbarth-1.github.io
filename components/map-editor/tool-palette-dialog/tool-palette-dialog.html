@@ -50,7 +50,10 @@
                     margin-right: 10px;
                 }
 
-                .tools-list {
+                .tools-list,
+                .map-item-templates-list,
+                .fills-list,
+                .strokes-list {
                     margin-right: 0;
                 }
 
@@ -70,7 +73,10 @@
                     margin: 5px;
                 }
 
-                .tool-item {
+                .tool-item,
+                .map-item-template-item,
+                .fill-item,
+                .stroke-item {
                     display: flex;
                     align-items: center;
                     padding: 0;
@@ -85,21 +91,33 @@
                     border-color: var(--theme-color-tertiary-darkest-fixed);
                 }
 
-                .tool-item:hover {
+                .tool-item:hover,
+                .map-item-template-item:hover,
+                .fill-item:hover,
+                .stroke-item:hover {
                     background-color: var(--theme-color-tertiary-lighter);
                 }
 
-                .tool-item[data-selected="true"] {
+                .tool-item[data-selected="true"],
+                .map-item-template-item[data-selected="true"],
+                .fill-item[data-selected="true"],
+                .stroke-item[data-selected="true"] {
                     background-color: var(--theme-color-tertiary-darker);
                     color: var(--theme-color-tertiary-lightest);
                     box-shadow: var(--theme-color-tertiary-lightest) 1px 1px 3px 0 inset, var(--theme-color-tertiary-lightest) -1px -1px 3px 0 inset;
                 }
 
-                .tool-item div {
+                .tool-item div,
+                .map-item-template-item div,
+                .fill-item div.
+                .stroke-item div {
                     margin: 2px;
                 }
 
-                .tool-item label {
+                .tool-item label,
+                .map-item-template-item label,
+                .fill-item label,
+                .stroke-item label {
                     display: block;
                     margin: 2px;
                 }
@@ -115,13 +133,24 @@
                     margin: 5px 0 0 0;
                 }
 
-                .tool-item .secondary-info label {
+                .tool-item .secondary-info label,
+                .map-item-template-item .secondary-info label,
+                .fill-item .secondary-info label,
+                .stroke-item .secondary-info label {
                     margin: 5px 2px 0 0;
+                }
+
+                .map-item-template-item .icon-container,
+                .fill-item .icon-container,
+                .stroke-item .icon-container {
+                    margin-bottom: 10px;
                 }
 
                 .move-container button {
                     margin-left: -10px;
                     padding: 0;
+                    height:50px;
+                    width:30px;
                 }
 
                 .move-container button .icon-container {
@@ -387,7 +416,7 @@
                                                             title="%{#tool.data.ref.name}%"
                                                             draggable="true"
                                                             ondragstart="#model.dragItem(event)">
-                                                        <svg height="25" width="25" viewBox="0 0 100 100">%{#tool.data.thumbnailSrc}%</svg>
+                                                        <svg data-tool-thumbnail="%{#tool.elementId}%" height="25" width="25" viewBox="0 0 100 100">%{#tool.data.thumbnailSrc}%</svg>
                                                     </button>
                                                 </kit-array>
                                             </div>
@@ -402,7 +431,7 @@
                                         <kit-array data-kit-array="#model.getAvailableItems('EditingTools')" data-kit-array-ref="tools" data-kit-item-ref="tool" data-kit-item-index-ref="toolIndex">
                                             <div id="%{#tool.elementId}%" class="action-control available-item" draggable="true" ondragstart="#model.dragItem(event)">
                                                 <div class="icon-container">
-                                                    <svg height="25" width="25" viewBox="0 0 100 100">%{#tool.thumbnailSrc}%</svg>
+                                                    <svg data-tool-thumbnail="%{#tool.elementId}%" height="25" width="25" viewBox="0 0 100 100">%{#tool.thumbnailSrc}%</svg>
                                                 </div>
                                                 <div>
                                                     <label>%{#tool.name}%</label>
@@ -413,7 +442,7 @@
                                                     <label>%{#tool.versionLabel}%</label>
                                                 </div>
                                                 <div class="move-container">
-                                                    <button title="Move" class="action-text" style="height:50px;width:30px;" onclick="#model.dragStartItem(event, #tool.elementId);">
+                                                    <button title="Move" class="action-text" onclick="#model.dragStartItem(event, #tool.elementId);">
                                                         <div class="icon-container">
                                                             <kit-component data-kit-template-path="/resources/icons/move.html" data-kit-model="null"></kit-component>
                                                         </div>
@@ -444,7 +473,7 @@
                                                             title="%{#tool.data.ref.name}%"
                                                             draggable="true"
                                                             ondragstart="#model.dragItem(event)">
-                                                        <svg height="25" width="25" viewBox="0 0 100 100">%{#tool.data.thumbnailSrc}%</svg>
+                                                        <svg data-tool-thumbnail="%{#tool.elementId}%" height="25" width="25" viewBox="0 0 100 100">%{#tool.data.thumbnailSrc}%</svg>
                                                     </button>
                                                 </kit-array>
                                             </div>
@@ -459,7 +488,7 @@
                                         <kit-array data-kit-array="#model.getAvailableItems('DrawingTools')" data-kit-array-ref="tools" data-kit-item-ref="tool" data-kit-item-index-ref="toolIndex">
                                             <div id="%{#tool.elementId}%" class="action-control available-item" draggable="true" ondragstart="#model.dragItem(event)">
                                                 <div class="icon-container">
-                                                    <svg height="25" width="25" viewBox="0 0 100 100">%{#tool.thumbnailSrc}%</svg>
+                                                    <svg data-tool-thumbnail="%{#tool.elementId}%" height="25" width="25" viewBox="0 0 100 100">%{#tool.thumbnailSrc}%</svg>
                                                 </div>
                                                 <div>
                                                     <label>%{#tool.name}%</label>
@@ -470,7 +499,7 @@
                                                     <label>%{#tool.versionLabel}%</label>
                                                 </div>
                                                 <div class="move-container">
-                                                    <button title="Move" class="action-text" style="height:50px;width:30px;" onclick="#model.dragStartItem(event, #tool.elementId);">
+                                                    <button title="Move" class="action-text" onclick="#model.dragStartItem(event, #tool.elementId);">
                                                         <div class="icon-container">
                                                             <kit-component data-kit-template-path="/resources/icons/move.html" data-kit-model="null"></kit-component>
                                                         </div>
@@ -501,7 +530,7 @@
                                                             title="%{#tool.data.ref.name}%"
                                                             draggable="true"
                                                             ondragstart="#model.dragItem(event)">
-                                                        <svg height="25" width="25" viewBox="0 0 100 100">%{#tool.data.thumbnailSrc}%</svg>
+                                                        <svg data-map-item-template-thumbnail="%{#tool.elementId}%" height="25" width="25" viewBox="0 0 100 100">%{#tool.data.thumbnailSrc}%</svg>
                                                     </button>
                                                 </kit-array>
                                             </div>
@@ -516,7 +545,7 @@
                                         <kit-array data-kit-array="#model.getAvailableItems('MapItemTemplates')" data-kit-array-ref="mapItemTemplates" data-kit-item-ref="mapItemTemplate" data-kit-item-index-ref="mapItemTemplateIndex">
                                             <div id="%{#mapItemTemplate.elementId}%" class="action-control available-item" draggable="true" ondragstart="#model.dragItem(event)">
                                                 <div class="icon-container">
-                                                    <svg height="25" width="25" viewBox="0 0 100 100">%{#mapItemTemplate.thumbnailSrc}%</svg>
+                                                    <svg data-map-item-template-thumbnail="%{#mapItemTemplate.elementId}%" height="25" width="25" viewBox="0 0 100 100">%{#mapItemTemplate.thumbnailSrc}%</svg>
                                                 </div>
                                                 <div>
                                                     <label>%{#mapItemTemplate.name}%</label>
@@ -526,7 +555,7 @@
                                                     <label>%{#mapItemTemplate.referenceTypeLabel}%</label>
                                                 </div>
                                                 <div class="move-container">
-                                                    <button title="Move" class="action-text" style="height:50px;width:30px;" onclick="#model.dragStartItem(event, #mapItemTemplate.elementId);">
+                                                    <button title="Move" class="action-text" onclick="#model.dragStartItem(event, #mapItemTemplate.elementId);">
                                                         <div class="icon-container">
                                                             <kit-component data-kit-template-path="/resources/icons/move.html" data-kit-model="null"></kit-component>
                                                         </div>
@@ -547,77 +576,107 @@
                 <details id="details-tools" ontoggle="#model.onDetailsToggleEvent(event)">
                     <summary class="action-control">Tools</summary>
                     <section>
-                        <div>
-                            <div class="list-label-row">
-                                <label>Tools:</label>
-                                <div class="spacer"></div>
-                                <div>
-                                    <button id="add-tool-button" title="Add tool" class="action-control" onclick="#model.addTool();">
-                                        <div class="icon-container">
-                                            <kit-component data-kit-template-path="/resources/icons/add.html" data-kit-model="null"></kit-component>
-                                        </div>
-                                    </button>
-                                </div>
-                                <div>
-                                    <button id="delete-tool-button" title="Delete tool" class="action-control" onclick="#model.deleteTool();" disabled>
-                                        <div class="icon-container">
-                                            <kit-component data-kit-template-path="/resources/icons/delete.html" data-kit-model="null"></kit-component>
-                                        </div>
-                                    </button>
-                                </div>
+                        <div class="list-label-row">
+                            <label>Tools:</label>
+                            <div class="spacer"></div>
+                            <div>
+                                <button id="add-tool-button" title="Add tool" class="action-control" onclick="#model.addTool();">
+                                    <div class="icon-container">
+                                        <kit-component data-kit-template-path="/resources/icons/add.html" data-kit-model="null"></kit-component>
+                                    </div>
+                                </button>
                             </div>
-                            <div class="item-list tools-list">
-                                <!-- dynamic content here -->
-                                <kit-array data-kit-array="#model.getTools()" data-kit-array-ref="tools" data-kit-item-ref="tool" data-kit-item-index-ref="toolIndex">
-                                    <div id="%{#tool.elementId}%" class="tool-item" onclick="#model.selectTool(#tool.elementId)">
-                                        <div class="icon-container">
-                                            <svg height="25" width="25" viewBox="0 0 100 100">%{#tool.thumbnailSrc}%</svg>
-                                        </div>
-                                        <div>
-                                            <label>%{#tool.name}%</label>
-                                            <div class="secondary-info">
-                                                <label>%{#tool.toolTypeLabel}%</label>
-                                            </div>
-                                        </div>
-                                        <div class="spacer"></div>
+                            <div>
+                                <button id="delete-tool-button" title="Delete tool" class="action-control" onclick="#model.deleteTool();" disabled>
+                                    <div class="icon-container">
+                                        <kit-component data-kit-template-path="/resources/icons/delete.html" data-kit-model="null"></kit-component>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="item-list tools-list">
+                            <!-- dynamic content here -->
+                            <kit-array data-kit-array="#model.getTools()" data-kit-array-ref="tools" data-kit-item-ref="tool" data-kit-item-index-ref="toolIndex">
+                                <div id="%{#tool.elementId}%" class="tool-item" onclick="#model.selectTool(#tool.elementId)">
+                                    <div class="icon-container">
+                                        <svg data-tool-thumbnail="%{#tool.elementId}%" height="25" width="25" viewBox="0 0 100 100">%{#tool.thumbnailSrc}%</svg>
+                                    </div>
+                                    <div>
+                                        <label>%{#tool.name}%</label>
                                         <div class="secondary-info">
-                                            <label>%{#tool.referenceTypeLabel}%</label>
-                                            <label>%{#tool.versionLabel}%</label>
+                                            <label>%{#tool.toolTypeLabel}%</label>
                                         </div>
                                     </div>
-                                </kit-array>
-                                <!-- end dynamic content -->
-                            </div>
-                            <div class="surface-tertiary background">
-                                <kit-if id="currentToolForm" data-kit-condition="true">
-                                    <kit-component 
-                                        data-kit-template-path="/components/map-editor/tool-palette-dialog/tool-view/tool-view.html"
-                                        data-kit-model-input="{ tool: #model.getCurrentTool(), dialogModel: #model }">
-                                    </kit-component>
-                                </kit-if>
-                            </div>
+                                    <div class="spacer"></div>
+                                    <div class="secondary-info">
+                                        <label>%{#tool.referenceTypeLabel}%</label>
+                                        <label>%{#tool.versionLabel}%</label>
+                                    </div>
+                                </div>
+                            </kit-array>
+                            <!-- end dynamic content -->
+                        </div>
+                        <div class="surface-tertiary background">
+                            <kit-if id="currentToolForm" data-kit-condition="#model.hasCurrentTool()">
+                                <kit-component 
+                                    data-kit-template-path="/components/map-editor/tool-palette-dialog/tool-view/tool-view.html"
+                                    data-kit-model-input="{ tool: #model.getCurrentTool() }">
+                                </kit-component>
+                            </kit-if>
                         </div>
                     </section>
                 </details>
                 <details id="details-map-item-templates" ontoggle="#model.onDetailsToggleEvent(event)">
                     <summary class="action-control">Map item templates</summary>
                     <section>
-                        <ul>
-                            <li>sub item</li>
-                            <li>sub item</li>
-                            <li>sub item</li>
-                            <li>sub item</li>
-                            <li>sub item</li>
-                            <li>sub item</li>
-                            <li>sub item</li>
-                            <li>sub item</li>
-                            <li>sub item</li>
-                            <li>sub item</li>
-                        </ul>
+                        <div class="list-label-row">
+                            <label>Map item templates:</label>
+                            <div class="spacer"></div>
+                            <div>
+                                <button id="add-map-item-template-button" title="Add map item template" class="action-control" onclick="#model.addMapItemTemplate();">
+                                    <div class="icon-container">
+                                        <kit-component data-kit-template-path="/resources/icons/add.html" data-kit-model="null"></kit-component>
+                                    </div>
+                                </button>
+                            </div>
+                            <div>
+                                <button id="delete-map-item-template-button" title="Delete map item template" class="action-control" onclick="#model.deleteMapItemTemplate();" disabled>
+                                    <div class="icon-container">
+                                        <kit-component data-kit-template-path="/resources/icons/delete.html" data-kit-model="null"></kit-component>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="item-list map-item-templates-list">
+                            <!-- dynamic content here -->
+                            <kit-array data-kit-array="#model.getMapItemTemplates()" data-kit-array-ref="mapItemTemplates" data-kit-item-ref="mapItemTemplate" data-kit-item-index-ref="mapItemTemplateIndex">
+                                <div id="%{#mapItemTemplate.elementId}%" class="map-item-template-item" onclick="#model.selectMapItemTemplate(#mapItemTemplate.elementId)">
+                                    <div class="icon-container">
+                                        <svg data-map-item-template-thumbnail="%{#mapItemTemplate.elementId}%" height="25" width="25" viewBox="0 0 100 100">%{#mapItemTemplate.thumbnailSrc}%</svg>
+                                    </div>
+                                    <div>
+                                        <label>%{#mapItemTemplate.name}%</label>
+                                    </div>
+                                    <div class="spacer"></div>
+                                    <div class="secondary-info">
+                                        <label>%{#mapItemTemplate.referenceTypeLabel}%</label>
+                                        <label>%{#mapItemTemplate.versionLabel}%</label>
+                                    </div>
+                                </div>
+                            </kit-array>
+                            <!-- end dynamic content -->
+                        </div>
+                        <div class="surface-tertiary background">
+                            <kit-if id="currentMapItemTemplateForm" data-kit-condition="#model.hasCurrentMapItemTemplate()">
+                                <kit-component 
+                                    data-kit-template-path="/components/map-editor/tool-palette-dialog/map-item-template-view/map-item-template-view.html"
+                                    data-kit-model-input="{ mapItemTemplate: #model.getCurrentMapItemTemplate(), dialogModel: #model }">
+                                </kit-component>
+                            </kit-if>
+                        </div>
                     </section>
                 </details>
             </div>
-
             <!-- content ends here -->
         </section>
     </kit-if>

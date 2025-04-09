@@ -1,0 +1,36 @@
+﻿
+<kit-if id="if-stroke-visible" data-kit-condition="#model.stroke != null">
+    <fieldset data-kit-add-attributes="%{#model.isDisabled()}%">
+        <div>
+            <label>Width:<span class="validation-message">%{#model.validationResult?.width ?? ""}%</span></label>
+            <input id="stroke-width"
+                   type="number"
+                   onchange="#model.updateProperty('stroke-width')"
+                   data-kit-add-attributes="value=%{#model.stroke.width}%" />
+        </div>
+        <kit-if data-kit-condition="#model.getStrokeType() == 'ColorStroke'">
+            <div>
+                <label>Color:<span class="validation-message">%{#model.validationResult?.color ?? ""}%</span></label>
+                <input id="stroke-color"
+                       type="color"
+                       onchange="#model.updateProperty('stroke-color')"
+                       data-kit-add-attributes="value=%{#model.stroke.color}%" />
+            </div>
+        </kit-if>
+        <kit-if data-kit-condition="#model.getStrokeType() == 'GradientStroke'">
+            <div>
+                [content for gradient stroke]
+            </div>
+        </kit-if>
+        <kit-if data-kit-condition="#model.getStrokeType() == 'TileStroke'">
+            <div>
+                [content for tile stroke]
+            </div>
+        </kit-if>
+        <kit-if data-kit-condition="#model.getStrokeType() == 'ImageArrayStroke'">
+            <div>
+                [content for image array stroke]
+            </div>
+        </kit-if>
+    </fieldset>
+</kit-if>

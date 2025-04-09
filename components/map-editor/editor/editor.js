@@ -8,9 +8,11 @@ import {
     Layer,
     Map,
     MapItemGroup,
+    MapItemTemplate,
     MapWorkerClient,
     MapWorkerInputMessageType,
     MapWorkerOutputMessageType,
+    Tool,
     ToolPalette
 } from "../../../domain/references.js";
 import { KitComponent, KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
@@ -92,8 +94,12 @@ export class EditorModel {
                             divActiveLayer.innerHTML = map.activeLayer;
                         }
                     }
-                    if (change.changeObjectType == ToolPalette.name) {
-                        this.#reRenderElement("tool-palette-content");
+                    if (change.changeObjectType == ToolPalette.name
+                        || change.changeObjectType == Tool.name
+                        || change.changeObjectType == MapItemTemplate.name) {
+                        setTimeout(async () => {
+                            await this.#reRenderElement("tool-palette-content");
+                        }, 20);
                     }
                 }
             }

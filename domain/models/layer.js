@@ -63,6 +63,18 @@ export class Layer {
     }
 
     // methods
+    static validateUniqueLayerNames(layers) {
+        if (layers) {
+            const names = [];
+            for (const layer of layers) {
+                if (names.includes(layer.name)) {
+                    throw new Error(ErrorMessage.ItemAlreadyExistsInList);
+                }
+                names.push(layer.name);
+            }
+        }
+    }
+
     getData() {
         return {
             name: this.#name,

@@ -3,11 +3,13 @@ import {
     BaseFill,
     BaseStroke,
     Caption,
+    Change,
     ChangeSet,
     ChangeType,
     ColorFill,
     ColorStroke,
     EntityReference,
+    ErrorMessage,
     GradientFill,
     GradientStroke,
     ImageArrayFill,
@@ -26,42 +28,52 @@ export class MapItemTemplate {
         this.#thumbnailSrc = InputUtilities.cleanseSvg(data?.thumbnailSrc);
         this.#fills = [];
         if (data?.fills) {
-            for (const fill of data.fills) {
-                if (fill.color) {
-                    this.#fills.push(new ColorFill(fill));
+            for (const fillData of data.fills) {
+                let fill = null;
+                if (fillData.color) {
+                    fill = new ColorFill(fillData);
                 }
-                if (fill.gradientType) {
-                    this.#fills.push(new GradientFill(fill));
+                if (fillData.gradientType) {
+                    fill = new GradientFill(fillData);
                 }
-                if (fill.imageSrc) {
-                    this.#fills.push(new TileFill(fill));
+                if (fillData.imageSrc) {
+                    fill = new TileFill(fillData);
                 }
-                if (fill.imageSources) {
-                    this.#fills.push(new ImageArrayFill(fill));
+                if (fillData.imageSources) {
+                    fill = new ImageArrayFill(fillData);
+                }
+                if (fill) {
+                    this.#fills.push(fill);
+                    this.#addChangeEventListeners(fill);
                 }
             }
         }
         this.#strokes = [];
         if (data?.strokes) {
-            for (const stroke of data.strokes) {
-                if (stroke.color) {
-                    this.#strokes.push(new ColorStroke(stroke));
+            for (const strokeData of data.strokes) {
+                let stroke = null;
+                if (strokeData.color) {
+                    stroke = new ColorStroke(strokeData);
                 }
-                if (stroke.gradientType) {
-                    this.#strokes.push(new GradientStroke(stroke));
+                if (strokeData.gradientType) {
+                    stroke = new GradientStroke(strokeData);
                 }
-                if (stroke.imageSrc) {
-                    this.#strokes.push(new TileStroke(stroke));
+                if (strokeData.imageSrc) {
+                    stroke = new TileStroke(strokeData);
                 }
-                if (stroke.imageSources) {
-                    this.#strokes.push(new ImageArrayStroke(stroke));
+                if (strokeData.imageSources) {
+                    stroke = new ImageArrayStroke(strokeData);
+                }
+                if (stroke) {
+                    this.#strokes.push(stroke);
+                    this.#addChangeEventListeners(stroke);
                 }
             }
         }
         if (data?.shadow) {
             this.#shadow = new Shadow(data.shadow);
         }
-        this.#defaultZGroup = InputUtilities.cleanseNumber(data?.z);
+        this.#defaultZGroup = InputUtilities.cleanseNumber(data?.defaultZGroup) ?? 0;
         if (data?.caption) {
             this.#caption = new Caption(data.caption);
         }
@@ -94,8 +106,17 @@ export class MapItemTemplate {
         return this.#fills;
     }
     set fills(fills) {
+        if (this.#fills) {
+            for (const fill of this.#fills) {
+                this.#removeChangeEventListeners(fill);
+            }
+        }
         const changeSet = this.#getPropertyChange("fills", this.#getListData(this.#fills), this.#getListData(fills));
-        this.#fills = fills;
+        InputUtilities.validateIds(fills);
+        this.#fills = fills ?? [];
+        for (const fill of this.#fills) {
+            this.#addChangeEventListeners(fill);
+        }
         this.#onChange(changeSet);
     }
 
@@ -105,8 +126,17 @@ export class MapItemTemplate {
         return this.#strokes;
     }
     set strokes(strokes) {
+        if (this.#strokes) {
+            for (const stroke of this.#strokes) {
+                this.#removeChangeEventListeners(stroke);
+            }
+        }
         const changeSet = this.#getPropertyChange("strokes", this.#getListData(this.#strokes), this.#getListData(strokes));
-        this.#strokes = strokes;
+        InputUtilities.validateIds(strokes);
+        this.#strokes = strokes ?? [];
+        for (const stroke of this.#strokes) {
+            this.#addChangeEventListeners(stroke);
+        }
         this.#onChange(changeSet);
     }
 
@@ -203,6 +233,7 @@ export class MapItemTemplate {
         };
         const changeSet = new ChangeSet({ changes: [changeData] });
         this.#fills.push(fill);
+        this.#addChangeEventListeners(fill);
         this.#onChange(changeSet);
     }
 
@@ -225,6 +256,7 @@ export class MapItemTemplate {
         };
         const changeSet = new ChangeSet({ changes: [changeData] });
         this.#fills.splice(index, 0, fill);
+        this.#addChangeEventListeners(fill);
         this.#onChange(changeSet);
     }
 
@@ -239,7 +271,8 @@ export class MapItemTemplate {
                 itemValue: fill.getData()
             };
             const changeSet = new ChangeSet({ changes: [changeData] });
-            this.#fills.splice(index, 1);
+            const deleted = this.#fills.splice(index, 1);
+            this.#removeChangeEventListeners(deleted[0]);
             this.#onChange(changeSet);
         }
     }
@@ -264,6 +297,7 @@ export class MapItemTemplate {
         };
         const changeSet = new ChangeSet({ changes: [changeData] });
         this.#strokes.push(stroke);
+        this.#addChangeEventListeners(stroke);
         this.#onChange(changeSet);
     }
 
@@ -286,6 +320,7 @@ export class MapItemTemplate {
         };
         const changeSet = new ChangeSet({ changes: [changeData] });
         this.#strokes.splice(index, 0, stroke);
+        this.#addChangeEventListeners(stroke);
         this.#onChange(changeSet);
     }
 
@@ -300,7 +335,8 @@ export class MapItemTemplate {
                 itemValue: stroke.getData()
             };
             const changeSet = new ChangeSet({ changes: [changeData] });
-            this.#strokes.splice(index, 1);
+            const deleted = this.#strokes.splice(index, 1);
+            this.#removeChangeEventListeners(deleted[0]);
             this.#onChange(changeSet);
         }
     }
@@ -439,16 +475,16 @@ export class MapItemTemplate {
         }
         if (propertyName == "strokes") {
             if (value?.color) {
-                this.removeFill(new ColorStroke(value));
+                this.removeStroke(new ColorStroke(value));
             }
             if (value?.gradientType) {
-                this.removeFill(new GradientStroke(value));
+                this.removeStroke(new GradientStroke(value));
             }
             if (value?.imageSrc) {
-                this.removeFill(new TileStroke(value));
+                this.removeStroke(new TileStroke(value));
             }
             if (value?.imageSources) {
-                this.removeFill(new ImageArrayStroke(value));
+                this.removeStroke(new ImageArrayStroke(value));
             }
         }
     }

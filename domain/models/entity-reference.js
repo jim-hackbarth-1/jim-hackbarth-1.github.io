@@ -37,13 +37,14 @@ export class EntityReference {
     }
 
     // methods
-    getData() {
-        return {
-            versionId: this.#versionId,
-            isBuiltIn: this.#isBuiltIn,
-            isFromTemplate: this.#isFromTemplate,
-            name: this.#name
-        };
+    static getRefs(refsData) {
+        const refs = [];
+        if (refsData) {
+            for (const ref of refsData) {
+                refs.push(new EntityReference(ref));
+            }
+        }
+        return refs;
     }
 
     static areEqual(entityReference1, entityReference2) {
@@ -59,6 +60,15 @@ export class EntityReference {
             && isBuiltIn1 === isBuiltIn2
             && isFromTemplate1 === isFromTemplate2
             && name1 === name2;
+    }
+
+    getData() {
+        return {
+            versionId: this.#versionId,
+            isBuiltIn: this.#isBuiltIn,
+            isFromTemplate: this.#isFromTemplate,
+            name: this.#name
+        };
     }
 
     validateUniqueEntityReferences(entityReferences) {

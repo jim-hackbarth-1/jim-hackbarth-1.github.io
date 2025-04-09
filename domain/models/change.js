@@ -28,6 +28,9 @@ export class Change {
         this.#pathId = data?.pathId;
         this.#clipPathId = data?.clipPathId;    
         this.#toolRef = data?.toolRef;
+        this.#mapItemTemplateRef = data?.mapItemTemplateRef;
+        this.#fillId = data?.fillId;
+        this.#strokeId = data?.strokeId;
     }
 
     //  properties
@@ -126,6 +129,33 @@ export class Change {
         this.#toolRef = toolRef;
     }
 
+    /** @type {EntityReference}  */
+    #mapItemTemplateRef;
+    get mapItemTemplateRef() {
+        return this.#mapItemTemplateRef;
+    }
+    set mapItemTemplateRef(mapItemTemplateRef) {
+        this.#mapItemTemplateRef = mapItemTemplateRef;
+    }
+
+    /** @type {EntityReference}  */
+    #fillId;
+    get fillId() {
+        return this.#fillId;
+    }
+    set fillId(fillId) {
+        this.#fillId = fillId;
+    }
+
+    /** @type {EntityReference}  */
+    #strokeId;
+    get strokeId() {
+        return this.#strokeId;
+    }
+    set strokeId(strokeId) {
+        this.#strokeId = strokeId;
+    }
+
     // methods
     getData() {
         return {
@@ -141,7 +171,10 @@ export class Change {
             mapItemId: this.#mapItemId,
             pathId: this.#pathId,
             clipPathId: this.#clipPathId,
-            toolRef: this.#toolRef
+            toolRef: this.#toolRef,
+            mapItemTemplateRef: this.#mapItemTemplateRef,
+            fillId: this.#fillId,
+            strokeId: this.#strokeId
         };
     }
 }

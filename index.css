@@ -5,6 +5,11 @@
     padding: 0;
 }
 
+@font-face {
+    font-family: "Ubuntu Sans Mono";
+    src: url("/resources/fonts/UbuntuSansMono-VariableFont_wght.ttf");
+}
+
 :scope {
     --app-font-family: "Ubuntu Sans Mono", Arial, sans-serif;
     --app-nav-width-expanded: 150px;

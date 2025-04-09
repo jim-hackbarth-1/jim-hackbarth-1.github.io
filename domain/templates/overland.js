@@ -3,16 +3,16 @@ import { Map } from "../references.js";
 
 export function getOverlandTemplate() {
     const blueRegion = {
-        ref: { name: "Blue Region" },
-        thumbnailSrc: '<rect x="10" y="10" width="80" height="80" stroke="green" stroke-width="2" fill="lightblue" rx="10" />',
-        fills: [{ color: "lightblue" }],
-        strokes: [{ color: "green", width: 3 }],
+        ref: { name: "Blue Region", versionId: 1 },
+        thumbnailSrc: '<rect x="10" y="10" width="80" height="80" stroke="#008000" stroke-width="2" fill="#add8e6" rx="10" />',
+        fills: [{ color: "#add8e6" }],
+        strokes: [{ color: "#008000", width: 3 }]
     };
     const greenRegion = {
-        ref: { name: "Green Region" },
-        thumbnailSrc: '<rect x="10" y="10" width="80" height="80" stroke="darkslategrey" stroke-width="2" fill="darkseagreen" rx="10" />',
-        fills: [{ color: "darkseagreen" }],
-        strokes: [{ color: "darkslategrey", width: 3 }],
+        ref: { name: "Green Region", versionId: 1 },
+        thumbnailSrc: '<rect x="10" y="10" width="80" height="80" stroke="#2f4f4f" stroke-width="2" fill="#8fbc8f" rx="10" />',
+        fills: [{ color: "#8fbc8f" }],
+        strokes: [{ color: "#2f4f4f", width: 3 }]
     };
     const mapData = {
         ref: {

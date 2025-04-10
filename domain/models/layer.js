@@ -164,41 +164,21 @@ export class Layer {
         this.mapItemGroups = [];
     }
 
-    render(context, map, options) {
+    render(context, map, options, maxStrokesLength, maxFillsLength) {
         if (this.isHidden != true) {
-            let mapItemGroups1 = this.mapItemGroups;
-            let mapItemGroups2 = [];
-            if (options?.updatedViewPort) {
-                mapItemGroups1 = [];
-                for (const mapItemGroup of this.mapItemGroups) {
-                    let mapItemInView = false;
-                    for (const mapItem of mapItemGroup.mapItems) {
-                        let pathInView = false;
-                        for (const path of mapItem.paths) {
-                            if (path.inView) {
-                                pathInView = true;
-                                break;
-                            }
-                        }
-                        if (pathInView) {
-                            mapItemInView = true;
-                            break;
-                        }
-                    }
-                    if (mapItemInView) {
-                        mapItemGroups1.push(mapItemGroup);
-                    }
-                    else {
-                        mapItemGroups2.push(mapItemGroup);
+            const zGroups = this.#getZOrderGroups();
+            for (const zGroup of zGroups) {
+                const mapItems = this.#getMapItemsByZGroup(zGroup);
+                for (let i = maxStrokesLength - 1; i > -1; i--) {
+                    for (const mapItem of mapItems) {
+                        mapItem.renderStroke(context, map, options, i);
                     }
                 }
-            }
-            // render map item groups that were in view first
-            for (const mapItemGroup of mapItemGroups1) {
-                mapItemGroup.render(context, map, options); // temp
-            }
-            for (const mapItemGroup of mapItemGroups2) {
-                mapItemGroup.render(context, map, options); // temp
+                for (let i = maxFillsLength - 1; i > -1; i--) {
+                    for (const mapItem of mapItems) {
+                        mapItem.renderFill(context, map, options, i);
+                    }
+                }
             }
         }
     }
@@ -365,5 +345,47 @@ export class Layer {
 
     #getListData(list) {
         return list ? list.map(x => x.getData ? x.getData() : x) : null;
+    }
+
+    #getZOrderGroups() {
+        const zGroups = [];
+        for (const mapItemGroup of this.mapItemGroups) {
+            for (const mapItem of mapItemGroup.mapItems) {
+                const zGroup = mapItem.zGroup;
+                if (!zGroups.includes(zGroup)) {
+                    zGroups.push(zGroup);
+                }
+            }
+        }
+        zGroups.sort((a, b) => a - b);
+        return zGroups;
+    }
+
+    #getMapItemsByZGroup(zGroup) {
+        const mapItems = [];
+        for (const mapItemGroup of this.mapItemGroups) {
+            for (const mapItem of mapItemGroup.mapItems) {
+                if (mapItem.zGroup == zGroup) {
+                    mapItems.push(mapItem);
+                }
+            }
+        }
+        function sort(mapItem1, mapItem2) {
+            if (mapItem1.z < mapItem2.z) {
+                return -1;
+            }
+            if (mapItem1.z > mapItem2.z) {
+                return 1;
+            }
+            if (mapItem1.inView && !mapItem2.inView) {
+                return -1;
+            }
+            if (!mapItem1.inView && mapItem2.inView) {
+                return 1;
+            }
+            return 0;
+        }
+        mapItems.sort(sort);
+        return mapItems;
     }
 }

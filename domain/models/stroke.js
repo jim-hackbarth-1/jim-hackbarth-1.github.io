@@ -227,7 +227,7 @@ export class ColorStroke extends BaseStroke {
 
     applyChange(change, undoing) {
         if (change.changeType == ChangeType.Edit) {
-            if (change.propertyName == 'color') {
+            if (change.propertyName == "color") {
                 this.#applyPropertyChange(change.propertyName, undoing ? change.oldValue : change.newValue);
             }
             else {

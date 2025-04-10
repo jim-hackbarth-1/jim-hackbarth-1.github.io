@@ -386,22 +386,48 @@ export class Path {
         return pathInfo;
     }
 
-    render(context, map, mapItemTemplate, options) {
-        if (mapItemTemplate && this.#isViewable(map, options)) {
-            const hasFill = mapItemTemplate.fills.length > 0;
+    renderStroke(context, map, stroke, options, closePath) {
+        if (stroke && this.#isViewable(map, options)) {
             const scale = 1 / map.zoom;
             let pathInfo = this.getPathInfo();
-            if (hasFill) {
+            if (closePath) {
                 pathInfo += " z";
             }
             const path2D = new Path2D(pathInfo);
             context.setLineDash([]);
-            context.strokeStyle = mapItemTemplate.strokes[0].color;
-            context.lineWidth = mapItemTemplate.strokes[0].width * scale;
+            context.strokeStyle = stroke.color;
+            context.lineWidth = stroke.width * scale;
             context.stroke(path2D);
+            if (this.clipPaths) {
+                for (const clipPath of this.clipPaths) {
+                    let innerPathInfo = clipPath.getPathInfo();
+                    if (closePath) {
+                        innerPathInfo += " z";
+                    }
+                    context.stroke(new Path2D(innerPathInfo));
+                }
+            }
+        }
+    }
+
+    renderFill(context, map, fill, options) {
+        if (fill && this.#isViewable(map, options)) { 
+            let pathInfo = this.getPathInfo();
+            pathInfo += " z";
+            const path2D = new Path2D(pathInfo);
             context.save();
-            this.#renderClipPaths(context, pathInfo, hasFill);
-            context.fillStyle = mapItemTemplate.fills[0].color;
+            if (this.clipPaths) {
+                const outerPath = new Path2D(pathInfo);
+                for (const clipPath of this.clipPaths) {
+                    let innerPathInfo = clipPath.getPathInfo();
+                    innerPathInfo += " z";
+                    const innerPath = new Path2D(innerPathInfo);
+                    context.stroke(innerPath);
+                    outerPath.addPath(innerPath);
+                }
+                context.clip(outerPath, "evenodd");
+            }
+            context.fillStyle = fill.color;
             context.fill(path2D);
             context.restore();
         }
@@ -540,22 +566,6 @@ export class Path {
             }
         }
         return this.#inView;
-    }
-
-    #renderClipPaths(context, pathInfo, hasFill) {
-        if (this.clipPaths) {
-            const outerPath = new Path2D(pathInfo);
-            for (const clipPath of this.clipPaths) {
-                let innerPathInfo = clipPath.getPathInfo();
-                if (hasFill) {
-                    innerPathInfo += " z";
-                }
-                const innerPath = new Path2D(innerPathInfo);
-                context.stroke(innerPath);
-                outerPath.addPath(innerPath);
-            }
-            context.clip(outerPath, "evenodd");
-        }
     }
 
     #getListData(list, copy) {

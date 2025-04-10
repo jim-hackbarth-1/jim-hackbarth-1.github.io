@@ -69,7 +69,7 @@ export class MapItem {
     /** @type {number}  */
     #zGroup;
     get zGroup() {
-        return this.#zGroup;
+        return this.#zGroup ?? 0;
     }
     set zGroup(zGroup) {
         const changeSet = this.#getPropertyChange("zGroup", this.#zGroup, zGroup);
@@ -80,7 +80,7 @@ export class MapItem {
     /** @type {number}  */
     #z;
     get z() {
-        return this.#z;
+        return this.#z ?? 0;
     }
     set z(z) {
         const changeSet = this.#getPropertyChange("z", this.#z, z);
@@ -258,12 +258,26 @@ export class MapItem {
         }
     }
 
-    render(context, map, options) {
+    renderStroke(context, map, options, strokeIndex) {
         if (this.isHidden != true) {
             const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
-            if (mapItemTemplate) {
+            if (mapItemTemplate && strokeIndex < mapItemTemplate.strokes.length) {
+                const stroke = mapItemTemplate.strokes[strokeIndex];
+                const closePath = mapItemTemplate.fills.length > 0;
                 for (const path of this.paths) {
-                    path.render(context, map, mapItemTemplate, options);
+                    path.renderStroke(context, map, stroke, options, closePath);
+                }
+            }
+        }
+    }
+
+    renderFill(context, map, options, fillIndex) {
+        if (this.isHidden != true) {
+            const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
+            if (mapItemTemplate && fillIndex < mapItemTemplate.fills.length) {
+                const fill = mapItemTemplate.fills[fillIndex];
+                for (const path of this.paths) {
+                    path.renderFill(context, map, fill, options);
                 }
             }
         }

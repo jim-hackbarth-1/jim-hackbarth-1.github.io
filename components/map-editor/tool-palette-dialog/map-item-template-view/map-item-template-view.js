@@ -63,10 +63,7 @@ class MapItemTemplateViewModel {
             }
             let reRender = false;
             if (message?.data?.changeSet?.changes) {
-                const fillOrStrokeInsertOrDelete = message.data.changeSet.changes.some(c =>
-                    c.changeObjectType == MapItemTemplate.name
-                    && (c.propertyName == "fills" || c.propertyName == "strokes")
-                    && (c.changeType == ChangeType.Insert || c.changeType == ChangeType.Delete));
+                const mapItemTemplateChange = message.data.changeSet.changes.some(c => c.changeObjectType == MapItemTemplate.name);
                 const colorFillColorChange = message.data.changeSet.changes.some(c =>
                     c.changeType == ChangeType.Edit && c.changeObjectType == ColorFill.name && c.propertyName == "color");
                 if (colorFillColorChange) {
@@ -93,7 +90,7 @@ class MapItemTemplateViewModel {
                         strokeLabelElement.innerHTML = this.#getStrokeLabel(stroke);
                     }
                 }
-                reRender = fillOrStrokeInsertOrDelete;
+                reRender = mapItemTemplateChange;
             }
             if (reRender) {
                 const scrollTop = this.dialogModel.scrollTop;

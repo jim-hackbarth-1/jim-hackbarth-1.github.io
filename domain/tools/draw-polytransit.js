@@ -351,7 +351,8 @@ class DrawPolytransitTool {
                         start: start,
                         transits: this.#transits,
                         inView: true
-                    }]
+                    }],
+                    zGroup: this.#mapWorker.activeMapItemTemplate.defaultZGroup
                 };
                 const data = {
                     mapItems: [mapItemData]

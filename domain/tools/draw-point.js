@@ -74,7 +74,8 @@ class DrawPointTool {
                         { x: 0, y: -size }
                     ],
                     inView: true
-                }]
+                }],
+                zGroup: this.#mapWorker.activeMapItemTemplate.defaultZGroup
             };
             const data = {
                 mapItems: [mapItemData]

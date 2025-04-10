@@ -177,12 +177,6 @@ export class MapItemGroup {
         }
     }
 
-    render(context, map, options) {
-        for (const mapItem of this.mapItems) {
-            mapItem.render(context, map, options);
-        }
-    }
-
     renderSelection(context, map) {
         if (this.selectionStatus) {
             const selectionBounds = this.getSelectionBounds(map);

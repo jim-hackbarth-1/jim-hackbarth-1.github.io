@@ -224,7 +224,8 @@ class DrawEllipseTool {
                     start: start,
                     transits: transits,
                     inView: true
-                }]
+                }],
+                zGroup: this.#mapWorker.activeMapItemTemplate.defaultZGroup
             };
             const data = {
                 mapItems: [mapItemData]

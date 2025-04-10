@@ -134,7 +134,7 @@ export class ColorFill extends BaseFill {
 
     applyChange(change, undoing) {
         if (change.changeType == ChangeType.Edit) {
-            if (propertyName == "color") {
+            if (change.propertyName == "color") {
                 this.#applyPropertyChange(change.propertyName, undoing ? change.oldValue : change.newValue);
             }
             else {
@@ -240,7 +240,7 @@ export class GradientFill extends BaseFill {
 
     applyChange(change, undoing) {
         if (change.changeType == ChangeType.Edit) {
-            if (propertyName == "gradientType" || propertyName == "colorStops") {
+            if (change.propertyName == "gradientType" || change.propertyName == "colorStops") {
                 this.#applyPropertyChange(change.propertyName, undoing ? change.oldValue : change.newValue);
             }
             else {
@@ -337,7 +337,7 @@ export class TileFill extends BaseFill {
 
     applyChange(change, undoing) {
         if (change.changeType == ChangeType.Edit) {
-            if (propertyName == "imageSrc") {
+            if (change.propertyName == "imageSrc") {
                 this.#applyPropertyChange(change.propertyName, undoing ? change.oldValue : change.newValue);
             }
             else {
@@ -453,7 +453,7 @@ export class ImageArrayFill extends BaseFill {
 
     applyChange(change, undoing) {
         if (change.changeType == ChangeType.Edit) {
-            if (propertyName == "imageSources" || propertyName == "offsetX" || propertyName == "offsetY") {
+            if (change.propertyName == "imageSources" || change.propertyName == "offsetX" || change.propertyName == "offsetY") {
                 this.#applyPropertyChange(change.propertyName, undoing ? change.oldValue : change.newValue);
             }
             else {

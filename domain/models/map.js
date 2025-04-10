@@ -336,13 +336,7 @@ export class Map {
         if (this.layers.some(l => l.name === layer.name)) {
             throw new Error(ErrorMessage.ItemAlreadyExistsInList);
         }
-        const changeData = {
-            changeType: ChangeType.Insert,
-            changeObjectType: Map.name,
-            propertyName: "layers",
-            itemIndex: this.layers.length,
-            itemValue: layer.getData()
-        };
+        const changeData = this.#getChange(ChangeType.Insert, Map.name, "layers", this.layers.length, layer.getData());
         const changeSet = new ChangeSet({ changes: [changeData] });
         this.#layers.push(layer);
         this.#addChangeEventListeners(layer);
@@ -356,13 +350,7 @@ export class Map {
         if (index < 0 || index > this.layers.length) {
             throw new Error(ErrorMessage.InvalidIndex);
         }
-        const changeData = {
-            changeType: ChangeType.Insert,
-            changeObjectType: Map.name,
-            propertyName: "layers",
-            itemIndex: index,
-            itemValue: layer.getData()
-        };
+        const changeData = this.#getChange(ChangeType.Insert, Map.name, "layers", index, layer.getData());
         const changeSet = new ChangeSet({ changes: [changeData] });
         this.#layers.splice(index, 0, layer);
         this.#addChangeEventListeners(layer);
@@ -372,13 +360,7 @@ export class Map {
     removeLayer(layer) {
         const index = this.#layers.findIndex(l => l.name === layer.name);
         if (index > -1) {
-            const changeData = {
-                changeType: ChangeType.Delete,
-                changeObjectType: Map.name,
-                propertyName: "layers",
-                itemIndex: index,
-                itemValue: layer.getData()
-            };
+            const changeData = this.#getChange(ChangeType.Delete, Map.name, "layers", index, layer.getData());
             const changeSet = new ChangeSet({ changes: [changeData] });
             const deleted = this.#layers.splice(index, 1);
             this.#removeChangeEventListeners(deleted[0]);
@@ -391,41 +373,16 @@ export class Map {
     }
 
     addMapItemTemplateRef(mapItemTemplateRef) {
-        if (!mapItemTemplateRef) {
-            throw new Error(ErrorMessage.NullValue);
-        }
-        if (this.mapItemTemplateRefs.some(ref => EntityReference.areEqual(ref, mapItemTemplateRef))) {
-            throw new Error(ErrorMessage.ItemAlreadyExistsInList);
-        }
-        const changeData = {
-            changeType: ChangeType.Insert,
-            changeObjectType: Map.name,
-            propertyName: "mapItemTemplateRefs",
-            itemIndex: this.mapItemTemplateRefs.length,
-            itemValue: mapItemTemplateRef.getData()
-        };
+        this.#validateRefInsert(this.mapItemTemplateRefs, mapItemTemplateRef);
+        const changeData = this.#getChange(ChangeType.Insert, Map.name, "mapItemTemplateRefs", this.mapItemTemplateRefs.length, mapItemTemplateRef.getData());
         const changeSet = new ChangeSet({ changes: [changeData] });
         this.#mapItemTemplateRefs.push(mapItemTemplateRef);
         this.#onChange(changeSet);
     }
 
     insertMapItemTemplateRef(mapItemTemplateRef, index) {
-        if (!mapItemTemplateRef) {
-            throw new Error(ErrorMessage.NullValue);
-        }
-        if (this.mapItemTemplateRefs.some(ref => EntityReference.areEqual(ref, mapItemTemplateRef))) {
-            throw new Error(ErrorMessage.ItemAlreadyExistsInList);
-        }
-        if (index < 0 || index > this.mapItemTemplateRefs.length) {
-            throw new Error(ErrorMessage.InvalidIndex);
-        }
-        const changeData = {
-            changeType: ChangeType.Insert,
-            changeObjectType: Map.name,
-            propertyName: "mapItemTemplateRefs",
-            itemIndex: index,
-            itemValue: mapItemTemplateRef.getData()
-        };
+        this.#validateRefInsert(this.mapItemTemplateRefs, mapItemTemplateRef, index);
+        const changeData = this.#getChange(ChangeType.Insert, Map.name, "mapItemTemplateRefs", index, mapItemTemplateRef.getData());
         const changeSet = new ChangeSet({ changes: [changeData] });
         this.#mapItemTemplateRefs.splice(index, 0, mapItemTemplateRef);
         this.#onChange(changeSet);
@@ -434,13 +391,7 @@ export class Map {
     removeMapItemTemplateRef(mapItemTemplateRef) {
         const index = this.#mapItemTemplateRefs.findIndex(ref => EntityReference.areEqual(ref, mapItemTemplateRef));
         if (index > -1) {
-            const changeData = {
-                changeType: ChangeType.Delete,
-                changeObjectType: Map.name,
-                propertyName: "mapItemTemplateRefs",
-                itemIndex: index,
-                itemValue: mapItemTemplateRef.getData()
-            };
+            const changeData = this.#getChange(ChangeType.Delete, Map.name, "mapItemTemplateRefs", index, mapItemTemplateRef.getData());
             const changeSet = new ChangeSet({ changes: [changeData] });
             this.#mapItemTemplateRefs.splice(index, 1);
             this.#onChange(changeSet);
@@ -458,13 +409,7 @@ export class Map {
         if (this.mapItemTemplates.some(mit => EntityReference.areEqual(mit.ref, mapItemTemplate.ref))) {
             throw new Error(ErrorMessage.ItemAlreadyExistsInList);
         }
-        const changeData = {
-            changeType: ChangeType.Insert,
-            changeObjectType: Map.name,
-            propertyName: "mapItemTemplates",
-            itemIndex: this.mapItemTemplates.length,
-            itemValue: mapItemTemplate.getData()
-        };
+        const changeData = this.#getChange(ChangeType.Insert, Map.name, "mapItemTemplates", this.mapItemTemplates.length, mapItemTemplate.getData());
         const changeSet = new ChangeSet({ changes: [changeData] });
         this.#mapItemTemplates.push(mapItemTemplate);
         this.#addChangeEventListeners(mapItemTemplate);
@@ -481,13 +426,7 @@ export class Map {
         if (index < 0 || index > this.mapItemTemplates.length) {
             throw new Error(ErrorMessage.InvalidIndex);
         }
-        const changeData = {
-            changeType: ChangeType.Insert,
-            changeObjectType: Map.name,
-            propertyName: "mapItemTemplates",
-            itemIndex: index,
-            itemValue: mapItemTemplate.getData()
-        };
+        const changeData = this.#getChange(ChangeType.Insert, Map.name, "mapItemTemplates", index, mapItemTemplate.getData());
         const changeSet = new ChangeSet({ changes: [changeData] });
         this.#mapItemTemplates.splice(index, 0, mapItemTemplate);
         this.#addChangeEventListeners(mapItemTemplate);
@@ -497,13 +436,7 @@ export class Map {
     removeMapItemTemplate(mapItemTemplate) {
         const index = this.#mapItemTemplates.findIndex(mit => EntityReference.areEqual(mit.ref, mapItemTemplate.ref));
         if (index > -1) {
-            const changeData = {
-                changeType: ChangeType.Delete,
-                changeObjectType: Map.name,
-                propertyName: "mapItemTemplates",
-                itemIndex: index,
-                itemValue: mapItemTemplate.getData()
-            };
+            const changeData = this.#getChange(ChangeType.Delete, Map.name, "mapItemTemplates", index, mapItemTemplate.getData());
             const changeSet = new ChangeSet({ changes: [changeData] });
             const deleted = this.#mapItemTemplates.splice(index, 1);
             this.#removeChangeEventListeners(deleted[0]);
@@ -516,41 +449,16 @@ export class Map {
     }
 
     addToolRef(toolRef) {
-        if (!toolRef) {
-            throw new Error(ErrorMessage.NullValue);
-        }
-        if (this.toolRefs.some(ref => EntityReference.areEqual(ref, toolRef))) {
-            throw new Error(ErrorMessage.ItemAlreadyExistsInList);
-        }
-        const changeData = {
-            changeType: ChangeType.Insert,
-            changeObjectType: Map.name,
-            propertyName: "toolRefs",
-            itemIndex: this.toolRefs.length,
-            itemValue: toolRef.getData()
-        };
+        this.#validateRefInsert(this.toolRefs, toolRef);
+        const changeData = this.#getChange(ChangeType.Insert, Map.name, "toolRefs", this.toolRefs.length, toolRef.getData());
         const changeSet = new ChangeSet({ changes: [changeData] });
         this.#toolRefs.push(toolRef);
         this.#onChange(changeSet);
     }
 
     insertToolRef(toolRef, index,) {
-        if (!toolRef) {
-            throw new Error(ErrorMessage.NullValue);
-        }
-        if (this.toolRefs.some(ref => EntityReference.areEqual(ref, toolRef))) {
-            throw new Error(ErrorMessage.ItemAlreadyExistsInList);
-        }
-        if (index < 0 || index > this.toolRefs.length) {
-            throw new Error(ErrorMessage.InvalidIndex);
-        }
-        const changeData = {
-            changeType: ChangeType.Insert,
-            changeObjectType: Map.name,
-            propertyName: "toolRefs",
-            itemIndex: index,
-            itemValue: toolRef.getData()
-        };
+        this.#validateRefInsert(this.toolRefs, toolRef, index);
+        const changeData = this.#getChange(ChangeType.Insert, Map.name, "toolRefs", index, toolRef.getData());
         const changeSet = new ChangeSet({ changes: [changeData] });
         this.#toolRefs.splice(index, 0, toolRef);
         this.#onChange(changeSet);
@@ -559,13 +467,7 @@ export class Map {
     removeToolRef(toolRef) {
         const index = this.#toolRefs.findIndex(ref => EntityReference.areEqual(ref, toolRef));
         if (index > -1) {
-            const changeData = {
-                changeType: ChangeType.Delete,
-                changeObjectType: Map.name,
-                propertyName: "toolRefs",
-                itemIndex: index,
-                itemValue: toolRef.getData()
-            };
+            const changeData = this.#getChange(ChangeType.Delete, Map.name, "toolRefs", index, toolRef.getData());
             const changeSet = new ChangeSet({ changes: [changeData] });
             this.#toolRefs.splice(index, 1);
             this.#onChange(changeSet);
@@ -583,13 +485,7 @@ export class Map {
         if (this.tools.some(t => EntityReference.areEqual(t.ref, tool.ref))) {
             throw new Error(ErrorMessage.ItemAlreadyExistsInList);
         }
-        const changeData = {
-            changeType: ChangeType.Insert,
-            changeObjectType: Map.name,
-            propertyName: "tools",
-            itemIndex: this.tools.length,
-            itemValue: tool.getData()
-        };
+        const changeData = this.#getChange(ChangeType.Insert, Map.name, "tools", this.tools.length, tool.getData());
         const changeSet = new ChangeSet({ changes: [changeData] });
         this.#tools.push(tool);
         this.#addChangeEventListeners(tool);
@@ -606,13 +502,7 @@ export class Map {
         if (index < 0 || index > this.tools.length) {
             throw new Error(ErrorMessage.InvalidIndex);
         }
-        const changeData = {
-            changeType: ChangeType.Insert,
-            changeObjectType: Map.name,
-            propertyName: "tools",
-            itemIndex: index,
-            itemValue: tool.getData()
-        };
+        const changeData = this.#getChange(ChangeType.Insert, Map.name, "tools", index, tool.getData());
         const changeSet = new ChangeSet({ changes: [changeData] });
         this.#tools.splice(index, 0, tool);
         this.#addChangeEventListeners(tool);
@@ -622,13 +512,7 @@ export class Map {
     removeTool(tool) {
         const index = this.#tools.findIndex(t => EntityReference.areEqual(t.ref, tool.ref));
         if (index > -1) {
-            const changeData = {
-                changeType: ChangeType.Delete,
-                changeObjectType: Map.name,
-                propertyName: "tools",
-                itemIndex: index,
-                itemValue: tool.getData()
-            };
+            const changeData = this.#getChange(ChangeType.Delete, Map.name, "tools", index, tool.getData());
             const changeSet = new ChangeSet({ changes: [changeData] });
             const deleted = this.#tools.splice(index, 1);
             this.#removeChangeEventListeners(deleted[0]);
@@ -651,8 +535,10 @@ export class Map {
             width: canvas.width / this.zoom,
             height: canvas.height / this.zoom
         };
+        const maxStrokeLength = this.#getMaxStrokesLength();
+        const maxFillsLength = this.#getMaxFillsLength();
         for (const layer of this.layers) {
-            layer.render(context, this, options);
+            layer.render(context, this, options, maxStrokeLength, maxFillsLength);
         }
         for (const layer of this.layers) {
             layer.renderSelections(context, this);
@@ -991,5 +877,49 @@ export class Map {
 
     #getListData(list) {
         return list ? list.map(x => x.getData ? x.getData() : x) : null;
+    }
+
+    #getChange(changeType, changeObjectType, propertyName, itemIndex, itemValue) {
+        return {
+            changeType: changeType,
+            changeObjectType: changeObjectType,
+            propertyName: propertyName,
+            itemIndex: itemIndex,
+            itemValue: itemValue
+        };
+    }
+
+    #validateRefInsert(refList, ref, index) {
+        if (!ref) {
+            throw new Error(ErrorMessage.NullValue);
+        }
+        if (refList.some(r => EntityReference.areEqual(r, ref))) {
+            throw new Error(ErrorMessage.ItemAlreadyExistsInList);
+        }
+        if (index && (index < 0 || index > refList.length)) {
+            throw new Error(ErrorMessage.InvalidIndex);
+        }
+    }
+
+    #getMaxStrokesLength() {
+        let maxLength = 0;
+        for (const mapItemTemplate of this.mapItemTemplates) {
+            const length = mapItemTemplate.strokes.length;
+            if (length > maxLength) {
+                maxLength = length;
+            }
+        }
+        return maxLength;
+    }
+
+    #getMaxFillsLength() {
+        let maxLength = 0;
+        for (const mapItemTemplate of this.mapItemTemplates) {
+            const length = mapItemTemplate.fills.length;
+            if (length > maxLength) {
+                maxLength = length;
+            }
+        }
+        return maxLength;
     }
 }

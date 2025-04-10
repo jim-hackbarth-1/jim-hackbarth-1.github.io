@@ -122,6 +122,7 @@ class DrawPathTool {
                     transits: points,
                     inView: true
                 }],
+                zGroup: this.#mapWorker.activeMapItemTemplate.defaultZGroup
             };
             const data = {
                 mapItems: [mapItemData]
@@ -132,44 +133,3 @@ class DrawPathTool {
         this.#mapWorker.renderMap();
     }
 }
-
-//const path1 = new Path2D("M80 80 A 45 45, 0, 0, 0, 125 125 L 125 80 Z");
-//this.renderingContext.fillStyle = "green";
-//this.renderingContext.fill(path1);
-
-//const path1 = new Path2D();
-//path1.moveTo(50, 50);
-//path1.lineTo(100, 50);
-//path1.lineTo(100, 100);
-//path1.lineTo(50, 100);
-//path1.closePath();
-
-//const path2 = new Path2D();
-//path2.moveTo(75, 75);
-//path2.lineTo(125, 75);
-//path2.lineTo(125, 125);
-//path2.lineTo(75, 125);
-//path2.closePath();
-
-//// first border
-//this.renderingContext.setLineDash([]);
-//this.renderingContext.shadowColor = "black";
-//this.renderingContext.shadowBlur = 15;
-//this.renderingContext.lineWidth = 10;
-//this.renderingContext.strokeStyle = "blue";
-//this.renderingContext.stroke(path1);
-//this.renderingContext.stroke(path2);
-
-//// second border
-//this.renderingContext.shadowColor = "transparent";
-//this.renderingContext.lineWidth = 5;
-//this.renderingContext.strokeStyle = "red";
-//this.renderingContext.stroke(path1);
-//this.renderingContext.stroke(path2);
-
-//// fill
-//this.renderingContext.fillStyle = "green";
-//this.renderingContext.fill(path1);
-//this.renderingContext.fill(path2);
-
-//this.renderingContext.setLineDash([5, 10]); 

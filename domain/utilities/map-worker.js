@@ -213,9 +213,9 @@ export class MapWorker {
         return new SelectionUtilities();
     }
 
-    renderMap(options) {
+    async renderMap(options) {
         if (this.canvas && this.renderingContext && this.map) {
-            this.map.render(this.canvas, this.renderingContext, options);
+            await this.map.render(this.canvas, this.renderingContext, options);
         }
     }
     
@@ -292,7 +292,7 @@ export class MapWorker {
         if (this.canvas && this.renderingContext) {
             if (this.map) {
                 this.map.addEventListener(Change.ChangeEvent, this.handleMapChange);
-                this.map.render(this.canvas, this.renderingContext, { updatedViewPort: true });
+                await this.map.render(this.canvas, this.renderingContext, { updatedViewPort: true });
             }
             else {
                 this.renderingContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -302,7 +302,7 @@ export class MapWorker {
 
     async #updateMap(changeSet) {
         this.map.applyChangeSet(new ChangeSet(changeSet));
-        this.renderMap({ updatedViewPort: true });
+        await this.renderMap({ updatedViewPort: true });
     }
 
     async #selectAllInView() {
@@ -332,7 +332,7 @@ export class MapWorker {
         const selectionUtilities = this.createSelectionUtilities();
         const changeSet = selectionUtilities.getSelectionChangeSet(this, layer.name, oldSelections, newSelections);
         this.map.completeChangeSet(changeSet);
-        this.renderMap();
+        await this.renderMap();
     }
 
     async #unSelectAll() {
@@ -348,17 +348,17 @@ export class MapWorker {
         const selectionUtilities = this.createSelectionUtilities();
         const changeSet = selectionUtilities.getSelectionChangeSet(this, layer.name, oldSelections, newSelections);
         this.map.completeChangeSet(changeSet);
-        this.renderMap();
+        await this.renderMap();
     }
 
     async #undo() {
         this.map.undo();
-        this.renderMap({ updatedViewPort: true });
+        await this.renderMap({ updatedViewPort: true });
     }
 
     async #redo() {
         this.map.redo();
-        this.renderMap({ updatedViewPort: true });
+        await this.renderMap({ updatedViewPort: true });
     }
 
     async #deleteSelected() {
@@ -385,7 +385,7 @@ export class MapWorker {
         }
         const changeSet = this.createChangeSet(changes);
         this.map.completeChangeSet(changeSet);
-        this.renderMap();
+        await this.renderMap();
     }
 
     async #setActiveTool(toolRefData) {
@@ -412,7 +412,7 @@ export class MapWorker {
             this.#activeToolModel = toolModule.createToolModel();
             if (this.activeToolModel && this.activeToolModel.onActivate) {
                 await this.activeToolModel.onActivate(this);
-                this.renderMap();
+                await this.renderMap();
             }
         }
     }
@@ -432,7 +432,7 @@ export class MapWorker {
     async #clientEvent(eventType, eventData) {
         if (eventType === "wheel" && eventData.altKey) {
             if (this.map) {
-                this.#incrementZoom(eventData);
+                await this.#incrementZoom(eventData);
             }
         }
         else {
@@ -473,7 +473,7 @@ export class MapWorker {
     
     #wheelTimeout = undefined;
     #wheelStartZoom;
-    #incrementZoom(eventData) {
+    async #incrementZoom(eventData) {
 
         // calculate zoom
         let zoom = Number(this.map.zoom);
@@ -502,7 +502,7 @@ export class MapWorker {
 
         // update map
         this.map.zoom = zoom;
-        this.renderMap({ updatedViewPort: true });
+        await this.renderMap({ updatedViewPort: true });
 
         // record change at wheel end
         clearTimeout(this.#wheelTimeout);

@@ -1,24 +1,5 @@
 ﻿
-import {
-    BaseFill,
-    BaseStroke,
-    Caption,
-    Change,
-    ChangeSet,
-    ChangeType,
-    ColorFill,
-    ColorStroke,
-    EntityReference,
-    ErrorMessage,
-    GradientFill,
-    GradientStroke,
-    ImageArrayFill,
-    ImageArrayStroke,
-    InputUtilities,
-    Shadow,
-    TileFill,
-    TileStroke
-} from "../references.js";
+import { Caption, Change, ChangeSet, ChangeType, EntityReference, ErrorMessage, InputUtilities, PathStyle, Shadow } from "../references.js";
 
 export class MapItemTemplate {
 
@@ -29,45 +10,17 @@ export class MapItemTemplate {
         this.#fills = [];
         if (data?.fills) {
             for (const fillData of data.fills) {
-                let fill = null;
-                if (fillData.color) {
-                    fill = new ColorFill(fillData);
-                }
-                if (fillData.gradientType) {
-                    fill = new GradientFill(fillData);
-                }
-                if (fillData.imageSrc) {
-                    fill = new TileFill(fillData);
-                }
-                if (fillData.imageSources) {
-                    fill = new ImageArrayFill(fillData);
-                }
-                if (fill) {
-                    this.#fills.push(fill);
-                    this.#addChangeEventListeners(fill);
-                }
+                const fill = new PathStyle(fillData);
+                this.#fills.push(fill);
+                this.#addChangeEventListeners(fill);
             }
         }
         this.#strokes = [];
         if (data?.strokes) {
             for (const strokeData of data.strokes) {
-                let stroke = null;
-                if (strokeData.color) {
-                    stroke = new ColorStroke(strokeData);
-                }
-                if (strokeData.gradientType) {
-                    stroke = new GradientStroke(strokeData);
-                }
-                if (strokeData.imageSrc) {
-                    stroke = new TileStroke(strokeData);
-                }
-                if (strokeData.imageSources) {
-                    stroke = new ImageArrayStroke(strokeData);
-                }
-                if (stroke) {
-                    this.#strokes.push(stroke);
-                    this.#addChangeEventListeners(stroke);
-                }
+                const stroke = new PathStyle(strokeData);
+                this.#strokes.push(stroke);
+                this.#addChangeEventListeners(stroke);
             }
         }
         if (data?.shadow) {
@@ -100,7 +53,7 @@ export class MapItemTemplate {
         this.#onChange(changeSet);
     }
 
-    /** @type {BaseFill[]}  */
+    /** @type {PathStyle[]}  */
     #fills;
     get fills() {
         return this.#fills;
@@ -120,7 +73,7 @@ export class MapItemTemplate {
         this.#onChange(changeSet);
     }
 
-    /** @type {BaseStroke[]}  */
+    /** @type {PathStyle[]}  */
     #strokes;
     get strokes() {
         return this.#strokes;
@@ -376,18 +329,7 @@ export class MapItemTemplate {
                 let fills = [];
                 if (propertyValue) {
                     for (const fill of propertyValue) {
-                        if (fill.color) {
-                            this.addFill(new ColorFill(value));
-                        }
-                        if (fill.gradientType) {
-                            this.addFill(new GradientFill(value));
-                        }
-                        if (fill.imageSrc) {
-                            this.addFill(new TileFill(value));
-                        }
-                        if (fill.imageSources) {
-                            this.addFill(new ImageArrayFill(value));
-                        }
+                        this.addFill(new PathStyle(fill));
                     }
                 }
                 this.fills = fills;
@@ -396,18 +338,7 @@ export class MapItemTemplate {
                 let strokes = [];
                 if (propertyValue) {
                     for (const stroke of propertyValue) {
-                        if (stroke.color) {
-                            this.addStroke(new ColorStroke(value));
-                        }
-                        if (stroke.gradientType) {
-                            this.addStroke(new GradientStroke(value));
-                        }
-                        if (stroke.imageSrc) {
-                            this.addStroke(new TileStroke(value));
-                        }
-                        if (stroke.imageSources) {
-                            this.addStroke(new ImageArrayStroke(value));
-                        }
+                        this.addStroke(new PathStyle(stroke));
                     }
                 }
                 this.strokes = strokes;
@@ -429,63 +360,19 @@ export class MapItemTemplate {
 
     #applyPropertyInsert(propertyName, index, value) {
         if (propertyName == "fills") {
-            if (value?.color) {
-                this.insertFill(new ColorFill(value), index);
-            }
-            if (value?.gradientType) {
-                this.insertFill(new GradientFill(value), index);
-            }
-            if (value?.imageSrc) {
-                this.insertFill(new TileFill(value), index);
-            }
-            if (value?.imageSources) {
-                this.insertFill(new ImageArrayFill(value), index);
-            }
+            this.insertFill(new PathStyle(value), index);
         }
         if (propertyName == "strokes") {
-            if (value?.color) {
-                this.insertStroke(new ColorStroke(value), index);
-            }
-            if (value?.gradientType) {
-                this.insertStroke(new GradientStroke(value), index);
-            }
-            if (value?.imageSrc) {
-                this.insertStroke(new TileStroke(value), index);
-            }
-            if (value?.imageSources) {
-                this.insertStroke(new ImageArrayStroke(value), index);
-            }
+            this.insertStroke(new PathStyle(value), index);
         }
     }
 
     #applyPropertyDelete(propertyName, value) {
         if (propertyName == "fills") {
-            if (value?.color) {
-                this.removeFill(new ColorFill(value));
-            }
-            if (value?.gradientType) {
-                this.removeFill(new GradientFill(value));
-            }
-            if (value?.imageSrc) {
-                this.removeFill(new TileFill(value));
-            }
-            if (value?.imageSources) {
-                this.removeFill(new ImageArrayFill(value));
-            }
+            this.removeFill(new PathStyle(value));
         }
         if (propertyName == "strokes") {
-            if (value?.color) {
-                this.removeStroke(new ColorStroke(value));
-            }
-            if (value?.gradientType) {
-                this.removeStroke(new GradientStroke(value));
-            }
-            if (value?.imageSrc) {
-                this.removeStroke(new TileStroke(value));
-            }
-            if (value?.imageSources) {
-                this.removeStroke(new ImageArrayStroke(value));
-            }
+            this.removeStroke(new PathStyle(value));
         }
     }
 

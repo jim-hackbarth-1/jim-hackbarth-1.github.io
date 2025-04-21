@@ -164,19 +164,19 @@ export class Layer {
         this.mapItemGroups = [];
     }
 
-    render(context, map, options, maxStrokesLength, maxFillsLength) {
+    async render(context, map, options, maxStrokesLength, maxFillsLength) {
         if (this.isHidden != true) {
             const zGroups = this.#getZOrderGroups();
             for (const zGroup of zGroups) {
                 const mapItems = this.#getMapItemsByZGroup(zGroup);
                 for (let i = maxStrokesLength - 1; i > -1; i--) {
                     for (const mapItem of mapItems) {
-                        mapItem.renderStroke(context, map, options, i);
+                        await mapItem.renderStroke(context, map, options, i);
                     }
                 }
                 for (let i = maxFillsLength - 1; i > -1; i--) {
                     for (const mapItem of mapItems) {
-                        mapItem.renderFill(context, map, options, i);
+                        await mapItem.renderFill(context, map, options, i);
                     }
                 }
             }

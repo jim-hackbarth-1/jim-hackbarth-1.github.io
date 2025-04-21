@@ -43,13 +43,13 @@ class SelectRectangleTool {
                 this.#onPointerDown(eventData);
                 break;
             case "pointermove":
-                this.#onPointerMove(eventData);
+                await this.#onPointerMove(eventData);
                 break;
             case "pointerup":
-                this.#onPointerUp(eventData);
+                await this.#onPointerUp(eventData);
                 break;
             case "keydown":
-                this.#onKeyDown(eventData);
+                await this.#onKeyDown(eventData);
                 break;
             case "keyup":
                 this.#onKeyUp(eventData);
@@ -106,38 +106,38 @@ class SelectRectangleTool {
         }
     }
 
-    #onPointerMove(eventData) {
+    async #onPointerMove(eventData) {
         if (eventData) {
             const currentPoint = { x: eventData.offsetX, y: eventData.offsetY };
             if (this.#selectionUtilities.activityState === "Default") {
                 this.#setCursor(eventData);
             }
             if (this.#selectionUtilities.activityState === "Select") {
-                this.#selectMove(eventData);
+                await this.#selectMove(eventData);
             }
             if (this.#selectionUtilities.activityState === "Move") {
                 this.#selectionUtilities.move(this.#mapWorker, this.#pointDown, currentPoint, this.#isLockModeOn);
-                this.#mapWorker.renderMap();
+                await this.#mapWorker.renderMap();
             }
             if (this.#selectionUtilities.activityState.startsWith("Resize")) {
                 this.#selectionUtilities.resize(this.#mapWorker, this.#pointDown, currentPoint, this.#isLockModeOn);
-                this.#mapWorker.renderMap();
+                await this.#mapWorker.renderMap();
                 this.#selectionUtilities.drawArcsRadii(this.#mapWorker);
             }
             if (this.#selectionUtilities.activityState === "Rotate") {
                 const point = this.#transformCanvasPoint(eventData.offsetX, eventData.offsetY);
                 this.#selectionUtilities.rotateMove(this.#mapWorker, point, this.#isLockModeOn);
-                this.#mapWorker.renderMap();
+                await this.#mapWorker.renderMap();
                 this.#selectionUtilities.drawRotationIndicator(this.#mapWorker, point);
                 this.#selectionUtilities.drawArcsRadii(this.#mapWorker);
             }          
         }
     }
 
-    #onPointerUp(eventData) {
+    async #onPointerUp(eventData) {
         if (eventData) {
             if (this.#selectionUtilities.activityState === "Select") {
-                this.#selectUp(eventData);
+                await this.#selectUp(eventData);
             }
             if (this.#selectionUtilities.activityState === "Move") {
                 this.#selectionUtilities.completeChange(this.#mapWorker, "Move");
@@ -145,31 +145,31 @@ class SelectRectangleTool {
             if (this.#selectionUtilities.activityState.startsWith("Resize")) {
                 this.#selectionUtilities.removeExteriorClipPaths(this.#mapWorker);
                 this.#selectionUtilities.completeChange(this.#mapWorker, "Resize");
-                this.#mapWorker.renderMap();
+                await this.#mapWorker.renderMap();
             }
             if (this.#selectionUtilities.activityState === "Rotate") {
                 this.#selectionUtilities.completeChange(this.#mapWorker, "Rotate"); 
-                this.#mapWorker.renderMap();
+                await this.#mapWorker.renderMap();
             }  
         }
         this.#selectionUtilities.activityState = "Default";
     }
 
-    #onKeyDown(eventData) {
+    async #onKeyDown(eventData) {
         if (eventData.key == "Shift" || eventData.key == "Control" || eventData.key == "Alt") {
             this.#isToggleSelectionModeOn = true;
         }
         if (eventData.key == "ArrowLeft") {
-            this.#moveIncrement(eventData, -1, 0);
+            await this.#moveIncrement(eventData, -1, 0);
         }
         if (eventData.key == "ArrowRight") {
-            this.#moveIncrement(eventData, 1, 0);
+            await this.#moveIncrement(eventData, 1, 0);
         }
         if (eventData.key == "ArrowUp") {
-            this.#moveIncrement(eventData, 0, -1);
+            await this.#moveIncrement(eventData, 0, -1);
         }
         if (eventData.key == "ArrowDown") {
-            this.#moveIncrement(eventData, 0, 1);
+            await this.#moveIncrement(eventData, 0, 1);
         }
         if (eventData.altKey && eventData.key?.toLowerCase() == "o" && !eventData.repeat) {
             this.#updateToolOptionValue("SnapToOverlay", !this.#isSnapToOverlayModeOn, true);
@@ -221,9 +221,9 @@ class SelectRectangleTool {
         this.#pointCurrent = { x: eventData.offsetX, y: eventData.offsetY };
     }
 
-    #selectMove(eventData) {
+    async #selectMove(eventData) {
         this.#pointCurrent = { x: eventData.offsetX, y: eventData.offsetY };
-        this.#mapWorker.renderMap();
+        await this.#mapWorker.renderMap();
         this.#mapWorker.renderingContext.restore();
         this.#mapWorker.renderingContext.resetTransform();
         const startX = this.#pointDown.x;
@@ -240,7 +240,7 @@ class SelectRectangleTool {
         this.#mapWorker.renderingContext.stroke(rect);
     }
 
-    #selectUp(eventData) {
+    async #selectUp(eventData) {
         this.#pointCurrent = { x: eventData.offsetX, y: eventData.offsetY };
         const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
         const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
@@ -261,7 +261,7 @@ class SelectRectangleTool {
         const changeSet = this.#selectionUtilities.getSelectionChangeSet(this.#mapWorker, layer.name, oldSelections, newSelections);
         this.#mapWorker.map.completeChangeSet(changeSet);
         this.#selectionUtilities.resetSelectionBounds(this.#mapWorker);
-        this.#mapWorker.renderMap();
+        await this.#mapWorker.renderMap();
     }
 
     #selectByPoints(scale, translation) {
@@ -298,7 +298,7 @@ class SelectRectangleTool {
         layer.selectByPath(this.#mapWorker.geometryUtilities, bounds, selectionPath, this.#isToggleSelectionModeOn, true);
     }
 
-    #moveIncrement(eventData, dx, dy) {
+    async #moveIncrement(eventData, dx, dy) {
         this.#isArrowPressed = true;
         if (eventData.repeat) {
             dx = dx * 10;
@@ -312,7 +312,7 @@ class SelectRectangleTool {
         maxIteration = maxIteration * this.#mapWorker.map.zoom;
         if (this.#moveIncrementIteration < maxIteration && this.#isArrowPressed) {
             this.#selectionUtilities.moveIncrement(this.#mapWorker, dx, dy, this.#isSingleSelectionModeOn);
-            this.#mapWorker.renderMap();
+            await this.#mapWorker.renderMap();
         }
     }
 }

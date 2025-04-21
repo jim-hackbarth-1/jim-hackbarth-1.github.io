@@ -1,0 +1,21 @@
+﻿
+<div class="color-offset">
+    <div>
+        <label class="inline-label">Offset (%):</label>
+        <input id="%{#model.getIdPrefix()}%-Offset"
+               type="number"
+               min="0"
+               max="100"
+               onchange="#model.updateOptions()"
+               data-kit-add-attributes="value=%{#model.getOffset()}%" />
+    </div>
+    <div class="color-label-container ">
+        <div class="color-label">Color:</div>
+        <div>
+            <input id="%{#model.getIdPrefix()}%-Color"
+                   type="color"
+                   onchange="#model.updateOptions()"
+                   data-kit-add-attributes="value=%{#model.getColor()}%" />
+        </div>
+    </div>
+</div>

@@ -15,7 +15,57 @@
 
             .fill-item label {
                 display: block;
-                margin:0px 5px 10px 5px;
+                margin: 0px 5px 10px 5px;
+            }
+
+            .point {
+                display: flex;
+            }
+
+            .file-path-container {
+                display: flex;
+            }
+
+            .file-path-container .file-input {
+                margin-left: auto;
+                margin-right: 5px;
+                width: 100%;
+            }
+
+            .img-preview {
+                border: 1px solid var(--theme-color-tertiary-darkest-fixed);
+                border-radius: 3px;
+            }
+
+            .point div {
+                margin-right: 20px;
+            }
+
+            .color-offset {
+                display: flex;
+            }
+
+            .color-offset div {
+                margin-top: 0;
+                margin-right: 40px;
+            }
+
+            input[type="color"] {
+                height: 35px;
+                padding: 4px;
+            }
+
+            .color-label-container {
+                padding-top: 0;
+                display: flex;
+            }
+
+            .color-label-container div {
+                margin: 0 10px 0 0;
+            }
+
+            .color-label {
+                padding-top: 5px;
             }
         }
     </style>
@@ -143,8 +193,8 @@
                     </div>
                     <div class="surface-tertiary background">
                         <kit-if id="currentFillForm" data-kit-condition="#model.hasCurrentFill()">
-                            <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/fill-view/fill-view.html"
-                                           data-kit-model-input="{ fill: #model.getCurrentFill(), mapItemTemplateRef: #model.getMapItemTemplateRef() }">
+                            <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/path-style-view/path-style-view.html"
+                                           data-kit-model-input="{ pathStyle: #model.getCurrentFill(), mapItemTemplateRef: #model.getMapItemTemplateRef() }">
                             </kit-component>
                         </kit-if>
                     </div>
@@ -213,8 +263,8 @@
                     </div>
                     <div class="surface-tertiary background">
                         <kit-if id="currentStrokeForm" data-kit-condition="#model.hasCurrentStroke()">
-                            <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/stroke-view/stroke-view.html"
-                                           data-kit-model-input="{ stroke: #model.getCurrentStroke(), mapItemTemplateRef: #model.getMapItemTemplateRef() }">
+                            <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/path-style-view/path-style-view.html"
+                                           data-kit-model-input="{ pathStyle: #model.getCurrentStroke(), mapItemTemplateRef: #model.getMapItemTemplateRef() }">
                             </kit-component>
                         </kit-if>
                     </div>

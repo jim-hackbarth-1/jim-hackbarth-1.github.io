@@ -8,6 +8,8 @@ import {
     MapItemTemplate,
     MapWorkerClient,
     MapWorkerInputMessageType,
+    PathStyle,
+    PathStyleType,
     Tool,
     ToolPalette,
     ToolSource,
@@ -553,8 +555,8 @@ class ToolPaletteDialogModel {
                 name: name
             },
             thumbnailSrc: thumbnailSrc,
-            fills: [{ color: "#add8e6" }],
-            strokes: [{ color: "#008000", width: 3 }]
+            fills: [{ options: PathStyle.getOptionDefaults(PathStyleType.ColorFill)}],
+            strokes: [{ options: PathStyle.getOptionDefaults(PathStyleType.ColorStroke) }]
         });
  
         const changes = [

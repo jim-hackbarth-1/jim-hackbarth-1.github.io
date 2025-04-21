@@ -83,7 +83,7 @@ class DrawPointTool {
             const mapItemGroup = this.#mapWorker.createMapItemGroup(data);
             this.#mapWorker.map.getActiveLayer().addMapItemGroup(mapItemGroup);
         }
-        this.#mapWorker.renderMap();
+        await this.#mapWorker.renderMap();
     }
 
     #transformCanvasPoint(x, y) {

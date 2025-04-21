@@ -1,18 +1,52 @@
 ﻿
-import { Map } from "../references.js";
+import { Map, PathStyleOption, PathStyleType } from "../references.js";
 
 export function getOverlandTemplate() {
     const blueRegion = {
         ref: { name: "Blue Region", versionId: 1 },
         thumbnailSrc: '<rect x="10" y="10" width="80" height="80" stroke="#008000" stroke-width="2" fill="#add8e6" rx="10" />',
-        fills: [{ color: "#add8e6" }],
-        strokes: [{ color: "#008000", width: 3 }]
+        fills: [
+            {
+                options: [
+                    { key: PathStyleOption.PathStyleType, value: PathStyleType.ColorFill },
+                    { key: PathStyleOption.Color, value: "#add8e6" },
+                    { key: PathStyleOption.Opacity, value: 100 }
+                ]
+            }
+        ],
+        strokes: [
+            {
+                options: [
+                    { key: PathStyleOption.PathStyleType, value: PathStyleType.ColorStroke},
+                    { key: PathStyleOption.Color, value: "#008000" },
+                    { key: PathStyleOption.Width, value: 3 },
+                    { key: PathStyleOption.Opacity, value: 100 }
+                ]
+            }
+        ]
     };
     const greenRegion = {
         ref: { name: "Green Region", versionId: 1 },
         thumbnailSrc: '<rect x="10" y="10" width="80" height="80" stroke="#2f4f4f" stroke-width="2" fill="#8fbc8f" rx="10" />',
-        fills: [{ color: "#8fbc8f" }],
-        strokes: [{ color: "#2f4f4f", width: 3 }]
+        fills: [
+            {
+                options: [
+                    { key: PathStyleOption.PathStyleType, value: PathStyleType.ColorFill },
+                    { key: PathStyleOption.Color, value: "#8fbc8f" },
+                    { key: PathStyleOption.Opacity, value: 100 }
+                ]
+            }
+        ],
+        strokes: [
+            {
+                options: [
+                    { key: PathStyleOption.PathStyleType, value: PathStyleType.ColorStroke },
+                    { key: PathStyleOption.Color, value: "#2f4f4f" },
+                    { key: PathStyleOption.Width, value: 3 },
+                    { key: PathStyleOption.Opacity, value: 100 }
+                ]
+            }
+        ]
     };
     const mapData = {
         ref: {

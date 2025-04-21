@@ -149,8 +149,8 @@
                 .move-container button {
                     margin-left: -10px;
                     padding: 0;
-                    height:50px;
-                    width:30px;
+                    height: 50px;
+                    width: 30px;
                 }
 
                 .move-container button .icon-container {
@@ -169,6 +169,20 @@
 
                 .action-text:not([disabled]):hover .grip,
                 .action-control:not([disabled]):hover .grip {
+                    stroke: var(--theme-color-tertiary-lightest);
+                }
+
+                .tool-item[data-selected="true"] .grip,
+                .map-item-template-item[data-selected="true"] .grip,
+                .fill-item[data-selected="true"] .grip,
+                .stroke-item[data-selected="true"] .grip {
+                    stroke: var(--theme-color-tertiary-lightest);
+                }
+
+                .tool-item[data-selected="true"] .icon,
+                .map-item-template-item[data-selected="true"] .icon,
+                .fill-item[data-selected="true"] .icon,
+                .stroke-item[data-selected="true"] .icon {
                     stroke: var(--theme-color-tertiary-lightest);
                 }
 
@@ -376,6 +390,14 @@
                 .validation-message {
                     font-weight: normal;
                     color: var(--theme-color-complementary-darker);
+                }
+
+                select {
+                    border: 1px solid var(--theme-color-tertiary-darkest);
+                    border-radius: 3px;
+                    height: 35px;
+                    color: var(--theme-color-tertiary-darkest);
+                    background-color: var(--theme-color-tertiary);
                 }
             }
         </style>

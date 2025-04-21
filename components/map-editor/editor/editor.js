@@ -638,6 +638,7 @@ export class EditorModel {
                     await this.selectAllInView();
                 }
             }
+            event.preventDefault();
         }
         if (event.key?.toLowerCase() == "z" && event.ctrlKey && map && map.canUndo()) {
             await this.undo();

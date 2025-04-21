@@ -1,23 +1,17 @@
 ﻿
 import { KitMessenger, KitRenderer } from "../../../../ui-kit.js";
 import {
-    BaseStroke,
     ChangeSet,
     ChangeType,
-    ColorFill,
-    ColorStroke,
     EntityReference,
-    GradientFill,
-    GradientStroke,
-    ImageArrayFill,
-    ImageArrayStroke,
     InputUtilities,
     MapItem,
     MapItemTemplate,
     MapWorkerClient,
     MapWorkerInputMessageType,
-    TileFill,
-    TileStroke,
+    PathStyle,
+    PathStyleOption,
+    PathStyleType,
     ToolPalette
 } from "../../../../domain/references.js";
 import { EditorModel } from "../../editor/editor.js";
@@ -64,32 +58,36 @@ class MapItemTemplateViewModel {
             let reRender = false;
             if (message?.data?.changeSet?.changes) {
                 const mapItemTemplateChange = message.data.changeSet.changes.some(c => c.changeObjectType == MapItemTemplate.name);
-                const colorFillColorChange = message.data.changeSet.changes.some(c =>
-                    c.changeType == ChangeType.Edit && c.changeObjectType == ColorFill.name && c.propertyName == "color");
-                if (colorFillColorChange) {
-                    for (const fill of this.mapItemTemplate.fills) {
-                        const fillElement = componentElement.querySelector(`[data-fill-thumbnail="${fill.id}"]`);
-                        const rect = fillElement.querySelector("rect");
-                        rect.setAttribute("fill", fill.color);
-                    }
-                }
-                const colorStrokeColorChange = message.data.changeSet.changes.some(c =>
-                    c.changeType == ChangeType.Edit && c.changeObjectType == ColorStroke.name && c.propertyName == "color");
-                const strokeWidthChange = message.data.changeSet.changes.some(c =>
-                    c.changeType == ChangeType.Edit && c.changeObjectType == BaseStroke.name && c.propertyName == "width");
-                if (colorStrokeColorChange) {
-                    for (const stroke of this.mapItemTemplate.strokes) {
-                        const strokeElement = componentElement.querySelector(`[data-stroke-thumbnail="${stroke.id}"]`);
-                        const rect = strokeElement.querySelector("rect");
-                        rect.setAttribute("fill", stroke.color);
-                    }
-                }
-                if (colorStrokeColorChange || strokeWidthChange) {
-                    for (const stroke of this.mapItemTemplate.strokes) {
-                        const strokeLabelElement = componentElement.querySelector(`[data-stroke-label="${stroke.id}"]`);
-                        strokeLabelElement.innerHTML = this.#getStrokeLabel(stroke);
-                    }
-                }
+
+                // TODO: set thumbnail and label on fill/stroke list item on change
+
+                //const colorFillColorChange = message.data.changeSet.changes.some(c =>
+                //    c.changeType == ChangeType.Edit && c.changeObjectType == ColorFill.name && c.propertyName == "color");
+                //if (colorFillColorChange) {
+                //    for (const fill of this.mapItemTemplate.fills) {
+                //        const fillElement = componentElement.querySelector(`[data-fill-thumbnail="${fill.id}"]`);
+                //        const rect = fillElement.querySelector("rect");
+                //        rect.setAttribute("fill", fill.color);
+                //    }
+                //}
+                //const colorStrokeColorChange = message.data.changeSet.changes.some(c =>
+                //    c.changeType == ChangeType.Edit && c.changeObjectType == ColorStroke.name && c.propertyName == "color");
+                //const strokeWidthChange = message.data.changeSet.changes.some(c =>
+                //    c.changeType == ChangeType.Edit && c.changeObjectType == BaseStroke.name && c.propertyName == "width");
+                //if (colorStrokeColorChange) {
+                //    for (const stroke of this.mapItemTemplate.strokes) {
+                //        const strokeElement = componentElement.querySelector(`[data-stroke-thumbnail="${stroke.id}"]`);
+                //        const rect = strokeElement.querySelector("rect");
+                //        rect.setAttribute("fill", stroke.color);
+                //    }
+                //}
+                //if (colorStrokeColorChange || strokeWidthChange) {
+                //    for (const stroke of this.mapItemTemplate.strokes) {
+                //        const strokeLabelElement = componentElement.querySelector(`[data-stroke-label="${stroke.id}"]`);
+                //        strokeLabelElement.innerHTML = this.#getStrokeLabel(stroke);
+                //    }
+                //}
+
                 reRender = mapItemTemplateChange;
             }
             if (reRender) {
@@ -121,6 +119,8 @@ class MapItemTemplateViewModel {
             detailsState.push(stateItem);
         }
         this.#detailsState = detailsState;
+        const section = event.target.querySelector("section");
+        section.scrollIntoView();
     }
 
     // methods
@@ -148,8 +148,8 @@ class MapItemTemplateViewModel {
     }
 
     async addFill() {
-        const fill = new ColorFill({
-            color: "#add8e6"
+        const pathStyle = new PathStyle({
+            options: PathStyle.getOptionDefaults(PathStyleType.ColorFill)
         });
         const changes = [
             {
@@ -157,18 +157,17 @@ class MapItemTemplateViewModel {
                 changeObjectType: MapItemTemplate.name,
                 propertyName: "fills",
                 itemIndex: this.mapItemTemplate.fills.length,
-                itemValue: fill.getData(),
+                itemValue: pathStyle.getData(),
                 mapItemTemplateRef: this.mapItemTemplate.ref.getData()
             }
         ];
-        await this.#setCurrentFill(fill);
+        await this.#setCurrentFill(pathStyle);
         await this.#updateMap(changes);
     }
 
     async addStroke() {
-        const stroke = new ColorStroke({
-            width: 3,
-            color: "#808080"
+        const pathStyle = new PathStyle({
+            options: PathStyle.getOptionDefaults(PathStyleType.ColorStroke)
         });
         const changes = [
             {
@@ -176,11 +175,11 @@ class MapItemTemplateViewModel {
                 changeObjectType: MapItemTemplate.name,
                 propertyName: "strokes",
                 itemIndex: this.mapItemTemplate.strokes.length,
-                itemValue: stroke.getData(),
+                itemValue: pathStyle.getData(),
                 mapItemTemplateRef: this.mapItemTemplate.ref.getData()
             }
         ];
-        await this.#setCurrentStroke(stroke);
+        await this.#setCurrentStroke(pathStyle);
         await this.#updateMap(changes);
     }
 
@@ -226,29 +225,33 @@ class MapItemTemplateViewModel {
         const fills = [];
         if (this.mapItemTemplate?.fills) {
             for (const fill of this.mapItemTemplate.fills) {
-                let fillType = "BaseFill";
-                let label = "Base fill";
-                if (fill.color) {
-                    fillType = ColorFill.name;
-                    label = "Color fill";
-                }
-                if (fill.gradientType) {
-                    fillType = GradientFill.name;
-                    label = "Gradient fill";
-                }
-                if (fill.imageSrc) {
-                    fillType = TileFill.name;
-                    label = "Tile fill";
-                }
-                if (fill.imageSources) {
-                    fillType = ImageArrayFill.name;
-                    label = "Image array fill";
+                const fillType = fill.getStyleOptionValue(PathStyleOption.PathStyleType);
+                let label = "Fill";
+                switch (fillType) {
+                    case PathStyleType.ColorFill:
+                        label = "Color fill";
+                        break;
+                    case PathStyleType.LinearGradientFill:
+                        label = "Linear gradient fill";
+                        break;
+                    case PathStyleType.RadialGradientFill:
+                        label = "Radial gradient fill";
+                        break;
+                    case PathStyleType.ConicalGradientFill:
+                        label = "Conical gradient fill";
+                        break;
+                    case PathStyleType.TileFill:
+                        label = "Tile fill";
+                        break;
+                    case PathStyleType.ImageArrayFill:
+                        label = "Image array fill";
+                        break;
                 }
                 fills.push({
                     fillType: fillType,
                     label: label,
                     id: fill.id,
-                    color: fill.color
+                    color: "#c0c0c0" //TODO: fill.color
                 });
             }
         }
@@ -259,24 +262,33 @@ class MapItemTemplateViewModel {
         const strokes = [];
         if (this.mapItemTemplate?.strokes) {
             for (const stroke of this.mapItemTemplate.strokes) {
-                let strokeType = "BaseStroke";
-                if (stroke.color) {
-                    strokeType = ColorStroke.name;
-                }
-                if (stroke.gradientType) {
-                    strokeType = GradientStroke.name;
-                }
-                if (stroke.imageSrc) {
-                    strokeType = TileStroke.name;
-                }
-                if (stroke.imageSources) {
-                    strokeType = ImageArrayStroke.name;
+                const strokeType = stroke.getStyleOptionValue(PathStyleOption.PathStyleType);
+                let label = "Stroke";
+                switch (strokeType) {
+                    case PathStyleType.ColorStroke:
+                        label = "Color stroke";
+                        break;
+                    case PathStyleType.LinearGradientStroke:
+                        label = "Linear gradient stroke";
+                        break;
+                    case PathStyleType.RadialGradientStroke:
+                        label = "Radial gradient stroke";
+                        break;
+                    case PathStyleType.ConicalGradientStroke:
+                        label = "Conical gradient stroke";
+                        break;
+                    case PathStyleType.TileStroke:
+                        label = "Tile stroke";
+                        break;
+                    case PathStyleType.ImageArrayStroke:
+                        label = "Image array stroke";
+                        break;
                 }
                 strokes.push({
                     strokeType: strokeType,
-                    label: this.#getStrokeLabel(stroke),
+                    label: label,
                     id: stroke.id,
-                    color: stroke.color
+                    color: "#696969" // TODO: stroke.color
                 });
             }
         }
@@ -763,23 +775,5 @@ class MapItemTemplateViewModel {
             }
         }
         return mapItems;
-    }
-
-    #getStrokeLabel(stroke) {
-        let label = "Base stroke";
-        if (stroke.color) {
-            label = "Color stroke";
-        }
-        if (stroke.gradientType) {
-            label = "Gradient stroke";
-        }
-        if (stroke.imageSrc) {
-            label = "Tile stroke";
-        }
-        if (stroke.imageSources) {
-            label = "Image array stroke";
-        }
-        label += `, Width: ${stroke.width}`
-        return label;
     }
 }

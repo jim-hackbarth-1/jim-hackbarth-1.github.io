@@ -33,13 +33,13 @@ class PanTool {
                 this.#onPointerDown(eventData);
                 break;
             case "pointermove":
-                this.#onPointerMove(eventData);
+                await this.#onPointerMove(eventData);
                 break;
             case "pointerup":
                 this.#onPointerUp();
                 break;
             case "keydown":
-                this.#onKeyDown(eventData);
+                await this.#onKeyDown(eventData);
                 break;
             case "keyup":
                 this.#onKeyUp(eventData);
@@ -58,9 +58,9 @@ class PanTool {
         }
     }
 
-    #onPointerMove(eventData) {
+    async #onPointerMove(eventData) {
         if (eventData && this.#isPanning) {
-            this.#pan(eventData);
+            await this.#pan(eventData);
         }
     }
 
@@ -70,18 +70,18 @@ class PanTool {
         }
     }
 
-    #onKeyDown(eventData) {
+    async #onKeyDown(eventData) {
         if (eventData.key == "ArrowLeft") {
-            this.#panIncrement(eventData, -1, 0);
+            await this.#panIncrement(eventData, -1, 0);
         }
         if (eventData.key == "ArrowRight") {
-            this.#panIncrement(eventData, 1, 0);
+            await this.#panIncrement(eventData, 1, 0);
         }
         if (eventData.key == "ArrowUp") {
-            this.#panIncrement(eventData, 0, -1);
+            await this.#panIncrement(eventData, 0, -1);
         }
         if (eventData.key == "ArrowDown") {
-            this.#panIncrement(eventData, 0, 1);
+            await this.#panIncrement(eventData, 0, 1);
         }
     }
 
@@ -101,11 +101,11 @@ class PanTool {
         this.#isPanning = true;
     }
 
-    #pan(eventData) {
+    async #pan(eventData) {
         const dx = (eventData.offsetX - this.#xStart) / this.#mapWorker.map.zoom;
         const dy = (eventData.offsetY - this.#yStart) / this.#mapWorker.map.zoom;
         this.#mapWorker.map.pan = { x: this.#xPanStart + dx, y: this.#yPanStart + dy };
-        this.#mapWorker.renderMap({ updatedViewPort: true });
+        await this.#mapWorker.renderMap({ updatedViewPort: true });
         this.#drawCurrentPan();
     }
 
@@ -121,7 +121,7 @@ class PanTool {
         this.#isPanning = false;
     }
 
-    #panIncrement(eventData, dx, dy) {
+    async #panIncrement(eventData, dx, dy) {
         this.#isArrowPressed = true;
         if (eventData.repeat) {
             dx = dx * 10;
@@ -134,7 +134,7 @@ class PanTool {
         const maxIteration = Math.min(this.#mapWorker.map.currentViewPort.width, this.#mapWorker.map.currentViewPort.height);
         if (this.#panIncrementIteration < maxIteration && this.#isArrowPressed) {
             this.#mapWorker.map.pan = { x: this.#mapWorker.map.pan.x + dx, y: this.#mapWorker.map.pan.y + dy };
-            this.#mapWorker.renderMap({ updatedViewPort: true });
+            await this.#mapWorker.renderMap({ updatedViewPort: true });
             this.#drawCurrentPan();
         }
     }

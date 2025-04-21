@@ -37,7 +37,7 @@ class EditTransitsTool {
         this.#isToggleSelectionModeOn = false;
         this.#moveTransitMode = false;
         this.#initializeToolOptions();  
-        this.#displayTransitEndpoints();
+        await this.#displayTransitEndpoints();
     }
 
     async onApplyToolOption(toolOptionInfo) {
@@ -51,10 +51,10 @@ class EditTransitsTool {
                 this.#onPointerDown(eventData);
                 break;
             case "pointermove":
-                this.#onPointerMove(eventData);
+                await this.#onPointerMove(eventData);
                 break;
             case "pointerup":
-                this.#onPointerUp(eventData);
+                await this.#onPointerUp(eventData);
                 break;
             case "keydown":
                 this.#onKeyDown(eventData);
@@ -70,7 +70,7 @@ class EditTransitsTool {
     }
 
     handleAfterRenderEvent = async (change) => {
-        this.#displayTransitEndpoints(true);
+        await this.#displayTransitEndpoints(true);
     }
 
     async onCursorChange(cursor) {
@@ -127,14 +127,14 @@ class EditTransitsTool {
         }
     }
 
-    #onPointerMove(eventData) {
+    async #onPointerMove(eventData) {
         let displayTransitEndpoints = false;
         let drawArcsRadii = false;
         let drawRotationIndicator = false;
         let rotatePoint = null;
         if (eventData) {
             if (this.#moveTransitMode) {
-                this.#moveTransitEndpoint(eventData);
+                await this.#moveTransitEndpoint(eventData);
             }
             else {
                 const currentPoint = { x: eventData.offsetX, y: eventData.offsetY };
@@ -163,7 +163,7 @@ class EditTransitsTool {
             }
         }
         if (displayTransitEndpoints) {
-            this.#displayTransitEndpoints();
+            await this.#displayTransitEndpoints();
         }
         if (drawRotationIndicator && rotatePoint) {
             this.#selectionUtilities.drawRotationIndicator(this.#mapWorker, rotatePoint);
@@ -173,7 +173,7 @@ class EditTransitsTool {
         }
     }
 
-    #onPointerUp(eventData) {
+    async #onPointerUp(eventData) {
         if (eventData) {
             if (this.#moveTransitMode) {
                 this.#completeChange();
@@ -196,10 +196,10 @@ class EditTransitsTool {
         }
         this.#moveTransitMode = false;
         this.#selectionUtilities.activityState = "Default";
-        this.#displayTransitEndpoints();
+        await this.#displayTransitEndpoints();
     }
 
-    #onKeyDown(eventData) {
+    async #onKeyDown(eventData) {
         if (eventData.key == "Shift" || eventData.key == "Control" || eventData.key == "Alt") {
             this.#isToggleSelectionModeOn = true;
         }
@@ -213,7 +213,7 @@ class EditTransitsTool {
             this.#moveIncrement(eventData, 0, -1);
         }
         if (eventData.key == "ArrowDown") {
-            this.#moveIncrement(eventData, 0, 1);
+            await this.#moveIncrement(eventData, 0, 1);
         }
         if (eventData.altKey && eventData.key?.toLowerCase() == "o" && !eventData.repeat) {
             this.#updateToolOptionValue("SnapToOverlay", !this.#isSnapToOverlayModeOn, true);
@@ -370,7 +370,7 @@ class EditTransitsTool {
         this.#mapWorker.renderingContext.stroke(this.#pathLight);
     }
 
-    #moveIncrement(eventData, dx, dy) {
+    async #moveIncrement(eventData, dx, dy) {
         this.#isArrowPressed = true;
         if (eventData.repeat) {
             dx = dx * 10;
@@ -384,13 +384,13 @@ class EditTransitsTool {
         maxIteration = maxIteration * this.#mapWorker.map.zoom;
         if (this.#moveIncrementIteration < maxIteration && this.#isArrowPressed) {
             this.#selectionUtilities.moveIncrement(this.#mapWorker, dx, dy, this.#isSingleSelectionModeOn);
-            this.#displayTransitEndpoints();
+            await this.#displayTransitEndpoints();
         }
     }
 
-    #displayTransitEndpoints(doNotPreRenderMap) {
+    async #displayTransitEndpoints(doNotPreRenderMap) {
         if (!doNotPreRenderMap) {
-            this.#mapWorker.renderMap();
+            await this.#mapWorker.renderMap();
         }
         this.#bounds = this.#getBounds();
         for (const boundsItem of this.#bounds) {
@@ -513,7 +513,7 @@ class EditTransitsTool {
         this.#mapWorker.map.startChangeSet();
     }
 
-    #moveTransitEndpoint(eventData) {
+    async #moveTransitEndpoint(eventData) {
         const point = this.#getMovePoint(eventData);
         const dx = (point.x - this.#pointDown.x) / this.#mapWorker.map.zoom;
         const dy = (point.y - this.#pointDown.y) / this.#mapWorker.map.zoom;
@@ -527,7 +527,7 @@ class EditTransitsTool {
             clipPathId = path.id;
         }
         this.#updatePath(path, dx, dy, clipPathId);
-        this.#displayTransitEndpoints();
+        await this.#displayTransitEndpoints();
     }
 
     #updatePath(path, dx, dy, clipPathId) {

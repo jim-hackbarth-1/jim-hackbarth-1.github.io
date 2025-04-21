@@ -75,7 +75,7 @@ class DrawRectangleTool {
 
     async #onPointerMove(eventData) {
         if (eventData && this.#isDrawing) {
-            this.#draw(eventData);
+            await this.#draw(eventData);
         }
     }
 
@@ -117,7 +117,7 @@ class DrawRectangleTool {
         this.#isDrawing = true;
     }
 
-    #draw(eventData) {
+    async #draw(eventData) {
         let point = { x: eventData.offsetX, y: eventData.offsetY };
         if (this.#isSnapToOverlayModeOn) {
             let mapPoint = this.#transformCanvasPoint(point.x, point.y);
@@ -125,7 +125,7 @@ class DrawRectangleTool {
             point = this.#transformMapPoint(mapPoint.x, mapPoint.y);
         }
         this.#setCurrentPoint(point);
-        this.#drawRectangle();
+        await this.#drawRectangle();
     }
 
     #setCurrentPoint(point) {
@@ -149,8 +149,8 @@ class DrawRectangleTool {
         await this.#addMapItemGroup();
     }
 
-    #drawRectangle() {
-        this.#mapWorker.renderMap();
+    async #drawRectangle() {
+        await this.#mapWorker.renderMap();
         this.#mapWorker.renderingContext.restore();
         this.#mapWorker.renderingContext.resetTransform();
         const rect = new Path2D(`M ${this.#xStart},${this.#yStart} L ${this.#xStart},${this.#yCurrent} ${this.#xCurrent},${this.#yCurrent} ${this.#xCurrent},${this.#yStart} z`);
@@ -174,7 +174,7 @@ class DrawRectangleTool {
             ];
             const bounds = this.#mapWorker.geometryUtilities.getPathBounds(start, transits);
             if (bounds.height < 5 || bounds.width < 5) {
-                this.#mapWorker.renderMap();
+                await this.#mapWorker.renderMap();
                 return;
             }
             const mapItemData = {
@@ -192,7 +192,7 @@ class DrawRectangleTool {
             const mapItemGroup = this.#mapWorker.createMapItemGroup(data);
             this.#mapWorker.map.getActiveLayer().addMapItemGroup(mapItemGroup);
         }
-        this.#mapWorker.renderMap();
+        await this.#mapWorker.renderMap();
     }
 
     #transformCanvasPoint(x, y) {

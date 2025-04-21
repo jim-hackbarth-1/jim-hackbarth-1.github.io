@@ -1,18 +1,5 @@
 ﻿
-import {
-    Change,
-    ChangeSet,
-    ColorFill,
-    ColorStroke,
-    GradientFill,
-    GradientStroke,
-    ImageArrayFill,
-    ImageArrayStroke,
-    InputUtilities,
-    Shadow,
-    TileFill,
-    TileStroke
-} from "../references.js";
+import { Change, ChangeSet, InputUtilities, Shadow } from "../references.js";
 
 export class Caption {
 
@@ -31,32 +18,10 @@ export class Caption {
         this.#align = InputUtilities.cleanseString(data?.align);
         this.#baseline = InputUtilities.cleanseString(data?.baseline);
         if (data?.backgroundFill) {
-            if (data.backgroundFill.color) {
-                this.#backgroundFill = new ColorFill(data.backgroundFill);
-            }
-            if (data.backgroundFill.gradientType) {
-                this.#backgroundFill = new GradientFill(data.backgroundFill);
-            }
-            if (data.backgroundFill.imageSrc) {
-                this.#backgroundFill = new TileFill(data.backgroundFill);
-            }
-            if (data.backgroundFill.imageSources) {
-                this.#backgroundFill = new ImageArrayFill(data.backgroundFill);
-            }
+            this.#backgroundFill = new PathStyle(data.backgroundFill);
         }
         if (data?.borderStroke) {
-            if (data.borderStroke.color) {
-                this.#borderStroke = new ColorStroke(data.borderStroke);
-            }
-            if (data.borderStroke.gradientType) {
-                this.#borderStroke = new GradientStroke(data.borderStroke);
-            }
-            if (data.borderStroke.imageSrc) {
-                this.#borderStroke = new TileStroke(data.borderStroke);
-            }
-            if (data.borderStroke.imageSources) {
-                this.#borderStroke = new ImageArrayStroke(data.borderStroke);
-            }
+            this.#borderStroke = new PathStyle(data.borderStroke);
         }
         if (data?.shadow) {
             this.#shadow = new Shadow(data.shadow);
@@ -175,7 +140,7 @@ export class Caption {
         this.#onChange(changeSet);
     }
 
-    /** @type {ColorFill}  */
+    /** @type {PathStyle}  */
     #backgroundFill;
     get backgroundFill() {
         return this.#backgroundFill;
@@ -186,7 +151,7 @@ export class Caption {
         this.#onChange(changeSet);
     }
 
-    /** @type {ColorStroke}  */
+    /** @type {PathStyle}  */
     #borderStroke;
     get borderStroke() {
         return this.#borderStroke;
@@ -283,36 +248,10 @@ export class Caption {
                 this.baseline = InputUtilities.cleanseString(propertyValue);
                 break;
             case "backgroundFill":
-                let fill = null;
-                if (propertyValue?.color) {
-                    fill = new ColorFill(propertyValue);
-                }
-                if (propertyValue?.gradientType) {
-                    fill = new GradientFill(propertyValue);
-                }
-                if (propertyValue?.imageSrc) {
-                    fill = new TileFill(propertyValue);
-                }
-                if (propertyValue?.imageSources) {
-                    fill = new ImageArrayFill(propertyValue);
-                }
-                this.backgroundFill = fill;
+                this.backgroundFill = new PathStyle(propertyValue);
                 break;
             case "borderStroke":
-                let stroke = null;
-                if (propertyValue?.color) {
-                    stroke = new ColorStroke(propertyValue);
-                }
-                if (propertyValue?.gradientType) {
-                    stroke = new GradientStroke(propertyValue);
-                }
-                if (propertyValue?.imageSrc) {
-                    stroke = new TileStroke(propertyValue);
-                }
-                if (propertyValue?.imageSources) {
-                    stroke = new ImageArrayStroke(propertyValue);
-                }
-                this.borderStroke = stroke;
+                this.borderStroke = new PathStyle(propertyValue);
                 break;
             case "shadow":
                 this.shadow = propertyValue ? new Shadow(propertyValue) : null;

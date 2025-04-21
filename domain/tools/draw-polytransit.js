@@ -37,10 +37,10 @@ class DrawPolytransitTool {
         const eventData = clientEvent?.eventData;
         switch (clientEvent?.eventType) {
             case "pointerdown":
-                this.#onPointerDown(eventData);
+                await this.#onPointerDown(eventData);
                 break;
             case "pointermove":
-                this.#onPointerMove(eventData);
+                await this.#onPointerMove(eventData);
                 break;
             case "keydown":
                 await this.#onKeyDown(eventData);
@@ -53,7 +53,7 @@ class DrawPolytransitTool {
 
     handleMapChange = async (change) => {
         this.#initializeTransitInfo();
-        this.#drawTransitInfo();
+        await this.#drawTransitInfo();
     }
 
     // helpers
@@ -64,11 +64,11 @@ class DrawPolytransitTool {
         }
         if (name == "ArcMode") {
             this.#isArcModeOn = value;
-            this.#drawCandidate();
+            await this.#drawCandidate();
         }
         if (name == "CancelChanges") {
             this.#initializeTransitInfo();
-            this.#drawTransitInfo();
+            await this.#drawTransitInfo();
             return;
         }
         if (name == "LockMode") {
@@ -80,7 +80,7 @@ class DrawPolytransitTool {
                 this.#transits.pop();
                 this.#last = this.#points[this.#points.length - 1];
             }
-            this.#drawTransitInfo();
+            await this.#drawTransitInfo();
             return;
         }
         if (name == "SnapToOverlay") {
@@ -88,7 +88,7 @@ class DrawPolytransitTool {
         }
         if (name == "SweepFlag") {
             this.#sweepFlag = value ? 1 : 0;
-            this.#drawCandidate();
+            await this.#drawCandidate();
         }
         if (notifyMapWorker) {
             this.#mapWorker.setToolOptionValue(name, value);
@@ -153,16 +153,16 @@ class DrawPolytransitTool {
         this.#transits = [];
     }
 
-    #onPointerDown(eventData) {
+    async #onPointerDown(eventData) {
         if (eventData && eventData.button === 0 && this.#mapWorker.activeMapItemTemplate) {
-            this.#addTransit(eventData);
+            await this.#addTransit(eventData);
         }
     }
 
-    #onPointerMove(eventData) {
+    async #onPointerMove(eventData) {
         if (eventData && this.#last) {
             this.#setCandidate(eventData);
-            this.#drawCandidate();
+            await this.#drawCandidate();
         }
     }
 
@@ -200,7 +200,7 @@ class DrawPolytransitTool {
         }
     }
 
-    #addTransit(eventData) {
+    async #addTransit(eventData) {
         if (!this.#start) {
             this.#start = this.#getPoint({ x: eventData.offsetX, y: eventData.offsetY });
             this.#last = this.#start;
@@ -212,7 +212,7 @@ class DrawPolytransitTool {
         this.#transits.push(transit);
         this.#points.push(next);
         this.#last = next;
-        this.#drawTransitInfo();
+        await this.#drawTransitInfo();
     }
 
     #getPoint(pointIn, previousPoint) {
@@ -290,8 +290,8 @@ class DrawPolytransitTool {
         return transit;
     }
 
-    #drawTransitInfo() {
-        this.#mapWorker.renderMap();
+    async #drawTransitInfo() {
+        await this.#mapWorker.renderMap();
         const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
         const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
         if (this.#start && this.#transits.length > 0) {
@@ -323,8 +323,8 @@ class DrawPolytransitTool {
         this.#candidate = this.#getPoint({ x: eventData.offsetX, y: eventData.offsetY }, this.#last);
     }
 
-    #drawCandidate() {
-        this.#drawTransitInfo();
+    async #drawCandidate() {
+        await this.#drawTransitInfo();
         if (this.#candidate) {
             const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
             const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
@@ -362,7 +362,7 @@ class DrawPolytransitTool {
             }
         }
         this.#initializeTransitInfo();
-        this.#drawTransitInfo();
+        await this.#drawTransitInfo();
     }
 
     #transformCanvasPoint(x, y) {

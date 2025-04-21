@@ -1,0 +1,637 @@
+﻿
+<kit-if id="if-path-style-visible" data-kit-condition="#model.isVisible()">
+    <fieldset data-kit-add-attributes="%{#model.isDisabled()}%">
+
+        <div>
+            <label>Style type:</label>
+            <select id="selectStyleType" title="Style type" onchange="#model.updateStyleType()"></select>
+        </div>
+
+        <!-- ColorFill -->
+        <kit-if data-kit-condition="#model.getStyleType() == 'ColorFill'">
+            <div>
+                <label>Color:<span class="validation-message">%{#model.getValidationMessage('ColorFill-Color')}%</span></label>
+                <input id="ColorFill-Color"
+                       type="color"
+                       onchange="#model.updateOptions()"
+                       data-kit-add-attributes="value=%{#model.getOption('Color')}%" />
+            </div>
+            <div>
+                <label>Opacity (%):<span class="validation-message">%{#model.getValidationMessage('ColorFill-Opacity')}%</span></label>
+                <input id="ColorFill-Opacity"
+                       type="number"
+                       min="0"
+                       max="100"
+                       onchange="#model.updateOptions()"
+                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
+            </div>
+        </kit-if>
+
+        <!-- ColorStroke -->
+        <kit-if data-kit-condition="#model.getStyleType() == 'ColorStroke'">
+            <div>
+                <label>Color:<span class="validation-message">%{#model.getValidationMessage('ColorStroke-Color')}%</span></label>
+                <input id="ColorStroke-Color"
+                       type="color"
+                       onchange="#model.updateOptions()"
+                       data-kit-add-attributes="value=%{#model.getOption('Color')}%" />
+            </div>
+            <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/stroke-styles-view/stroke-styles-view.html"
+                           data-kit-model-input="{ pathStyleViewModel: #model }">
+            </kit-component>
+            <div>
+                <label>Opacity (%):<span class="validation-message">%{#model.getValidationMessage('ColorStroke-Opacity')}%</span></label>
+                <input id="ColorStroke-Opacity"
+                       type="number"
+                       min="0"
+                       max="100"
+                       onchange="#model.updateOptions()"
+                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
+            </div>
+        </kit-if>
+
+        <!-- LinearGradientFill -->
+        <kit-if data-kit-condition="#model.getStyleType() == 'LinearGradientFill'">
+            <div>
+                <label>Gradient start (%):<span class="validation-message">%{#model.getValidationMessage('LinearGradientFill-Start')}%</span></label>
+                <div class="point">
+                    <div>
+                        <label class="inline-label">x:</label>
+                        <input id="LinearGradientFill-Start-X"
+                               type="number"
+                               min="0"
+                               max="100"
+                               onchange="#model.updateOptions()"
+                               data-kit-add-attributes="value=%{#model.getOption('GradientStart')?.x}%" />
+                    </div>
+                    <div>
+                        <label class="inline-label">y:</label>
+                        <input id="LinearGradientFill-Start-Y"
+                               type="number"
+                               min="0"
+                               max="100"
+                               onchange="#model.updateOptions()"
+                               data-kit-add-attributes="value=%{#model.getOption('GradientStart')?.y}%" />
+                    </div>
+                </div>
+            </div>
+            <div>
+                <label>Gradient end (%):<span class="validation-message">%{#model.getValidationMessage('LinearGradientFill-End')}%</span></label>
+                <div class="point">
+                    <div>
+                        <label class="inline-label">x:</label>
+                        <input id="LinearGradientFill-End-X"
+                               type="number"
+                               min="0"
+                               max="100"
+                               onchange="#model.updateOptions()"
+                               data-kit-add-attributes="value=%{#model.getOption('GradientEnd')?.x}%" />
+                    </div>
+                    <div>
+                        <label class="inline-label">y:</label>
+                        <input id="LinearGradientFill-End-Y"
+                               type="number"
+                               min="0"
+                               max="100"
+                               onchange="#model.updateOptions()"
+                               data-kit-add-attributes="value=%{#model.getOption('GradientEnd')?.y}%" />
+                    </div>
+                </div>
+            </div>
+            <div>
+                <label>Color stops:</label>
+                <kit-array data-kit-array="#model.getColorStops()"
+                           data-kit-array-ref="colorStops"
+                           data-kit-item-ref="colorStop"
+                           data-kit-item-index-ref="colorStopIndex">
+                    <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/color-stop-view/color-stop-view.html"
+                                   data-kit-model-input="{ pathStyleViewModel: #model, index: #colorStopIndex + 1, colorStop: #colorStop }">
+                    </kit-component>
+                </kit-array>
+            </div>
+            <div>
+                <label>Opacity (%):<span class="validation-message">%{#model.getValidationMessage('LinearGradientFill-Opacity')}%</span></label>
+                <input id="LinearGradientFill-Opacity"
+                       type="number"
+                       min="0"
+                       max="100"
+                       onchange="#model.updateOptions()"
+                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
+            </div>
+        </kit-if>
+
+        <!-- LinearGradientStroke -->
+        <kit-if data-kit-condition="#model.getStyleType() == 'LinearGradientStroke'">
+            <div>
+                <label>Gradient start (%):<span class="validation-message">%{#model.getValidationMessage('LinearGradientStroke-Start')}%</span></label>
+                <div class="point">
+                    <div>
+                        <label class="inline-label">x:</label>
+                        <input id="LinearGradientStroke-Start-X"
+                               type="number"
+                               min="0"
+                               max="100"
+                               onchange="#model.updateOptions()"
+                               data-kit-add-attributes="value=%{#model.getOption('GradientStart').x}%" />
+                    </div>
+                    <div>
+                        <label class="inline-label">y:</label>
+                        <input id="LinearGradientStroke-Start-Y"
+                               type="number"
+                               min="0"
+                               max="100"
+                               onchange="#model.updateOptions()"
+                               data-kit-add-attributes="value=%{#model.getOption('GradientStart').y}%" />
+                    </div>
+                </div>
+            </div>
+            <div>
+                <label>Gradient end (%):<span class="validation-message">%{#model.getValidationMessage('LinearGradientStroke-End')}%</span></label>
+                <div class="point">
+                    <div>
+                        <label class="inline-label">x:</label>
+                        <input id="LinearGradientStroke-End-X"
+                               type="number"
+                               min="0"
+                               max="100"
+                               onchange="#model.updateOptions()"
+                               data-kit-add-attributes="value=%{#model.getOption('GradientEnd').x}%" />
+                    </div>
+                    <div>
+                        <label class="inline-label">y:</label>
+                        <input id="LinearGradientStroke-End-Y"
+                               type="number"
+                               min="0"
+                               max="100"
+                               onchange="#model.updateOptions()"
+                               data-kit-add-attributes="value=%{#model.getOption('GradientEnd').y}%" />
+                    </div>
+                </div>
+            </div>
+            <div>
+                <label>Color stops:</label>
+                <kit-array data-kit-array="#model.getColorStops()"
+                           data-kit-array-ref="colorStops"
+                           data-kit-item-ref="colorStop"
+                           data-kit-item-index-ref="colorStopIndex">
+                    <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/color-stop-view/color-stop-view.html"
+                                   data-kit-model-input="{ pathStyleViewModel: #model, index: #colorStopIndex + 1, colorStop: #colorStop }">
+                    </kit-component>
+                </kit-array>
+            </div>
+            <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/stroke-styles-view/stroke-styles-view.html"
+                           data-kit-model-input="{ pathStyleViewModel: #model }">
+            </kit-component>
+            <div>
+                <label>Opacity (%):<span class="validation-message">%{#model.getValidationMessage('LinearGradientStroke-Opacity')}%</span></label>
+                <input id="LinearGradientStroke-Opacity"
+                       type="number"
+                       min="0"
+                       max="100"
+                       onchange="#model.updateOptions()"
+                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
+            </div>
+        </kit-if>
+
+        <!-- RadialGradientFill -->
+        <kit-if data-kit-condition="#model.getStyleType() == 'RadialGradientFill'">
+            <div>
+                <label>Gradient start (%):<span class="validation-message">%{#model.getValidationMessage('RadialGradientFill-Start')}%</span></label>
+                <div class="point">
+                    <div>
+                        <label class="inline-label">x:</label>
+                        <input id="RadialGradientFill-Start-X"
+                               type="number"
+                               min="0"
+                               max="100"
+                               onchange="#model.updateOptions()"
+                               data-kit-add-attributes="value=%{#model.getOption('GradientStart').x}%" />
+                    </div>
+                    <div>
+                        <label class="inline-label">y:</label>
+                        <input id="RadialGradientFill-Start-Y"
+                               type="number"
+                               min="0"
+                               max="100"
+                               onchange="#model.updateOptions()"
+                               data-kit-add-attributes="value=%{#model.getOption('GradientStart').y}%" />
+                    </div>
+                </div>
+            </div>
+            <div>
+                <label>Gradient end (%):<span class="validation-message">%{#model.getValidationMessage('RadialGradientFill-End')}%</span></label>
+                <div class="point">
+                    <div>
+                        <label class="inline-label">x:</label>
+                        <input id="RadialGradientFill-End-X"
+                               type="number"
+                               min="0"
+                               max="100"
+                               onchange="#model.updateOptions()"
+                               data-kit-add-attributes="value=%{#model.getOption('GradientEnd').x}%" />
+                    </div>
+                    <div>
+                        <label class="inline-label">y:</label>
+                        <input id="RadialGradientFill-End-Y"
+                               type="number"
+                               min="0"
+                               max="100"
+                               onchange="#model.updateOptions()"
+                               data-kit-add-attributes="value=%{#model.getOption('GradientEnd').y}%" />
+                    </div>
+                </div>
+            </div>
+            <div>
+                <label>Start radius (%):<span class="validation-message">%{#model.getValidationMessage('RadialGradientFill-StartRadius')}%</span></label>
+                <input id="RadialGradientFill-StartRadius"
+                       type="number"
+                       min="0"
+                       max="100"
+                       onchange="#model.updateOptions()"
+                       data-kit-add-attributes="value=%{#model.getOption('GradientStartRadius')}%" />
+            </div>
+            <div>
+                <label>End radius (%):<span class="validation-message">%{#model.getValidationMessage('RadialGradientFill-EndRadius')}%</span></label>
+                <input id="RadialGradientFill-EndRadius"
+                       type="number"
+                       min="0"
+                       max="100"
+                       onchange="#model.updateOptions()"
+                       data-kit-add-attributes="value=%{#model.getOption('GradientEndRadius')}%" />
+            </div>
+            <div>
+                <label>Color stops:</label>
+                <kit-array data-kit-array="#model.getColorStops()"
+                           data-kit-array-ref="colorStops"
+                           data-kit-item-ref="colorStop"
+                           data-kit-item-index-ref="colorStopIndex">
+                    <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/color-stop-view/color-stop-view.html"
+                                   data-kit-model-input="{ pathStyleViewModel: #model, index: #colorStopIndex + 1, colorStop: #colorStop }">
+                    </kit-component>
+                </kit-array>
+            </div>
+            <div>
+                <label>Opacity (%):<span class="validation-message">%{#model.getValidationMessage('RadialGradientFill-Opacity')}%</span></label>
+                <input id="RadialGradientFill-Opacity"
+                       type="number"
+                       min="0"
+                       max="100"
+                       onchange="#model.updateOptions()"
+                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
+            </div>
+        </kit-if>
+
+        <!-- RadialGradientStroke -->
+        <kit-if data-kit-condition="#model.getStyleType() == 'RadialGradientStroke'">
+            <div>
+                <label>Gradient start (%):<span class="validation-message">%{#model.getValidationMessage('RadialGradientStroke-Start')}%</span></label>
+                <div class="point">
+                    <div>
+                        <label class="inline-label">x:</label>
+                        <input id="RadialGradientStroke-Start-X"
+                               type="number"
+                               min="0"
+                               max="100"
+                               onchange="#model.updateOptions()"
+                               data-kit-add-attributes="value=%{#model.getOption('GradientStart').x}%" />
+                    </div>
+                    <div>
+                        <label class="inline-label">y:</label>
+                        <input id="RadialGradientStroke-Start-Y"
+                               type="number"
+                               min="0"
+                               max="100"
+                               onchange="#model.updateOptions()"
+                               data-kit-add-attributes="value=%{#model.getOption('GradientStart').y}%" />
+                    </div>
+                </div>
+            </div>
+            <div>
+                <label>Gradient end (%):<span class="validation-message">%{#model.getValidationMessage('RadialGradientStroke-End')}%</span></label>
+                <div class="point">
+                    <div>
+                        <label class="inline-label">x:</label>
+                        <input id="RadialGradientStroke-End-X"
+                               type="number"
+                               min="0"
+                               max="100"
+                               onchange="#model.updateOptions()"
+                               data-kit-add-attributes="value=%{#model.getOption('GradientEnd').x}%" />
+                    </div>
+                    <div>
+                        <label class="inline-label">y:</label>
+                        <input id="RadialGradientStroke-End-Y"
+                               type="number"
+                               min="0"
+                               max="100"
+                               onchange="#model.updateOptions()"
+                               data-kit-add-attributes="value=%{#model.getOption('GradientEnd').y}%" />
+                    </div>
+                </div>
+            </div>
+            <div>
+                <label>Start radius (%):<span class="validation-message">%{#model.getValidationMessage('RadialGradientStroke-StartRadius')}%</span></label>
+                <input id="RadialGradientStroke-StartRadius"
+                       type="number"
+                       min="0"
+                       max="100"
+                       onchange="#model.updateOptions()"
+                       data-kit-add-attributes="value=%{#model.getOption('GradientStartRadius')}%" />
+            </div>
+            <div>
+                <label>End radius (%):<span class="validation-message">%{#model.getValidationMessage('RadialGradientStroke-EndRadius')}%</span></label>
+                <input id="RadialGradientStroke-EndRadius"
+                       type="number"
+                       min="0"
+                       max="100"
+                       onchange="#model.updateOptions()"
+                       data-kit-add-attributes="value=%{#model.getOption('GradientEndRadius')}%" />
+            </div>
+            <div>
+                <label>Color stops:</label>
+                <kit-array data-kit-array="#model.getColorStops()"
+                           data-kit-array-ref="colorStops"
+                           data-kit-item-ref="colorStop"
+                           data-kit-item-index-ref="colorStopIndex">
+                    <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/color-stop-view/color-stop-view.html"
+                                   data-kit-model-input="{ pathStyleViewModel: #model, index: #colorStopIndex + 1, colorStop: #colorStop }">
+                    </kit-component>
+                </kit-array>
+            </div>
+            <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/stroke-styles-view/stroke-styles-view.html"
+                           data-kit-model-input="{ pathStyleViewModel: #model }">
+            </kit-component>
+            <div>
+                <label>Opacity (%):<span class="validation-message">%{#model.getValidationMessage('RadialGradientStroke-Opacity')}%</span></label>
+                <input id="RadialGradientStroke-Opacity"
+                       type="number"
+                       min="0"
+                       max="100"
+                       onchange="#model.updateOptions()"
+                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
+            </div>
+        </kit-if>
+
+        <!-- ConicalGradientFill -->
+        <kit-if data-kit-condition="#model.getStyleType() == 'ConicalGradientFill'">
+            <div>
+                <label>Gradient start (%):<span class="validation-message">%{#model.getValidationMessage('ConicalGradientFill-Start')}%</span></label>
+                <div class="point">
+                    <div>
+                        <label class="inline-label">x:</label>
+                        <input id="ConicalGradientFill-Start-X"
+                               type="number"
+                               min="0"
+                               max="100"
+                               onchange="#model.updateOptions()"
+                               data-kit-add-attributes="value=%{#model.getOption('GradientStart').x}%" />
+                    </div>
+                    <div>
+                        <label class="inline-label">y:</label>
+                        <input id="ConicalGradientFill-Start-Y"
+                               type="number"
+                               min="0"
+                               max="100"
+                               onchange="#model.updateOptions()"
+                               data-kit-add-attributes="value=%{#model.getOption('GradientStart').y}%" />
+                    </div>
+                </div>
+            </div>
+            <div>
+                <label>Start angle:<span class="validation-message">%{#model.getValidationMessage('ConicalGradientFill-StartAngle')}%</span></label>
+                <input id="ConicalGradientFill-StartAngle"
+                       type="number"
+                       min="0"
+                       max="360"
+                       onchange="#model.updateOptions()"
+                       data-kit-add-attributes="value=%{#model.getOption('GradientAngle')}%" />
+            </div>
+            <div>
+                <label>Color stops:</label>
+                <kit-array data-kit-array="#model.getColorStops()"
+                           data-kit-array-ref="colorStops"
+                           data-kit-item-ref="colorStop"
+                           data-kit-item-index-ref="colorStopIndex">
+                    <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/color-stop-view/color-stop-view.html"
+                                   data-kit-model-input="{ pathStyleViewModel: #model, index: #colorStopIndex + 1, colorStop: #colorStop }">
+                    </kit-component>
+                </kit-array>
+            </div>
+            <div>
+                <label>Opacity (%):<span class="validation-message">%{#model.getValidationMessage('ConicalGradientFill-Opacity')}%</span></label>
+                <input id="ConicalGradientFill-Opacity"
+                       type="number"
+                       min="0"
+                       max="100"
+                       onchange="#model.updateOptions()"
+                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
+            </div>
+        </kit-if>
+
+        <!-- ConicalGradientStroke -->
+        <kit-if data-kit-condition="#model.getStyleType() == 'ConicalGradientStroke'">
+            <div>
+                <label>Gradient start (%):<span class="validation-message">%{#model.getValidationMessage('ConicalGradientStroke-Start')}%</span></label>
+                <div class="point">
+                    <div>
+                        <label class="inline-label">x:</label>
+                        <input id="ConicalGradientStroke-Start-X"
+                               type="number"
+                               min="0"
+                               max="100"
+                               onchange="#model.updateOptions()"
+                               data-kit-add-attributes="value=%{#model.getOption('GradientStart').x}%" />
+                    </div>
+                    <div>
+                        <label class="inline-label">y:</label>
+                        <input id="ConicalGradientStroke-Start-Y"
+                               type="number"
+                               min="0"
+                               max="100"
+                               onchange="#model.updateOptions()"
+                               data-kit-add-attributes="value=%{#model.getOption('GradientStart').y}%" />
+                    </div>
+                </div>
+            </div>
+            <div>
+                <label>Start angle:<span class="validation-message">%{#model.getValidationMessage('ConicalGradientStroke-StartAngle')}%</span></label>
+                <input id="ConicalGradientStroke-StartAngle"
+                       type="number"
+                       min="0"
+                       max="360"
+                       onchange="#model.updateOptions()"
+                       data-kit-add-attributes="value=%{#model.getOption('GradientAngle')}%" />
+            </div>
+            <div>
+                <label>Color stops:</label>
+                <kit-array data-kit-array="#model.getColorStops()"
+                           data-kit-array-ref="colorStops"
+                           data-kit-item-ref="colorStop"
+                           data-kit-item-index-ref="colorStopIndex">
+                    <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/color-stop-view/color-stop-view.html"
+                                   data-kit-model-input="{ pathStyleViewModel: #model, index: #colorStopIndex + 1, colorStop: #colorStop }">
+                    </kit-component>
+                </kit-array>
+            </div>
+            <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/stroke-styles-view/stroke-styles-view.html"
+                           data-kit-model-input="{ pathStyleViewModel: #model }">
+            </kit-component>
+            <div>
+                <label>Opacity (%):<span class="validation-message">%{#model.getValidationMessage('ConicalGradientStroke-Opacity')}%</span></label>
+                <input id="ConicalGradientStroke-Opacity"
+                       type="number"
+                       min="0"
+                       max="100"
+                       onchange="#model.updateOptions()"
+                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
+            </div>
+        </kit-if>
+
+        <!-- TileFill -->
+        <kit-if data-kit-condition="#model.getStyleType() == 'TileFill'">
+            <div>
+                <div>
+                    <label>Tile file path:</label>
+                </div>
+                <div class="file-path-container">
+                    <div class="file-input">
+                        <input id="TileFill-Path" style="width:100%;" type="text" placeholder="file name" disabled />
+                        <input id="TileFill-Data" type="hidden" value="%{#model.getOption('TileImageSource')}%" />
+                    </div>
+                    <div>
+                        <button id="browse" class="action-control" title="browse" onclick="#model.browse('TileFill')">...</button>
+                    </div>
+                </div>
+                <div>
+                    <img id="TileFill-Preview" class="data-tile-preview img-preview" />
+                </div>
+            </div>
+            <div>
+                <label>Opacity (%):<span class="validation-message">%{#model.getValidationMessage('TileFill-Opacity')}%</span></label>
+                <input id="TileFill-Opacity"
+                       type="number"
+                       min="0"
+                       max="100"
+                       onchange="#model.updateOptions()"
+                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
+            </div>
+        </kit-if>
+
+        <!-- TileStroke -->
+        <kit-if data-kit-condition="#model.getStyleType() == 'TileStroke'">
+            <div>
+                <div>
+                    <label>Tile file path:</label>
+                </div>
+                <div class="file-path-container">
+                    <div class="file-input">
+                        <input id="TileStroke-Path" style="width:100%;" type="text" placeholder="file name" disabled />
+                        <input id="TileStroke-Data" type="hidden" value="%{#model.getOption('TileImageSource')}%" />
+                    </div>
+                    <div>
+                        <button id="browse" class="action-control" title="browse" onclick="#model.browse('TileStroke')">...</button>
+                    </div>
+                </div>
+                <div>
+                    <img id="TileStroke-Preview" class="data-tile-preview img-preview" />
+                </div>
+            </div>
+            <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/stroke-styles-view/stroke-styles-view.html"
+                           data-kit-model-input="{ pathStyleViewModel: #model }">
+            </kit-component>
+            <div>
+                <label>Opacity (%):<span class="validation-message">%{#model.getValidationMessage('TileStroke-Opacity')}%</span></label>
+                <input id="TileStroke-Opacity"
+                       type="number"
+                       min="0"
+                       max="100"
+                       onchange="#model.updateOptions()"
+                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
+            </div>
+        </kit-if>
+
+        <!-- ImageArrayFill -->
+        <kit-if data-kit-condition="#model.getStyleType() == 'ImageArrayFill'">
+            <div>
+                <label>Images:</label>
+                <kit-array data-kit-array="#model.getImages()" data-kit-array-ref="images" data-kit-item-index-ref="imageIndex">
+                    <div>
+                        <div>
+                            <label>File path:</label>
+                        </div>
+                        <div>
+                            <input id="ImageArrayFill-%{#imageIndex}%-Path" type="text" placeholder="file name" disabled />
+                            <button id="browse" class="action-control" title="browse" onclick="#model.browse('ImageArrayFill-%{#imageIndex}%')">...</button>
+                        </div>
+                        <div>
+                            <img 
+                                 id="ImageArrayFill-%{#imageIndex}%-Preview" 
+                                 data-kit-add-attributes="src=%{#model.getOption('ImageArraySource1' + %{#imageIndex}%)}%" />
+                        </div>
+                        <div>
+                            <input id="ImageArrayFill-%{#imageIndex}%-Data"
+                                   type="text"
+                                   placeholder="file data"
+                                   style="width:400px;"
+                                   data-kit-add-attributes="value=%{#model.getOption('ImageArraySource1' + %{#imageIndex}%)}%"
+                                   disabled />
+                        </div>
+                    </div>
+                </kit-array>
+            </div>
+            <div>
+                <label>Opacity (%):<span class="validation-message">%{#model.getValidationMessage('ImageArrayFill-Opacity')}%</span></label>
+                <input id="ImageArrayFill-Opacity"
+                       type="number"
+                       min="0"
+                       max="100"
+                       onchange="#model.updateOptions()"
+                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
+            </div>
+        </kit-if>
+
+        <!-- ImageArrayStroke -->
+        <kit-if data-kit-condition="#model.getStyleType() == 'ImageArrayStroke'">
+            <div>
+                <label>Images:</label>
+                <kit-array data-kit-array="#model.getImages()" data-kit-array-ref="images" data-kit-item-index-ref="imageIndex">
+                    <div>
+                        <div>
+                            <label>File path:</label>
+                        </div>
+                        <div>
+                            <input id="ImageArrayStroke-%{#imageIndex}%-Path" type="text" placeholder="file name" disabled />
+                            <button id="browse" class="action-control" title="browse" onclick="#model.browse('ImageArrayStroke-%{#imageIndex}%')">...</button>
+                        </div>
+                        <div>
+                            <img 
+                                 id="ImageArrayStroke-%{#imageIndex}%-Preview"
+                                 data-kit-add-attributes="src=%{#model.getOption('ImageArraySource' + %{#imageIndex}%)}%"/>
+                        </div>
+                        <div>
+                            <input id="ImageArrayStroke-%{#imageIndex}%-Data"
+                                   type="text"
+                                   placeholder="file data"
+                                   style="width:400px;"
+                                   data-kit-add-attributes="value=%{#model.getOption('ImageArraySource' + %{#imageIndex}%)}%"
+                                   disabled />
+                        </div>
+                    </div>
+                </kit-array>
+            </div>
+            <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/stroke-styles-view/stroke-styles-view.html"
+                           data-kit-model-input="{ pathStyleViewModel: #model }">
+            </kit-component>
+            <div>
+                <label>Opacity (%):<span class="validation-message">%{#model.getValidationMessage('ImageArrayStroke-Opacity')}%</span></label>
+                <input id="ImageArrayStroke-Opacity"
+                       type="number"
+                       min="0"
+                       max="100"
+                       onchange="#model.updateOptions()"
+                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
+            </div>
+        </kit-if>
+
+    </fieldset>
+</kit-if>

@@ -23,10 +23,10 @@ class ZoomTool {
                 this.#onPointerDown(eventData);
                 break;
             case "pointermove":
-                this.#onPointerMove(eventData);
+                await this.#onPointerMove(eventData);
                 break;
             case "pointerup":
-                this.#onPointerUp(eventData);
+                await this.#onPointerUp(eventData);
                 break;
         }
     }
@@ -41,10 +41,10 @@ class ZoomTool {
         }
     }
 
-    #onPointerMove(eventData) {
+    async #onPointerMove(eventData) {
         if (eventData && this.#isDrawing) {     
             this.#pointCurrent = { x: eventData.offsetX, y: eventData.offsetY };
-            this.#mapWorker.renderMap();
+            await this.#mapWorker.renderMap();
             this.#mapWorker.renderingContext.restore();
             this.#mapWorker.renderingContext.resetTransform();
             const startX = this.#pointDown.x;
@@ -62,7 +62,7 @@ class ZoomTool {
         }
     }
 
-    #onPointerUp(eventData) {
+    async #onPointerUp(eventData) {
         if (eventData && this.#isDrawing) {
 
             // get pan
@@ -113,7 +113,7 @@ class ZoomTool {
 
             // render map
             this.#isDrawing = false;
-            this.#mapWorker.renderMap({ updatedViewPort: true });
+            await this.#mapWorker.renderMap({ updatedViewPort: true });
         }
     }
 

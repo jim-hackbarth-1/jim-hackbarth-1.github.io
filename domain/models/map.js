@@ -1,21 +1,13 @@
 ﻿
 import {
-    BaseFill,
-    BaseStroke,
     Caption,
     Change,
     ChangeSet,
     ChangeType,
     ClipPath,
-    ColorFill,
-    ColorStroke,
     EntityReference,
     ErrorMessage,
     getOverlandTemplate,
-    GradientFill,
-    GradientStroke,
-    ImageArrayFill,
-    ImageArrayStroke,
     InputUtilities,
     Layer,
     MapItem,
@@ -23,8 +15,7 @@ import {
     MapItemTemplate,
     Overlay,
     Path,
-    TileFill,
-    TileStroke,
+    PathStyle,
     Tool,
     ToolPalette
 } from "../references.js";
@@ -524,7 +515,7 @@ export class Map {
         this.tools = [];
     }
 
-    render(canvas, context, options) {
+    async render(canvas, context, options) {
         context.resetTransform();
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.scale(this.zoom, this.zoom);
@@ -538,7 +529,7 @@ export class Map {
         const maxStrokeLength = this.#getMaxStrokesLength();
         const maxFillsLength = this.#getMaxFillsLength();
         for (const layer of this.layers) {
-            layer.render(context, this, options, maxStrokeLength, maxFillsLength);
+            await layer.render(context, this, options, maxStrokeLength, maxFillsLength);
         }
         for (const layer of this.layers) {
             layer.renderSelections(context, this);
@@ -622,8 +613,7 @@ export class Map {
                 let mapItem;
                 let path;
                 let clipPath;
-                let fill;
-                let stroke;
+                let pathStyle;
                 for (const change of changeSet.changes) {
                     switch (change.changeObjectType) {
                         case Map.name:
@@ -698,32 +688,20 @@ export class Map {
                             clipPath = path.clipPaths.find(cp => cp.id == change.clipPathId);
                             clipPath.applyChange(change, undoing);
                             break;
-                        case BaseFill.name:
-                        case ColorFill.name:
-                        case GradientFill.name:
-                        case TileFill.name:
-                        case ImageArrayFill.name:
+                        case PathStyle.name:
                             mapItemTemplate = this.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, change.mapItemTemplateRef));
-                            fill = mapItemTemplate.fills.find(f => f.id == change.fillId);
-                            if (!fill && mapItemTemplate.caption?.backgroundFill?.id == change.fillId) {
-                                fill = mapItemTemplate.caption.backgroundFill;
+                            pathStyle = mapItemTemplate.fills.find(ps => ps.id == change.pathStyleId);
+                            if (!pathStyle) {
+                                pathStyle = mapItemTemplate.strokes.find(ps => ps.id == change.pathStyleId);
                             }
-                            if (fill) {
-                                fill.applyChange(change, undoing);
+                            if (!pathStyle && mapItemTemplate.caption?.backgroundFill?.id == change.pathStyleId) {
+                                pathStyle = mapItemTemplate.caption.backgroundFill;
                             }
-                            break;
-                        case BaseStroke.name:
-                        case ColorStroke.name:
-                        case GradientStroke.name:
-                        case TileStroke.name:
-                        case ImageArrayStroke.name:
-                            mapItemTemplate = this.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, change.mapItemTemplateRef));
-                            stroke = mapItemTemplate.strokes.find(s => s.id == change.strokeId);
-                            if (!stroke && mapItemTemplate.caption?.borderStroke?.id == change.strokeId) {
-                                stroke = mapItemTemplate.caption.borderStroke;
+                            if (!pathStyle && mapItemTemplate.caption?.borderStroke?.id == change.pathStyleId) {
+                                pathStyle = mapItemTemplate.caption.borderStroke;
                             }
-                            if (stroke) {
-                                stroke.applyChange(change, undoing);
+                            if (pathStyle) {
+                                pathStyle.applyChange(change, undoing);
                             }
                             break;
                     }
@@ -842,6 +820,21 @@ export class Map {
                 this.removeTool(new Tool(value));
                 break;
         }
+    }
+
+    #images;
+    async getImage(key, data) {
+        if (!this.#images) {
+            this.#images = [];
+        }
+        let image = this.#images.find(i => i.key == key);
+        if (!image) {
+            const response = await fetch(data);
+            const blob = await response.blob();
+            image = await createImageBitmap(blob);
+            this.#images.push(key, image);
+        }
+        return image;
     }
 
     // helpers

@@ -75,7 +75,7 @@ class DrawEllipseTool {
 
     async #onPointerMove(eventData) {
         if (eventData && this.#isDrawing) {
-            this.#draw(eventData);
+            await this.#draw(eventData);
         }
     }
 
@@ -117,7 +117,7 @@ class DrawEllipseTool {
         this.#isDrawing = true;
     }
 
-    #draw(eventData) {
+    async #draw(eventData) {
         let point = { x: eventData.offsetX, y: eventData.offsetY };
         if (this.#isSnapToOverlayModeOn) {
             let mapPoint = this.#transformCanvasPoint(point.x, point.y);
@@ -125,7 +125,7 @@ class DrawEllipseTool {
             point = this.#transformMapPoint(mapPoint.x, mapPoint.y);
         }
         this.#setCurrentPoint(point);
-        this.#drawEllipse();
+        await this.#drawEllipse();
     }
 
     #setCurrentPoint(point) {
@@ -149,8 +149,8 @@ class DrawEllipseTool {
         await this.#addMapItemGroup();
     }
 
-    #drawEllipse() {
-        this.#mapWorker.renderMap();
+    async #drawEllipse() {
+        await this.#mapWorker.renderMap();
         this.#mapWorker.renderingContext.restore();
         this.#mapWorker.renderingContext.resetTransform();
         const rect = new Path2D(`M ${this.#xStart},${this.#yStart} L ${this.#xStart},${this.#yCurrent} ${this.#xCurrent},${this.#yCurrent} ${this.#xCurrent},${this.#yStart} z`);
@@ -215,7 +215,7 @@ class DrawEllipseTool {
             ];
             const bounds = this.#mapWorker.geometryUtilities.getPathBounds(start, transits);
             if (bounds.height < 5 || bounds.width < 5) {
-                this.#mapWorker.renderMap();
+                await this.#mapWorker.renderMap();
                 return;
             }
             const mapItemData = {
@@ -233,7 +233,7 @@ class DrawEllipseTool {
             const mapItemGroup = this.#mapWorker.createMapItemGroup(data);
             this.#mapWorker.map.getActiveLayer().addMapItemGroup(mapItemGroup);
         }
-        this.#mapWorker.renderMap();
+        await this.#mapWorker.renderMap();
     }
 
     #transformCanvasPoint(x, y) {

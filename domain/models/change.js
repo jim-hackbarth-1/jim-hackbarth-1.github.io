@@ -29,8 +29,7 @@ export class Change {
         this.#clipPathId = data?.clipPathId;    
         this.#toolRef = data?.toolRef;
         this.#mapItemTemplateRef = data?.mapItemTemplateRef;
-        this.#fillId = data?.fillId;
-        this.#strokeId = data?.strokeId;
+        this.#pathStyleId = data?.pathStyleId;
     }
 
     //  properties
@@ -139,21 +138,12 @@ export class Change {
     }
 
     /** @type {EntityReference}  */
-    #fillId;
-    get fillId() {
-        return this.#fillId;
+    #pathStyleId;
+    get pathStyleId() {
+        return this.#pathStyleId;
     }
-    set fillId(fillId) {
-        this.#fillId = fillId;
-    }
-
-    /** @type {EntityReference}  */
-    #strokeId;
-    get strokeId() {
-        return this.#strokeId;
-    }
-    set strokeId(strokeId) {
-        this.#strokeId = strokeId;
+    set pathStyleId(pathStyleId) {
+        this.#pathStyleId = pathStyleId;
     }
 
     // methods
@@ -173,8 +163,7 @@ export class Change {
             clipPathId: this.#clipPathId,
             toolRef: this.#toolRef,
             mapItemTemplateRef: this.#mapItemTemplateRef,
-            fillId: this.#fillId,
-            strokeId: this.#strokeId
+            pathStyleId: this.#pathStyleId
         };
     }
 }

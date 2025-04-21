@@ -34,11 +34,11 @@ class FitSelectionTool {
         this.#moveIncrementIteration = 0;
         this.#isToggleSelectionModeOn = false;
         this.#initializeToolOptions();  
-        this.#previewSetOperation();
+        await this.#previewSetOperation();
     }
 
     async onApplyToolOption(toolOptionInfo) {
-        this.#updateToolOptionValue(toolOptionInfo.name, toolOptionInfo.value, false);
+        await this.#updateToolOptionValue(toolOptionInfo.name, toolOptionInfo.value, false);
     }
 
     async handleClientEvent(clientEvent) {
@@ -48,10 +48,10 @@ class FitSelectionTool {
                 this.#onPointerDown(eventData);
                 break;
             case "pointermove":
-                this.#onPointerMove(eventData);
+                await this.#onPointerMove(eventData);
                 break;
             case "pointerup":
-                this.#onPointerUp(eventData);
+                await this.#onPointerUp(eventData);
                 break;
             case "keydown":
                 this.#onKeyDown(eventData);
@@ -67,7 +67,7 @@ class FitSelectionTool {
     }
 
     handleAfterRenderEvent = async (change) => {
-        this.#previewSetOperation(true);
+        await this.#previewSetOperation(true);
     }
 
     async onCursorChange(cursor) {
@@ -75,9 +75,9 @@ class FitSelectionTool {
     }
 
     // helpers
-    #updateToolOptionValue(name, value, notifyMapWorker) {
+    async #updateToolOptionValue(name, value, notifyMapWorker) {
         if (name == "AcceptChanges") {
-            this.#performSetOperation();
+            await this.#performSetOperation();
             return;
         }
         if (name == "LockMode") {
@@ -95,7 +95,7 @@ class FitSelectionTool {
         if (notifyMapWorker) {
             this.#mapWorker.setToolOptionValue(name, value);
         }
-        this.#previewSetOperation();
+        await this.#previewSetOperation();
     }
 
     #initializeToolOptions() {
@@ -125,7 +125,7 @@ class FitSelectionTool {
         }
     }
 
-    #onPointerMove(eventData) {
+    async #onPointerMove(eventData) {
         let preview = false;
         let drawArcsRadii = false;
         let drawRotationIndicator = false;
@@ -156,7 +156,7 @@ class FitSelectionTool {
             }
         }
         if (preview) {
-            this.#previewSetOperation();
+            await this.#previewSetOperation();
         }
         if (drawRotationIndicator && rotatePoint) {
             this.#selectionUtilities.drawRotationIndicator(this.#mapWorker, rotatePoint);
@@ -166,7 +166,7 @@ class FitSelectionTool {
         }
     }
 
-    #onPointerUp(eventData) {
+    async #onPointerUp(eventData) {
         if (eventData) {
             if (this.#selectionUtilities.activityState === "Select") {
                 this.#selectUp(eventData);
@@ -183,45 +183,45 @@ class FitSelectionTool {
             }
         }
         this.#selectionUtilities.activityState = "Default";
-        this.#previewSetOperation();
+        await this.#previewSetOperation();
     }
 
-    #onKeyDown(eventData) {
+    async #onKeyDown(eventData) {
         if (eventData.key == "Shift" || eventData.key == "Control" || eventData.key == "Alt") {
             this.#isToggleSelectionModeOn = true;
         }
         if (eventData.key == "ArrowLeft") {
-            this.#moveIncrement(eventData, -1, 0);
+            await this.#moveIncrement(eventData, -1, 0);
         }
         if (eventData.key == "ArrowRight") {
-            this.#moveIncrement(eventData, 1, 0);
+            await this.#moveIncrement(eventData, 1, 0);
         }
         if (eventData.key == "ArrowUp") {
-            this.#moveIncrement(eventData, 0, -1);
+            await this.#moveIncrement(eventData, 0, -1);
         }
         if (eventData.key == "ArrowDown") {
-            this.#moveIncrement(eventData, 0, 1);
+            await this.#moveIncrement(eventData, 0, 1);
         }
         if (eventData.altKey && eventData.key?.toLowerCase() == "o" && !eventData.repeat) {
-            this.#updateToolOptionValue("SnapToOverlay", !this.#isSnapToOverlayModeOn, true);
+            await this.#updateToolOptionValue("SnapToOverlay", !this.#isSnapToOverlayModeOn, true);
         }
         if (eventData.altKey && eventData.key?.toLowerCase() == "l" && !eventData.repeat) {
-            this.#updateToolOptionValue("LockMode", !this.#isLockModeOn, true);
+            await this.#updateToolOptionValue("LockMode", !this.#isLockModeOn, true);
         }
         if (eventData.altKey && eventData.key?.toLowerCase() == "s" && !eventData.repeat) {
-            this.#updateToolOptionValue("SingleSelectionMode", !this.#isSingleSelectionModeOn, true);
+            await this.#updateToolOptionValue("SingleSelectionMode", !this.#isSingleSelectionModeOn, true);
         }
         if (eventData.altKey && eventData.key?.toLowerCase() == "i" && !eventData.repeat) {
-            this.#updateToolOptionValue("SetOperationMode", "Intersect", true);
+            await this.#updateToolOptionValue("SetOperationMode", "Intersect", true);
         }
         if (eventData.altKey && eventData.key?.toLowerCase() == "u" && !eventData.repeat) {
-            this.#updateToolOptionValue("SetOperationMode", "Union", true);
+            await this.#updateToolOptionValue("SetOperationMode", "Union", true);
         }
         if (eventData.altKey && eventData.key?.toLowerCase() == "x" && !eventData.repeat) {
-            this.#updateToolOptionValue("SetOperationMode", "Exclude", true);
+            await this.#updateToolOptionValue("SetOperationMode", "Exclude", true);
         }
         if (eventData.altKey && eventData.key == "Enter") {
-            this.#updateToolOptionValue("AcceptChanges", null, false);
+            await this.#updateToolOptionValue("AcceptChanges", null, false);
         }
     }
 
@@ -356,9 +356,9 @@ class FitSelectionTool {
         this.#mapWorker.renderingContext.stroke(this.#pathLight);
     }
 
-    #previewSetOperation(doNotPreRenderMap) {
+    async #previewSetOperation(doNotPreRenderMap) {
         if (!doNotPreRenderMap) {
-            this.#mapWorker.renderMap();
+            await this.#mapWorker.renderMap();
         }
         
         // get primary paths
@@ -395,7 +395,7 @@ class FitSelectionTool {
         }
     }
 
-    #performSetOperation() {
+    async #performSetOperation() {
 
         // get secondary selection path(s)
         const layer = this.#mapWorker.map.getActiveLayer();
@@ -431,7 +431,7 @@ class FitSelectionTool {
             mapItemGroup.selectionStatus = null;
         }
 
-        this.#mapWorker.renderMap();
+        await this.#mapWorker.renderMap();
     }
 
     #getSetOperationPaths(primaryPaths, secondaryPaths) {
@@ -459,7 +459,7 @@ class FitSelectionTool {
         this.#mapWorker.renderingContext.stroke(path2D);
     }
 
-    #moveIncrement(eventData, dx, dy) {
+    async #moveIncrement(eventData, dx, dy) {
         this.#isArrowPressed = true;
         if (eventData.repeat) {
             dx = dx * 10;

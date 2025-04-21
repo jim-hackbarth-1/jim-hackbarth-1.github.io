@@ -258,26 +258,26 @@ export class MapItem {
         }
     }
 
-    renderStroke(context, map, options, strokeIndex) {
+    async renderStroke(context, map, options, strokeIndex) {
         if (this.isHidden != true) {
             const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
             if (mapItemTemplate && strokeIndex < mapItemTemplate.strokes.length) {
                 const stroke = mapItemTemplate.strokes[strokeIndex];
                 const closePath = mapItemTemplate.fills.length > 0;
                 for (const path of this.paths) {
-                    path.renderStroke(context, map, stroke, options, closePath);
+                    await path.renderStroke(context, map, stroke, options, closePath);
                 }
             }
         }
     }
 
-    renderFill(context, map, options, fillIndex) {
+    async renderFill(context, map, options, fillIndex) {
         if (this.isHidden != true) {
             const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
             if (mapItemTemplate && fillIndex < mapItemTemplate.fills.length) {
                 const fill = mapItemTemplate.fills[fillIndex];
                 for (const path of this.paths) {
-                    path.renderFill(context, map, fill, options);
+                    await path.renderFill(context, map, fill, options);
                 }
             }
         }

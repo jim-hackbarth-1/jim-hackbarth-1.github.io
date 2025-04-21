@@ -1,5 +1,5 @@
 ﻿
-import { Arc, Change, ChangeSet, ChangeType, GeometryUtilities, InputUtilities } from "../references.js";
+import { Arc, Change, ChangeSet, ChangeType, GeometryUtilities, InputUtilities, PathStyleOption, PathStyleType } from "../references.js";
 
 export class ClipPath {
 
@@ -52,7 +52,7 @@ export class ClipPath {
     }
 
     /** @type {number} */
-    #rotationAngle; // for tracking tile fill/stroke rotation
+    #rotationAngle; 
     get rotationAngle() {
         return this.#rotationAngle ?? 0;
     }
@@ -220,6 +220,7 @@ export class Path {
     set start(start) {
         const changeSet = this.#getPropertyChange("start", this.#start, start);
         this.#start = start;
+        this.#rotatedPathInfo = null;
         this.#onChange(changeSet, true);
     }
 
@@ -231,6 +232,7 @@ export class Path {
     set transits(transits) {
         const changeSet = this.#getPropertyChange("transits", this.#getListData(this.#transits), this.#getListData(transits));
         this.#transits = transits;
+        this.#rotatedPathInfo = null;
         this.#onChange(changeSet, true);
     }
 
@@ -255,13 +257,14 @@ export class Path {
     }
 
     /** @type {number} */
-    #rotationAngle; // for tracking tile fill/stroke rotation
+    #rotationAngle;
     get rotationAngle() {
         return this.#rotationAngle ?? 0;
     }
     set rotationAngle(rotationAngle) {
         const changeSet = this.#getPropertyChange("rotationAngle", this.#rotationAngle, rotationAngle);
         this.#rotationAngle = rotationAngle;
+        this.#rotatedPathInfo = null;
         this.#onChange(changeSet, true);
     }
 
@@ -282,6 +285,14 @@ export class Path {
         return this.#inView;
     }
 
+    #rotatedPathInfo;
+    get rotatedPathInfo() {
+        if (!this.#rotatedPathInfo) {
+            this.#rotatedPathInfo = Path.getRotatedPathInfo(this);
+        }
+        return this.#rotatedPathInfo;
+    }
+
     // methods
     getData(copy) {
         return {
@@ -293,6 +304,41 @@ export class Path {
             bounds: this.#bounds,
             inView: this.#inView
         };
+    }
+
+    static getRotatedPathInfo(path) {
+        const theta = path.rotationAngle * (Math.PI / 180);
+        const bounds = path.bounds;
+        const centerX = bounds.x + bounds.width / 2;
+        const centerY = bounds.y + bounds.height / 2;
+        const xStart = path.start.x - centerX;
+        const yStart = path.start.y - centerY;
+        const xStartRotated = centerX + xStart * Math.cos(theta) + yStart * Math.sin(theta);
+        const yStartRotated = centerY + yStart * Math.cos(theta) - xStart * Math.sin(theta);
+        const transits = [];
+        let rotatedTransit = null;
+        for (const transit of path.transits) {
+            if (transit.radii) {
+                rotatedTransit = Arc.rotateArc(transit, theta);
+            }
+            else {
+                rotatedTransit = {
+                    x: transit.x * Math.cos(theta) + transit.y * Math.sin(theta),
+                    y: transit.y * Math.cos(theta) - transit.x * Math.sin(theta)
+                };
+            }
+            transits.push(rotatedTransit);
+        }
+        let pathInfo = `M ${xStartRotated},${yStartRotated} `;
+        for (const transit of transits) {
+            if (transit.radii) {
+                pathInfo += ` ${transit.getPathInfo()}`;
+            }
+            else {
+                pathInfo += ` l ${transit.x},${transit.y}`;
+            }
+        }
+        return pathInfo;
     }
 
     addClipPath(clipPath) {
@@ -386,18 +432,28 @@ export class Path {
         return pathInfo;
     }
 
-    renderStroke(context, map, stroke, options, closePath) {
+    async renderStroke(context, map, stroke, options, closePath) {
         if (stroke && this.#isViewable(map, options)) {
-            const scale = 1 / map.zoom;
             let pathInfo = this.getPathInfo();
+            const isRotatedTileStyle = this.#isRotatedTileStyle(stroke);
+
+            const currentTransform = context.getTransform();
+            if (isRotatedTileStyle) {
+                pathInfo = this.rotatedPathInfo;
+                const center = Path.#getCenter(this.bounds);
+                context.translate(center.x, center.y);
+                context.rotate((this.rotationAngle * Math.PI) / 180);
+                context.translate(-center.x, -center.y);
+            }
             if (closePath) {
                 pathInfo += " z";
             }
             const path2D = new Path2D(pathInfo);
-            context.setLineDash([]);
-            context.strokeStyle = stroke.color;
-            context.lineWidth = stroke.width * scale;
+            await stroke.setStyle(context, map, this);
             context.stroke(path2D);
+            if (isRotatedTileStyle) {
+                context.setTransform(currentTransform);
+            }
             if (this.clipPaths) {
                 for (const clipPath of this.clipPaths) {
                     let innerPathInfo = clipPath.getPathInfo();
@@ -406,29 +462,42 @@ export class Path {
                     }
                     context.stroke(new Path2D(innerPathInfo));
                 }
-            }
+            }   
         }
     }
 
-    renderFill(context, map, fill, options) {
-        if (fill && this.#isViewable(map, options)) { 
+    async renderFill(context, map, fill, options) {
+        if (fill && this.#isViewable(map, options)) {
             let pathInfo = this.getPathInfo();
             pathInfo += " z";
-            const path2D = new Path2D(pathInfo);
             context.save();
+            let path2D = new Path2D(pathInfo);
             if (this.clipPaths) {
                 const outerPath = new Path2D(pathInfo);
                 for (const clipPath of this.clipPaths) {
                     let innerPathInfo = clipPath.getPathInfo();
                     innerPathInfo += " z";
                     const innerPath = new Path2D(innerPathInfo);
-                    context.stroke(innerPath);
                     outerPath.addPath(innerPath);
                 }
                 context.clip(outerPath, "evenodd");
             }
-            context.fillStyle = fill.color;
+            const currentTransform = context.getTransform();
+            const isRotatedTileStyle = this.#isRotatedTileStyle(fill);
+            if (isRotatedTileStyle) {
+                pathInfo = this.rotatedPathInfo;
+                pathInfo += " z";
+                path2D = new Path2D(pathInfo);
+                const center = Path.#getCenter(this.bounds);
+                context.translate(center.x, center.y);
+                context.rotate((this.rotationAngle * Math.PI) / 180);
+                context.translate(-center.x, -center.y);
+            }
+            await fill.setStyle(context, map, this);
             context.fill(path2D);
+            if (isRotatedTileStyle) {
+                context.setTransform(currentTransform);
+            }
             context.restore();
         }
     }
@@ -570,5 +639,17 @@ export class Path {
 
     #getListData(list, copy) {
         return list ? list.map(x => x.getData ? x.getData(copy) : x) : null;
+    }
+
+    #isRotatedTileStyle(pathStyle) {
+        if (this.rotationAngle && this.rotationAngle != 0) {
+            return pathStyle.options.some(
+                o => o.key == PathStyleOption.PathStyleType && (o.value == PathStyleType.TileFill || o.value == PathStyleType.TileStroke));
+        }
+        return false;
+    }
+
+    static #getCenter(bounds) {
+        return { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
     }
 }

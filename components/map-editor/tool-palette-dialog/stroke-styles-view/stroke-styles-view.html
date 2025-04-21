@@ -1,0 +1,50 @@
+﻿
+<div>
+    <label>Width:<span class="validation-message">%{#model.getValidationMessage(#model.getStyleType() + '-Width')}%</span></label>
+    <input id="%{#model.getStyleType()}%-Width"
+           type="number"
+           min="1"
+           max="100"
+           onchange="#model.updateOptions()"
+           data-kit-add-attributes="value=%{#model.getOption('Width')}%" />
+</div>
+<div>
+    <label>Line dash:<span class="validation-message">%{#model.getValidationMessage(#model.getStyleType() + '-Dash')}%</span></label>
+    <input id="%{#model.getStyleType()}%-Dash"
+           type="text"
+           placeholder="example: 5-5"
+           maxlength="30"
+           style="width:400px;"
+           data-kit-add-attributes="value=%{#model.getOption('Dash')}%"
+           onchange="#model.updateOptions()"
+           onkeydown="#model.onKeyDown(event)" />
+</div>
+<div>
+    <label>Dash offset:<span class="validation-message">%{#model.getValidationMessage(#model.getStyleType() + '-DashOffset')}%</span></label>
+    <input id="%{#model.getStyleType()}%-DashOffset"
+           type="number"
+           min="0"
+           max="10"
+           onchange="#model.updateOptions()"
+           data-kit-add-attributes="value=%{#model.getOption('DashOffset')}%" />
+</div>
+<div>
+    <label>Line end cap:</label>
+    <select id="%{#model.getStyleType()}%-Cap"
+            title="Line end cap"
+            onchange="#model.updateOptions()">
+        <option value="round" data-kit-add-attributes="%{#model.isSelected('Cap', 'round')}%">round</option>
+        <option value="butt" data-kit-add-attributes="%{#model.isSelected('Cap', 'butt')}%">butt</option>
+        <option value="square" data-kit-add-attributes="%{#model.isSelected('Cap', 'square')}%">square</option>
+    </select>
+</div>
+<div>
+    <label>Line join:</label>
+    <select id="%{#model.getStyleType()}%-Join"
+            title="Line join"
+            onchange="#model.updateOptions()">
+        <option value="round" data-kit-add-attributes="%{#model.isSelected('Join', 'round')}%">round</option>
+        <option value="bevel" data-kit-add-attributes="%{#model.isSelected('Join', 'bevel')}%">bevel</option>
+        <option value="miter" data-kit-add-attributes="%{#model.isSelected('Join', 'miter')}%">miter</option>
+    </select>
+</div>

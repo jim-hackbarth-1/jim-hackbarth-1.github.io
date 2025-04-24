@@ -408,6 +408,30 @@ export class GeometryUtilities {
         path.clipPaths = clipPaths;
     }
 
+    doBoundsIntersect(bounds1, bounds2) {
+        let topLeft = { x: bounds1.x, y: bounds1.y };
+        let topRight = { x: bounds1.x + bounds1.width, y: bounds1.y };
+        let bottomLeft = { x: bounds1.x + bounds1.width, y: bounds1.y + bounds1.height };
+        let bottomRight = { x: bounds1.x, y: bounds1.y + bounds1.height };
+        if (this.isPointInBounds(topLeft, bounds2)
+            || this.isPointInBounds(topRight, bounds2)
+            || this.isPointInBounds(bottomLeft, bounds2)
+            || this.isPointInBounds(bottomRight, bounds2)) {
+            return true;
+        }
+        topLeft = { x: bounds2.x, y: bounds2.y };
+        topRight = { x: bounds2.x + bounds2.width, y: bounds2.y };
+        bottomLeft = { x: bounds2.x + bounds2.width, y: bounds2.y + bounds2.height };
+        bottomRight = { x: bounds2.x, y: bounds2.y + bounds2.height };
+        if (this.isPointInBounds(topLeft, bounds1)
+            || this.isPointInBounds(topRight, bounds1)
+            || this.isPointInBounds(bottomLeft, bounds1)
+            || this.isPointInBounds(bottomRight, bounds1)) {
+            return true;
+        }
+        return false;
+    }
+
     isPointInBounds(point, bounds) {
         return point.x >= bounds.x
             && point.x <= bounds.x + bounds.width

@@ -682,8 +682,8 @@ class MapItemTemplateViewModel {
     async #updateMap(changes) {
 
         // update local copy
-        const map = await MapWorkerClient.getMap();
-        map.applyChangeSet(new ChangeSet({ changes: changes }));
+        //const map = await MapWorkerClient.getMap();
+        //map.applyChangeSet(new ChangeSet({ changes: changes }));
 
         // update map worker
         MapWorkerClient.postWorkerMessage({

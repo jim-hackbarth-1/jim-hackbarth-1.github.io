@@ -1,5 +1,17 @@
 ﻿
-import { Change, ChangeSet, ChangeType, ErrorMessage, InputUtilities, MapItemGroup, SelectionStatusType } from "../references.js";
+import {
+    Change,
+    ChangeSet,
+    ChangeType,
+    EntityReference,
+    ErrorMessage,
+    GeometryUtilities,
+    InputUtilities,
+    MapItemGroup,
+    PathStyleOption,
+    PathStyleType,
+    SelectionStatusType
+} from "../references.js";
 
 export class Layer {
 
@@ -164,19 +176,22 @@ export class Layer {
         this.mapItemGroups = [];
     }
 
-    async render(context, map, options, maxStrokesLength, maxFillsLength) {
+    async render(context, map, options, maxStrokesLength, maxFillsLength, quickRender) {
         if (this.isHidden != true) {
+            if (!quickRender) {
+                this.#initializeRenderedImages(map);
+            }
             const zGroups = this.#getZOrderGroups();
             for (const zGroup of zGroups) {
                 const mapItems = this.#getMapItemsByZGroup(zGroup);
                 for (let i = maxStrokesLength - 1; i > -1; i--) {
                     for (const mapItem of mapItems) {
-                        await mapItem.renderStroke(context, map, options, i);
+                        await mapItem.renderStroke(context, map, options, i, quickRender);
                     }
                 }
                 for (let i = maxFillsLength - 1; i > -1; i--) {
                     for (const mapItem of mapItems) {
-                        await mapItem.renderFill(context, map, options, i);
+                        await mapItem.renderFill(context, map, options, i, quickRender);
                     }
                 }
             }
@@ -186,9 +201,64 @@ export class Layer {
     renderSelections(context, map) {
         if (this.isHidden != true) {
             for (const mapItemGroup of this.mapItemGroups) {
-                mapItemGroup.renderSelection(context, map); // temp
+                mapItemGroup.renderSelection(context, map);
             }
         }
+    }
+
+    #renderedImages;
+    renderImageArray(context, path, imageArrayInfo, zGroup, z) {
+        let pathsToCheck = [];
+        const geometryUtilities = new GeometryUtilities();
+        for (const item of this.#renderedImages) {
+            if (item.pathId != path.id && geometryUtilities.doBoundsIntersect(path.bounds, item.pathBounds)) {
+                const zPrecedenceInfo1 = {
+                    zGroup: zGroup,
+                    z: z,
+                    pathId: path.id
+                };
+                const zPrecedenceInfo2 = {
+                    zGroup: item.zGroup,
+                    z: item.z,
+                    pathId: item.pathId
+                };
+                if (!this.#info1HasZPrecedence(zPrecedenceInfo1, zPrecedenceInfo2)) {
+                    const pathToCheck = this.#findPath(item.pathId);
+                    if (pathToCheck) {
+                        pathsToCheck.push(pathToCheck);
+                    }
+                }        
+            }
+        }
+        const locationsToRender = [];
+        for (const location of imageArrayInfo.locationInfo.locations) {
+            const bounds = {
+                x: location.bounds.x + path.start.x,
+                y: location.bounds.y + path.start.y,
+                width: location.bounds.width,
+                height: location.bounds.height
+            };
+            let hasOverlap = false;
+            for (const pathToCheck of pathsToCheck) {
+                hasOverlap = this.#doesBoundsIntersectPath(geometryUtilities, bounds, pathToCheck);
+                if (hasOverlap) {
+                    break;
+                }
+            }
+            if (hasOverlap) {
+            }
+            if (!hasOverlap) {
+                locationsToRender.push(location);
+            }
+        }
+        for (const location of locationsToRender) {
+            const image = imageArrayInfo.images[location.index];
+            if (image) {
+                context.drawImage(image, location.bounds.x + path.start.x, location.bounds.y + path.start.y);
+            }
+        }
+        const pathItem = this.#renderedImages.find(x => x.pathId == path.id);
+        pathItem.renderedLocations = locationsToRender.map(l => l.bounds);
     }
 
     selectByPath(geometryUtilities, selectionBounds, selectionPath, toggleCurrentSelections, mustBeContained) { 
@@ -387,5 +457,93 @@ export class Layer {
         }
         mapItems.sort(sort);
         return mapItems;
+    }
+
+    #initializeRenderedImages(map) {
+        const array = [];
+        for (const mapItemGroup of this.mapItemGroups) {
+            for (const mapItem of mapItemGroup.mapItems) {
+                const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, mapItem.mapItemTemplateRef));
+                if (mapItemTemplate) {
+                    if (mapItemTemplate.fills.some(f => f.getStyleOptionValue(PathStyleOption.PathStyleType) == PathStyleType.ImageArrayFill)
+                        || mapItemTemplate.strokes.some(s => s.getStyleOptionValue(PathStyleOption.PathStyleType) == PathStyleType.ImageArrayStroke)) {
+                        for (const path of mapItem.paths) {
+                            array.push({
+                                pathId: path.id,
+                                pathStart: path.start,
+                                pathBounds: path.bounds,
+                                renderedLocations: []
+                            });
+                            if (path.clipPaths) {
+                                for (const clipPath of path.clipPaths) {
+                                    array.push({
+                                        pathId: clipPath.id,
+                                        pathStart: clipPath.start,
+                                        pathBounds: clipPath.bounds,
+                                        zGroup: mapItem.zGroup,
+                                        z: mapItem.z,
+                                        renderedLocations: []
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        this.#renderedImages = array;
+    }
+
+    #findPath(pathId) {
+        for (const mapItemGroup of this.mapItemGroups) {
+            for (const mapItem of mapItemGroup.mapItems) {
+                for (const path of mapItem.paths) {
+                    if (path.id == pathId) {
+                        return path;
+                    }
+                    if (path.clipPaths) {
+                        for (const clipPath of path.clipPaths) {
+                            if (clipPath.id == pathId) {
+                                return clipPath;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    #info1HasZPrecedence(info1, info2) {
+        if (info1.zGroup > info2.zGroup) {
+            return true;
+        }
+        if (info1.zGroup < info2.zGroup) {
+            return false;
+        }
+        if (info1.z > info2.z) {
+            return true;
+        }
+        if (info1.z < info2.z) {
+            return false;
+        }
+        if (info1.pathId > info2.pathId) {
+            return true;
+        }
+        if (info1.pathId < info2.pathId) {
+            return false;
+        }
+        return false;
+    }
+
+    #doesBoundsIntersectPath(geometryUtilities, bounds, path) {
+        let topLeft = { x: bounds.x, y: bounds.y };
+        let topRight = { x: bounds.x + bounds.width, y: bounds.y };
+        let bottomLeft = { x: bounds.x + bounds.width, y: bounds.y + bounds.height };
+        let bottomRight = { x: bounds.x, y: bounds.y + bounds.height };
+        return geometryUtilities.isPointInPath(topLeft, path.bounds, path)
+            || geometryUtilities.isPointInPath(topRight, path.bounds, path)
+            || geometryUtilities.isPointInPath(bottomLeft, path.bounds, path)
+            || geometryUtilities.isPointInPath(bottomRight, path.bounds, path);
     }
 }

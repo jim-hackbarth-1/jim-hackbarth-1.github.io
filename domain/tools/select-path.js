@@ -144,6 +144,7 @@ class SelectPathTool {
             }
             if (this.#selectionUtilities.activityState === "Move") {
                 this.#selectionUtilities.completeChange(this.#mapWorker, "Move");
+                await this.#mapWorker.renderMap();
             }
             if (this.#selectionUtilities.activityState.startsWith("Resize")) {
                 this.#selectionUtilities.removeExteriorClipPaths(this.#mapWorker);

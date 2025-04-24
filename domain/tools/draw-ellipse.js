@@ -177,12 +177,12 @@ class DrawEllipseTool {
             const xStart = (this.#xCurrent + this.#xStart) / 2;
             const yStart = this.#yStart;
             const start = this.#mapWorker.geometryUtilities.transformPoint({ x: xStart, y: yStart }, scale, translation);
-            const yEnd = this.#yCurrent - this.#yStart;
-            const end = this.#mapWorker.geometryUtilities.transformPoint({ x: 0, y: (yEnd) }, scale);
-            const center = this.#mapWorker.geometryUtilities.transformPoint({ x: 0, y: yEnd / 2 }, scale);
             const xRadius = Math.abs((this.#xCurrent - this.#xStart) / 2);
             const yRadius = Math.abs((this.#yCurrent - this.#yStart) / 2);
             const radii = this.#mapWorker.geometryUtilities.transformPoint({ x: xRadius, y: yRadius }, scale);
+            if (this.#yStart > this.#yCurrent) {
+                start.y -= 2 * yRadius;
+            }
             const transits = [
                 {
                     end: { x: -radii.x, y: radii.y },

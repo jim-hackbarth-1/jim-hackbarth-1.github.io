@@ -97,7 +97,7 @@ export class PathStyleViewModel {
     getOption(optionName) {
         if (this.pathStyle) {
             let optionValue = this.pathStyle.getStyleOptionValue(optionName);
-            if (optionName == "Dash" && optionValue) {
+            if ((optionName == "Dash" || optionName == "ImageArrayOffsets") && optionValue) {
                 optionValue = optionValue.join("-");
             }
             return optionValue;
@@ -150,7 +150,7 @@ export class PathStyleViewModel {
         if (this.pathStyle) {
             const colorStops = this.pathStyle.getColorStops();
             const unspecifiedCount = 5 - colorStops.length;
-            for (let i = 0; i <= unspecifiedCount; i++) {
+            for (let i = 0; i < unspecifiedCount; i++) {
                 colorStops.push({ offset: 0, color: null });
             }
             return colorStops;
@@ -182,11 +182,43 @@ export class PathStyleViewModel {
         this.updateOptions();
     }
 
+    removeImage(optionName) {
+        const dataElement = this.#getElement(`#${optionName}-Data`);
+        dataElement.value = null;
+        this.updateOptions();
+    }
+
+    isRemoveImageDisabled(optionName) {
+        const imageSource = this.pathStyle.getStyleOptionValue(optionName);
+        if (imageSource) {
+            return "";
+        }
+        return "disabled";
+    }
+
     getImages() {
         if (this.pathStyle) {
-            return this.pathStyle.getImages();
+            const images = this.pathStyle.getImages();
+            const unspecifiedCount = 10 - images.length;
+            for (let i = 0; i < unspecifiedCount; i++) {
+                images.push(null);
+            }
+            const imagesOut = [];
+            let index = 1;
+            for (const image of images) {
+                imagesOut.push({ sourceId: `ImageArraySource${index}`, image: image });
+                index++;
+            }
+            return imagesOut;
         }
         return [];
+    }
+
+    hasImage(imageInfo) {
+        if (imageInfo.image && imageInfo.image.length > 0) {
+            return true;
+        }
+        return false;
     }
 
     getMapItemTemplateRef() {
@@ -255,6 +287,14 @@ export class PathStyleViewModel {
         const src = this.getOption(PathStyleOption.TileImageSource);
         for (const img of imgElements) {
             img.setAttribute("src", src);
+        }
+        for (let i = 1; i <= 10; i++) {
+            const idQuery = `#ImageArraySource${i}-Preview`;
+            const imgElement = this.#getElement(idQuery);
+            const imageSource = this.getOption(`ImageArraySource${i}`);
+            if (imgElement && imageSource) {
+                imgElement.setAttribute("src", imageSource);
+            }
         }
     }
 
@@ -415,11 +455,18 @@ export class PathStyleViewModel {
     }
 
     #getImageArraySourceOptions(styleType) {
-        const options = [];
+        const offsetsString = this.#getElement(`#${styleType}-ImageArrayOffsets`).value;
+        const offsets = offsetsString.replaceAll(' ', '').split('-').map(o => parseInt(o));
+        const options = [
+            { key: PathStyleOption.ImageArrayOffsets, value: offsets }
+        ];
         for (let i = 1; i <= 10; i++) {
-            const data = this.#getElement(`#${styleType}-${i}-Data`).value;
-            if (data && data.length > 0) {
-                options.push({ key: `ImageArraySource${i}`, value: data });
+            const element = this.#getElement(`#ImageArraySource${i}-Data`);
+            if (element) {
+                const data = element.value;
+                if (data && data != "undefined" && data.length > 0) {
+                    options.push({ key: `ImageArraySource${i}`, value: data });
+                }
             }
         }
         return options;
@@ -445,8 +492,8 @@ export class PathStyleViewModel {
     async #updateMap(changes) {
 
         // update local copy
-        const map = await MapWorkerClient.getMap();
-        map.applyChangeSet(new ChangeSet({ changes: changes }));
+        //const map = await MapWorkerClient.getMap();
+        //map.applyChangeSet(new ChangeSet({ changes: changes }));
 
         // update map worker
         MapWorkerClient.postWorkerMessage({

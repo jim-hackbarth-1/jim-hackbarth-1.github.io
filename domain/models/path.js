@@ -1,5 +1,5 @@
 ﻿
-import { Arc, Change, ChangeSet, ChangeType, GeometryUtilities, InputUtilities, PathStyleOption, PathStyleType } from "../references.js";
+import { Arc, Change, ChangeSet, ChangeType, GeometryUtilities, InputUtilities, PathStyle, PathStyleOption, PathStyleType } from "../references.js";
 
 export class ClipPath {
 
@@ -20,6 +20,7 @@ export class ClipPath {
         }
         this.#rotationAngle = InputUtilities.cleanseNumber(data?.rotationAngle);
         this.#bounds = InputUtilities.cleanseBounds(data?.bounds);
+        this.#imageLocationInfoList = Path.cleanseImageLocationInfoList(data?.imageLocationInfoList);
         this.#eventListeners = {};
     }
 
@@ -48,6 +49,7 @@ export class ClipPath {
     set transits(transits) {
         const changeSet = this.#getPropertyChange("transits", this.#getListData(this.#transits), this.#getListData(transits));
         this.#transits = transits;
+        this.#imageLocationInfoList = null;
         this.#onChange(changeSet, true);
     }
 
@@ -59,6 +61,7 @@ export class ClipPath {
     set rotationAngle(rotationAngle) {
         const changeSet = this.#getPropertyChange("rotationAngle", this.#rotationAngle, rotationAngle);
         this.#rotationAngle = rotationAngle;
+        this.#imageLocationInfoList = null;
         this.#onChange(changeSet, true);
     }
 
@@ -79,7 +82,8 @@ export class ClipPath {
             start: this.#start,
             transits: this.#getListData(this.#transits),
             rotationAngle: this.#rotationAngle,
-            bounds: this.#bounds
+            bounds: this.#bounds,
+            imageLocationInfoList: this.#imageLocationInfoList
         };
     }
 
@@ -112,6 +116,31 @@ export class ClipPath {
             }
         }
         return pathInfo;
+    }
+
+    #imageLocationInfoList;
+    getImageLocationInfo(pathStyleId) {
+        if (this.#imageLocationInfoList) {
+            return this.#imageLocationInfoList.find(x => x.pathStyleId == pathStyleId);
+        }
+        return null;
+    }
+
+    clearImageLocationInfo() {
+        this.#imageLocationInfoList = null;
+    }
+
+    setImageLocationInfo(locationInfo) {
+        if (!this.#imageLocationInfoList) {
+            this.#imageLocationInfoList = [];
+        }
+        const index = this.#imageLocationInfoList.findIndex(x => x.pathStyleId == locationInfo.pathStyleId);
+        if (index > -1) {
+            this.#imageLocationInfoList[index] = locationInfo;
+        }
+        else {
+            this.#imageLocationInfoList.push(locationInfo);
+        }
     }
 
     applyChange(change, undoing) {
@@ -203,6 +232,7 @@ export class Path {
         this.#rotationAngle = InputUtilities.cleanseNumber(data?.rotationAngle);
         this.#bounds = InputUtilities.cleanseBounds(data?.bounds);
         this.#inView = InputUtilities.cleanseBoolean(data?.inView);
+        this.#imageLocationInfoList = Path.cleanseImageLocationInfoList(data?.imageLocationInfoList);
         this.#eventListeners = {};
     }
 
@@ -233,6 +263,7 @@ export class Path {
         const changeSet = this.#getPropertyChange("transits", this.#getListData(this.#transits), this.#getListData(transits));
         this.#transits = transits;
         this.#rotatedPathInfo = null;
+        this.#imageLocationInfoList = null;
         this.#onChange(changeSet, true);
     }
 
@@ -250,6 +281,7 @@ export class Path {
         const changeSet = this.#getPropertyChange("clipPaths", this.#getListData(this.#clipPaths), this.#getListData(clipPaths));
         InputUtilities.validateIds(clipPaths);
         this.#clipPaths = clipPaths ?? [];
+        this.#imageLocationInfoList = null;
         for (const clipPath of this.#clipPaths) {
             this.#addChangeEventListeners(clipPath);
         }
@@ -265,6 +297,7 @@ export class Path {
         const changeSet = this.#getPropertyChange("rotationAngle", this.#rotationAngle, rotationAngle);
         this.#rotationAngle = rotationAngle;
         this.#rotatedPathInfo = null;
+        this.#imageLocationInfoList = null;
         this.#onChange(changeSet, true);
     }
 
@@ -302,7 +335,8 @@ export class Path {
             clipPaths: this.#getListData(this.#clipPaths, copy),
             rotationAngle: this.#rotationAngle,
             bounds: this.#bounds,
-            inView: this.#inView
+            inView: this.#inView,
+            imageLocationInfoList: this.#imageLocationInfoList
         };
     }
 
@@ -341,6 +375,63 @@ export class Path {
         return pathInfo;
     }
 
+    #imageLocationInfoList;
+    getImageLocationInfo(pathStyleId) {
+        if (this.#imageLocationInfoList) {
+            return this.#imageLocationInfoList.find(x => x.pathStyleId == pathStyleId);
+        }
+        return null;
+    }
+
+    clearImageLocationInfo() {
+        this.#imageLocationInfoList = null;
+        if (this.clipPaths) {
+            for (const clipPath of this.clipPaths) {
+                clipPath.clearImageLocationInfo();
+            }
+        }
+    }
+
+    setImageLocationInfo(locationInfo) {
+        if (!this.#imageLocationInfoList) {
+            this.#imageLocationInfoList = [];
+        }
+        const index = this.#imageLocationInfoList.findIndex(x => x.pathStyleId == locationInfo.pathStyleId);
+        if (index > -1) {
+            this.#imageLocationInfoList[index] = locationInfo;
+        }
+        else {
+            this.#imageLocationInfoList.push(locationInfo);
+        }
+    }
+
+    static cleanseImageLocationInfoList(imageLocationInfoList) {
+        if (!imageLocationInfoList) {
+            return null;
+        }
+        const listOut = [];
+        for (const item of imageLocationInfoList) {
+            const pathStyleId = InputUtilities.cleanseString(item.pathStyleId);
+            const locations = [];
+            for (const location of item.locations) {
+                const index = InputUtilities.cleanseNumber(location.index);
+                const x = InputUtilities.cleanseNumber(location.bounds.x);
+                const y = InputUtilities.cleanseNumber(location.bounds.y);
+                const width = InputUtilities.cleanseNumber(location.bounds.width);
+                const height = InputUtilities.cleanseNumber(location.bounds.height);
+                locations.push({
+                    index: index,
+                    bounds: { x: x, y: y, width: width, height: height }
+                });
+            }
+            listOut.push({
+                pathStyleId: pathStyleId,
+                locations: locations
+            });
+        }
+        return listOut;
+    }
+
     addClipPath(clipPath) {
         if (!clipPath) {
             throw new Error(ErrorMessage.NullValue);
@@ -357,6 +448,7 @@ export class Path {
         };
         const changeSet = new ChangeSet({ changes: [changeData] });
         this.#clipPaths.push(clipPath);
+        this.#imageLocationInfoList = null;
         this.#addChangeEventListeners(clipPath);
         this.#onChange(changeSet, true);
     }
@@ -380,6 +472,7 @@ export class Path {
         };
         const changeSet = new ChangeSet({ changes: [changeData] });
         this.#clipPaths.splice(index, 0, clipPath);
+        this.#imageLocationInfoList = null;
         this.#addChangeEventListeners(clipPath);
         this.#onChange(changeSet, true);
     }
@@ -397,6 +490,7 @@ export class Path {
             const changeSet = new ChangeSet({ changes: [changeData] });
             const deleted = this.#clipPaths.splice(index, 1);
             this.#removeChangeEventListeners(deleted[0]);
+            this.#imageLocationInfoList = null;
             this.#onChange(changeSet, true);
         }
     }
@@ -432,8 +526,19 @@ export class Path {
         return pathInfo;
     }
 
-    async renderStroke(context, map, stroke, options, closePath) {
+    async renderStroke(context, map, stroke, options, closePath, zGroup, z, quickRender) {
         if (stroke && this.#isViewable(map, options)) {
+            if (!quickRender && stroke.getStyleOptionValue(PathStyleOption.PathStyleType) == PathStyleType.ImageArrayStroke) {
+                const imageArrayInfo = await Path.#getImageArrayInfo(map, this, false, stroke);
+                map.renderImageArray(context, this, imageArrayInfo, zGroup, z);
+                if (this.clipPaths) {
+                    for (const clipPath of this.clipPaths) {
+                        imageArrayInfo = await Path.#getImageArrayInfo(map, clipPath, true, stroke);
+                        map.renderImageArray(context, clipPath, imageArrayInfo, zGroup, z);
+                    }
+                }
+                return;
+            }
             let pathInfo = this.getPathInfo();
             const isRotatedTileStyle = this.#isRotatedTileStyle(stroke);
 
@@ -466,8 +571,19 @@ export class Path {
         }
     }
 
-    async renderFill(context, map, fill, options) {
+    async renderFill(context, map, fill, options, zGroup, z, quickRender) {
         if (fill && this.#isViewable(map, options)) {
+            if (!quickRender && fill.getStyleOptionValue(PathStyleOption.PathStyleType) == PathStyleType.ImageArrayFill) {
+                let imageArrayInfo = await Path.#getImageArrayInfo(map, this, false, fill);
+                map.renderImageArray(context, this, imageArrayInfo, zGroup, z);
+                if (this.clipPaths) {
+                    for (const clipPath of this.clipPaths) {
+                        imageArrayInfo = await Path.#getImageArrayInfo(map, clipPath, true, fill);
+                        map.renderImageArray(context, path, imageArrayInfo, zGroup, z);
+                    }
+                }
+                return;
+            }
             let pathInfo = this.getPathInfo();
             pathInfo += " z";
             context.save();
@@ -651,5 +767,31 @@ export class Path {
 
     static #getCenter(bounds) {
         return { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
+    }
+
+    static async #getImageArrayInfo(map, path, isClip, pathStyle) {
+        let locationInfo = path.getImageLocationInfo(pathStyle.id);
+        const images = await Path.#getImagesFromPathStyle(map, pathStyle);
+        if (!locationInfo) {
+            locationInfo = await PathStyle.buildImageLocationArray(path, isClip, pathStyle, images); 
+            path.setImageLocationInfo(locationInfo);
+        }
+        return {
+            images: images,
+            locationInfo: locationInfo
+        };
+    }
+
+    static async #getImagesFromPathStyle(map, pathStyle) {
+        const images = [];
+        for (let i = 1; i <= 10; i++) {
+            const data = pathStyle.getStyleOptionValue(`ImageArraySource${i}`);
+            if (data) {
+                const key = `${pathStyle.id}-ImageArraySource${i}`;
+                const image = await map.getImage(key, data);
+                images.push(image);
+            }
+        }
+        return images;
     }
 }

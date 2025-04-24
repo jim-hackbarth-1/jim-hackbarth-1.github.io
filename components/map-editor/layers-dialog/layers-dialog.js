@@ -450,8 +450,8 @@ class LayersDialogModel {
     async #updateMap(changes) {
 
         // update local copy
-        const map = await this.getMap();
-        map.applyChangeSet(new ChangeSet({ changes: changes }));
+        //const map = await this.getMap();
+        //map.applyChangeSet(new ChangeSet({ changes: changes }));
 
         // update map worker
         MapWorkerClient.postWorkerMessage({

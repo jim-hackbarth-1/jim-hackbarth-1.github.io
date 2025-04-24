@@ -1,5 +1,5 @@
 ﻿
-import { Change, ChangeSet, ChangeType, InputUtilities } from "../references.js";
+import { Change, ChangeSet, ChangeType, GeometryUtilities, InputUtilities } from "../references.js";
 
 /** @readonly @enum {string} */
 export const PathStyleOption = {
@@ -12,7 +12,7 @@ export const PathStyleOption = {
     ColorStop4: "ColorStop4",
     ColorStop5: "ColorStop5",
     TileImageSource: "TileImageSource",
-    ImageArrayOffset: "ImageArrayOffset",
+    ImageArrayOffsets: "ImageArrayOffsets",
     ImageArraySource1: "ImageArraySource1",
     ImageArraySource2: "ImageArraySource2",
     ImageArraySource3: "ImageArraySource3",
@@ -125,9 +125,11 @@ export class PathStyle {
         const pathStyleType = this.options.find(o => o.key == PathStyleOption.PathStyleType).value;
         switch (pathStyleType) {
             case PathStyleType.ColorFill:
+            case PathStyleType.ImageArrayFill:
                 this.#setColorFill(context);
                 break;
             case PathStyleType.ColorStroke:
+            case PathStyleType.ImageArrayStroke:
                 this.#setColorStroke(context, map);
                 break;
             case PathStyleType.LinearGradientFill:
@@ -153,12 +155,6 @@ export class PathStyle {
                 break;
             case PathStyleType.TileStroke:
                 await this.#setTileStroke(context, map);
-                break;
-            case PathStyleType.ImageArrayFill:
-                await this.#setImageArrayFill(context, map);
-                break;
-            case PathStyleType.ImageArrayStroke:
-                await this.#setImageArrayStroke(context, map);
                 break;
         }
     }
@@ -242,8 +238,134 @@ export class PathStyle {
         return options;
     }
 
+    static async buildImageLocationArray(path, isClip, pathStyle, images) {
+        const isStroke = (pathStyle.getStyleOptionValue(PathStyleOption.PathStyleType) == PathStyleType.ImageArrayStroke);
+        const strokeWidth = pathStyle.getStyleOptionValue(PathStyleOption.Width) ?? 0;
+        let heightSum = 0;
+        let widthSum = 0;
+        for (const image of images) {
+            heightSum += image.height;
+            widthSum += image.width;
+        }
+        const heightAvg = heightSum / images.length;
+        const widthAvg = widthSum / images.length;
+
+        const offsets = pathStyle.getStyleOptionValue(PathStyleOption.ImageArrayOffsets);
+
+        const imageOffsetsX = [];
+        for (const offset of offsets) {
+            const imageOffset = (4 + offset) * widthAvg / 8;
+            imageOffsetsX.push(imageOffset)
+        }
+        const imageOffsetsY = [];
+        for (const offset of offsets) {
+            const imageOffset = (4 + offset) * heightAvg / 8;
+            imageOffsetsY.push(imageOffset)
+        }
+
+
+        let x = 0;
+        let y = 0;
+        let yBase = 0;
+        let xOffset = 0;
+        let yOffset = 0;
+        let imageIndex = 0;
+        let image = null;
+        let addToArray = false;
+        const boundsRight = path.bounds.x + path.bounds.width;
+        const boundsBottom = path.bounds.y + path.bounds.height;
+        const geometryUtilities = new GeometryUtilities();
+        const locations = [];
+        while (yBase < boundsBottom) {
+            while (x < boundsRight) {
+                xOffset = imageOffsetsX[PathStyle.#getRandomInteger(0, imageOffsetsX.length - 1)];
+                if (xOffset < 0.5 * widthAvg) {
+                    xOffset = 0.5 * widthAvg;
+                }
+                x += xOffset;
+                yOffset = imageOffsetsY[PathStyle.#getRandomInteger(0, imageOffsetsY.length - 1)];
+                if (yOffset < 0.5 * heightAvg) {
+                    yOffset = 0.5 * heightAvg;
+                }
+                y = yBase + yOffset;
+                imageIndex = PathStyle.#getRandomInteger(0, images.length - 1);
+                image = images[imageIndex];
+                if (isStroke) {
+                    addToArray = PathStyle.#isImageOnPathStroke(strokeWidth, x, y, image, path, isClip, geometryUtilities);
+                }
+                else {
+                    addToArray = !isClip && PathStyle.#isImageInPathFill(x, y, image, path, geometryUtilities);
+                }
+                if (addToArray) {
+                    addToArray = !PathStyle.#doesImageIntersectExistingBounds(geometryUtilities, x - path.start.x, y - path.start.y, image, locations);
+                    if (!addToArray) {
+                    }
+                }
+                if (addToArray) {
+                    locations.push({
+                        index: imageIndex,
+                        bounds: { x: x - path.start.x, y: y - path.start.y, width: image.width, height: image.height }
+                    });
+                }
+            }
+            x = 0;
+            yBase += 0.75 * heightAvg;
+        }
+        return {
+            pathStyleId: pathStyle.id,
+            locations: locations
+        };
+    }
+
     // helpers
     #eventListeners;
+
+    static #getRandomInteger(min, max) {
+        const minCeiled = Math.ceil(min);
+        const maxFloored = Math.floor(max);
+        return Math.floor(Math.random() * (maxFloored - minCeiled + 1) + minCeiled);
+    }
+
+    static #isImageInPathFill(x, y, image, path, geometryUtilities) {
+        const bottomLeft = { x: x, y: y + image.height };
+        const bottomRight = { x: x + image.width, y: y + image.height };
+        const center = { x: x + image.width / 2, y: y + image.height / 2 };
+        return geometryUtilities.isPointInPath(bottomLeft, path.bounds, path)
+            && geometryUtilities.isPointInPath(bottomRight, path.bounds, path)
+            && geometryUtilities.isPointInPath(center, path.bounds, path);
+    }
+
+    static #isImageOnPathStroke(strokeWidth, x, y, image, path, isClip, geometryUtilities) {
+        const halfWidth = strokeWidth / 2;
+        const topLeft = { x: x - halfWidth, y: y - halfWidth };
+        const topRight = { x: x + image.width +  halfWidth, y: y - halfWidth };
+        const bottomLeft = { x: x - halfWidth, y: y + image.height + halfWidth };
+        const bottomRight = { x: x + image.width + halfWidth, y: y + image.height + halfWidth };
+        let pointsIn = [];
+        pointsIn.push(geometryUtilities.isPointInPath(topLeft, path.bounds, path));
+        pointsIn.push(geometryUtilities.isPointInPath(topRight, path.bounds, path));
+        pointsIn.push(geometryUtilities.isPointInPath(bottomLeft, path.bounds, path));
+        pointsIn.push(geometryUtilities.isPointInPath(bottomRight, path.bounds, path));
+        if (pointsIn.some(p => p == false) && pointsIn.some(p => p == true)) {
+            const inPath = PathStyle.#isImageInPathFill(x, y, image, path, geometryUtilities);
+            if (isClip) {
+                return inPath;
+            }
+            return !inPath;
+        } 
+        return false;
+    }
+
+    static #doesImageIntersectExistingBounds(geometryUtilities, x, y, image, array) {
+        const bottomLeft = { x: x, y: y + image.height };
+        const bottomRight = { x: x + image.width, y: y + image.height };
+        for (const item of array) {
+            if (geometryUtilities.isPointInBounds(bottomLeft, item.bounds) || geometryUtilities.isPointInBounds(bottomRight, item.bounds)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     #onChange = (changeSet) => {
         if (this.#eventListeners[Change.ChangeEvent]) {
@@ -309,17 +431,17 @@ export class PathStyle {
                         const color = InputUtilities.cleanseString(option.value.color);
                         optionsOut.push({ key: option.key, value: { offset: offset, color: color } });
                         break;
-                    case PathStyleOption.ImageArrayOffset:
                     case PathStyleOption.GradientStart:
                     case PathStyleOption.GradientEnd:
                         optionsOut.push({ key: option.key, value: InputUtilities.cleansePoint(option.value) });
                         break;
                     case PathStyleOption.Dash:
-                        const dashOut = [];
-                        for (const dashItem of option.value) {
-                            dashOut.push(InputUtilities.cleanseNumber(dashItem));
+                    case PathStyleOption.ImageArrayOffsets:
+                        const numbersOut = [];
+                        for (const item of option.value) {
+                            numbersOut.push(InputUtilities.cleanseNumber(item));
                         }
-                        optionsOut.push({ key: option.key, value: dashOut });
+                        optionsOut.push({ key: option.key, value: numbersOut });
                         break;
                 }
             }
@@ -516,9 +638,10 @@ export class PathStyle {
 
     static #getDefaultImageArray() {
         return [
-            { key: PathStyleOption.ImageArraySource1, value: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABgSURBVEhL7dBBCsAwCERRb+f9T9QgKE1KF3aSxizmgZuAfoiUUtUrxp+We238GXw6I0zBvmVm/Mw38GIHusEwguEUhhEMpzCMYDjNFmfGz9Bt57cMrdJwjD8tt6ORINIAr06ZkdCtX6gAAAAASUVORK5CYII=" },
-            { key: PathStyleOption.ImageArraySource2, value: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACMSURBVEhL7ZfBCsAgCEDdfs5v7uu2KQQdoqWuVNg7BEkhTz0UeHHQgogX7x5KKRz7mm6ONriamuvk3U9kqFeW2XDrca7hakusLXce456hxjqH8chMah3feMZIYh3bWGIyezausXRaiZk7MY01tpW3u27GwxelxZhY9WJNjLWkEmou3+Fqjbd+YfYDcAPbYziqZKbL2AAAAABJRU5ErkJggg=="},
-            { key: PathStyleOption.ImageArraySource3, value: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACZSURBVEhL5ZdBCsAgDARtP5c3+7rWCAseJKhJTItzKBhwR/dQ2hTFxQ8ieuqqkHOuM2u6jnboDVx3XR0P12FRv5Tzzao1t1Y3thKgloKZIDMpGAk0lwIp2E0KegJ3KWhF26SAhRrpv97VIVX3RO5ySeAmHwk2l88EmslXgtRyTcDSXt6kPnVByjn0Y8+i1lHgCqs69hdmPym9D39c1XPWzugAAAAASUVORK5CYII="}
+            { key: PathStyleOption.ImageArrayOffsets, value: [5, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
+            { key: PathStyleOption.ImageArraySource1, value: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADDSURBVEhL7ZXtCcMgEIZt93GLTGCH6U/xZ4apE3QLB0p5DwPXw4rY00KaByJqIM99BDW/4oLBe7/RKhNCoP2RXDGklGgB+HwkJJY4594qMIKi+HF/kpw/+ZUa1Et82FpLGyg1xJLbuuSZMTHGr/+BZjGHBwF6AukSS3qqoSLmtAahLubUWjJULNkDQQDHyXhqj1tlnC5xrYStNIt7sqrxUayRVY2iGGiLJMXbabQUFMUzOMXTOMXT+GMxjsr9uDwwxrwASAKaw390ze0AAAAASUVORK5CYII=" },
+            { key: PathStyleOption.ImageArraySource2, value: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADFSURBVEhL7ZVNCsMgEEZt7+MyF/EK3fYO4h2y7RW8SJceKOUbDEwHK2JHC2keRNRA3vwENb/igsF7v9EqE0Kg/ZFcMaSUaAH4fCQkljjn3iowgqL4tj5Jzp/8Sg3qJT5sraUNlBpiyeO+5JkxMcav/4FmMYcHAXoC6RJLeqqhIua0BqEu5tRaMlQs2QNBAMfJeGqPW2WcLnGthK00i3uyqvFRrJFVjaIYaIskxdtptBQUxTM4xdM4xdP4YzGOyv24PDDGvACYS5ql52O2YwAAAABJRU5ErkJggg=="},
+            { key: PathStyleOption.ImageArraySource3, value: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADFSURBVEhL7ZVNCsMgEEZt7+M5svcUvUJX4ipX6Cnc9xweKOUbDEwHK2JHC2keRNRA3vwENb/igsF7v9EqE0Kg/ZFcMaSUaAH4fCQkljjn3iowgqJ4WR8k509+pQb1Eh+21tIGSg2x5Hm/5ZkxMcav/4FmMYcHAXoC6RJLeqqhIua0BqEu5tRaMlQs2QNBAMfJeGqPW2WcLnGthK00i3uyqvFRrJFVjaIYaIskxdtptBQUxTM4xdM4xdP4YzGOyv24PDDGvABtl5pJ06s46AAAAABJRU5ErkJggg=="}
         ];
     }
 }

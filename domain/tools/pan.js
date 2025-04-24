@@ -36,7 +36,7 @@ class PanTool {
                 await this.#onPointerMove(eventData);
                 break;
             case "pointerup":
-                this.#onPointerUp();
+                await this.#onPointerUp();
                 break;
             case "keydown":
                 await this.#onKeyDown(eventData);
@@ -64,9 +64,9 @@ class PanTool {
         }
     }
 
-    #onPointerUp() {
+    async #onPointerUp() {
         if (this.#isPanning) {
-            this.#panEnd();     
+            await this.#panEnd();     
         }
     }
 
@@ -109,7 +109,7 @@ class PanTool {
         this.#drawCurrentPan();
     }
 
-    #panEnd() {
+    async #panEnd() {
         const changeSet = this.#mapWorker.createChangeSet([{
             changeType: "Edit",
             changeObjectType: "Map",
@@ -119,6 +119,7 @@ class PanTool {
         }]);
         this.#mapWorker.map.completeChangeSet(changeSet);
         this.#isPanning = false;
+        await this.#mapWorker.renderMap();
     }
 
     async #panIncrement(eventData, dx, dy) {

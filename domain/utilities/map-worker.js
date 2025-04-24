@@ -506,7 +506,7 @@ export class MapWorker {
 
         // record change at wheel end
         clearTimeout(this.#wheelTimeout);
-        this.#wheelTimeout = setTimeout(() => {
+        this.#wheelTimeout = setTimeout(async () => {
             if (this.#wheelTimeout) {
                 const changeData = {
                     changeType: ChangeType.Edit,
@@ -518,6 +518,7 @@ export class MapWorker {
                 const changeSet = new ChangeSet({ changes: [changeData] });
                 this.map.completeChangeSet(changeSet);
                 this.#wheelTimeout = undefined;
+                await this.renderMap();
             }
             
         }, 500);

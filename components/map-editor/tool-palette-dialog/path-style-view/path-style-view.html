@@ -491,20 +491,17 @@
         <kit-if data-kit-condition="#model.getStyleType() == 'TileFill'">
             <div>
                 <div>
-                    <label>Tile file path:</label>
+                    <label>Image:</label>
                 </div>
-                <div class="file-path-container">
-                    <div class="file-input">
-                        <input id="TileFill-Path" style="width:100%;" type="text" placeholder="file name" disabled />
+                <div class="image-container">
+                    <div>
+                        <img id="TileFill-Preview" class="data-tile-preview img-preview" />
                         <input id="TileFill-Data" type="hidden" value="%{#model.getOption('TileImageSource')}%" />
                     </div>
                     <div>
                         <button id="browse" class="action-control" title="browse" onclick="#model.browse('TileFill')">...</button>
                     </div>
-                </div>
-                <div>
-                    <img id="TileFill-Preview" class="data-tile-preview img-preview" />
-                </div>
+                </div>    
             </div>
             <div>
                 <label>Opacity (%):<span class="validation-message">%{#model.getValidationMessage('TileFill-Opacity')}%</span></label>
@@ -521,20 +518,17 @@
         <kit-if data-kit-condition="#model.getStyleType() == 'TileStroke'">
             <div>
                 <div>
-                    <label>Tile file path:</label>
+                    <label>Image:</label>
                 </div>
-                <div class="file-path-container">
-                    <div class="file-input">
-                        <input id="TileStroke-Path" style="width:100%;" type="text" placeholder="file name" disabled />
+                <div class="image-container">
+                    <div>
+                        <img id="TileStroke-Preview" class="data-tile-preview img-preview" />
                         <input id="TileStroke-Data" type="hidden" value="%{#model.getOption('TileImageSource')}%" />
                     </div>
                     <div>
                         <button id="browse" class="action-control" title="browse" onclick="#model.browse('TileStroke')">...</button>
                     </div>
-                </div>
-                <div>
-                    <img id="TileStroke-Preview" class="data-tile-preview img-preview" />
-                </div>
+                </div>           
             </div>
             <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/stroke-styles-view/stroke-styles-view.html"
                            data-kit-model-input="{ pathStyleViewModel: #model }">
@@ -554,30 +548,45 @@
         <kit-if data-kit-condition="#model.getStyleType() == 'ImageArrayFill'">
             <div>
                 <label>Images:</label>
-                <kit-array data-kit-array="#model.getImages()" data-kit-array-ref="images" data-kit-item-index-ref="imageIndex">
+                <kit-array data-kit-array="#model.getImages()" data-kit-array-ref="images" data-kit-item-ref="imageInfo">
                     <div>
-                        <div>
-                            <label>File path:</label>
-                        </div>
-                        <div>
-                            <input id="ImageArrayFill-%{#imageIndex}%-Path" type="text" placeholder="file name" disabled />
-                            <button id="browse" class="action-control" title="browse" onclick="#model.browse('ImageArrayFill-%{#imageIndex}%')">...</button>
-                        </div>
-                        <div>
-                            <img 
-                                 id="ImageArrayFill-%{#imageIndex}%-Preview" 
-                                 data-kit-add-attributes="src=%{#model.getOption('ImageArraySource1' + %{#imageIndex}%)}%" />
-                        </div>
-                        <div>
-                            <input id="ImageArrayFill-%{#imageIndex}%-Data"
-                                   type="text"
-                                   placeholder="file data"
-                                   style="width:400px;"
-                                   data-kit-add-attributes="value=%{#model.getOption('ImageArraySource1' + %{#imageIndex}%)}%"
-                                   disabled />
+                        <div class="image-container">
+                            <div>
+                                <kit-if data-kit-condition="#model.hasImage(#imageInfo)">
+                                    <img id="%{#imageInfo.sourceId}%-Preview" class="img-preview" />
+                                </kit-if>
+                                <kit-if data-kit-condition="!#model.hasImage(#imageInfo)">
+                                    <span class="image-placeholder">[None]</span>
+                                </kit-if>
+                            </div>
+                            <div>
+                                <button id="browse" class="action-control" style="padding:15px;margin-right:4px;" title="browse" onclick="#model.browse(#imageInfo.sourceId)">...</button>
+                                <input id="%{#imageInfo.sourceId}%-Data" type="hidden" value="%{#model.getOption(#imageInfo.sourceId)}%" />
+                            </div>
+                            <div>
+                                <button title="Remove image"
+                                        class="action-control"
+                                        data-kit-add-attributes="%{#model.isRemoveImageDisabled(#imageInfo.sourceId)}%"
+                                        onclick="#model.removeImage(#imageInfo.sourceId);">
+                                    <div class="icon-container">
+                                        <kit-component data-kit-template-path="/resources/icons/delete.html" data-kit-model="null"></kit-component>
+                                    </div>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </kit-array>
+            </div>
+            <div>
+                <label>Offsets:<span class="validation-message">%{#model.getValidationMessage('ImageArrayFill-ImageArrayOffsets')}%</span></label>
+                <input id="ImageArrayFill-ImageArrayOffsets"
+                       type="text"
+                       placeholder="example: 5-5"
+                       maxlength="200"
+                       style="width:400px;"
+                       data-kit-add-attributes="value=%{#model.getOption('ImageArrayOffsets')}%"
+                       onchange="#model.updateOptions()"
+                       onkeydown="#model.onKeyDown(event)" />
             </div>
             <div>
                 <label>Opacity (%):<span class="validation-message">%{#model.getValidationMessage('ImageArrayFill-Opacity')}%</span></label>
@@ -594,30 +603,45 @@
         <kit-if data-kit-condition="#model.getStyleType() == 'ImageArrayStroke'">
             <div>
                 <label>Images:</label>
-                <kit-array data-kit-array="#model.getImages()" data-kit-array-ref="images" data-kit-item-index-ref="imageIndex">
+                <kit-array data-kit-array="#model.getImages()" data-kit-array-ref="images" data-kit-item-ref="imageInfo">
                     <div>
-                        <div>
-                            <label>File path:</label>
-                        </div>
-                        <div>
-                            <input id="ImageArrayStroke-%{#imageIndex}%-Path" type="text" placeholder="file name" disabled />
-                            <button id="browse" class="action-control" title="browse" onclick="#model.browse('ImageArrayStroke-%{#imageIndex}%')">...</button>
-                        </div>
-                        <div>
-                            <img 
-                                 id="ImageArrayStroke-%{#imageIndex}%-Preview"
-                                 data-kit-add-attributes="src=%{#model.getOption('ImageArraySource' + %{#imageIndex}%)}%"/>
-                        </div>
-                        <div>
-                            <input id="ImageArrayStroke-%{#imageIndex}%-Data"
-                                   type="text"
-                                   placeholder="file data"
-                                   style="width:400px;"
-                                   data-kit-add-attributes="value=%{#model.getOption('ImageArraySource' + %{#imageIndex}%)}%"
-                                   disabled />
+                        <div class="image-container">
+                            <div>
+                                <kit-if data-kit-condition="#model.hasImage(#imageInfo)">
+                                    <img id="%{#imageInfo.sourceId}%-Preview" class="img-preview" />
+                                </kit-if>
+                                <kit-if data-kit-condition="!#model.hasImage(#imageInfo)">
+                                    <span class="image-placeholder">[None]</span>
+                                </kit-if>
+                            </div>
+                            <div>
+                                <button id="browse" class="action-control" style="padding:15px;margin-right:4px;" title="browse" onclick="#model.browse(#imageInfo.sourceId)">...</button>
+                                <input id="%{#imageInfo.sourceId}%-Data" type="hidden" value="%{#model.getOption(#imageInfo.sourceId)}%" />
+                            </div>
+                            <div>
+                                <button title="Remove image"
+                                        class="action-control"
+                                        data-kit-add-attributes="%{#model.isRemoveImageDisabled(#imageInfo.sourceId)}%"
+                                        onclick="#model.removeImage(#imageInfo.sourceId);">
+                                    <div class="icon-container">
+                                        <kit-component data-kit-template-path="/resources/icons/delete.html" data-kit-model="null"></kit-component>
+                                    </div>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </kit-array>
+            </div>
+            <div>
+                <label>Offsets:<span class="validation-message">%{#model.getValidationMessage('ImageArrayStroke-ImageArrayOffsets')}%</span></label>
+                <input id="ImageArrayStroke-ImageArrayOffsets"
+                       type="text"
+                       placeholder="example: 5-5"
+                       maxlength="200"
+                       style="width:400px;"
+                       data-kit-add-attributes="value=%{#model.getOption('ImageArrayOffsets')}%"
+                       onchange="#model.updateOptions()"
+                       onkeydown="#model.onKeyDown(event)" />
             </div>
             <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/stroke-styles-view/stroke-styles-view.html"
                            data-kit-model-input="{ pathStyleViewModel: #model }">

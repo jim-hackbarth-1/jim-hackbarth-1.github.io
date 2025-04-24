@@ -1,5 +1,5 @@
 ﻿
-import { Change, ChangeSet, ChangeType, EntityReference, GeometryUtilities, InputUtilities, Path } from "../references.js";
+import { Change, ChangeSet, ChangeType, EntityReference, InputUtilities, Path, PathStyle, PathStyleType } from "../references.js";
 
 export class MapItem {
 
@@ -63,6 +63,9 @@ export class MapItem {
         }
         const changeSet = this.#getPropertyChange("mapItemTemplateRef", this.#mapItemTemplateRef, mapItemTemplateRef);
         this.#mapItemTemplateRef = mapItemTemplateRef;
+        for (const path of this.paths) {
+            path.clearImageLocationInfo();
+        }
         this.#onChange(changeSet, true);
     }
 
@@ -258,27 +261,21 @@ export class MapItem {
         }
     }
 
-    async renderStroke(context, map, options, strokeIndex) {
+    async renderStroke(context, map, options, strokeIndex, quickRender) {
         if (this.isHidden != true) {
-            const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
-            if (mapItemTemplate && strokeIndex < mapItemTemplate.strokes.length) {
-                const stroke = mapItemTemplate.strokes[strokeIndex];
-                const closePath = mapItemTemplate.fills.length > 0;
-                for (const path of this.paths) {
-                    await path.renderStroke(context, map, stroke, options, closePath);
-                }
+            const stroke = this.#getStroke(map, strokeIndex);
+            const closePath = this.#isStrokeClosed(map);
+            for (const path of this.paths) {
+                await path.renderStroke(context, map, stroke, options, closePath, this.zGroup, this.z, quickRender);
             }
         }
     }
 
-    async renderFill(context, map, options, fillIndex) {
+    async renderFill(context, map, options, fillIndex, quickRender) {
         if (this.isHidden != true) {
-            const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
-            if (mapItemTemplate && fillIndex < mapItemTemplate.fills.length) {
-                const fill = mapItemTemplate.fills[fillIndex];
-                for (const path of this.paths) {
-                    await path.renderFill(context, map, fill, options);
-                }
+            const fill = this.#getFill(map, fillIndex);
+            for (const path of this.paths) {
+                await path.renderFill(context, map, fill, options, this.zGroup, this.z, quickRender);
             }
         }
     }
@@ -312,7 +309,10 @@ export class MapItem {
 
     isSelectedByPoints(context, map, points) {
         const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
-        const hasFill = mapItemTemplate.fills.length > 0;
+        let hasFill = true;
+        if (mapItemTemplate) {
+            hasFill = mapItemTemplate.fills.length > 0;
+        }
         for (const path of this.paths) {
             const path2D = new Path2D(path.getPathInfo());
             for (const point of points) {
@@ -437,5 +437,41 @@ export class MapItem {
 
     #getListData(list, copy) {
         return list ? list.map(x => x.getData ? x.getData(copy) : x) : null;
+    }
+
+    #isStrokeClosed(map) {
+        const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
+        if (!mapItemTemplate) {
+            return true;
+        }
+        return mapItemTemplate.fills.length > 0;
+    }
+
+    #getStroke(map, strokeIndex) {
+        let stroke = null;
+        const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
+        if (mapItemTemplate && mapItemTemplate.strokes.length > strokeIndex) {
+            stroke = mapItemTemplate.strokes[strokeIndex];
+        }
+        if (!stroke) {
+            stroke = new PathStyle({
+                options: PathStyle.getOptionDefaults(PathStyleType.ColorStroke)
+            });
+        }
+        return stroke;
+    }
+
+    #getFill(map, fillIndex) {
+        let fill = null;
+        const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
+        if (mapItemTemplate && mapItemTemplate.fills.length > fillIndex) {
+            fill = mapItemTemplate.fills[fillIndex];
+        }
+        if (!fill) {
+            fill = new PathStyle({
+                options: PathStyle.getOptionDefaults(PathStyleType.ColorFill)
+            });
+        }
+        return fill;
     }
 }

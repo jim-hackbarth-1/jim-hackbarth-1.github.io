@@ -528,8 +528,9 @@ export class Map {
         };
         const maxStrokeLength = this.#getMaxStrokesLength();
         const maxFillsLength = this.#getMaxFillsLength();
+        const quickRender = this.#changeSetStarted;
         for (const layer of this.layers) {
-            await layer.render(context, this, options, maxStrokeLength, maxFillsLength);
+            await layer.render(context, this, options, maxStrokeLength, maxFillsLength, quickRender);
         }
         for (const layer of this.layers) {
             layer.renderSelections(context, this);
@@ -827,14 +828,19 @@ export class Map {
         if (!this.#images) {
             this.#images = [];
         }
-        let image = this.#images.find(i => i.key == key);
+        let image = this.#images.find(i => i.key == key)?.image;
         if (!image) {
             const response = await fetch(data);
             const blob = await response.blob();
             image = await createImageBitmap(blob);
-            this.#images.push(key, image);
+            this.#images.push({ key: key, image: image });
         }
         return image;
+    }
+
+    renderImageArray(context, path, imageArrayInfo, zGroup, z) {
+        const activeLayer = this.getActiveLayer();
+        activeLayer.renderImageArray(context, path, imageArrayInfo, zGroup, z);
     }
 
     // helpers

@@ -262,11 +262,9 @@ export class PathStyle {
             const imageOffset = (4 + offset) * heightAvg / 8;
             imageOffsetsY.push(imageOffset)
         }
-
-
-        let x = 0;
-        let y = 0;
-        let yBase = 0;
+        let x = path.bounds.x;
+        let y = path.bounds.y;
+        let yBase = y;
         let xOffset = 0;
         let yOffset = 0;
         let imageIndex = 0;

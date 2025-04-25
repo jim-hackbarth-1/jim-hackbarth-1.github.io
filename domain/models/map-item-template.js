@@ -6,7 +6,7 @@ export class MapItemTemplate {
     // constructor
     constructor(data) {
         this.#ref = new EntityReference(data?.ref);
-        this.#thumbnailSrc = InputUtilities.cleanseSvg(data?.thumbnailSrc);
+        this.#thumbnailSrc = InputUtilities.cleanseString(data?.thumbnailSrc);
         this.#fills = [];
         if (data?.fills) {
             for (const fillData of data.fills) {
@@ -45,7 +45,7 @@ export class MapItemTemplate {
     /** @type {string}  */
     #thumbnailSrc;
     get thumbnailSrc() {
-        return this.#thumbnailSrc;
+        return this.#thumbnailSrc ?? MapItemTemplate.defaultThumbnailSrc;
     }
     set thumbnailSrc(thumbnailSrc) {
         const changeSet = this.#getPropertyChange("thumbnailSrc", this.#thumbnailSrc, thumbnailSrc);
@@ -137,6 +137,10 @@ export class MapItemTemplate {
         const changeSet = this.#getPropertyChange("tags", this.#tags, tags);
         this.#tags = tags;
         this.#onChange(changeSet);
+    }
+
+    static get defaultThumbnailSrc() {
+        return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsEAAA7BAbiRa+0AAABSSURBVEhL7dexEcAwCARB7Cbpg0LogyrtEUMLOpLfAEF0sWzLM6+5+zfrVVXVzR4nGhFnvS4zO/7OjVMYozBGYYzCGIUxCmMUxiiMWfvCLDH7ASE6DzbCOaWAAAAAAElFTkSuQmCC";
     }
 
     // methods
@@ -323,7 +327,7 @@ export class MapItemTemplate {
     #applyPropertyChange(propertyName, propertyValue) {
         switch (propertyName) {
             case "thumbnailSrc":
-                this.thumbnailSrc = InputUtilities.cleanseSvg(propertyValue);
+                this.thumbnailSrc = InputUtilities.cleanseString(propertyValue);
                 break;
             case "fills":
                 let fills = [];

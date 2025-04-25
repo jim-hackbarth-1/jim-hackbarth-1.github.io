@@ -1,7 +1,6 @@
 ﻿
 import { KitMessenger, KitRenderer } from "../../../ui-kit.js";
 import {
-    ChangeSet,
     ChangeType,
     EntityReference,
     Map,
@@ -68,7 +67,7 @@ class ToolPaletteDialogModel {
                         const elementId = `${mapItemTemplate.ref.name}-${mapItemTemplate.ref.versionId}${mapItemTemplate.ref.isBuiltIn ? "-builtin" : ""}${mapItemTemplate.ref.isFromTemplate ? "-fromtemplate" : ""}`;
                         const thumbnailElements = componentElement.querySelectorAll(`[data-map-item-template-thumbnail="${elementId}"]`);
                         for (const thumbnailElement of thumbnailElements) {
-                            thumbnailElement.innerHTML = mapItemTemplate.thumbnailSrc;
+                            thumbnailElement.innerHTML = `<image height="100%" width="100%" href="${mapItemTemplate.thumbnailSrc}" />`;
                         }
                     }
                 }
@@ -184,7 +183,12 @@ class ToolPaletteDialogModel {
                     const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, mapItemTemplateRef));
                     if (mapItemTemplate) {
                         const elementId = `${mapItemTemplate.ref.name}-${mapItemTemplate.ref.versionId}${mapItemTemplate.ref.isBuiltIn ? "-builtin" : ""}${mapItemTemplate.ref.isFromTemplate ? "-fromtemplate" : ""}`;
-                        items.push({ id: `${paletteType}-${paletteIndex}-${itemIndex}`, elementId: elementId, data: mapItemTemplate });
+                        items.push({
+                            id: `${paletteType}-${paletteIndex}-${itemIndex}`,
+                            elementId: elementId,
+                            data: mapItemTemplate,
+                            thumbnail: `<image height="100%" width="100%" href="${mapItemTemplate.thumbnailSrc}" />`
+                        });
                     }
                     itemIndex++;
                 }
@@ -244,6 +248,7 @@ class ToolPaletteDialogModel {
         return availableItems.map(i => ({
             elementId: `${i.ref.name}-${i.ref.versionId}${i.ref.isBuiltIn ? "-builtin" : ""}${i.ref.isFromTemplate ? "-fromtemplate" : ""}`,
             thumbnailSrc: i.thumbnailSrc,
+            thumbnail: `<image height="100%" width="100%" href="${i.thumbnailSrc}" />`,
             name: i.ref.name,
             referenceTypeLabel: i.ref.isBuiltIn ? "built-in" : i.ref.isFromTemplate ? "from template" : "custom",
             versionLabel: `version ${i.ref.versionId}`
@@ -496,7 +501,7 @@ class ToolPaletteDialogModel {
 
         return mapItemTemplates.map(mit => ({
             elementId: `${mit.ref.name}-${mit.ref.versionId}${mit.ref.isBuiltIn ? "-builtin" : ""}${mit.ref.isFromTemplate ? "-fromtemplate" : ""}`,
-            thumbnailSrc: mit.thumbnailSrc,
+            thumbnailSrc: `<image height="100%" width="100%" href="${mit.thumbnailSrc}" />`,
             name: mit.ref.name,
             referenceTypeLabel: mit.ref.isBuiltIn ? "built-in" : mit.ref.isFromTemplate ? "from template" : "custom",
             versionLabel: `version ${mit.ref.versionId}`
@@ -544,7 +549,7 @@ class ToolPaletteDialogModel {
     }
 
     async addMapItemTemplate() {
-        const thumbnailSrc = `<rect x="10" y="10" width="80" height="80" stroke="#008000" stroke-width="2" fill="#add8e6" rx="10" />`;
+        const thumbnailSrc = MapItemTemplate.defaultThumbnailSrc;
         const map = await MapWorkerClient.getMap();
         const name = this.#getNewRefName("New map item template", map.mapItemTemplateRefs);
         const mapItemTemplate = new MapItemTemplate({

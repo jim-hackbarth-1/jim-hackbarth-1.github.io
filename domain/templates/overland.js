@@ -4,7 +4,7 @@ import { Map, PathStyleOption, PathStyleType } from "../references.js";
 export function getOverlandTemplate() {
     const blueRegion = {
         ref: { name: "Blue Region", versionId: 1 },
-        thumbnailSrc: '<rect x="10" y="10" width="80" height="80" stroke="#008000" stroke-width="2" fill="#add8e6" rx="10" />',
+        thumbnailSrc: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsAAAA7AAWrWiQkAAABVSURBVEhL7dcxFYAwDEXRT2Vgi6VyKqcLtrABnDYW8rL8uySZ3hxVOWJKQ29sucZu7vAfvfuz1mzXPFe8xY1zGOMwxmGMwxiHMQ5jHMY4jCl7YYpIH6JYCTa6CrVbAAAAAElFTkSuQmCC",
         fills: [
             {
                 options: [
@@ -27,7 +27,7 @@ export function getOverlandTemplate() {
     };
     const greenRegion = {
         ref: { name: "Green Region", versionId: 1 },
-        thumbnailSrc: '<rect x="10" y="10" width="80" height="80" stroke="#2f4f4f" stroke-width="2" fill="#8fbc8f" rx="10" />',
+        thumbnailSrc: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsAAAA7AAWrWiQkAAABaSURBVEhLYxgowAilGfT9/f9DmTQFFzduBNsJJkCWJuQ6gJg0BwsmHwBbzgTl0x2MWkw3MGox3cCoxXQDoxbTDYxaTDcwajHdwKjFdAOjFtMNDFgXZoAAAwMAvYMPNumSPeYAAAAASUVORK5CYII=",
         fills: [
             {
                 options: [

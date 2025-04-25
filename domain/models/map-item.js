@@ -454,9 +454,7 @@ export class MapItem {
             stroke = mapItemTemplate.strokes[strokeIndex];
         }
         if (!stroke) {
-            stroke = new PathStyle({
-                options: PathStyle.getOptionDefaults(PathStyleType.ColorStroke)
-            });
+            stroke = this.#getDefaultStyle(mapItemTemplate, PathStyleType.ColorStroke);
         }
         return stroke;
     }
@@ -468,10 +466,18 @@ export class MapItem {
             fill = mapItemTemplate.fills[fillIndex];
         }
         if (!fill) {
-            fill = new PathStyle({
-                options: PathStyle.getOptionDefaults(PathStyleType.ColorFill)
-            });
+            fill = this.#getDefaultStyle(mapItemTemplate, PathStyleType.ColorFill);
         }
         return fill;
+    }
+
+    #getDefaultStyle(mapItemTemplate, pathStyleType) {
+        if (!mapItemTemplate
+            || (mapItemTemplate.fills.length == 0 && mapItemTemplate.strokes.length == 0)) {
+            return new PathStyle({
+                options: PathStyle.getOptionDefaults(pathStyleType)
+            });
+        }
+        return null;
     }
 }

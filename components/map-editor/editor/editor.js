@@ -454,7 +454,11 @@ export class EditorModel {
                 for (const mapItemTemplateRef of palette) {
                     const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, mapItemTemplateRef));
                     if (mapItemTemplate) {
-                        items.push({ id: `${paletteType}-${paletteIndex}-${itemIndex}`, data: mapItemTemplate });
+                        items.push({
+                            id: `${paletteType}-${paletteIndex}-${itemIndex}`,
+                            data: mapItemTemplate,
+                            thumbnail: `<image height="100%" width="100%" href="${mapItemTemplate.thumbnailSrc}" />`
+                        });
                     }
                     itemIndex++;
                 }

@@ -552,7 +552,7 @@
                                                             title="%{#tool.data.ref.name}%"
                                                             draggable="true"
                                                             ondragstart="#model.dragItem(event)">
-                                                        <svg data-map-item-template-thumbnail="%{#tool.elementId}%" height="25" width="25" viewBox="0 0 100 100">%{#tool.data.thumbnailSrc}%</svg>
+                                                        <svg data-map-item-template-thumbnail="%{#tool.elementId}%" height="25" width="25" viewBox="0 0 100 100">%{#tool.thumbnail}%</svg>
                                                     </button>
                                                 </kit-array>
                                             </div>
@@ -567,7 +567,7 @@
                                         <kit-array data-kit-array="#model.getAvailableItems('MapItemTemplates')" data-kit-array-ref="mapItemTemplates" data-kit-item-ref="mapItemTemplate" data-kit-item-index-ref="mapItemTemplateIndex">
                                             <div id="%{#mapItemTemplate.elementId}%" class="action-control available-item" draggable="true" ondragstart="#model.dragItem(event)">
                                                 <div class="icon-container">
-                                                    <svg data-map-item-template-thumbnail="%{#mapItemTemplate.elementId}%" height="25" width="25" viewBox="0 0 100 100">%{#mapItemTemplate.thumbnailSrc}%</svg>
+                                                    <svg data-map-item-template-thumbnail="%{#mapItemTemplate.elementId}%" height="25" width="25" viewBox="0 0 100 100">%{#mapItemTemplate.thumbnail}%</svg>
                                                 </div>
                                                 <div>
                                                     <label>%{#mapItemTemplate.name}%</label>

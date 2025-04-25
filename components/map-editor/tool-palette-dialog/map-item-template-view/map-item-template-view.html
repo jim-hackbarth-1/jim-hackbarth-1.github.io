@@ -2,18 +2,21 @@
     <style>
         @scope (.map-item-template-view-component) {
 
-            .fill-item {
+            .fill-item,
+            .stroke-item {
                 display: flex;
                 padding: 0;
                 margin-bottom: 2px;
             }
 
-            .fill-item div {
+            .fill-item div,
+            .stroke-item div {
                 padding: 0;
-                margin: 0 0 0 5px;
+                margin: 2px 0 0 2px;
             }
 
-            .fill-item label {
+            .fill-item label,
+            .stroke-item label {
                 display: block;
                 margin: 0px 5px 10px 5px;
             }
@@ -24,12 +27,6 @@
 
             .image-container {
                 display: flex;
-            }
-
-            .image-container .file-input {
-                margin-left: auto;
-                margin-right: 5px;
-                width: 100%;
             }
 
             .img-preview {
@@ -73,6 +70,14 @@
             .color-label {
                 padding-top: 5px;
             }
+
+            .image-thumbnail {
+                height: 21px;
+                width: 21px;
+                border: 1px solid dimgray;
+                border-radius: 3px;
+                background-position: center;
+            }
         }
     </style>
     <fieldset data-kit-add-attributes="%{#model.isDisabled()}%">
@@ -106,16 +111,22 @@
                    onkeydown="#model.onKeyDown(event)" />
         </div>
         <div>
-            <label>Thumbnail:<span class="validation-message">%{#model.validationResult?.thumbnail ?? ""}%</span></label>
-            <textarea id="map-item-template-thumbnail"
-                      maxlength="1000"
-                      autocomplete="off"
-                      autocorrect="off"
-                      autocapitalize="off"
-                      spellcheck="false"
-                      onchange="#model.updateProperty('map-item-template-thumbnail')"
-                      onkeydown="#model.onKeyDown(event)">%{#model.mapItemTemplate.thumbnailSrc}%
-            </textarea>
+            <div>
+                <label>Thumbnail:</label>
+            </div>
+            <div class="image-container">
+                <div class="img-preview" style="padding:4px 4px 0 4px;">
+                    <img id="map-item-template-thumbnail-preview" />
+                    <input id="map-item-template-thumbnail" type="hidden" value="%{#model.mapItemTemplate.thumbnailSrc}%" />
+                </div>
+                <div>
+                    <button 
+                            class="action-control" 
+                            title="browse" 
+                            data-kit-add-attributes="%{#model.isDisabled()}%"
+                            onclick="#model.browseThumbnail()">...</button>
+                </div>
+            </div>
         </div>
         <div>
             <label>Tags:<span class="validation-message">%{#model.validationResult?.tags ?? ""}%</span></label>
@@ -169,21 +180,22 @@
                     <div id="fill-list" class="item-list fills-list" ondragover="#model.allowDrop(event)" ondrop="#model.dropFill(event)">
                         <!-- dynamic content here -->
                         <kit-array data-kit-array="#model.getFills()" data-kit-array-ref="fills" data-kit-item-ref="fill" data-kit-item-index-ref="fillIndex">
-                            <div 
-                                 id="%{#fill.id}%" 
-                                 class="fill-item action-control" 
-                                 onclick="#model.selectFill(#fill.id)" 
+                            <div id="%{#fill.id}%"
+                                 class="fill-item action-control"
+                                 onclick="#model.selectFill(#fill.id)"
                                  data-kit-add-attributes="draggable=%{#model.isDraggable()}%"
-                                 ondragstart="#model.dragItem(event)">
-                                <kit-if data-kit-condition="#fill.fillType == 'ColorFill'">
-                                    <div class="icon-container">
-                                        <svg data-fill-thumbnail="%{#fill.id}%" height="25" width="25" viewBox="0 0 100 100">
-                                            <rect x="10" y="10" width="80" height="80" stroke="dimgray" stroke-width="2" fill="%{#fill.color}%" rx="10" />
-                                        </svg>
+                                 ondragstart="#model.dragItem(event)"
+                                 data-path-style-label-container="%{#fill.id}%">
+                                <div class="icon-container color-swatch-container">
+                                    <svg class="color-swatch" height="25" width="25" viewBox="0 0 100 100">
+                                    </svg>
+                                </div>
+                                <div class="icon-container image-thumbnail-container">
+                                    <div class="image-thumbnail">
                                     </div>
-                                </kit-if>
+                                </div>
                                 <div>
-                                    <label>%{#fill.label}%</label>
+                                    <label class="path-style-label"></label>
                                 </div>
                                 <div class="spacer"></div>
                                 <div class="move-container">
@@ -239,21 +251,22 @@
                     <div id="stroke-list" class="item-list strokes-list" ondragover="#model.allowDrop(event)" ondrop="#model.dropStroke(event)">
                         <!-- dynamic content here -->
                         <kit-array data-kit-array="#model.getStrokes()" data-kit-array-ref="strokes" data-kit-item-ref="stroke" data-kit-item-index-ref="strokeIndex">
-                            <div 
-                                 id="%{#stroke.id}%" 
-                                 class="stroke-item action-control" 
-                                 onclick="#model.selectStroke(#stroke.id)" 
+                            <div id="%{#stroke.id}%"
+                                 class="stroke-item action-control"
+                                 onclick="#model.selectStroke(#stroke.id)"
                                  data-kit-add-attributes="draggable=%{#model.isDraggable()}%"
-                                 ondragstart="#model.dragItem(event)">
-                                <kit-if data-kit-condition="#stroke.strokeType == 'ColorStroke'">
-                                    <div class="icon-container">
-                                        <svg data-stroke-thumbnail="%{#stroke.id}%" height="25" width="25" viewBox="0 0 100 100">
-                                            <rect x="10" y="10" width="80" height="80" stroke="dimgray" stroke-width="2" fill="%{#stroke.color}%" rx="10" />
-                                        </svg>
+                                 ondragstart="#model.dragItem(event)"
+                                 data-path-style-label-container="%{#stroke.id}%">
+                                <div class="icon-container color-swatch-container">
+                                    <svg class="color-swatch" height="25" width="25" viewBox="0 0 100 100">
+                                    </svg>
+                                </div>
+                                <div class="icon-container image-thumbnail-container">
+                                    <div class="image-thumbnail">
                                     </div>
-                                </kit-if>
+                                </div>
                                 <div>
-                                    <label data-stroke-label="%{#stroke.id}%">%{#stroke.label}%</label>
+                                    <label class="path-style-label"></label>
                                 </div>
                                 <div class="spacer"></div>
                                 <div class="move-container">

@@ -552,15 +552,6 @@ export class PathStyle {
         context.strokeStyle = pattern;
     }
 
-    async #setImageArrayFill(context, map) {
-        this.#setOpacity(context);
-    }
-
-    async #setImageArrayStroke(context, map) {
-        this.#setOpacity(context);
-        this.#setStrokeOptions(context, map);
-    }
-
     #setOpacity(context) {
         context.globalAlpha = (this.options.find(o => o.key == PathStyleOption.Opacity)?.value ?? 100) / 100;
     }

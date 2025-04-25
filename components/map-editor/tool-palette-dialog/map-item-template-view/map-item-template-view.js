@@ -1,9 +1,9 @@
 ﻿
 import { KitMessenger, KitRenderer } from "../../../../ui-kit.js";
 import {
-    ChangeSet,
     ChangeType,
     EntityReference,
+    FileManager,
     InputUtilities,
     MapItem,
     MapItemTemplate,
@@ -41,13 +41,14 @@ class MapItemTemplateViewModel {
 
     async onRenderComplete() {
         KitMessenger.subscribe(EditorModel.MapUpdatedNotificationTopic, this.componentId, this.onMapUpdated.name);
+        this.#updatePathStyleLabels();
+        this.#loadThumbnail();
     }
 
     async onMapUpdated(message) {
 
         if (this.mapItemTemplate) {
             const map = await MapWorkerClient.getMap();
-            const componentElement = KitRenderer.getComponentElement(this.componentId);
             this.mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(this.mapItemTemplate.ref, mit.ref));
             if (this.#currentFill && this.mapItemTemplate) {
                 this.#currentFill = this.mapItemTemplate.fills.find(f => f.id == this.#currentFill.id);
@@ -57,37 +58,23 @@ class MapItemTemplateViewModel {
             }
             let reRender = false;
             if (message?.data?.changeSet?.changes) {
+                const pathStyleLabelChange = message.data.changeSet.changes.some(c => c.changeType == ChangeType.Edit && c.changeObjectType == PathStyle.name);
+                const fillsChange = message.data.changeSet.changes.some(c => c.changeObjectType == MapItemTemplate.name && c.propertyName == "fills");
+                const strokesChange = message.data.changeSet.changes.some(c => c.changeObjectType == MapItemTemplate.name && c.propertyName == "strokes");
+                if (pathStyleLabelChange || fillsChange || strokesChange) {
+                    this.#updatePathStyleLabels();
+                    setTimeout(() => {
+                        this.#updatePathStyleLabels();
+                    }, 20);
+                }
+                const thumbnailChange = message.data.changeSet.changes.some(
+                    c => c.changeType == ChangeType.Edit && c.changeObjectType == MapItemTemplate.name && c.propertyName == "thumbnailSrc");
+                if (thumbnailChange) {
+                    setTimeout(() => {
+                        this.#loadThumbnail();
+                    }, 20);
+                }
                 const mapItemTemplateChange = message.data.changeSet.changes.some(c => c.changeObjectType == MapItemTemplate.name);
-
-                // TODO: set thumbnail and label on fill/stroke list item on change
-
-                //const colorFillColorChange = message.data.changeSet.changes.some(c =>
-                //    c.changeType == ChangeType.Edit && c.changeObjectType == ColorFill.name && c.propertyName == "color");
-                //if (colorFillColorChange) {
-                //    for (const fill of this.mapItemTemplate.fills) {
-                //        const fillElement = componentElement.querySelector(`[data-fill-thumbnail="${fill.id}"]`);
-                //        const rect = fillElement.querySelector("rect");
-                //        rect.setAttribute("fill", fill.color);
-                //    }
-                //}
-                //const colorStrokeColorChange = message.data.changeSet.changes.some(c =>
-                //    c.changeType == ChangeType.Edit && c.changeObjectType == ColorStroke.name && c.propertyName == "color");
-                //const strokeWidthChange = message.data.changeSet.changes.some(c =>
-                //    c.changeType == ChangeType.Edit && c.changeObjectType == BaseStroke.name && c.propertyName == "width");
-                //if (colorStrokeColorChange) {
-                //    for (const stroke of this.mapItemTemplate.strokes) {
-                //        const strokeElement = componentElement.querySelector(`[data-stroke-thumbnail="${stroke.id}"]`);
-                //        const rect = strokeElement.querySelector("rect");
-                //        rect.setAttribute("fill", stroke.color);
-                //    }
-                //}
-                //if (colorStrokeColorChange || strokeWidthChange) {
-                //    for (const stroke of this.mapItemTemplate.strokes) {
-                //        const strokeLabelElement = componentElement.querySelector(`[data-stroke-label="${stroke.id}"]`);
-                //        strokeLabelElement.innerHTML = this.#getStrokeLabel(stroke);
-                //    }
-                //}
-
                 reRender = mapItemTemplateChange;
             }
             if (reRender) {
@@ -145,6 +132,30 @@ class MapItemTemplateViewModel {
 
     isAddStrokeDisabled() {
         return (this.mapItemTemplate.ref.isBuiltIn || this.mapItemTemplate.ref.isFromTemplate) ? "disabled" : null;
+    }
+
+    async browseThumbnail() {
+        let fileHandles = null;
+        try {
+            fileHandles = await window.showOpenFilePicker({
+                types: [
+                    {
+                        description: 'Image files',
+                        accept: {
+                            "image/*": [".png", ".gif", ".jpeg", ".jpg"],
+                        },
+                    },
+                ],
+            });
+        }
+        catch {
+            return;
+        }
+        const fileHandle = fileHandles[0];
+        const imageSource = await FileManager.getImageSource(fileHandle);
+        const dataElement = this.#getElement("#map-item-template-thumbnail");
+        dataElement.value = imageSource;
+        this.updateProperty("map-item-template-thumbnail");
     }
 
     async addFill() {
@@ -222,82 +233,16 @@ class MapItemTemplateViewModel {
     }
 
     getFills() {
-        const fills = [];
-        if (this.mapItemTemplate?.fills) {
-            for (const fill of this.mapItemTemplate.fills) {
-                const fillType = fill.getStyleOptionValue(PathStyleOption.PathStyleType);
-                let label = "Fill";
-                switch (fillType) {
-                    case PathStyleType.ColorFill:
-                        label = "Color fill";
-                        break;
-                    case PathStyleType.LinearGradientFill:
-                        label = "Linear gradient fill";
-                        break;
-                    case PathStyleType.RadialGradientFill:
-                        label = "Radial gradient fill";
-                        break;
-                    case PathStyleType.ConicalGradientFill:
-                        label = "Conical gradient fill";
-                        break;
-                    case PathStyleType.TileFill:
-                        label = "Tile fill";
-                        break;
-                    case PathStyleType.ImageArrayFill:
-                        label = "Image array fill";
-                        break;
-                }
-                fills.push({
-                    fillType: fillType,
-                    label: label,
-                    id: fill.id,
-                    color: "#c0c0c0" //TODO: fill.color
-                });
-            }
-        }
-        return fills;
+        return this.mapItemTemplate?.fills ?? [];
     }
 
     getStrokes() {
-        const strokes = [];
-        if (this.mapItemTemplate?.strokes) {
-            for (const stroke of this.mapItemTemplate.strokes) {
-                const strokeType = stroke.getStyleOptionValue(PathStyleOption.PathStyleType);
-                let label = "Stroke";
-                switch (strokeType) {
-                    case PathStyleType.ColorStroke:
-                        label = "Color stroke";
-                        break;
-                    case PathStyleType.LinearGradientStroke:
-                        label = "Linear gradient stroke";
-                        break;
-                    case PathStyleType.RadialGradientStroke:
-                        label = "Radial gradient stroke";
-                        break;
-                    case PathStyleType.ConicalGradientStroke:
-                        label = "Conical gradient stroke";
-                        break;
-                    case PathStyleType.TileStroke:
-                        label = "Tile stroke";
-                        break;
-                    case PathStyleType.ImageArrayStroke:
-                        label = "Image array stroke";
-                        break;
-                }
-                strokes.push({
-                    strokeType: strokeType,
-                    label: label,
-                    id: stroke.id,
-                    color: "#696969" // TODO: stroke.color
-                });
-            }
-        }
-        return strokes;
+        return this.mapItemTemplate?.strokes ?? [];
     }
 
     async selectFill(elementId) {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const fillElements = componentElement.querySelectorAll(".fill-item");
+        const fillElements = this.#getElements(".fill-item");
+
         for (const fillElement of fillElements) {
             const fillElementId = fillElement.id;
             if (elementId == fillElementId) {
@@ -308,15 +253,16 @@ class MapItemTemplateViewModel {
             }
         }
         const canDelete = !(this.mapItemTemplate.ref.isBuiltIn || this.mapItemTemplate.ref.isFromTemplate);
-        const deleteButton = componentElement.querySelector("#delete-fill-button");
+        const deleteButton = this.#getElement("#delete-fill-button");
+
         deleteButton.disabled = !canDelete;
         const fill = this.mapItemTemplate.fills.find(f => f.id == elementId);
         await this.#setCurrentFill(fill);
     }
 
     async selectStroke(elementId) {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const strokeElements = componentElement.querySelectorAll(".stroke-item");
+        const strokeElements = this.#getElements(".stroke-item");
+
         for (const strokeElement of strokeElements) {
             const strokeElementId = strokeElement.id;
             if (elementId == strokeElementId) {
@@ -327,7 +273,8 @@ class MapItemTemplateViewModel {
             }
         }
         const canDelete = !(this.mapItemTemplate.ref.isBuiltIn || this.mapItemTemplate.ref.isFromTemplate);
-        const deleteButton = componentElement.querySelector("#delete-stroke-button");
+        const deleteButton = this.#getElement("#delete-stroke-button");
+
         deleteButton.disabled = !canDelete;
         const stroke = this.mapItemTemplate.strokes.find(s => s.id == elementId);
         await this.#setCurrentStroke(stroke);
@@ -434,8 +381,8 @@ class MapItemTemplateViewModel {
         this.#update();
         this.validationResult = await this.#validate();
         if (this.validationResult.isValid) {
-            const componentElement = KitRenderer.getComponentElement(this.componentId);
-            let element = componentElement.querySelector(`#${elementId}`);
+            let element = this.#getElement(`#${elementId}`)
+
             let propertyName = null;
             let oldValue = null;
             let newValue = null;
@@ -443,7 +390,7 @@ class MapItemTemplateViewModel {
                 case "map-item-template-thumbnail":
                     propertyName = "thumbnailSrc";
                     oldValue = this.startingMapItemTemplate.thumbnailSrc;
-                    newValue = InputUtilities.cleanseSvg(element.value.trim());
+                    newValue = InputUtilities.cleanseString(element.value.trim());
                     break;
                 case "map-item-template-tags":
                     propertyName = "tags";
@@ -498,8 +445,7 @@ class MapItemTemplateViewModel {
             clientX: evt.clientX,
             clientY: evt.clientY,
         });
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const element = componentElement.querySelector(`#${elementId}`);
+        const element = this.#getElement(`#${elementId}`)
         element.dispatchEvent(dragStartEvent);
     }
 
@@ -507,8 +453,8 @@ class MapItemTemplateViewModel {
 
         // get drop location 
         const fillId = evt.dataTransfer.getData("text");
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const fillListElement = componentElement.querySelector("#fill-list");
+        const fillListElement = this.#getElement("#fill-list");
+
         const fillItems = fillListElement.querySelectorAll(".fill-item");
         const mouseY = evt.clientY;
         let newIndex = 0;
@@ -555,8 +501,8 @@ class MapItemTemplateViewModel {
 
         // get drop location 
         const strokeId = evt.dataTransfer.getData("text");
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const strokeListElement = componentElement.querySelector("#stroke-list");
+        const strokeListElement = this.#getElement("#stroke-list")
+
         const strokeItems = strokeListElement.querySelectorAll(".stroke-item");
         const mouseY = evt.clientY;
         let newIndex = 0;
@@ -605,7 +551,7 @@ class MapItemTemplateViewModel {
 
     #update() {
         const componentElement = KitRenderer.getComponentElement(this.componentId);
-        this.mapItemTemplate.thumbnailSrc = InputUtilities.cleanseSvg(componentElement.querySelector("#map-item-template-thumbnail").value.trim());
+        this.mapItemTemplate.thumbnailSrc = InputUtilities.cleanseString(componentElement.querySelector("#map-item-template-thumbnail").value.trim());
         this.mapItemTemplate.tags = InputUtilities.cleanseString(componentElement.querySelector("#map-item-template-tags").value.trim());
         this.mapItemTemplate.defaultZGroup = parseInt(componentElement.querySelector("#map-item-template-default-z-group").value);
     }
@@ -671,9 +617,8 @@ class MapItemTemplateViewModel {
     }
 
     async #reRenderElement(elementId) {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        if (componentElement) {
-            const element = componentElement.querySelector(`#${elementId}`);
+        const element = this.#getElement(`#${elementId}`);
+        if (element) {
             const componentId = element.getAttribute("data-kit-component-id");
             await KitRenderer.renderComponent(componentId);
         }
@@ -706,13 +651,14 @@ class MapItemTemplateViewModel {
     #getDetailsState() {
         if (!this.#detailsState) {
             const detailsState = [];
-            const componentElement = KitRenderer.getComponentElement(this.componentId);
-            const detailsElements = componentElement.querySelectorAll("details");
-            for (const detailsElement of detailsElements) {
-                detailsState.push({
-                    id: detailsElement.id,
-                    isOpen: detailsElement.open
-                });
+            const detailsElements = this.#getElements("details");
+            if (detailsElements) {
+                for (const detailsElement of detailsElements) {
+                    detailsState.push({
+                        id: detailsElement.id,
+                        isOpen: detailsElement.open
+                    });
+                }
             }
             this.#detailsState = detailsState;
         }
@@ -720,9 +666,8 @@ class MapItemTemplateViewModel {
     }
 
     #applyDetailsState() {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        if (componentElement) {
-            const detailsElements = componentElement.querySelectorAll("details");
+        const detailsElements = this.#getElements("details");
+        if (detailsElements) {
             const detailsState = this.#getDetailsState();
             for (const detailsElement of detailsElements) {
                 const isOpen = detailsState.find(x => x.id == detailsElement.id)?.isOpen;
@@ -775,5 +720,156 @@ class MapItemTemplateViewModel {
             }
         }
         return mapItems;
+    }
+
+    #componentElement;
+    #getElement(selector) {
+        if (!this.#componentElement) {
+            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
+        }
+        return this.#componentElement.querySelector(selector);
+    }
+
+    #getElements(selector) {
+        if (!this.#componentElement) {
+            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
+        }
+        return this.#componentElement.querySelectorAll(selector);
+    }
+
+    #updatePathStyleLabels() {
+        for (const fill of this.mapItemTemplate.fills) {
+            this.#updatePathStyleLabel(fill);
+        }
+        for (const stroke of this.mapItemTemplate.strokes) {
+            this.#updatePathStyleLabel(stroke);
+        }
+    }
+
+    #updatePathStyleLabel(pathStyle) {
+        const styleType = pathStyle.getStyleOptionValue(PathStyleOption.PathStyleType);
+        const isColorSwatchVisible = this.#isColorSwatchVisible(styleType);
+        const isImageThumbnailVisible = this.#isImageThumbnailVisible(styleType);
+        const pathStyleLabelContainerElement = this.#getElement(`[data-path-style-label-container="${pathStyle.id}"]`);
+        if (pathStyleLabelContainerElement) {
+            if (isColorSwatchVisible) {
+                const colorSwatch = pathStyleLabelContainerElement.querySelector(".color-swatch");
+                colorSwatch.innerHTML = this.#getColorSwatchHtml(pathStyle);
+            }
+            const colorSwatchContainerElement = pathStyleLabelContainerElement.querySelector(".color-swatch-container");
+            colorSwatchContainerElement.style.display = isColorSwatchVisible ? "block" : "none";
+            if (isImageThumbnailVisible) {
+                const imageThumbnail = pathStyleLabelContainerElement.querySelector(".image-thumbnail");
+                const style = `background-image: url('${this.#getImageThumbnailSrc(pathStyle)}');`;
+                imageThumbnail.setAttribute("style", style);
+            }
+            const imageThumbnailContainerElement = pathStyleLabelContainerElement.querySelector(".image-thumbnail-container");
+            imageThumbnailContainerElement.style.display = isImageThumbnailVisible ? "block" : "none";
+            const label = pathStyleLabelContainerElement.querySelector(".path-style-label");
+            label.innerHTML = this.#getPathStyleLabel(styleType);
+        }
+    }
+
+    #getPathStyleLabel(styleType) {
+        switch (styleType) {
+            case PathStyleType.ColorFill:
+            case PathStyleType.ColorStroke:
+                return "Color";
+            case PathStyleType.LinearGradientFill:
+            case PathStyleType.LinearGradientStroke:
+                return "Linear gradient";
+            case PathStyleType.RadialGradientFill:
+            case PathStyleType.RadialGradientStroke:
+                return "Radial gradient";
+            case PathStyleType.ConicalGradientFill:
+            case PathStyleType.ConicalGradientStroke:
+                return "Conical gradient";
+            case PathStyleType.TileFill:
+            case PathStyleType.TileStroke:
+                return "Tile";
+            case PathStyleType.ImageArrayFill:
+            case PathStyleType.ImageArrayStroke:
+                return "Image array";
+        }
+        return "Style";
+    }
+
+    #isColorSwatchVisible(styleType) {
+        return styleType == PathStyleType.ColorFill
+            || styleType == PathStyleType.ColorStroke
+            || styleType == PathStyleType.LinearGradientFill
+            || styleType == PathStyleType.LinearGradientStroke
+            || styleType == PathStyleType.RadialGradientFill
+            || styleType == PathStyleType.RadialGradientStroke
+            || styleType == PathStyleType.ConicalGradientFill
+            || styleType == PathStyleType.ConicalGradientStroke;
+    }
+
+    #isImageThumbnailVisible(styleType) {
+        return styleType == PathStyleType.TileFill
+            || styleType == PathStyleType.TileStroke
+            || styleType == PathStyleType.ImageArrayFill
+            || styleType == PathStyleType.ImageArrayStroke;
+    }
+
+    #getColorSwatchHtml(pathStyle) {
+        const styleType = pathStyle.getStyleOptionValue(PathStyleOption.PathStyleType);
+        if (styleType == PathStyleType.ColorFill || styleType == PathStyleType.ColorStroke) {
+            const color = pathStyle.getStyleOptionValue(PathStyleOption.Color);
+            return `<rect x="10" y="10" width="80" height="80" stroke="dimgray" stroke-width="2" fill="${color}" rx="10" />`;
+        }
+        if (styleType == PathStyleType.LinearGradientFill
+            || styleType == PathStyleType.LinearGradientStroke) {
+            const linearGradientId = `linearGradient-${pathStyle.id}`;
+            let html = `<defs><linearGradient id="${linearGradientId}" >`;
+            const colorStopsLinear = pathStyle.getColorStops();
+            for (const colorStop of colorStopsLinear) {
+                html += `<stop offset="${colorStop.offset}%" stop-color="${colorStop.color}" />`;
+            }
+            html += "</linearGradient></defs>";
+            html += `<rect x="10" y="10" width="80" height="80" stroke="dimgray" stroke-width="2" fill="url(#${linearGradientId})" rx="10" />`;
+            return html;
+        }
+        if (styleType == PathStyleType.RadialGradientFill
+            || styleType == PathStyleType.RadialGradientStroke
+            || styleType == PathStyleType.ConicalGradientFill
+            || styleType == PathStyleType.ConicalGradientStroke) {
+            const radialGradientId = `radialGradient-${pathStyle.id}`;
+            let html = `<defs><radialGradient id="${radialGradientId}" cx="0.5" cy="0.5" r="0.5" >`;
+            const colorStopsLinear = pathStyle.getColorStops();
+            for (const colorStop of colorStopsLinear) {
+                html += `<stop offset="${colorStop.offset}%" stop-color="${colorStop.color}" />`;
+            }
+            html += "</radialGradient></defs>";
+            html += `<rect x="10" y="10" width="80" height="80" stroke="dimgray" stroke-width="2" fill="url(#${radialGradientId})" rx="10" />`;
+            return html;
+        }
+        return "<rect x='10' y='10' width='80' height='80' stroke='dimgray' stroke-width='2' fill='#c0c0c0' rx='10' />";
+    }
+
+    #getImageThumbnailSrc(pathStyle) {
+        const styleType = pathStyle.getStyleOptionValue(PathStyleOption.PathStyleType);
+        if (styleType == PathStyleType.TileFill || styleType == PathStyleType.TileStroke) {
+            return pathStyle.getStyleOptionValue(PathStyleOption.TileImageSource);
+        }
+        let src = pathStyle.getStyleOptionValue(PathStyleOption.ImageArraySource1);
+        if (!src) {
+            src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADDSURBVEhL7ZXtCcMgEIZt93GLTGCH6U/xZ4apE3QLB0p5DwPXw4rY00KaByJqIM99BDW/4oLBe7/RKhNCoP2RXDGklGgB+HwkJJY4594qMIKi+HF/kpw/+ZUa1Et82FpLGyg1xJLbuuSZMTHGr/+BZjGHBwF6AukSS3qqoSLmtAahLubUWjJULNkDQQDHyXhqj1tlnC5xrYStNIt7sqrxUayRVY2iGGiLJMXbabQUFMUzOMXTOMXT+GMxjsr9uDwwxrwASAKaw390ze0AAAAASUVORK5CYII=";
+        }
+        return src;
+    }
+
+    #loadThumbnail() {
+        if (this.mapItemTemplate) {
+            let src = this.mapItemTemplate.thumbnailSrc ?? MapItemTemplate.defaultThumbnailSrc;
+            const imageElement = this.#getElement("#map-item-template-thumbnail-preview");
+            if (imageElement) {
+                imageElement.setAttribute("src", src);
+            }
+            const dataElement = this.#getElement("#map-item-template-thumbnail");
+            if (dataElement) {
+                dataElement.value = src;
+            }
+        }
     }
 }

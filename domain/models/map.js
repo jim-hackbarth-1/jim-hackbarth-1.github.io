@@ -838,9 +838,9 @@ export class Map {
         return image;
     }
 
-    renderImageArray(context, path, imageArrayInfo, zGroup, z) {
+    renderImageArray(context, path, imageArrayInfo, zGroup, z, offset) {
         const activeLayer = this.getActiveLayer();
-        activeLayer.renderImageArray(context, path, imageArrayInfo, zGroup, z);
+        activeLayer.renderImageArray(context, path, imageArrayInfo, zGroup, z, offset);
     }
 
     // helpers

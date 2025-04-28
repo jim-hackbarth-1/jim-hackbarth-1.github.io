@@ -120,11 +120,12 @@
                     <input id="map-item-template-thumbnail" type="hidden" value="%{#model.mapItemTemplate.thumbnailSrc}%" />
                 </div>
                 <div>
-                    <button 
-                            class="action-control" 
-                            title="browse" 
+                    <button class="action-control"
+                            title="browse"
                             data-kit-add-attributes="%{#model.isDisabled()}%"
-                            onclick="#model.browseThumbnail()">...</button>
+                            onclick="#model.browseThumbnail()">
+                        ...
+                    </button>
                 </div>
             </div>
         </div>
@@ -286,6 +287,18 @@
                                            data-kit-model-input="{ pathStyle: #model.getCurrentStroke(), mapItemTemplateRef: #model.getMapItemTemplateRef() }">
                             </kit-component>
                         </kit-if>
+                    </div>
+                </section>
+            </details>
+        </div>
+        <div>
+            <details id="details-shadow" ontoggle="#model.onDetailsToggleEvent(event)">
+                <summary class="action-control">Shadow</summary>
+                <section>
+                    <div class="surface-tertiary background">
+                        <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/shadow-view/shadow-view.html"
+                                       data-kit-model-input="{ mapItemTemplateViewModel: #model, forCaption: false, mapItemTemplate: #model.getMapItemTemplate() }">
+                        </kit-component>
                     </div>
                 </section>
             </details>

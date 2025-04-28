@@ -1,4 +1,5 @@
-﻿
+﻿import { PathStyleOption } from "../../../../domain/references.js";
+
 export function createModel() {
     return new StrokeStylesViewModel();
 }
@@ -33,6 +34,10 @@ export class StrokeStylesViewModel {
 
     getOption(optionName) {
         return this.pathStyleViewModel.getOption(optionName);
+    }
+
+    getOffset() {
+        return this.pathStyleViewModel.getOption(PathStyleOption.StrokeOffset) ?? { x: 0, y: 0 };
     }
 
     isSelected(optionName, optionValue) {

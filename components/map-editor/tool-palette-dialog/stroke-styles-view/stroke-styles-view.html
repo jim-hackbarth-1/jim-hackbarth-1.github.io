@@ -48,3 +48,26 @@
         <option value="miter" data-kit-add-attributes="%{#model.isSelected('Join', 'miter')}%">miter</option>
     </select>
 </div>
+<div>
+    <label>Offset:</label>
+    <div class="point">
+        <div>
+            <label class="inline-label">x:</label>
+            <input id="%{#model.getStyleType()}%-StrokeOffset-X"
+                   type="number"
+                   min="-100"
+                   max="100"
+                   onchange="#model.updateOptions()"
+                   data-kit-add-attributes="value=%{#model.getOffset().x}%" />
+        </div>
+        <div>
+            <label class="inline-label">y:</label>
+            <input id="%{#model.getStyleType()}%-StrokeOffset-Y"
+                   type="number"
+                   min="-100"
+                   max="100"
+                   onchange="#model.updateOptions()"
+                   data-kit-add-attributes="value=%{#model.getOffset().y}%" />
+        </div>
+    </div>
+</div>

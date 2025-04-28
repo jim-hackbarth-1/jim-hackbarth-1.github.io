@@ -122,6 +122,10 @@ class MapItemTemplateViewModel {
         return this.mapItemTemplate?.ref;
     }
 
+    getMapItemTemplate() {
+        return this.mapItemTemplate;
+    }
+
     isDisabled() {
         return (!this.mapItemTemplate || this.mapItemTemplate.ref.isBuiltIn || this.mapItemTemplate.ref.isFromTemplate) ? "disabled" : null;
     }
@@ -416,6 +420,29 @@ class MapItemTemplateViewModel {
                 ];
                 await this.#updateMap(changes);
             }
+        }
+        else {
+            await this.#reRenderElement("if-visible-map-item-template");
+        }
+    }
+
+    async updateShadow(shadow) {
+        this.mapItemTemplate.shadow = shadow;
+        this.validationResult = await this.#validate();
+        if (this.validationResult.isValid) {
+            const oldValue = this.startingMapItemTemplate.shadow.getData();
+            const newValue = this.mapItemTemplate.shadow.getData();
+            const changes = [
+                {
+                    changeType: ChangeType.Edit,
+                    changeObjectType: MapItemTemplate.name,
+                    propertyName: "shadow",
+                    oldValue: oldValue,
+                    newValue: newValue,
+                    mapItemTemplateRef: this.startingMapItemTemplate.ref.getData()
+                }
+            ];
+            await this.#updateMap(changes);
         }
         else {
             await this.#reRenderElement("if-visible-map-item-template");

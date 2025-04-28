@@ -17,25 +17,25 @@ export class Shadow {
     /** @type {number}  */
     #blur;
     get blur() {
-        return this.#blur;
+        return this.#blur ?? 0;
     }
 
     /** @type {string}  */
     #color;
     get color() {
-        return this.#color;
+        return this.#color ?? "#696969";
     }
 
     /** @type {number}  */
     #offsetX;
     get offsetX() {
-        return this.#offsetX;
+        return this.#offsetX ?? 0;
     }
 
     /** @type {number}  */
     #offsetY;
     get offsetY() {
-        return this.#offsetY;
+        return this.#offsetY ?? 0;
     }
 
     // methods

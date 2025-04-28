@@ -1,7 +1,6 @@
 ﻿
 import { KitDependencyManager, KitMessenger, KitRenderer } from "../../../../ui-kit.js";
 import {
-    ChangeSet,
     ChangeType,
     EntityReference,
     FileManager, 
@@ -405,10 +404,15 @@ export class PathStyleViewModel {
     #getStrokeOptions(styleType) {
         const dashString = this.#getElement(`#${styleType}-Dash`).value;
         const dashes = dashString.replaceAll(' ', '').split('-').map(d => parseInt(d));
+        const strokeOffset = {
+            x: this.#getElement(`#${styleType}-StrokeOffset-X`).value,
+            y: this.#getElement(`#${styleType}-StrokeOffset-Y`).value,
+        };
         return [
             { key: PathStyleOption.Width, value: this.#getElement(`#${styleType}-Width`).value },
             { key: PathStyleOption.Dash, value: dashes },
             { key: PathStyleOption.DashOffset, value: this.#getElement(`#${styleType}-DashOffset`).value },
+            { key: PathStyleOption.StrokeOffset, value: strokeOffset },
             { key: PathStyleOption.Cap, value: this.#getElement(`#${styleType}-Cap`).value },
             { key: PathStyleOption.Join, value: this.#getElement(`#${styleType}-Join`).value }
         ];

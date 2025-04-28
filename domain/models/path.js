@@ -528,20 +528,21 @@ export class Path {
 
     async renderStroke(context, map, stroke, options, closePath, zGroup, z, quickRender) {
         if (stroke && this.#isViewable(map, options)) {
+            const offset = stroke.getStyleOptionValue(PathStyleOption.StrokeOffset) ?? { x: 0, y: 0 };
             if (!quickRender && stroke.getStyleOptionValue(PathStyleOption.PathStyleType) == PathStyleType.ImageArrayStroke) {
                 const imageArrayInfo = await Path.#getImageArrayInfo(map, this, false, stroke);
-                map.renderImageArray(context, this, imageArrayInfo, zGroup, z);
+                map.renderImageArray(context, this, imageArrayInfo, zGroup, z, offset);
                 if (this.clipPaths) {
                     for (const clipPath of this.clipPaths) {
                         imageArrayInfo = await Path.#getImageArrayInfo(map, clipPath, true, stroke);
-                        map.renderImageArray(context, clipPath, imageArrayInfo, zGroup, z);
+                        map.renderImageArray(context, clipPath, imageArrayInfo, zGroup, z, offset);
                     }
                 }
                 return;
             }
             let pathInfo = this.getPathInfo();
             const isRotatedTileStyle = this.#isRotatedTileStyle(stroke);
-
+            context.translate(offset.x, offset.y);
             const currentTransform = context.getTransform();
             if (isRotatedTileStyle) {
                 pathInfo = this.rotatedPathInfo;
@@ -567,7 +568,8 @@ export class Path {
                     }
                     context.stroke(new Path2D(innerPathInfo));
                 }
-            }   
+            } 
+            context.translate(-offset.x, -offset.y);
         }
     }
 
@@ -588,7 +590,7 @@ export class Path {
             pathInfo += " z";
             context.save();
             let path2D = new Path2D(pathInfo);
-            if (this.clipPaths) {
+            if (this.clipPaths && this.clipPaths.length > 0) {
                 const outerPath = new Path2D(pathInfo);
                 for (const clipPath of this.clipPaths) {
                     let innerPathInfo = clipPath.getPathInfo();
@@ -616,6 +618,64 @@ export class Path {
             }
             context.restore();
         }
+    }
+
+    renderShadow(context, map, options, shadow) {
+        if (this.#isViewable(map, options)) {
+            let pathInfo = this.getPathInfo();
+            pathInfo += " z";
+            context.save();
+            let path2D = new Path2D(pathInfo);
+            if (this.clipPaths && this.clipPaths.length > 0) {
+                const shadowPathInfo = this.#getShadowPathInfo(shadow);
+                const outerPath = new Path2D(shadowPathInfo);
+                const maxOffset = Math.max(shadow.offsetX, shadow.offsetY);
+                for (const clipPath of this.clipPaths) {
+                    let innerPathInfo = clipPath.getPathInfo();
+                    innerPathInfo += " z";
+                    const innerPath = new Path2D(innerPathInfo);
+                    context.lineWidth = maxOffset / 2;
+                    context.strokeStyle = shadow.color;
+                    context.globalAlpha = 0.5;
+                    let offsetX = shadow.offsetX / 5;
+                    let offsetY = shadow.offsetY / 5;
+                    context.translate(offsetX, offsetY);
+                    context.filter = `blur(${maxOffset / 5}px)`;
+                    context.stroke(innerPath);
+                    context.filter = "none";
+                    context.translate(-offsetX, -offsetY);
+                    context.lineWidth = maxOffset + 1;
+                    context.globalAlpha = 1;
+                    offsetX = shadow.offsetX / 2;
+                    offsetY = shadow.offsetY / 2;
+                    context.translate(offsetX, offsetY);
+                    context.filter = `blur(${maxOffset / 2}px)`;
+                    context.stroke(innerPath);
+                    context.filter = "none";
+                    context.translate(-offsetX, -offsetY);
+                    outerPath.addPath(innerPath);
+                }
+                context.clip(outerPath, "evenodd");
+            }
+            context.shadowColor = shadow.color;
+            context.shadowOffsetX = shadow.offsetX;
+            context.shadowOffsetY = shadow.offsetY;
+            context.shadowBlur = shadow.blur;
+            context.fillStyle = shadow.color;
+            context.fill(path2D);
+            context.shadowOffsetX = 0;
+            context.shadowOffsetY = 0;
+            context.shadowBlur = 0;
+            context.restore();
+        }
+    }
+
+    #getShadowPathInfo(shadow) {
+        const x = this.bounds.x - shadow.blur - shadow.offsetX;
+        const y = this.bounds.y - shadow.blur - shadow.offsetY;
+        const width = this.bounds.width + 2 * (shadow.blur + shadow.offsetX);
+        const height = this.bounds.height + 2 * (shadow.blur + shadow.offsetY);
+        return `M ${x},${y} l ${width},0 0,${height} -${width},0 z`;
     }
 
     applyChange(change, undoing) {

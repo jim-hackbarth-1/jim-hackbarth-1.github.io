@@ -184,6 +184,9 @@ export class Layer {
             const zGroups = this.#getZOrderGroups();
             for (const zGroup of zGroups) {
                 const mapItems = this.#getMapItemsByZGroup(zGroup);
+                for (const mapItem of mapItems) {
+                    mapItem.renderShadow(context, map, options);
+                }
                 for (let i = maxStrokesLength - 1; i > -1; i--) {
                     for (const mapItem of mapItems) {
                         await mapItem.renderStroke(context, map, options, i, quickRender);
@@ -207,7 +210,7 @@ export class Layer {
     }
 
     #renderedImages;
-    renderImageArray(context, path, imageArrayInfo, zGroup, z) {
+    renderImageArray(context, path, imageArrayInfo, zGroup, z, offset) {
         let pathsToCheck = [];
         const geometryUtilities = new GeometryUtilities();
         for (const item of this.#renderedImages) {
@@ -251,12 +254,15 @@ export class Layer {
                 locationsToRender.push(location);
             }
         }
+
+        context.translate(offset.x, offset.y);
         for (const location of locationsToRender) {
             const image = imageArrayInfo.images[location.index];
             if (image) {
                 context.drawImage(image, location.bounds.x + path.start.x, location.bounds.y + path.start.y);
             }
         }
+        context.translate(-offset.x, -offset.y);
         const pathItem = this.#renderedImages.find(x => x.pathId == path.id);
         pathItem.renderedLocations = locationsToRender.map(l => l.bounds);
     }

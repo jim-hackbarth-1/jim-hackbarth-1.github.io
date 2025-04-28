@@ -23,9 +23,7 @@ export class MapItemTemplate {
                 this.#addChangeEventListeners(stroke);
             }
         }
-        if (data?.shadow) {
-            this.#shadow = new Shadow(data.shadow);
-        }
+        this.#shadow = new Shadow(data?.shadow);
         this.#defaultZGroup = InputUtilities.cleanseNumber(data?.defaultZGroup) ?? 0;
         if (data?.caption) {
             this.#caption = new Caption(data.caption);

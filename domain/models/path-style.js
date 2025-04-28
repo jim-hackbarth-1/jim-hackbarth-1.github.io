@@ -32,7 +32,8 @@ export const PathStyleOption = {
     GradientEnd: "GradientEnd",
     GradientStartRadius: "GradientStartRadius",
     GradientEndRadius: "GradientEndRadius",
-    GradientAngle: "GradientAngle"
+    GradientAngle: "GradientAngle",
+    StrokeOffset: "StrokeOffset"
 };
 
 /** @readonly @enum {string} */
@@ -431,6 +432,7 @@ export class PathStyle {
                         break;
                     case PathStyleOption.GradientStart:
                     case PathStyleOption.GradientEnd:
+                    case PathStyleOption.StrokeOffset:
                         optionsOut.push({ key: option.key, value: InputUtilities.cleansePoint(option.value) });
                         break;
                     case PathStyleOption.Dash:
@@ -568,6 +570,7 @@ export class PathStyle {
             { key: PathStyleOption.Width, value: 3 },
             { key: PathStyleOption.Dash, value: [] },
             { key: PathStyleOption.DashOffset, value: 0 },
+            { key: PathStyleOption.StrokeOffset, value: { x: 0, y: 0 } },
             { key: PathStyleOption.Cap, value: "round" },
             { key: PathStyleOption.Join, value: "round" }
         ];

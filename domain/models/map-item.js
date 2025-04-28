@@ -280,6 +280,16 @@ export class MapItem {
         }
     }
 
+    renderShadow(context, map, options) {
+        const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
+        let shadow = mapItemTemplate?.shadow;
+        if (shadow && (shadow.blur > 0 || shadow.offsetX != 0 || shadow.offsetY != 0)) {
+            for (const path of this.paths) {
+                path.renderShadow(context, map, options, shadow);
+            }
+        }
+    }
+
     isSelectedByPath(geometryUtilities, selectionBounds, selectionPath, mustBeContained) {
         const bounds = this.bounds;
         if (bounds.x + bounds.width < selectionBounds.x

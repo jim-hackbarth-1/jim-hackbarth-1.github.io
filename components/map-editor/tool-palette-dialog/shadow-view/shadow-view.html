@@ -1,0 +1,42 @@
+﻿
+<fieldset data-kit-add-attributes="%{#model.isDisabled()}%">
+    <div>
+        <label>Color:</label>
+        <input id="%{#model.getIdPrefix()}%-Color"
+               type="color"
+               onchange="#model.updateShadow()"
+               data-kit-add-attributes="value=%{#model.getColor()}%" />
+    </div>
+    <div>
+        <label>Blur:</label>
+        <input id="%{#model.getIdPrefix()}%-Blur"
+               type="number"
+               min="0"
+               max="100"
+               onchange="#model.updateShadow()"
+               data-kit-add-attributes="value=%{#model.getBlur()}%" />
+    </div>
+    <div>
+        <label>Offset:</label>
+        <div class="point">
+            <div>
+                <label class="inline-label">x:</label>
+                <input id="%{#model.getIdPrefix()}%-Offset-X"
+                       type="number"
+                       min="-100"
+                       max="100"
+                       onchange="#model.updateShadow()"
+                       data-kit-add-attributes="value=%{#model.getOffset().x}%" />
+            </div>
+            <div>
+                <label class="inline-label">y:</label>
+                <input id="%{#model.getIdPrefix()}%-Offset-Y"
+                       type="number"
+                       min="-100"
+                       max="100"
+                       onchange="#model.updateShadow()"
+                       data-kit-add-attributes="value=%{#model.getOffset().y}%" />
+            </div>
+        </div>
+    </div>
+</fieldset>

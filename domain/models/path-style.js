@@ -122,7 +122,7 @@ export class PathStyle {
         return this.options.filter(o => o.key.startsWith("ImageArraySource")).map(o => o.value);
     }
 
-    async setStyle(context, map, path) {
+    async setStyle(context, map, bounds) {
         const pathStyleType = this.options.find(o => o.key == PathStyleOption.PathStyleType).value;
         switch (pathStyleType) {
             case PathStyleType.ColorFill:
@@ -134,22 +134,22 @@ export class PathStyle {
                 this.#setColorStroke(context, map);
                 break;
             case PathStyleType.LinearGradientFill:
-                this.#setLinearGradientFill(context, path.bounds);
+                this.#setLinearGradientFill(context, bounds);
                 break;
             case PathStyleType.LinearGradientStroke:
-                this.#setLinearGradientStroke(context, map, path.bounds);
+                this.#setLinearGradientStroke(context, map, bounds);
                 break;
             case PathStyleType.RadialGradientFill:
-                this.#setRadialGradientFill(context, path.bounds);
+                this.#setRadialGradientFill(context, bounds);
                 break;
             case PathStyleType.RadialGradientStroke:
-                this.#setRadialGradientStroke(context, map, path.bounds);
+                this.#setRadialGradientStroke(context, map, bounds);
                 break;
             case PathStyleType.ConicalGradientFill:
-                this.#setConicalGradientFill(context, path.bounds);
+                this.#setConicalGradientFill(context, bounds);
                 break;
             case PathStyleType.ConicalGradientStroke:
-                this.#setConicalGradientStroke(context, map, path.bounds);
+                this.#setConicalGradientStroke(context, map, bounds);
                 break;
             case PathStyleType.TileFill:
                 await this.#setTileFill(context, map);
@@ -250,6 +250,25 @@ export class PathStyle {
         }
         const heightAvg = heightSum / images.length;
         const widthAvg = widthSum / images.length;
+        let x = 0;
+        let y = 0;
+        let imageIndex = 0;
+        let image = null;
+        if (path.bounds.width < widthAvg && path.bounds.height < heightAvg) {
+            imageIndex = PathStyle.#getRandomInteger(0, images.length - 1);
+            image = images[imageIndex];
+            x = path.bounds.x + (path.bounds.width / 2) - (image.width / 2) - path.start.x;
+            y = path.bounds.y + (path.bounds.height / 2) - (image.height / 2) - path.start.y;
+            return {
+                pathStyleId: pathStyle.id,
+                locations: [
+                    {
+                        index: imageIndex,
+                        bounds: { x: x, y: y, width: image.width, height: image.height }
+                    }
+                ]
+            };
+        }
 
         const offsets = pathStyle.getStyleOptionValue(PathStyleOption.ImageArrayOffsets);
 
@@ -263,13 +282,13 @@ export class PathStyle {
             const imageOffset = (4 + offset) * heightAvg / 8;
             imageOffsetsY.push(imageOffset)
         }
-        let x = path.bounds.x;
-        let y = path.bounds.y;
+        x = path.bounds.x;
+        y = path.bounds.y;
         let yBase = y;
         let xOffset = 0;
         let yOffset = 0;
-        let imageIndex = 0;
-        let image = null;
+        imageIndex = 0;
+        image = null;
         let addToArray = false;
         const boundsRight = path.bounds.x + path.bounds.width;
         const boundsBottom = path.bounds.y + path.bounds.height;

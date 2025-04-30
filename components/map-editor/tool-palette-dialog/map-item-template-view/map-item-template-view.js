@@ -67,20 +67,18 @@ class MapItemTemplateViewModel {
                         this.#updatePathStyleLabels();
                     }, 20);
                 }
-                const thumbnailChange = message.data.changeSet.changes.some(
-                    c => c.changeType == ChangeType.Edit && c.changeObjectType == MapItemTemplate.name && c.propertyName == "thumbnailSrc");
-                if (thumbnailChange) {
-                    setTimeout(() => {
-                        this.#loadThumbnail();
-                    }, 20);
-                }
+                setTimeout(() => {
+                    this.#loadThumbnail();
+                }, 20);
                 const mapItemTemplateChange = message.data.changeSet.changes.some(c => c.changeObjectType == MapItemTemplate.name);
                 reRender = mapItemTemplateChange;
             }
             if (reRender) {
                 const scrollTop = this.dialogModel.scrollTop;
                 await this.#reRenderElement("if-visible-map-item-template");
-                this.#applyDetailsState();
+                setTimeout(() => {
+                    this.#applyDetailsState();
+                }, 20);
                 setTimeout(() => {
                     this.dialogModel.scrollTop = scrollTop;
                 }, 20);
@@ -240,8 +238,16 @@ class MapItemTemplateViewModel {
         return this.mapItemTemplate?.fills ?? [];
     }
 
+    hasFills() {
+        return this.getFills().length > 0;
+    }
+
     getStrokes() {
         return this.mapItemTemplate?.strokes ?? [];
+    }
+
+    hasStrokes() {
+        return this.getStrokes().length > 0;
     }
 
     async selectFill(elementId) {
@@ -437,6 +443,29 @@ class MapItemTemplateViewModel {
                     changeType: ChangeType.Edit,
                     changeObjectType: MapItemTemplate.name,
                     propertyName: "shadow",
+                    oldValue: oldValue,
+                    newValue: newValue,
+                    mapItemTemplateRef: this.startingMapItemTemplate.ref.getData()
+                }
+            ];
+            await this.#updateMap(changes);
+        }
+        else {
+            await this.#reRenderElement("if-visible-map-item-template");
+        }
+    }
+
+    async updateCaption(caption) {
+        this.mapItemTemplate.caption = caption;
+        this.validationResult = await this.#validate();
+        if (this.validationResult.isValid) {
+            const oldValue = this.startingMapItemTemplate.caption.getData();
+            const newValue = this.mapItemTemplate.caption.getData();
+            const changes = [
+                {
+                    changeType: ChangeType.Edit,
+                    changeObjectType: MapItemTemplate.name,
+                    propertyName: "caption",
                     oldValue: oldValue,
                     newValue: newValue,
                     mapItemTemplateRef: this.startingMapItemTemplate.ref.getData()

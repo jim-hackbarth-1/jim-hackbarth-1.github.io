@@ -4,7 +4,7 @@
 
         <div>
             <label>Style type:</label>
-            <select id="selectStyleType" title="Style type" onchange="#model.updateStyleType()"></select>
+            <select id="%{#model.getSelectStyleTypeId()}%" title="Style type" onchange="#model.updateStyleType('%{#model.getSelectStyleTypeId()}%')"></select>
         </div>
 
         <!-- ColorFill -->

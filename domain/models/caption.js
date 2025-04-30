@@ -1,143 +1,78 @@
 ﻿
-import { Change, ChangeSet, InputUtilities, Shadow } from "../references.js";
+import { InputUtilities, PathStyle, Shadow } from "../references.js";
+
+/** @readonly @enum {string} */
+export const FontVariantCap = {
+    Normal: "normal",
+    SmallCaps: "small-caps",
+    AllSmallCaps: "all-small-caps",
+    PetiteCaps: "petite-caps",
+    AllPetiteCaps: "all-petite-caps",
+    Unicase: "unicase",
+    TitlingCaps: "titling-caps"
+};
 
 export class Caption {
 
     // constructor
     constructor(data) {
         this.#defaultText = InputUtilities.cleanseString(data?.defaultText);
-        this.#opacity = InputUtilities.cleanseNumber(data?.opacity) ?? 1;
+        this.#opacity = InputUtilities.cleanseNumber(data?.opacity);
         this.#font = InputUtilities.cleanseString(data?.font);
-        this.#fontSize = InputUtilities.cleanseNumber(data?.fontSize);
         this.#fontColor = InputUtilities.cleanseString(data?.fontColor);
         this.#fontVariantCaps = InputUtilities.cleanseString(data?.fontVariantCaps);
         this.#fontOutlineColor = InputUtilities.cleanseString(data?.fontOutlineColor);
-        if (data?.fontShadow) {
-            this.#fontShadow = new Shadow(data.fontShadow);
-        }
-        this.#align = InputUtilities.cleanseString(data?.align);
-        this.#baseline = InputUtilities.cleanseString(data?.baseline);
+        this.#textShadow = new Shadow(data?.textShadow);
         if (data?.backgroundFill) {
             this.#backgroundFill = new PathStyle(data.backgroundFill);
         }
         if (data?.borderStroke) {
             this.#borderStroke = new PathStyle(data.borderStroke);
         }
-        if (data?.shadow) {
-            this.#shadow = new Shadow(data.shadow);
-        }
-        this.#eventListeners = {};
+        this.#shadow = new Shadow(data?.shadow);
     }
 
     // properties
     /** @type {string}  */
     #defaultText;
     get defaultText() {
-        return this.#defaultText;
-    }
-    set defaultText(defaultText) {
-        const changeSet = this.#getPropertyChange("defaultText", this.#defaultText, defaultText);
-        this.#defaultText = defaultText;
-        this.#onChange(changeSet);
+        return this.#defaultText ?? "";
     }
 
     /** @type {number}  */
     #opacity;
     get opacity() {
-        return this.#opacity;
-    }
-    set opacity(opacity) {
-        const changeSet = this.#getPropertyChange("opacity", this.#opacity, opacity);
-        this.#opacity = opacity;
-        this.#onChange(changeSet);
+        return this.#opacity ?? 1;
     }
 
     /** @type {string}  */
     #font;
     get font() {
-        return this.#font;
-    }
-    set font(font) {
-        const changeSet = this.#getPropertyChange("font", this.#font, font);
-        this.#font = font;
-        this.#onChange(changeSet);
-    }
-
-    /** @type {number}  */
-    #fontSize;
-    get fontSize() {
-        return this.#fontSize;
-    }
-    set fontSize(fontSize) {
-        const changeSet = this.#getPropertyChange("fontSize", this.#fontSize, fontSize);
-        this.#fontSize = fontSize;
-        this.#onChange(changeSet);
+        return this.#font ?? "12px Arial, sans-serif";
     }
 
     /** @type {string}  */
     #fontColor;
     get fontColor() {
-        return this.#fontColor;
-    }
-    set fontColor(fontColor) {
-        const changeSet = this.#getPropertyChange("fontColor", this.#fontColor, fontColor);
-        this.#fontColor = fontColor;
-        this.#onChange(changeSet);
+        return this.#fontColor ?? "#000000";
     }
 
-    /** @type {string}  */
+    /** @type {FontVariantCap}  */
     #fontVariantCaps;
     get fontVariantCaps() {
-        return this.#fontVariantCaps;
-    }
-    set fontVariantCaps(fontVariantCaps) {
-        const changeSet = this.#getPropertyChange("fontVariantCaps", this.#fontVariantCaps, fontVariantCaps);
-        this.#fontVariantCaps = fontVariantCaps;
-        this.#onChange(changeSet);
+        return this.#fontVariantCaps ?? "normal";
     }
 
     /** @type {string}  */
     #fontOutlineColor;
     get fontOutlineColor() {
-        return this.#fontOutlineColor;
-    }
-    set fontOutlineColor(fontOutlineColor) {
-        const changeSet = this.#getPropertyChange("fontOutlineColor", this.#fontOutlineColor, fontOutlineColor);
-        this.#fontOutlineColor = fontOutlineColor;
-        this.#onChange(changeSet);
+        return this.#fontOutlineColor ?? "#000000";
     }
 
     /** @type {Shadow}  */
-    #fontShadow;
-    get fontShadow() {
-        return this.#fontShadow;
-    }
-    set fontShadow(fontShadow) {
-        const changeSet = this.#getPropertyChange("fontShadow", this.#fontShadow, fontShadow);
-        this.#fontShadow = fontShadow;
-        this.#onChange(changeSet);
-    }
-
-    /** @type {string}  */
-    #align;
-    get align() {
-        return this.#align;
-    }
-    set align(align) {
-        const changeSet = this.#getPropertyChange("align", this.#align, align);
-        this.#align = align;
-        this.#onChange(changeSet);
-    }
-
-    /** @type {string}  */
-    #baseline;
-    get baseline() {
-        return this.#baseline;
-    }
-    set baseline(baseline) {
-        const changeSet = this.#getPropertyChange("baseline", this.#baseline, baseline);
-        this.#baseline = baseline;
-        this.#onChange(changeSet);
+    #textShadow;
+    get textShadow() {
+        return this.#textShadow;
     }
 
     /** @type {PathStyle}  */
@@ -145,32 +80,17 @@ export class Caption {
     get backgroundFill() {
         return this.#backgroundFill;
     }
-    set backgroundFill(backgroundFill) {
-        const changeSet = this.#getPropertyChange("backgroundFill", this.#backgroundFill, backgroundFill);
-        this.#backgroundFill = backgroundFill;
-        this.#onChange(changeSet);
-    }
 
     /** @type {PathStyle}  */
     #borderStroke;
     get borderStroke() {
         return this.#borderStroke;
     }
-    set borderStroke(borderStroke) {
-        const changeSet = this.#getPropertyChange("borderStroke", this.#borderStroke, borderStroke);
-        this.#borderStroke = borderStroke;
-        this.#onChange(changeSet);
-    }
 
     /** @type {Shadow}  */
     #shadow;
     get shadow() {
         return this.#shadow;
-    }
-    set shadow(shadow) {
-        const changeSet = this.#getPropertyChange("shadow", this.#shadow, shadow);
-        this.#shadow = shadow;
-        this.#onChange(changeSet);
     }
 
     // methods
@@ -179,98 +99,79 @@ export class Caption {
             defaultText: this.#defaultText,
             opacity: this.#opacity,
             font: this.#font,
-            fontSize: this.#fontSize,
             fontColor: this.#fontColor,
             fontVariantCaps: this.#fontVariantCaps,
             fontOutlineColor: this.#fontOutlineColor,
-            fontShadow: this.#fontShadow ? this.#fontShadow.getData() : null,
-            align: this.#align,
-            baseline: this.#baseline,
+            textShadow: this.#textShadow ? this.#textShadow.getData() : null,
             backgroundFill: this.#backgroundFill ? this.#backgroundFill.getData() : null,
             borderStroke: this.#borderStroke ? this.#borderStroke.getData() : null,
             shadow: this.#shadow ? this.#shadow.getData() : null
         };
     }
 
-    addEventListener(eventName, listener) {
-        if (!this.#eventListeners[eventName]) {
-            this.#eventListeners[eventName] = [];
-        }
-        this.#eventListeners[eventName].push(listener);
-    }
+    async render(context, map, captionText, captionLocation) {
 
-    removeEventListener(eventName, listener) {
-        if (!this.#eventListeners[eventName]) {
-            this.#eventListeners[eventName] = [];
+        // get bounding box
+        const scale = map.zoom;
+        context.font = this.font;
+        context.fontVariantCaps = this.fontVariantCaps;
+        context.letterSpacing = "0px";
+        const strokeText = (this.fontOutlineColor != this.fontColor);
+        if (strokeText) {
+            context.letterSpacing = "1px";
+            context.lineWidth = 1;
         }
-        const index = this.#eventListeners[eventName].findIndex(l => l === listener);
-        if (index > -1) {
-            this.#eventListeners[eventName].splice(index, 1);
-        }
-    }
-
-    applyChange(change, undoing) {
-        if (change.changeType == ChangeType.Edit) {
-            this.#applyPropertyChange(change.propertyName, undoing ? change.oldValue : change.newValue);
-        }
-    }
-
-    #applyPropertyChange(propertyName, propertyValue) {
-        switch (propertyName) {
-            case "defaultText":
-                this.defaultText = InputUtilities.cleanseString(propertyValue);
-                break;
-            case "opacity":
-                this.opacity = InputUtilities.cleanseNumber(propertyValue);
-                break;
-            case "font":
-                this.font = InputUtilities.cleanseString(propertyValue);
-                break;
-            case "fontSize":
-                this.fontSize = InputUtilities.cleanseNumber(propertyValue);
-                break;
-            case "fontColor":
-                this.fontColor = InputUtilities.cleanseString(propertyValue);
-                break;
-            case "fontVariantCaps":
-                this.fontVariantCaps = InputUtilities.cleanseString(propertyValue);
-                break;
-            case "fontOutlineColor":
-                this.fontOutlineColor = InputUtilities.cleanseString(propertyValue);
-                break;
-            case "fontShadow":
-                this.fontShadow = propertyValue ? new Shadow(propertyValue) : null;
-                break;
-            case "align":
-                this.align = InputUtilities.cleanseString(propertyValue);
-                break;
-            case "baseline":
-                this.baseline = InputUtilities.cleanseString(propertyValue);
-                break;
-            case "backgroundFill":
-                this.backgroundFill = new PathStyle(propertyValue);
-                break;
-            case "borderStroke":
-                this.borderStroke = new PathStyle(propertyValue);
-                break;
-            case "shadow":
-                this.shadow = propertyValue ? new Shadow(propertyValue) : null;
-                break;
-        }
-    }
-
-    // helpers
-    #eventListeners;
-
-    #onChange = (changeSet) => {
-        if (this.#eventListeners[Change.ChangeEvent]) {
-            for (const listener of this.#eventListeners[Change.ChangeEvent]) {
-                listener(changeSet);
+        const textBounds = context.measureText(captionText);
+        const padding = 5 / scale;
+        
+        // render background
+        if (this.backgroundFill || this.borderStroke) {
+            const width = textBounds.width + (2 * padding);
+            const height = textBounds.actualBoundingBoxAscent + textBounds.actualBoundingBoxDescent + (2 * padding);
+            const rectBounds = { x: captionLocation.x, y: captionLocation.y - (height / 2), width: width, height: height };
+            const rectPath = new Path2D(`M ${rectBounds.x},${rectBounds.y} l ${rectBounds.width},0 0,${rectBounds.height} ${-(rectBounds.width)},0 z`); 
+            if (this.shadow.offsetX != 0 || this.shadow.offsetY != 0 || this.shadow.blur > 0) {
+                context.shadowColor = this.shadow.color;
+                context.shadowOffsetX = this.shadow.offsetX * scale;
+                context.shadowOffsetY = this.shadow.offsetY * scale;
+                context.shadowBlur = this.shadow.blur;
+            }
+            if (this.backgroundFill) {
+                this.backgroundFill.setStyle(context, map, rectBounds);
+                context.fill(rectPath);
+            }
+            context.shadowOffsetX = 0;
+            context.shadowOffsetY = 0;
+            context.shadowBlur = 0;
+            if (this.borderStroke) {
+                this.borderStroke.setStyle(context, map, rectBounds);
+                context.stroke(rectPath);
             }
         }
-    }
 
-    #getPropertyChange(propertyName, v1, v2) {
-        return ChangeSet.getPropertyChange(Caption.name, propertyName, v1, v2);
+        // render text
+        const textStart = {
+            x: captionLocation.x + padding,
+            y: captionLocation.y + (textBounds.actualBoundingBoxAscent - textBounds.actualBoundingBoxDescent) / 2
+        };
+        context.globalAlpha = this.opacity;
+        if (this.textShadow.offsetX != 0 || this.textShadow.offsetY != 0 || this.textShadow.blur > 0) {
+            context.shadowColor = this.textShadow.color;
+            context.shadowOffsetX = this.textShadow.offsetX * scale;
+            context.shadowOffsetY = this.textShadow.offsetY * scale;
+            context.shadowBlur = this.textShadow.blur;
+        }
+        if (strokeText) {
+            context.strokeStyle = this.fontOutlineColor;
+            context.lineWidth = 1;
+            context.setLineDash([]);
+            context.strokeText(captionText, textStart.x, textStart.y);
+        }
+        context.fillStyle = this.fontColor;  
+        context.fillText(captionText, textStart.x, textStart.y);
+        context.shadowOffsetX = 0;
+        context.shadowOffsetY = 0;
+        context.shadowBlur = 0;
+        context.globalAlpha = 1;
     }
 }

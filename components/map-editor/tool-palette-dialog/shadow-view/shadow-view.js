@@ -12,7 +12,9 @@ export class ShadowViewModel {
     async onRenderStart(componentId, modelInput) {
         this.componentId = componentId;
         this.mapItemTemplateViewModel = modelInput.mapItemTemplateViewModel;
-        this.forCaption = modelInput.forCaption;
+        this.captionViewModel = modelInput.captionViewModel;
+        this.isCaptionTextShadow = modelInput.isCaptionTextShadow;
+        this.isCaptionShadow = modelInput.isCaptionShadow;
         this.mapItemTemplate = modelInput.mapItemTemplate;
     }
 
@@ -30,7 +32,10 @@ export class ShadowViewModel {
 
     getIdPrefix() {
         let prefix = "map-item-template-shadow";
-        if (this.forCaption) {
+        if (this.isCaptionTextShadow) {
+            prefix = "map-item-template-caption-textShadow"
+        }
+        if (this.isCaptionShadow) {
             prefix = "map-item-template-caption-shadow"
         }
         return prefix
@@ -40,7 +45,11 @@ export class ShadowViewModel {
         return ""; // TODO: field valiation
     }
 
-    async updateShadow() {
+    async updateShadow() {    
+        if ((this.isCaptionTextShadow || this.isCaptionShadow) && this.captionViewModel) {
+            await this.captionViewModel.updateCaption();
+            return;
+        }
         if (this.mapItemTemplateViewModel) {
             const shadow = this.#getShadowFromInput();
             await this.mapItemTemplateViewModel.updateShadow(shadow);
@@ -48,27 +57,28 @@ export class ShadowViewModel {
     }
 
     getColor() {
-        if (this.mapItemTemplate?.shadow) {
-            return this.mapItemTemplate.shadow.color;
-        }
-        return "#000000";
+        return this.#getShadow()?.color ?? "#000000";
     }
 
     getBlur() {
-        if (this.mapItemTemplate?.shadow) {
-            return this.mapItemTemplate.shadow.blur;
-        }
-        return 0;
+        return this.#getShadow()?.blur ?? 0;
     }
 
     getOffset() {
-        if (this.mapItemTemplate?.shadow) {
-            return {
-                x: this.mapItemTemplate.shadow.offsetX,
-                y: this.mapItemTemplate.shadow.offsetY
-            };
+        const offsetX = this.#getShadow()?.offsetX;
+        const offsetY = this.#getShadow()?.offsetY;
+        return { x: offsetX ?? 0, y: offsetY ?? 0 };
+    }
+
+    #getShadow() {
+        let shadow = this.mapItemTemplate?.shadow;
+        if (this.isCaptionTextShadow) {
+            shadow = this.mapItemTemplate?.caption?.textShadow;
         }
-        return { x: 0, y: 0 };
+        if (this.isCaptionShadow) {
+            shadow = this.mapItemTemplate?.caption?.shadow;
+        }
+        return shadow;
     }
 
     #getShadowFromInput() {

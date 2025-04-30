@@ -122,7 +122,9 @@ class DrawPathTool {
                     transits: points,
                     inView: true
                 }],
-                zGroup: this.#mapWorker.activeMapItemTemplate.defaultZGroup
+                zGroup: this.#mapWorker.activeMapItemTemplate.defaultZGroup,
+                captionText: this.#mapWorker.activeMapItemTemplate.caption.defaultText,
+                isCaptionVisible: this.#mapWorker.activeMapItemTemplate.caption.defaultText.length > 0
             };
             const data = {
                 mapItems: [mapItemData]

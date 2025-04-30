@@ -20,6 +20,7 @@ class FitSelectionTool {
     #isToggleSelectionModeOn;
     #isSingleSelectionModeOn;
     #isSnapToOverlayModeOn;
+    #isMoveCaptionModeOn;
 
     // methods
     async onActivate(mapWorker) {
@@ -92,6 +93,9 @@ class FitSelectionTool {
         if (name == "SetOperationMode") {
             this.#setOperationMode = value;
         }
+        if (name == "MoveCaptionMode") {
+            this.#isMoveCaptionModeOn = value;
+        }
         if (notifyMapWorker) {
             this.#mapWorker.setToolOptionValue(name, value);
         }
@@ -99,11 +103,12 @@ class FitSelectionTool {
     }
 
     #initializeToolOptions() {
-        this.#mapWorker.initializeToolOptions(["AcceptChanges", "LockMode", "SetOperationMode", "SingleSelectionMode", "SnapToOverlay"]);
+        this.#mapWorker.initializeToolOptions(["AcceptChanges", "LockMode", "SetOperationMode", "SingleSelectionMode", "SnapToOverlay", "MoveCaptionMode"]);
         this.#isLockModeOn = this.#mapWorker.getToolOption("LockMode").isToggledOn;
         this.#setOperationMode = this.#mapWorker.getToolOption("SetOperationMode").currentStateName;
         this.#isSingleSelectionModeOn = this.#mapWorker.getToolOption("SingleSelectionMode").isToggledOn;
         this.#isSnapToOverlayModeOn = this.#mapWorker.getToolOption("SnapToOverlay").isToggledOn;
+        this.#isMoveCaptionModeOn = this.#mapWorker.getToolOption("MoveCaptionMode").isToggledOn;
     }
 
     #onPointerDown(eventData) {
@@ -139,7 +144,7 @@ class FitSelectionTool {
                 this.#selectMove(eventData);
             }
             if (this.#selectionUtilities.activityState === "Move") {
-                this.#selectionUtilities.move(this.#mapWorker, this.#pointDown, currentPoint, this.#isLockModeOn);
+                this.#selectionUtilities.move(this.#mapWorker, this.#pointDown, currentPoint, this.#isLockModeOn, this.#isMoveCaptionModeOn);
                 preview = true;
             }
             if (this.#selectionUtilities.activityState.startsWith("Resize")) {
@@ -222,6 +227,9 @@ class FitSelectionTool {
         }
         if (eventData.altKey && eventData.key == "Enter") {
             await this.#updateToolOptionValue("AcceptChanges", null, false);
+        }
+        if (eventData.altKey && eventData.key?.toLowerCase() == "c" && !eventData.repeat) {
+            this.#updateToolOptionValue("MoveCaptionMode", !this.#isMoveCaptionModeOn, true);
         }
     }
 
@@ -472,7 +480,7 @@ class FitSelectionTool {
         let maxIteration = Math.min(this.#mapWorker.map.currentViewPort.width, this.#mapWorker.map.currentViewPort.height);
         maxIteration = maxIteration * this.#mapWorker.map.zoom;
         if (this.#moveIncrementIteration < maxIteration && this.#isArrowPressed) {
-            this.#selectionUtilities.moveIncrement(this.#mapWorker, dx, dy, this.#isSingleSelectionModeOn);
+            this.#selectionUtilities.moveIncrement(this.#mapWorker, dx, dy, this.#isSingleSelectionModeOn, this.#isMoveCaptionModeOn);
             this.#previewSetOperation();
         }
     }

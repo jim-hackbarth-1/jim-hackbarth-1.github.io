@@ -100,7 +100,8 @@ export class SelectionUtilities {
                                         start: path.start,
                                         transits: path.transits,
                                         rotationAngle: path.rotationAngle,
-                                        clipPaths: clipPaths
+                                        clipPaths: clipPaths,
+                                        mapItemCaptionLocation: mapItem.captionLocation
                                     }
                                 });
                             }
@@ -273,7 +274,11 @@ export class SelectionUtilities {
         return mapWorker.createChangeSet(changes);
     }
 
-    move(mapWorker, startPoint, endPoint, useLockMode) {
+    move(mapWorker, startPoint, endPoint, useLockMode, moveCaptionMode) {
+        if (moveCaptionMode) {
+            this.#moveCaptions(mapWorker, startPoint, endPoint, useLockMode);
+            return;
+        }
         let dx = (endPoint.x - startPoint.x) / mapWorker.map.zoom;
         let dy = (endPoint.y - startPoint.y) / mapWorker.map.zoom;
         if (useLockMode) {
@@ -309,7 +314,7 @@ export class SelectionUtilities {
         }
     }
 
-    moveIncrement(mapWorker, incrementX, incrementY, usePrimarySelectionMode) {
+    moveIncrement(mapWorker, incrementX, incrementY, usePrimarySelectionMode, moveCaptionMode) {
         let dx = incrementX / mapWorker.map.zoom;
         let dy = incrementY / mapWorker.map.zoom;
         const layer = mapWorker.map.getActiveLayer();
@@ -317,10 +322,17 @@ export class SelectionUtilities {
             for (const mapItemGroup of layer.mapItemGroups) {
                 if ((!usePrimarySelectionMode && mapItemGroup.selectionStatus) || (mapItemGroup.selectionStatus == "Primary")) {
                     for (const mapItem of mapItemGroup.mapItems) {
-                        for (const path of mapItem.paths) {
-                            path.start = { x: path.start.x + dx, y: path.start.y + dy };
-                            for (const clipPath of path.clipPaths) {
-                                clipPath.start = { x: clipPath.start.x + dx, y: clipPath.start.y + dy };
+                        if (moveCaptionMode) {
+                            if (mapItem.isCaptionVisible && mapItem.captionText.length > 0) {
+                                mapItem.captionLocation = { x: mapItem.captionLocation.x + dx, y: mapItem.captionLocation.y + dy };
+                            }
+                        }
+                        else {
+                            for (const path of mapItem.paths) {
+                                path.start = { x: path.start.x + dx, y: path.start.y + dy };
+                                for (const clipPath of path.clipPaths) {
+                                    clipPath.start = { x: clipPath.start.x + dx, y: clipPath.start.y + dy };
+                                }
                             }
                         }
                     }
@@ -486,6 +498,52 @@ export class SelectionUtilities {
             }
         }
         return null;
+    }
+
+    #moveCaptions(mapWorker, startPoint, endPoint, useLockMode) {
+        let dx = (endPoint.x - startPoint.x) / mapWorker.map.zoom;
+        let dy = (endPoint.y - startPoint.y) / mapWorker.map.zoom;
+        if (useLockMode) {
+            if (Math.abs(dx) > Math.abs(dy)) {
+                dy = 0;
+            }
+            else {
+                dx = 0;
+            }
+        }
+        const snapToOverlay = mapWorker.getToolOption("SnapToOverlay").isToggledOn;
+        let selectionStartData = this.selectionStartData;
+        const mapItemSelections = this.#getMapItemSelections(mapWorker, selectionStartData);
+        for (const mapItemSelection of mapItemSelections) {
+            let location = {
+                x: mapItemSelection.startingCaptionLocation.x + dx,
+                y: mapItemSelection.startingCaptionLocation.y + dy
+            };
+            if (snapToOverlay) {
+                location = mapWorker.map.overlay.getNearestOverlayPoint(location);
+            }
+            mapItemSelection.mapItem.captionLocation = location;
+        }
+    }
+
+    #getMapItemSelections(mapWorker, selectionStartData) {
+        const mapItemSelections = [];
+        const layer = mapWorker.map.getActiveLayer();
+        for (const selection of selectionStartData) {
+            if (!mapItemSelections.some(mis => mis.mapItem.id == selection.mapItemId)) {
+                const mapItemGroup = layer.mapItemGroups.find(mit => mit.id == selection.mapItemGroupId);
+                if (mapItemGroup) {
+                    const mapItem = mapItemGroup.mapItems.find(mi => mi.id == selection.mapItemId);
+                    if (mapItem && mapItem.isCaptionVisible && mapItem.captionText.length > 0) {
+                        mapItemSelections.push({
+                            mapItem: mapItem,
+                            startingCaptionLocation: selection.startingPathData.mapItemCaptionLocation
+                        });
+                    }
+                }
+            }
+        }
+        return mapItemSelections;
     }
 
     #rotatePath(path, theta, centerOfRotation, startingPathData, mapWorker) {

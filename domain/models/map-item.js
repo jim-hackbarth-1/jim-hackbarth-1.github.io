@@ -116,7 +116,7 @@ export class MapItem {
     /** @type {string}  */
     #captionText;
     get captionText() {
-        return this.#captionText;
+        return this.#captionText ?? "";
     }
     set captionText(captionText) {
         const changeSet = this.#getPropertyChange("captionText", this.#captionText, captionText);
@@ -127,7 +127,7 @@ export class MapItem {
     /** @type {{x: number, y: number}} */
     #captionLocation;
     get captionLocation() {
-        return this.#captionLocation;
+        return this.#captionLocation ?? { x: 5, y: 5 };
     }
     set captionLocation(captionLocation) {
         const changeSet = this.#getPropertyChange("captionLocation", this.#captionLocation, captionLocation);
@@ -286,6 +286,19 @@ export class MapItem {
         if (shadow && (shadow.blur > 0 || shadow.offsetX != 0 || shadow.offsetY != 0)) {
             for (const path of this.paths) {
                 path.renderShadow(context, map, options, shadow);
+            }
+        }
+    }
+
+    async renderCaption(context, map, options) {
+        if (this.isCaptionVisible && this.captionText.length > 0) {
+            const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
+            if (mapItemTemplate?.caption) {
+                let location = {
+                    x: this.bounds.x + this.bounds.width / 2 + this.captionLocation.x,
+                    y: this.bounds.y + this.bounds.height / 2 + this.captionLocation.y
+                };
+                await mapItemTemplate.caption.render(context, map, this.captionText, location);
             }
         }
     }

@@ -625,6 +625,9 @@ export class EditorModel {
     }
 
     async #handleKeyDownEvent(event) {
+        if (event.key == "ArrowDown" || event.key == "ArrowUp" || event.key == "ArrowLeft" || event.key == "ArrowRight") {
+            event.preventDefault();
+        }
         if (event.repeat) {
             return;
         }

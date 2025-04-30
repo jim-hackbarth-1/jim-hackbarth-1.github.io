@@ -4,6 +4,7 @@ import {
     ChangeType,
     EntityReference,
     FileManager, 
+    MapItemTemplate,
     MapWorkerClient,
     MapWorkerInputMessageType,
     PathStyle,
@@ -24,18 +25,25 @@ export class PathStyleViewModel {
         this.mapItemTemplateRef = modelInput?.mapItemTemplateRef;
         this.pathStyleId = null;
         this.pathStyle = null;
+        this.isForCaptionBackgroundFill = modelInput.isForCaptionBackgroundFill;
+        this.isForCaptionBorderStroke = modelInput.isForCaptionBorderStroke;
         if (modelInput?.pathStyle) {
             this.pathStyleId = modelInput.pathStyle.id;
             this.pathStyle = await this.#getPathStyle();
         }
-        this.isForCaption = modelInput.isForCaption;
     }
 
     async onRenderComplete() {
         KitMessenger.subscribe(EditorModel.MapUpdatedNotificationTopic, this.componentId, this.onMapUpdated.name);
         this.#loadStyleTypes();
         this.#loadImageSources();
-        const select = this.#getElement("#selectStyleType");
+        let select = this.#getElement("#selectStyleType");
+        if (this.isForCaptionBackgroundFill) {
+            select = this.#getElement("#selectStyleType-captionBackgroundFill");
+        }
+        if (this.isForCaptionBorderStroke) {
+            select = this.#getElement("#selectStyleType-captionBorderStroke");
+        }
         if (select) {
             select.scrollIntoView();
         }
@@ -89,6 +97,17 @@ export class PathStyleViewModel {
         return this.pathStyle;
     }
 
+    getSelectStyleTypeId() {
+        let id = "selectStyleType";
+        if (this.isForCaptionBackgroundFill) {
+            id += "-captionBackgroundFill";
+        }
+        if (this.isForCaptionBorderStroke) {
+            id += "-captionBorderStroke";
+        }
+        return id;
+    }
+
     getValidationMessage(optionName) {
         return "";
     }
@@ -104,10 +123,19 @@ export class PathStyleViewModel {
         return null;
     }
 
-    async updateStyleType() {
+    async updateStyleType(selectId) {
+        const newStyleType = this.#getElement(`#${selectId}`).value;
+        const currentStyleType = this.pathStyle.getStyleOptionValue(PathStyleOption.PathStyleType);
+        if (newStyleType == "" && currentStyleType.endsWith("Fill")) {
+            await this.#clearCaptionBackgroundFill();
+            return;
+        }
+        if (newStyleType == "" && currentStyleType.endsWith("Stroke")) {
+            await this.#clearCaptionBorderStroke();
+            return;
+        }
         const originalPathStyle = (await this.#getPathStyle()).getData();
-        const styleType = this.#getElement("#selectStyleType").value;
-        this.pathStyle.options = PathStyle.getOptionDefaults(styleType);
+        this.pathStyle.options = PathStyle.getOptionDefaults(newStyleType);
         const changes = [
             {
                 changeType: ChangeType.Edit,
@@ -117,6 +145,44 @@ export class PathStyleViewModel {
                 newValue: this.pathStyle.options,
                 mapItemTemplateRef: this.mapItemTemplateRef.getData(),
                 pathStyleId: this.pathStyle.id
+            }
+        ];
+        await this.#updateMap(changes);
+    }
+
+    async #clearCaptionBackgroundFill() {
+        const map = await MapWorkerClient.getMap();
+        const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
+        const oldValue = mapItemTemplate.caption.getData();
+        const newValue = mapItemTemplate.caption.getData();
+        newValue.backgroundFill = null;
+        const changes = [
+            {
+                changeType: ChangeType.Edit,
+                changeObjectType: MapItemTemplate.name,
+                propertyName: "caption",
+                oldValue: oldValue,
+                newValue: newValue,
+                mapItemTemplateRef: this.mapItemTemplateRef.getData()
+            }
+        ];
+        await this.#updateMap(changes);
+    }
+
+    async #clearCaptionBorderStroke() {
+        const map = await MapWorkerClient.getMap();
+        const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
+        const oldValue = mapItemTemplate.caption.getData();
+        const newValue = mapItemTemplate.caption.getData();
+        newValue.borderStroke = null;
+        const changes = [
+            {
+                changeType: ChangeType.Edit,
+                changeObjectType: MapItemTemplate.name,
+                propertyName: "caption",
+                oldValue: oldValue,
+                newValue: newValue,
+                mapItemTemplateRef: this.mapItemTemplateRef.getData()
             }
         ];
         await this.#updateMap(changes);
@@ -234,10 +300,10 @@ export class PathStyleViewModel {
             if (!pathStyle) {
                 pathStyle = mapItemTemplate.strokes.find(ps => ps.id == this.pathStyleId);
             }
-            if (!pathStyle) {
+            if (this.isForCaptionBackgroundFill) {
                 pathStyle = mapItemTemplate.caption?.backgroundFill;
             }
-            if (!pathStyle) {
+            if (this.isForCaptionBorderStroke) {
                 pathStyle = mapItemTemplate.caption?.borderStroke;
             }
         }
@@ -245,18 +311,20 @@ export class PathStyleViewModel {
     }
 
     #loadStyleTypes() {
+        let styleType = null;
+        if (this.pathStyle) {
+            styleType = this.pathStyle.getStyleOptionValue(PathStyleOption.PathStyleType);
+        }
+        const appDocument = KitDependencyManager.getDocument();
+        let selectElement = this.#getElement("#selectStyleType");
         let styleTypes = [
             { value: PathStyleType.ColorFill, label: "Color fill" },
             { value: PathStyleType.LinearGradientFill, label: "Linear gradient fill" },
             { value: PathStyleType.RadialGradientFill, label: "Radial gradient fill" },
             { value: PathStyleType.ConicalGradientFill, label: "Conical gradient fill" },
             { value: PathStyleType.TileFill, label: "Tile fill" },
-            { value: PathStyleType.ImageArrayFill, label: "Image array fill" },
+            { value: PathStyleType.ImageArrayFill, label: "Image array fill" }
         ];
-        let styleType = null;
-        if (this.pathStyle) {
-            styleType = this.pathStyle.getStyleOptionValue(PathStyleOption.PathStyleType);
-        }
         if (styleType && styleType.endsWith("Stroke")) {
             styleTypes = [
                 { value: PathStyleType.ColorStroke, label: "Color stroke" },
@@ -264,11 +332,31 @@ export class PathStyleViewModel {
                 { value: PathStyleType.RadialGradientStroke, label: "Radial gradient stroke" },
                 { value: PathStyleType.ConicalGradientStroke, label: "Conical gradient stroke" },
                 { value: PathStyleType.TileStroke, label: "Tile stroke" },
-                { value: PathStyleType.ImageArrayStroke, label: "Image array stroke" },
+                { value: PathStyleType.ImageArrayStroke, label: "Image array stroke" }
             ];
         }
-        const appDocument = KitDependencyManager.getDocument();
-        const selectElement = this.#getElement("#selectStyleType");
+        if (this.isForCaptionBackgroundFill) {
+            selectElement = this.#getElement("#selectStyleType-captionBackgroundFill");
+            styleTypes = [
+                { value: "", label: "None" },
+                { value: PathStyleType.ColorFill, label: "Color fill" },
+                { value: PathStyleType.LinearGradientFill, label: "Linear gradient fill" },
+                { value: PathStyleType.RadialGradientFill, label: "Radial gradient fill" },
+                { value: PathStyleType.ConicalGradientFill, label: "Conical gradient fill" },
+                { value: PathStyleType.TileFill, label: "Tile fill" }
+            ];
+        }
+        if (this.isForCaptionBorderStroke) {
+            selectElement = this.#getElement("#selectStyleType-captionBorderStroke");
+            styleTypes = [
+                { value: "", label: "None" },
+                { value: PathStyleType.ColorStroke, label: "Color stroke" },
+                { value: PathStyleType.LinearGradientStroke, label: "Linear gradient stroke" },
+                { value: PathStyleType.RadialGradientStroke, label: "Radial gradient stroke" },
+                { value: PathStyleType.ConicalGradientStroke, label: "Conical gradient stroke" },
+                { value: PathStyleType.TileStroke, label: "Tile stroke" }
+            ];
+        }
         if (selectElement) {
             for (const st of styleTypes) {
                 const option = appDocument.createElement("option");
@@ -315,7 +403,14 @@ export class PathStyleViewModel {
     #update() {
         if (this.pathStyle) {
             const options = [];
-            const styleType = this.#getElement("#selectStyleType").value;
+            let styleSelectElement = this.#getElement("#selectStyleType");
+            if (this.isForCaptionBackgroundFill) {
+                styleSelectElement = this.#getElement("#selectStyleType-captionBackgroundFill");
+            }
+            if (this.isForCaptionBorderStroke) {
+                styleSelectElement = this.#getElement("#selectStyleType-captionBorderStroke");
+            }
+            const styleType = styleSelectElement.value;
             options.push({ key: PathStyleOption.PathStyleType, value: styleType });
             switch (styleType) {
                 case PathStyleType.ColorFill:

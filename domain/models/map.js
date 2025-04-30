@@ -536,6 +536,9 @@ export class Map {
             layer.renderSelections(context, this);
         }
         this.overlay.render(context, this, options);
+        for (const layer of this.layers) {
+            layer.renderCaptions(context, this, options);
+        }
         if (this.#eventListeners[Map.AfterRenderEvent]) {
             for (const listener of this.#eventListeners[Map.AfterRenderEvent]) {
                 listener();

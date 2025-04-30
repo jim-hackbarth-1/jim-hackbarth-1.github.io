@@ -19,6 +19,7 @@ class SelectPathTool {
     #isToggleSelectionModeOn;
     #isSingleSelectionModeOn;
     #isSnapToOverlayModeOn;
+    #isMoveCaptionModeOn;
 
     // methods
     async onActivate(mapWorker) {
@@ -78,16 +79,20 @@ class SelectPathTool {
         if (name == "SingleSelectionMode") {
             this.#isSingleSelectionModeOn = value;
         }
+        if (name == "MoveCaptionMode") {
+            this.#isMoveCaptionModeOn = value;
+        }
         if (notifyMapWorker) {
             this.#mapWorker.setToolOptionValue(name, value);
         }
     }
 
     #initializeToolOptions() {
-        this.#mapWorker.initializeToolOptions(["LockMode", "SingleSelectionMode", "SnapToOverlay"]);
+        this.#mapWorker.initializeToolOptions(["LockMode", "SingleSelectionMode", "SnapToOverlay", "MoveCaptionMode"]);
         this.#isLockModeOn = this.#mapWorker.getToolOption("LockMode").isToggledOn;
         this.#isSingleSelectionModeOn = this.#mapWorker.getToolOption("SingleSelectionMode").isToggledOn;
         this.#isSnapToOverlayModeOn = this.#mapWorker.getToolOption("SnapToOverlay").isToggledOn;
+        this.#isMoveCaptionModeOn = this.#mapWorker.getToolOption("MoveCaptionMode").isToggledOn;
     }
 
     #onPointerDown(eventData) {
@@ -119,7 +124,7 @@ class SelectPathTool {
                 this.#selectMove(eventData);
             }
             if (this.#selectionUtilities.activityState === "Move") {
-                this.#selectionUtilities.move(this.#mapWorker, this.#pointDown, currentPoint, this.#isLockModeOn);
+                this.#selectionUtilities.move(this.#mapWorker, this.#pointDown, currentPoint, this.#isLockModeOn, this.#isMoveCaptionModeOn);
                 await this.#mapWorker.renderMap();
             }
             if (this.#selectionUtilities.activityState.startsWith("Resize")) {
@@ -183,6 +188,9 @@ class SelectPathTool {
         }
         if (eventData.altKey && eventData.key?.toLowerCase() == "s" && !eventData.repeat) {
             this.#updateToolOptionValue("SingleSelectionMode", !this.#isSingleSelectionModeOn, true);
+        }
+        if (eventData.altKey && eventData.key?.toLowerCase() == "c" && !eventData.repeat) {
+            this.#updateToolOptionValue("MoveCaptionMode", !this.#isMoveCaptionModeOn, true);
         }
     }
 
@@ -331,7 +339,7 @@ class SelectPathTool {
         let maxIteration = Math.min(this.#mapWorker.map.currentViewPort.width, this.#mapWorker.map.currentViewPort.height);
         maxIteration = maxIteration * this.#mapWorker.map.zoom;
         if (this.#moveIncrementIteration < maxIteration && this.#isArrowPressed) {
-            this.#selectionUtilities.moveIncrement(this.#mapWorker, dx, dy, this.#isSingleSelectionModeOn);
+            this.#selectionUtilities.moveIncrement(this.#mapWorker, dx, dy, this.#isSingleSelectionModeOn, this.#isMoveCaptionModeOn);
             await this.#mapWorker.renderMap();
         }
     }

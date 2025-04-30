@@ -201,6 +201,18 @@ export class Layer {
         }
     }
 
+    async renderCaptions(context, map, options) {
+        if (this.isHidden != true) {
+            const zGroups = this.#getZOrderGroups();
+            for (const zGroup of zGroups) {
+                const mapItems = this.#getMapItemsByZGroup(zGroup);
+                for (const mapItem of mapItems) {
+                    await mapItem.renderCaption(context, map, options);
+                }
+            }
+        }
+    }
+
     renderSelections(context, map) {
         if (this.isHidden != true) {
             for (const mapItemGroup of this.mapItemGroups) {

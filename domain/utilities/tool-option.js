@@ -293,6 +293,13 @@ export class SharedToolOptions {
                 description: "Preserve aspect ration when resizing, move along only x or y axis, rotate in 45deg increments, ...",
                 isToggledOn: false
             }),
+            new BooleanToolOption({
+                name: "MoveCaptionMode",
+                label: "Move captions mode",
+                keyboardEventInfo: { key: "C", requiresAltKey: true },
+                description: "Move captions only",
+                isToggledOn: false
+            }),
             new StatesToolOption({
                 name: "SetOperationMode",
                 label: "Set operation",

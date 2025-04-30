@@ -25,12 +25,9 @@ export class MapItemTemplate {
         }
         this.#shadow = new Shadow(data?.shadow);
         this.#defaultZGroup = InputUtilities.cleanseNumber(data?.defaultZGroup) ?? 0;
-        if (data?.caption) {
-            this.#caption = new Caption(data.caption);
-        }
+        this.#caption = new Caption(data?.caption);
         this.#tags = InputUtilities.cleanseString(data?.tags);
         this.#eventListeners = {};
-        this.#addChangeEventListeners(this.#caption);
     }
 
     // properties
@@ -120,9 +117,7 @@ export class MapItemTemplate {
     }
     set caption(caption) {
         const changeSet = this.#getPropertyChange("caption", this.#caption, caption);
-        this.#removeChangeEventListeners(this.#caption);
         this.#caption = caption;
-        this.#addChangeEventListeners(this.#caption);
         this.#onChange(changeSet);
     }
 

@@ -555,7 +555,7 @@ export class Path {
                 pathInfo += " z";
             }
             const path2D = new Path2D(pathInfo);
-            await stroke.setStyle(context, map, this);
+            await stroke.setStyle(context, map, this.bounds);
             context.stroke(path2D);
             if (isRotatedTileStyle) {
                 context.setTransform(currentTransform);
@@ -577,11 +577,11 @@ export class Path {
         if (fill && this.#isViewable(map, options)) {
             if (!quickRender && fill.getStyleOptionValue(PathStyleOption.PathStyleType) == PathStyleType.ImageArrayFill) {
                 let imageArrayInfo = await Path.#getImageArrayInfo(map, this, false, fill);
-                map.renderImageArray(context, this, imageArrayInfo, zGroup, z);
+                map.renderImageArray(context, this, imageArrayInfo, zGroup, z, { x: 0, y: 0 });
                 if (this.clipPaths) {
                     for (const clipPath of this.clipPaths) {
                         imageArrayInfo = await Path.#getImageArrayInfo(map, clipPath, true, fill);
-                        map.renderImageArray(context, path, imageArrayInfo, zGroup, z);
+                        map.renderImageArray(context, path, imageArrayInfo, zGroup, z, { x: 0, y: 0 });
                     }
                 }
                 return;
@@ -611,7 +611,7 @@ export class Path {
                 context.rotate((this.rotationAngle * Math.PI) / 180);
                 context.translate(-center.x, -center.y);
             }
-            await fill.setStyle(context, map, this);
+            await fill.setStyle(context, map, this.bounds);
             context.fill(path2D);
             if (isRotatedTileStyle) {
                 context.setTransform(currentTransform);

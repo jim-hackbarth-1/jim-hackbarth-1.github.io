@@ -78,6 +78,10 @@
                 border-radius: 3px;
                 background-position: center;
             }
+
+            .no-item-placeholder {
+                margin:5px;
+            }
         }
     </style>
     <fieldset data-kit-add-attributes="%{#model.isDisabled()}%">
@@ -208,6 +212,9 @@
                                 </div>
                             </div>
                         </kit-array>
+                        <kit-if data-kit-condition="!#model.hasFills()">
+                            <div class="no-item-placeholder">[None]</div>
+                        </kit-if>
                         <!-- end dynamic content -->
                     </div>
                     <div class="surface-tertiary background">
@@ -279,6 +286,9 @@
                                 </div>
                             </div>
                         </kit-array>
+                        <kit-if data-kit-condition="!#model.hasStrokes()">
+                            <div class="no-item-placeholder">[None]</div>
+                        </kit-if>
                         <!-- end dynamic content -->
                     </div>
                     <div class="surface-tertiary background">
@@ -297,7 +307,19 @@
                 <section>
                     <div class="surface-tertiary background">
                         <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/shadow-view/shadow-view.html"
-                                       data-kit-model-input="{ mapItemTemplateViewModel: #model, forCaption: false, mapItemTemplate: #model.getMapItemTemplate() }">
+                                       data-kit-model-input="{ mapItemTemplateViewModel: #model, mapItemTemplate: #model.getMapItemTemplate() }">
+                        </kit-component>
+                    </div>
+                </section>
+            </details>
+        </div>
+        <div>
+            <details id="details-caption" ontoggle="#model.onDetailsToggleEvent(event)">
+                <summary class="action-control">Caption</summary>
+                <section>
+                    <div class="surface-tertiary background">
+                        <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/caption-view/caption-view.html"
+                                       data-kit-model-input="{ mapItemTemplateViewModel: #model, mapItemTemplate: #model.getMapItemTemplate() }">
                         </kit-component>
                     </div>
                 </section>

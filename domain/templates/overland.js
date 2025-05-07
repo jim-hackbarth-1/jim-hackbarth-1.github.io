@@ -10,7 +10,7 @@ export function getOverlandTemplate() {
                 options: [
                     { key: PathStyleOption.PathStyleType, value: PathStyleType.ColorFill },
                     { key: PathStyleOption.Color, value: "#add8e6" },
-                    { key: PathStyleOption.Opacity, value: 100 }
+                    { key: PathStyleOption.Opacity, value: 1 }
                 ]
             }
         ],
@@ -20,7 +20,7 @@ export function getOverlandTemplate() {
                     { key: PathStyleOption.PathStyleType, value: PathStyleType.ColorStroke},
                     { key: PathStyleOption.Color, value: "#008000" },
                     { key: PathStyleOption.Width, value: 3 },
-                    { key: PathStyleOption.Opacity, value: 100 }
+                    { key: PathStyleOption.Opacity, value: 1 }
                 ]
             }
         ]
@@ -33,7 +33,7 @@ export function getOverlandTemplate() {
                 options: [
                     { key: PathStyleOption.PathStyleType, value: PathStyleType.ColorFill },
                     { key: PathStyleOption.Color, value: "#8fbc8f" },
-                    { key: PathStyleOption.Opacity, value: 100 }
+                    { key: PathStyleOption.Opacity, value: 1 }
                 ]
             }
         ],
@@ -43,7 +43,7 @@ export function getOverlandTemplate() {
                     { key: PathStyleOption.PathStyleType, value: PathStyleType.ColorStroke },
                     { key: PathStyleOption.Color, value: "#2f4f4f" },
                     { key: PathStyleOption.Width, value: 3 },
-                    { key: PathStyleOption.Opacity, value: 100 }
+                    { key: PathStyleOption.Opacity, value: 1 }
                 ]
             }
         ]

@@ -614,7 +614,6 @@ export class KitRenderer {
         component.onRenderComplete();
 
         // render child components
-        /*let itemIndex = 0;*/
         for (const childComponent of component.children) {
             switch (childComponent.componentType) {
             case KitComponentType.ConditionalComponent:
@@ -646,7 +645,9 @@ export class KitRenderer {
                     arrayItemElement.setAttribute(
                         KitRenderer.#modelRefAttribute, childComponent.itemRef);
                     const childComponentElement = appDocument.querySelector(`[${KitRenderer.#componentIdAttribute}="${childComponent.id}"]`);
-                    childComponentElement.append(arrayItemElement);
+                    if (childComponentElement) {
+                        childComponentElement.append(arrayItemElement);
+                    }
                     itemIndex++;
                 }
                 childComponent.onRenderComplete();
@@ -714,31 +715,6 @@ export class KitRenderer {
 
     /** @type {{path: string, template: string}[]} */
     static #templateCache = [];
-
-    /**
-     * Callback function that runs when a mutation occurs
-     * @param {MutationRecord[]} mutationsList
-     */
-    static #mutationCallback(mutationsList) {
-        let renderedComponentIds = mutationsList
-            .filter(m =>
-                m.target.hasAttribute("data-kit-component-id")
-                && m.type === "childList"
-                && m.addedNodes.length > 0)
-            .map(m => m.target.getAttribute("data-kit-component-id"));
-        renderedComponentIds = [...new Set(renderedComponentIds)];
-        for (const componentId of renderedComponentIds) {
-            const component = KitComponent.find(componentId);
-            if (component && component.model && typeof component.model.onLoadedInDocument === "function") {
-                if (component.model.onLoadedInDocument.constructor.name !== "AsyncFunction") {
-                    const modelName = component.model.constructor.name;
-                    const msg = `onLoadedInDocument() function must be async. model: ${modelName}, component id: ${componentId}`;
-                    throw new Error(msg);
-                }
-                component.model.onLoadedInDocument();
-            }
-        }
-    }
 
     /**
      * Creates a new KitComponent for an element
@@ -955,10 +931,10 @@ export class KitRenderer {
                 if (output.includes(findString)) {
                     const id = item.component.id;
                     if (item.isIndexRef) {
-                        output = output.replaceAll(findString, `window.kitComponentManager.findComponent(${id}).index`);
+                        output = output.replaceAll(findString, `window.kitComponentManager.findComponent(${id})?.index`);
                     }
                     else {
-                        output = output.replaceAll(findString, `window.kitComponentManager.findComponent(${id}).model`);
+                        output = output.replaceAll(findString, `window.kitComponentManager.findComponent(${id})?.model`);
                     }
                 }
                 // revert escapes

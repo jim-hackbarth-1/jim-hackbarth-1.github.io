@@ -1,20 +1,24 @@
 ﻿
+<div>
+    <div id="validation-colorstop-offset" class="validation-message"></div>
+    <div id="validation-colorstop-color" class="validation-message"></div>
+</div>
 <div class="color-offset">
     <div>
         <label class="inline-label">Offset (%):</label>
-        <input id="%{#model.getIdPrefix()}%-Offset"
+        <input id="colorstop-offset"
                type="number"
                min="0"
                max="100"
-               onchange="#model.updateOptions()"
+               onchange="#model.update()"
                data-kit-add-attributes="value=%{#model.getOffset()}%" />
     </div>
     <div class="color-label-container ">
         <div class="color-label">Color:</div>
         <div>
-            <input id="%{#model.getIdPrefix()}%-Color"
+            <input id="colorstop-color"
                    type="color"
-                   onchange="#model.updateOptions()"
+                   onchange="#model.update()"
                    data-kit-add-attributes="value=%{#model.getColor()}%" />
         </div>
     </div>

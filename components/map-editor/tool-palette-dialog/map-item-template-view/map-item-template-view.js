@@ -1,10 +1,9 @@
 ﻿
-import { KitMessenger, KitRenderer } from "../../../../ui-kit.js";
+import { KitComponent, KitMessenger, KitRenderer } from "../../../../ui-kit.js";
 import {
     ChangeType,
     EntityReference,
     FileManager,
-    InputUtilities,
     MapItem,
     MapItemTemplate,
     MapWorkerClient,
@@ -25,64 +24,33 @@ class MapItemTemplateViewModel {
     // event handlers
     async onRenderStart(componentId, modelInput) {
         this.componentId = componentId;
-        if (modelInput.mapItemTemplate) {
-            this.startingMapItemTemplate = new MapItemTemplate(modelInput.mapItemTemplate.getData());
-            this.mapItemTemplate = new MapItemTemplate(modelInput.mapItemTemplate.getData());
-        }
-        else {
-            this.startingMapItemTemplate = null;
-            this.mapItemTemplate = null;
-        }
-        this.dialogModel = modelInput?.dialogModel;
-        this.validationResult = {
-            isValid: false
-        };
+        this.mapItemTemplate = modelInput.mapItemTemplate;
     }
 
     async onRenderComplete() {
         KitMessenger.subscribe(EditorModel.MapUpdatedNotificationTopic, this.componentId, this.onMapUpdated.name);
-        this.#updatePathStyleLabels();
-        this.#loadThumbnail();
+        this.#completeRender();
     }
 
     async onMapUpdated(message) {
-
+        const map = await MapWorkerClient.getMap();
         if (this.mapItemTemplate) {
-            const map = await MapWorkerClient.getMap();
             this.mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(this.mapItemTemplate.ref, mit.ref));
-            if (this.#currentFill && this.mapItemTemplate) {
-                this.#currentFill = this.mapItemTemplate.fills.find(f => f.id == this.#currentFill.id);
-            }
-            if (this.#currentStroke && this.mapItemTemplate) {
-                this.#currentStroke = this.mapItemTemplate.strokes.find(s => s.id == this.#currentStroke.id);
-            }
             let reRender = false;
-            if (message?.data?.changeSet?.changes) {
-                const pathStyleLabelChange = message.data.changeSet.changes.some(c => c.changeType == ChangeType.Edit && c.changeObjectType == PathStyle.name);
-                const fillsChange = message.data.changeSet.changes.some(c => c.changeObjectType == MapItemTemplate.name && c.propertyName == "fills");
-                const strokesChange = message.data.changeSet.changes.some(c => c.changeObjectType == MapItemTemplate.name && c.propertyName == "strokes");
-                if (pathStyleLabelChange || fillsChange || strokesChange) {
-                    this.#updatePathStyleLabels();
-                    setTimeout(() => {
-                        this.#updatePathStyleLabels();
-                    }, 20);
-                }
-                setTimeout(() => {
-                    this.#loadThumbnail();
-                }, 20);
-                const mapItemTemplateChange = message.data.changeSet.changes.some(c => c.changeObjectType == MapItemTemplate.name);
+            if (message?.data?.changeSet?.changes) {    
+                const mapItemTemplateChange = message.data.changeSet.changes.some(c =>
+                    c.changeObjectType == MapItemTemplate.name
+                    && EntityReference.areEqual(this.mapItemTemplate.ref, c.mapItemTemplateRef));
                 reRender = mapItemTemplateChange;
             }
-            if (reRender) {
-                const scrollTop = this.dialogModel.scrollTop;
-                await this.#reRenderElement("if-visible-map-item-template");
-                setTimeout(() => {
-                    this.#applyDetailsState();
-                }, 20);
-                setTimeout(() => {
-                    this.dialogModel.scrollTop = scrollTop;
-                }, 20);
-            }
+            setTimeout(async () => {
+                if (reRender) {
+                    await this.#reRenderElement("if-map-item-template-visible");
+                }
+            }, 20);
+            setTimeout(() => {
+                this.#completeRender();
+            }, 60);
         }
     }
 
@@ -109,6 +77,10 @@ class MapItemTemplateViewModel {
     }
 
     // methods
+    get isVisibleDebug() {
+        return true;
+    }
+
     isVisible() {
         if (this.mapItemTemplate) {
             return true;
@@ -116,24 +88,53 @@ class MapItemTemplateViewModel {
         return false;
     }
 
-    getMapItemTemplateRef() {
-        return this.mapItemTemplate?.ref;
+    isDisabled() {
+        return (!this.mapItemTemplate || this.mapItemTemplate.ref.isBuiltIn || this.mapItemTemplate.ref.isFromTemplate) ? true : false;
+    }
+
+    isDisabledAttribute() {
+        return this.isDisabled() ? "disabled" : null;
+    }
+
+    isBuiltIn() {
+        return this.mapItemTemplate.ref.isBuiltIn;
+    }
+
+    isFromTemplate() {
+        return this.mapItemTemplate.ref.isFromTemplate;
+    }
+
+    getName() {
+        return this.mapItemTemplate.ref.name;
+    }
+
+    getVersion() {
+        return this.mapItemTemplate.ref.versionId;
+    }
+
+    getThumbnailSource() {
+        return this.mapItemTemplate.thumbnailSrc;
+    }
+
+    getTags() {
+        return this.mapItemTemplate.tags ?? "";
+    }
+
+    getDefaultZGroup() {
+        return this.mapItemTemplate.defaultZGroup ?? 0;
+    }
+
+    getPathStyleInfo(isFill, isStroke) {
+        return {
+            mapItemTemplateRef: this.mapItemTemplate?.ref,
+            isFill: isFill,
+            isStroke: isStroke,
+            id: isFill ? this.#currentFill?.id : this.#currentStroke?.id
+        };
     }
 
     getMapItemTemplate() {
         return this.mapItemTemplate;
-    }
-
-    isDisabled() {
-        return (!this.mapItemTemplate || this.mapItemTemplate.ref.isBuiltIn || this.mapItemTemplate.ref.isFromTemplate) ? "disabled" : null;
-    }
-
-    isAddFillDisabled() {
-        return (this.mapItemTemplate.ref.isBuiltIn || this.mapItemTemplate.ref.isFromTemplate) ? "disabled" : null;
-    }
-
-    isAddStrokeDisabled() {
-        return (this.mapItemTemplate.ref.isBuiltIn || this.mapItemTemplate.ref.isFromTemplate) ? "disabled" : null;
     }
 
     async browseThumbnail() {
@@ -155,9 +156,36 @@ class MapItemTemplateViewModel {
         }
         const fileHandle = fileHandles[0];
         const imageSource = await FileManager.getImageSource(fileHandle);
-        const dataElement = this.#getElement("#map-item-template-thumbnail");
+        const dataElement = this.#getElement("#thumbnail-data");
         dataElement.value = imageSource;
-        this.updateProperty("map-item-template-thumbnail");
+        await this.update("thumbnailSrc");
+    }
+
+    hasFills() {
+        return this.getFills().length > 0;
+    }
+
+    getFills() {
+        return this.mapItemTemplate?.fills ?? [];
+    }
+
+    async selectFill(elementId) {
+        const fillElements = this.#getElements(".fill-item");
+        for (const fillElement of fillElements) {
+            const fillElementId = fillElement.id;
+            if (elementId == fillElementId) {
+                fillElement.setAttribute("data-selected", "true");
+            }
+            else {
+                fillElement.setAttribute("data-selected", "false");
+            }
+        }
+        const fill = this.mapItemTemplate.fills.find(f => f.id == elementId);
+        await this.#setCurrentFill(fill);
+    }
+
+    hasCurrentFill() {
+        return this.#currentFill ? true : false;
     }
 
     async addFill() {
@@ -178,6 +206,98 @@ class MapItemTemplateViewModel {
         await this.#updateMap(changes);
     }
 
+    async deleteFill() {
+        const canDelete = this.#currentFill && !this.isDisabled();
+        if (canDelete) {
+            const fillIndex = this.mapItemTemplate.fills.findIndex(f => f.id == this.#currentFill.id);
+            const changes = [
+                {
+                    changeType: ChangeType.Delete,
+                    changeObjectType: MapItemTemplate.name,
+                    propertyName: "fills",
+                    itemIndex: fillIndex,
+                    itemValue: this.#currentFill.getData(),
+                    mapItemTemplateRef: this.mapItemTemplate.ref.getData()
+                }
+            ];
+            this.#setCurrentFill(null);
+            await this.#updateMap(changes);
+        }
+    }
+
+    async dropFill(evt) {
+        const fillElementId = evt.dataTransfer.getData("text");
+        const fillId = fillElementId.replace("path-style-id-", "");
+        const fillListElement = this.#getElement("#fill-list");
+        const fillItems = fillListElement.querySelectorAll(".fill-item");
+        const mouseY = evt.clientY;
+        let newIndex = 0;
+        let currentIndex = 0;
+        const length = fillItems.length;
+        for (let i = 0; i < length; i++) {
+            const rect = fillItems[i].getBoundingClientRect();
+            if (mouseY > rect.top + rect.height / 2) {
+                newIndex = i + 1;
+            }
+            if (fillItems[i].id == fillElementId) {
+                currentIndex = i;
+            }
+        }
+        if (newIndex > currentIndex) {
+            newIndex--;
+        }
+        if (newIndex == currentIndex) {
+            return;
+        }
+        const fill = this.mapItemTemplate.fills.find(f => f.id == fillId);
+        const changes = [
+            {
+                changeType: ChangeType.Delete,
+                changeObjectType: MapItemTemplate.name,
+                propertyName: "fills",
+                itemIndex: currentIndex,
+                itemValue: fill.getData(),
+                mapItemTemplateRef: this.mapItemTemplate.ref.getData()
+            },
+            {
+                changeType: ChangeType.Insert,
+                changeObjectType: MapItemTemplate.name,
+                propertyName: "fills",
+                itemIndex: newIndex,
+                itemValue: fill.getData(),
+                mapItemTemplateRef: this.mapItemTemplate.ref.getData()
+            }
+        ];
+        await this.#updateMap(changes);
+    }
+
+    hasStrokes() {
+        return this.getStrokes().length > 0;
+    }
+
+    getStrokes() {
+        return this.mapItemTemplate?.strokes ?? [];
+    }
+
+    hasCurrentStroke() {
+        return this.#currentStroke ? true : false;
+    }
+
+    async selectStroke(elementId) {
+        const strokeElements = this.#getElements(".stroke-item");
+        for (const strokeElement of strokeElements) {
+            const strokeElementId = strokeElement.id;
+            if (elementId == strokeElementId) {
+                strokeElement.setAttribute("data-selected", "true");
+            }
+            else {
+                strokeElement.setAttribute("data-selected", "false");
+            }
+        }
+        const stroke = this.mapItemTemplate.strokes.find(s => s.id == elementId);
+        await this.#setCurrentStroke(stroke);
+    }
+
     async addStroke() {
         const pathStyle = new PathStyle({
             options: PathStyle.getOptionDefaults(PathStyleType.ColorStroke)
@@ -196,27 +316,8 @@ class MapItemTemplateViewModel {
         await this.#updateMap(changes);
     }
 
-    async deleteFill() {
-        const canDelete = this.#currentFill && !(this.mapItemTemplate.ref.isBuiltIn || this.mapItemTemplate.ref.isFromTemplate);
-        if (canDelete) {
-            const fillIndex = this.mapItemTemplate.fills.findIndex(f => f.id == this.#currentFill.id);
-            const changes = [
-                {
-                    changeType: ChangeType.Delete,
-                    changeObjectType: MapItemTemplate.name,
-                    propertyName: "fills",
-                    itemIndex: fillIndex,
-                    itemValue: this.#currentFill.getData(),
-                    mapItemTemplateRef: this.mapItemTemplate.ref.getData()
-                }
-            ];
-            this.#setCurrentFill(null);
-            await this.#updateMap(changes);
-        }
-    }
-
     async deleteStroke() {
-        const canDelete = this.#currentStroke && !(this.mapItemTemplate.ref.isBuiltIn || this.mapItemTemplate.ref.isFromTemplate);
+        const canDelete = this.#currentStroke && !this.isDisabled();
         if (canDelete) {
             const strokeIndex = this.mapItemTemplate.strokes.findIndex(s => s.id == this.#currentStroke.id);
             const changes = [
@@ -234,248 +335,50 @@ class MapItemTemplateViewModel {
         }
     }
 
-    getFills() {
-        return this.mapItemTemplate?.fills ?? [];
-    }
-
-    hasFills() {
-        return this.getFills().length > 0;
-    }
-
-    getStrokes() {
-        return this.mapItemTemplate?.strokes ?? [];
-    }
-
-    hasStrokes() {
-        return this.getStrokes().length > 0;
-    }
-
-    async selectFill(elementId) {
-        const fillElements = this.#getElements(".fill-item");
-
-        for (const fillElement of fillElements) {
-            const fillElementId = fillElement.id;
-            if (elementId == fillElementId) {
-                fillElement.setAttribute("data-selected", "true");
+    async dropStroke(evt) {
+        const strokeElementId = evt.dataTransfer.getData("text");
+        const strokeId = strokeElementId.replace("path-style-id-", "");
+        const strokeListElement = this.#getElement("#stroke-list")
+        const strokeItems = strokeListElement.querySelectorAll(".stroke-item");
+        const mouseY = evt.clientY;
+        let newIndex = 0;
+        let currentIndex = 0;
+        const length = strokeItems.length;
+        for (let i = 0; i < length; i++) {
+            const rect = strokeItems[i].getBoundingClientRect();
+            if (mouseY > rect.top + rect.height / 2) {
+                newIndex = i + 1;
             }
-            else {
-                fillElement.setAttribute("data-selected", "false");
+            if (strokeItems[i].id == strokeElementId) {
+                currentIndex = i;
             }
         }
-        const canDelete = !(this.mapItemTemplate.ref.isBuiltIn || this.mapItemTemplate.ref.isFromTemplate);
-        const deleteButton = this.#getElement("#delete-fill-button");
-
-        deleteButton.disabled = !canDelete;
-        const fill = this.mapItemTemplate.fills.find(f => f.id == elementId);
-        await this.#setCurrentFill(fill);
-    }
-
-    async selectStroke(elementId) {
-        const strokeElements = this.#getElements(".stroke-item");
-
-        for (const strokeElement of strokeElements) {
-            const strokeElementId = strokeElement.id;
-            if (elementId == strokeElementId) {
-                strokeElement.setAttribute("data-selected", "true");
-            }
-            else {
-                strokeElement.setAttribute("data-selected", "false");
-            }
+        if (newIndex > currentIndex) {
+            newIndex--;
         }
-        const canDelete = !(this.mapItemTemplate.ref.isBuiltIn || this.mapItemTemplate.ref.isFromTemplate);
-        const deleteButton = this.#getElement("#delete-stroke-button");
-
-        deleteButton.disabled = !canDelete;
-        const stroke = this.mapItemTemplate.strokes.find(s => s.id == elementId);
-        await this.#setCurrentStroke(stroke);
-    }
-
-    getCurrentFill() {
-        return this.#currentFill;
-    }
-
-    getCurrentStroke() {
-        return this.#currentStroke;
-    }
-
-    hasCurrentFill() {
-        return this.#currentFill ? true : false;
-    }
-
-    hasCurrentStroke() {
-        return this.#currentStroke ? true : false;
-    }
-
-    async updateRef() {
-        const mapItemTemplate = {
-            ref: {
-                isBuiltIn: this.mapItemTemplate?.ref.isBuiltIn,
-                isFromTemplate: this.mapItemTemplate?.ref.isFromTemplate
+        if (newIndex == currentIndex) {
+            return;
+        }
+        const stroke = this.mapItemTemplate.strokes.find(s => s.id == strokeId);
+        const changes = [
+            {
+                changeType: ChangeType.Delete,
+                changeObjectType: MapItemTemplate.name,
+                propertyName: "strokes",
+                itemIndex: currentIndex,
+                itemValue: stroke.getData(),
+                mapItemTemplateRef: this.mapItemTemplate.ref.getData()
             },
-            fills: this.mapItemTemplate.fills,
-            strokes: this.mapItemTemplate.strokes
-        };
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        mapItemTemplate.ref.name = InputUtilities.cleanseString(componentElement.querySelector("#map-item-template-name").value.trim());
-        mapItemTemplate.ref.versionId = parseInt(componentElement.querySelector("#map-item-template-version").value);
-        this.mapItemTemplate = new MapItemTemplate(mapItemTemplate);
-        this.#update();
-        this.validationResult = await this.#validate();
-        if (this.validationResult.isValid) {
-            const map = await MapWorkerClient.getMap();
-            const mapItemTemplateRefIndex = map.mapItemTemplateRefs.findIndex(mitr => EntityReference.areEqual(mitr, this.startingMapItemTemplate.ref));
-            const mapItemTemplateIndex = map.mapItemTemplates.findIndex(mit => EntityReference.areEqual(mit.ref, this.startingMapItemTemplate.ref));
-            const changes = [
-                {
-                    changeType: ChangeType.Delete,
-                    changeObjectType: Map.name,
-                    propertyName: "mapItemTemplateRefs",
-                    itemIndex: mapItemTemplateRefIndex,
-                    itemValue: this.startingMapItemTemplate.ref.getData()
-                },
-                {
-                    changeType: ChangeType.Delete,
-                    changeObjectType: Map.name,
-                    propertyName: "mapItemTemplates",
-                    itemIndex: mapItemTemplateIndex,
-                    itemValue: this.startingMapItemTemplate.getData()
-                },
-                {
-                    changeType: ChangeType.Insert,
-                    changeObjectType: Map.name,
-                    propertyName: "mapItemTemplateRefs",
-                    itemIndex: mapItemTemplateRefIndex,
-                    itemValue: this.mapItemTemplate.ref.getData()
-                },
-                {
-                    changeType: ChangeType.Insert,
-                    changeObjectType: Map.name,
-                    propertyName: "mapItemTemplates",
-                    itemIndex: mapItemTemplateIndex,
-                    itemValue: this.mapItemTemplate.getData()
-                }
-            ];
-            const isInMapItemTemplatePalettes = this.#isToolInPalettes(map.toolPalette.mapItemTemplatePalettes, this.startingMapItemTemplate.ref);
-            if (isInMapItemTemplatePalettes) {
-                const oldPalettesData = map.toolPalette.getPalettesData(map.toolPalette.mapItemTemplatePalettes);
-                let newPalettesData = this.#updateToolFromPalettesData(oldPalettesData, this.startingMapItemTemplate.ref, this.mapItemTemplate.ref);
-                changes.push({
-                    changeType: ChangeType.Edit,
-                    changeObjectType: ToolPalette.name,
-                    propertyName: "mapItemTemplatePalettes",
-                    oldValue: oldPalettesData,
-                    newValue: newPalettesData
-                });
+            {
+                changeType: ChangeType.Insert,
+                changeObjectType: MapItemTemplate.name,
+                propertyName: "strokes",
+                itemIndex: newIndex,
+                itemValue: stroke.getData(),
+                mapItemTemplateRef: this.mapItemTemplate.ref.getData()
             }
-            const mapItemsToUpdate = this.#getMapItemsToUpdate(map, this.startingMapItemTemplate.ref, this.mapItemTemplate.ref);
-            for (const mapItemInfo of mapItemsToUpdate) {
-                changes.push({
-                    changeType: ChangeType.Edit,
-                    changeObjectType: MapItem.name,
-                    propertyName: "mapItemTemplateRef",
-                    layerName: mapItemInfo.layerName,
-                    mapItemGroupId: mapItemInfo.mapItemGroupId,
-                    mapItemId: mapItemInfo.mapItemId,
-                    oldValue: mapItemInfo.oldValue,
-                    newValue: mapItemInfo.newValue
-                });
-            }
-            await this.#updateMap(changes);
-        }
-        else {
-            await this.#reRenderElement("if-visible-map-item-template");
-        }
-    }
-
-    async updateProperty(elementId) {
-        this.#update();
-        this.validationResult = await this.#validate();
-        if (this.validationResult.isValid) {
-            let element = this.#getElement(`#${elementId}`)
-
-            let propertyName = null;
-            let oldValue = null;
-            let newValue = null;
-            switch (elementId) {
-                case "map-item-template-thumbnail":
-                    propertyName = "thumbnailSrc";
-                    oldValue = this.startingMapItemTemplate.thumbnailSrc;
-                    newValue = InputUtilities.cleanseString(element.value.trim());
-                    break;
-                case "map-item-template-tags":
-                    propertyName = "tags";
-                    oldValue = this.startingMapItemTemplate.tags;
-                    newValue = InputUtilities.cleanseString(element.value.trim());
-                    break;
-                case "map-item-template-default-z-group":
-                    propertyName = "defaultZGroup";
-                    oldValue = this.startingMapItemTemplate.defaultZGroup;
-                    newValue = parseInt(element.value);
-                    break;
-            }
-            if (propertyName) {
-                const changes = [
-                    {
-                        changeType: ChangeType.Edit,
-                        changeObjectType: MapItemTemplate.name,
-                        propertyName: propertyName,
-                        oldValue: oldValue,
-                        newValue: newValue,
-                        mapItemTemplateRef: this.startingMapItemTemplate.ref.getData()
-                    }
-                ];
-                await this.#updateMap(changes);
-            }
-        }
-        else {
-            await this.#reRenderElement("if-visible-map-item-template");
-        }
-    }
-
-    async updateShadow(shadow) {
-        this.mapItemTemplate.shadow = shadow;
-        this.validationResult = await this.#validate();
-        if (this.validationResult.isValid) {
-            const oldValue = this.startingMapItemTemplate.shadow.getData();
-            const newValue = this.mapItemTemplate.shadow.getData();
-            const changes = [
-                {
-                    changeType: ChangeType.Edit,
-                    changeObjectType: MapItemTemplate.name,
-                    propertyName: "shadow",
-                    oldValue: oldValue,
-                    newValue: newValue,
-                    mapItemTemplateRef: this.startingMapItemTemplate.ref.getData()
-                }
-            ];
-            await this.#updateMap(changes);
-        }
-        else {
-            await this.#reRenderElement("if-visible-map-item-template");
-        }
-    }
-
-    async updateCaption(caption) {
-        this.mapItemTemplate.caption = caption;
-        this.validationResult = await this.#validate();
-        if (this.validationResult.isValid) {
-            const oldValue = this.startingMapItemTemplate.caption.getData();
-            const newValue = this.mapItemTemplate.caption.getData();
-            const changes = [
-                {
-                    changeType: ChangeType.Edit,
-                    changeObjectType: MapItemTemplate.name,
-                    propertyName: "caption",
-                    oldValue: oldValue,
-                    newValue: newValue,
-                    mapItemTemplateRef: this.startingMapItemTemplate.ref.getData()
-                }
-            ];
-            await this.#updateMap(changes);
-        }
-        else {
-            await this.#reRenderElement("if-visible-map-item-template");
-        }
+        ];
+        await this.#updateMap(changes);
     }
 
     allowDrop(evt) {
@@ -483,7 +386,7 @@ class MapItemTemplateViewModel {
     }
 
     isDraggable() {
-        return (!this.mapItemTemplate || this.mapItemTemplate.ref.isBuiltIn || this.mapItemTemplate.ref.isFromTemplate) ? false : true;
+        return !this.isDisabled();
     }
 
     dragItem(evt) {
@@ -505,279 +408,200 @@ class MapItemTemplateViewModel {
         element.dispatchEvent(dragStartEvent);
     }
 
-    async dropFill(evt) {
-
-        // get drop location 
-        const fillId = evt.dataTransfer.getData("text");
-        const fillListElement = this.#getElement("#fill-list");
-
-        const fillItems = fillListElement.querySelectorAll(".fill-item");
-        const mouseY = evt.clientY;
-        let newIndex = 0;
-        let currentIndex = 0;
-        const length = fillItems.length;
-        for (let i = 0; i < length; i++) {
-            const rect = fillItems[i].getBoundingClientRect();
-            if (mouseY > rect.top + rect.height / 2) {
-                newIndex = i + 1;
+    async updateRef() {
+        const validationResult = await this.validate();
+        if (validationResult.isValid) {
+            const oldValue = this.mapItemTemplate.getData();
+            const newValue = validationResult.mapItemTemplateData;
+            const map = await MapWorkerClient.getMap();
+            const mapItemTemplateRefIndex = map.mapItemTemplateRefs.findIndex(mitr => EntityReference.areEqual(mitr, oldValue.ref));
+            const mapItemTemplateIndex = map.mapItemTemplates.findIndex(mit => EntityReference.areEqual(mit.ref, oldValue.ref));
+            const changes = [
+                {
+                    changeType: ChangeType.Delete,
+                    changeObjectType: Map.name,
+                    propertyName: "mapItemTemplateRefs",
+                    itemIndex: mapItemTemplateRefIndex,
+                    itemValue: oldValue.ref
+                },
+                {
+                    changeType: ChangeType.Delete,
+                    changeObjectType: Map.name,
+                    propertyName: "mapItemTemplates",
+                    itemIndex: mapItemTemplateIndex,
+                    itemValue: oldValue
+                },
+                {
+                    changeType: ChangeType.Insert,
+                    changeObjectType: Map.name,
+                    propertyName: "mapItemTemplateRefs",
+                    itemIndex: mapItemTemplateRefIndex,
+                    itemValue: newValue.ref
+                },
+                {
+                    changeType: ChangeType.Insert,
+                    changeObjectType: Map.name,
+                    propertyName: "mapItemTemplates",
+                    itemIndex: mapItemTemplateIndex,
+                    itemValue: newValue
+                }
+            ];
+            const isInMapItemTemplatePalettes = this.#isToolInPalettes(map.toolPalette.mapItemTemplatePalettes, oldValue.ref);
+            if (isInMapItemTemplatePalettes) {
+                const oldPalettesData = map.toolPalette.getPalettesData(map.toolPalette.mapItemTemplatePalettes);
+                let newPalettesData = this.#updateToolFromPalettesData(oldPalettesData, oldValue.ref, newValue.ref);
+                changes.push({
+                    changeType: ChangeType.Edit,
+                    changeObjectType: ToolPalette.name,
+                    propertyName: "mapItemTemplatePalettes",
+                    oldValue: oldPalettesData,
+                    newValue: newPalettesData
+                });
             }
-            if (fillItems[i].id == fillId) {
-                currentIndex = i;
+            const mapItemsToUpdate = this.#getMapItemsToUpdate(map, oldValue.ref, newValue.ref);
+            for (const mapItemInfo of mapItemsToUpdate) {
+                changes.push({
+                    changeType: ChangeType.Edit,
+                    changeObjectType: MapItem.name,
+                    propertyName: "mapItemTemplateRef",
+                    layerName: mapItemInfo.layerName,
+                    mapItemGroupId: mapItemInfo.mapItemGroupId,
+                    mapItemId: mapItemInfo.mapItemId,
+                    oldValue: mapItemInfo.oldValue,
+                    newValue: mapItemInfo.newValue
+                });
             }
+            await this.#updateMap(changes);
         }
-        if (newIndex > currentIndex) {
-            newIndex--;
-        }
-        if (newIndex == currentIndex) {
-            return;
-        }      
-        const fill = this.mapItemTemplate.fills.find(f => f.id == fillId);
-        const changes = [
-            {
-                changeType: ChangeType.Delete,
-                changeObjectType: MapItemTemplate.name,
-                propertyName: "fills",
-                itemIndex: currentIndex,
-                itemValue: fill.getData(),
-                mapItemTemplateRef: this.startingMapItemTemplate.ref.getData()
-            },
-            {
-                changeType: ChangeType.Insert,
-                changeObjectType: MapItemTemplate.name,
-                propertyName: "fills",
-                itemIndex: newIndex,
-                itemValue: fill.getData(),
-                mapItemTemplateRef: this.startingMapItemTemplate.ref.getData()
-            }
-        ];
-        await this.#updateMap(changes);
     }
 
-    async dropStroke(evt) {
+    async update(propertyName) {
+        const validationResult = await this.validate();
+        if (validationResult.isValid) {
+            let oldValue = null;
+            let newValue = null;
+            switch (propertyName) {
+                case "thumbnailSrc":
+                    oldValue = this.mapItemTemplate.thumbnailSrc;
+                    newValue = validationResult.mapItemTemplateData.thumbnailSrc;
+                    break;
+                case "shadow":
+                    oldValue = this.mapItemTemplate.shadow.getData();
+                    newValue = validationResult.mapItemTemplateData.shadow;
+                    break;
+                case "defaultZGroup":
+                    oldValue = this.mapItemTemplate.defaultZGroup;
+                    newValue = validationResult.mapItemTemplateData.defaultZGroup;
+                    break;
+                case "tags":
+                    oldValue = this.mapItemTemplate.tags;
+                    newValue = validationResult.mapItemTemplateData.tags;
+                    break;
+            }
+            const changes = [
+                {
+                    changeType: ChangeType.Edit,
+                    changeObjectType: MapItemTemplate.name,
+                    propertyName: propertyName,
+                    oldValue: oldValue,
+                    newValue: newValue,
+                    mapItemTemplateRef: this.mapItemTemplate.ref.getData()
+                }
+            ];
+            await this.#updateMap(changes);
+        }
+    }
 
-        // get drop location 
-        const strokeId = evt.dataTransfer.getData("text");
-        const strokeListElement = this.#getElement("#stroke-list")
+    async validate() {
+        let isValid = true;
+        const map = await MapWorkerClient.getMap();       
 
-        const strokeItems = strokeListElement.querySelectorAll(".stroke-item");
-        const mouseY = evt.clientY;
-        let newIndex = 0;
-        let currentIndex = 0;
-        const length = strokeItems.length;
-        for (let i = 0; i < length; i++) {
-            const rect = strokeItems[i].getBoundingClientRect();
-            if (mouseY > rect.top + rect.height / 2) {
-                newIndex = i + 1;
-            }
-            if (strokeItems[i].id == strokeId) {
-                currentIndex = i;
-            }
+        // validate name
+        const name = this.#getElement("#name")?.value;
+        if (name.length == 0) {
+            this.#getElement("#validation-name").innerHTML = "Name is required.";
+            isValid = false;
         }
-        if (newIndex > currentIndex) {
-            newIndex--;
+        if (!name.match(/^[a-zA-Z0-9\s()]*$/)) {
+            this.#getElement("#validation-name").innerHTML = "Invalid character(s). Alpha-numeric only.";
+            isValid = false;
         }
-        if (newIndex == currentIndex) {
-            return;
+
+        // validate version
+        const versionId = parseInt(this.#getElement("#version")?.value);
+        if (isNaN(versionId)) {
+            this.#getElement("#validation-version").innerHTML = "Version is required.";
+            isValid = false;
         }
-        const stroke = this.mapItemTemplate.strokes.find(s => s.id == strokeId);
-        const changes = [
-            {
-                changeType: ChangeType.Delete,
-                changeObjectType: MapItemTemplate.name,
-                propertyName: "strokes",
-                itemIndex: currentIndex,
-                itemValue: stroke.getData(),
-                mapItemTemplateRef: this.startingMapItemTemplate.ref.getData()
-            },
-            {
-                changeType: ChangeType.Insert,
-                changeObjectType: MapItemTemplate.name,
-                propertyName: "strokes",
-                itemIndex: newIndex,
-                itemValue: stroke.getData(),
-                mapItemTemplateRef: this.startingMapItemTemplate.ref.getData()
+        if (versionId < 1 || versionId > 1000) {
+            this.#getElement("#validation-version").innerHTML = "Version must be an integer between 1 and 1000.";
+        }
+        const newRef = {
+            versionId: versionId,
+            isBuiltIn: false,
+            isFromTemplate: false,
+            name: name
+        }
+        const isStartingRef = EntityReference.areEqual(this.mapItemTemplate.ref, newRef);
+        if (!isStartingRef && map.mapItemTemplateRefs.some(mitr => EntityReference.areEqual(mitr, newRef))) {
+            this.#getElement("#validation-name").innerHTML = "The combination of name and version must be unique.";
+            this.#getElement("#validation-version").innerHTML = "The combination of name and version must be unique.";
+            isValid = false;
+        }
+
+        // validate thumbnail
+        const thumbnailSrc = this.#getElement("#thumbnail-data")?.value;
+        if (!thumbnailSrc || thumbnailSrc.length == 0) {
+            this.#getElement("#validation-thumbnail").innerHTML = "Thumbnail is required.";
+            isValid = false;
+        }
+
+        // validate tags
+        const tags = this.#getElement("#tags")?.value;
+        if (tags && !tags.match(/^[a-zA-Z0-9\s()]*$/)) {
+            this.#getElement("#validation-tags").innerHTML = "Invalid character(s). Alpha-numeric only.";
+            isValid = false;
+        }
+
+        // validate default z group
+        const defaultZGroup = parseInt(this.#getElement("#default-z-group")?.value);
+        if (isNaN(defaultZGroup)) {
+            this.#getElement("#validation-default-z-group").innerHTML = "Default z-order rendering group is required.";
+            isValid = false;
+        }
+        if (defaultZGroup < -10 || defaultZGroup > 10) {
+            this.#getElement("#validation-default-z-group").innerHTML = "Default z-order rendering group must be an integer between -10 and 10.";
+            isValid = false;
+        }
+
+        // validate shadow
+        const shadowModel = this.#getModelFromComponentElement("shadow");
+        const shadowValidationResult = shadowModel.validate();
+        isValid = isValid && shadowValidationResult.isValid;
+        const shadow = {
+            color: shadowValidationResult.color,
+            blur: shadowValidationResult.blur,
+            offsetX: shadowValidationResult.offsetX,
+            offsetY: shadowValidationResult.offsetY,
+        }
+
+        const mapItemTemplateData = this.mapItemTemplate.getData();
+        return {
+            isValid: isValid,
+            mapItemTemplateData: {
+                ref: newRef,
+                thumbnailSrc: thumbnailSrc,
+                fills: mapItemTemplateData.fills,
+                strokes: mapItemTemplateData.strokes,
+                shadow: shadow,
+                defaultZGroup: defaultZGroup,
+                caption: mapItemTemplateData.caption,
+                tags: tags
             }
-        ];
-        await this.#updateMap(changes);
+        };
     }
 
     // helpers
-    #currentFill;
-    #currentStroke;
-
-    #update() {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        this.mapItemTemplate.thumbnailSrc = InputUtilities.cleanseString(componentElement.querySelector("#map-item-template-thumbnail").value.trim());
-        this.mapItemTemplate.tags = InputUtilities.cleanseString(componentElement.querySelector("#map-item-template-tags").value.trim());
-        this.mapItemTemplate.defaultZGroup = parseInt(componentElement.querySelector("#map-item-template-default-z-group").value);
-    }
-
-    async #validate() {
-        const validationResult = {
-            isValid: false
-        };
-        const map = await MapWorkerClient.getMap();
-        if (this.mapItemTemplate && !this.mapItemTemplate.ref.isBuiltIn && !this.mapItemTemplate.ref.isFromTemplate) {
-
-            const isStartingRef = EntityReference.areEqual(this.startingMapItemTemplate.ref, this.mapItemTemplate.ref);
-
-            // validate name
-            if (this.mapItemTemplate.ref.name.length == 0) {
-                validationResult.name = "Name is required.";
-            }
-            if (!this.mapItemTemplate.ref.name.match(/^[a-zA-Z0-9\s()]*$/)) {
-                validationResult.name = "Invalid character(s). Alpha-numeric only.";
-            }
-            if (!isStartingRef && map.mapItemTemplateRefs.some(mitr => EntityReference.areEqual(mitr, this.mapItemTemplate.ref))) {
-                validationResult.name = "The combination of name and version must be unique.";
-            }
-
-            // validate version
-            if (isNaN(this.mapItemTemplate.ref.versionId)) {
-                validationResult.version = "Version is required.";
-            }
-            if (this.mapItemTemplate.ref.versionId < 1 || this.mapItemTemplate.ref.versionId > 1000) {
-                validationResult.version = "Version must be an integer between 1 and 1000.";
-            }
-            if (!isStartingRef && map.mapItemTemplateRefs.some(mitr => EntityReference.areEqual(mitr, this.mapItemTemplate.ref))) {
-                validationResult.version = "The combination of name and version must be unique.";
-            }
-
-            // validate thumbnail
-            if (!this.mapItemTemplate.thumbnailSrc || this.mapItemTemplate.thumbnailSrc.length == 0) {
-                validationResult.thumbnail = "Thumbnail is required.";
-            }
-
-            // validate tags
-            if (this.mapItemTemplate.tags && !this.mapItemTemplate.tags.match(/^[a-zA-Z0-9\s()]*$/)) {
-                validationResult.tags = "Invalid character(s). Alpha-numeric only.";
-            }
-
-            // validate default z group
-            if (isNaN(this.mapItemTemplate.defaultZGroup)) {
-                validationResult.defaultZGroup = "Default z-order rendering group is required.";
-            }
-            if (this.mapItemTemplate.defaultZGroup < -10 || this.mapItemTemplate.defaultZGroup > 10) {
-                validationResult.defaultZGroup = "Default z-order rendering group must be an integer between -10 and 10.";
-            }
-
-            if (!validationResult.name
-                && !validationResult.version
-                && !validationResult.thumbnail
-                && !validationResult.tags
-                && !validationResult.defaultZGroup) {
-                validationResult.isValid = true;
-            }
-        }
-        return validationResult;
-    }
-
-    async #reRenderElement(elementId) {
-        const element = this.#getElement(`#${elementId}`);
-        if (element) {
-            const componentId = element.getAttribute("data-kit-component-id");
-            await KitRenderer.renderComponent(componentId);
-        }
-    }
-
-    async #updateMap(changes) {
-
-        // update local copy
-        //const map = await MapWorkerClient.getMap();
-        //map.applyChangeSet(new ChangeSet({ changes: changes }));
-
-        // update map worker
-        MapWorkerClient.postWorkerMessage({
-            messageType: MapWorkerInputMessageType.UpdateMap,
-            changeSet: { changes: changes }
-        });
-    }
-
-    async #setCurrentFill(fill) {
-        this.#currentFill = fill;
-        await this.#reRenderElement("currentFillForm");
-    }
-
-    async #setCurrentStroke(stroke) {
-        this.#currentStroke = stroke;
-        await this.#reRenderElement("currentStrokeForm");
-    }
-
-    #detailsState;
-    #getDetailsState() {
-        if (!this.#detailsState) {
-            const detailsState = [];
-            const detailsElements = this.#getElements("details");
-            if (detailsElements) {
-                for (const detailsElement of detailsElements) {
-                    detailsState.push({
-                        id: detailsElement.id,
-                        isOpen: detailsElement.open
-                    });
-                }
-            }
-            this.#detailsState = detailsState;
-        }
-        return this.#detailsState;
-    }
-
-    #applyDetailsState() {
-        const detailsElements = this.#getElements("details");
-        if (detailsElements) {
-            const detailsState = this.#getDetailsState();
-            for (const detailsElement of detailsElements) {
-                const isOpen = detailsState.find(x => x.id == detailsElement.id)?.isOpen;
-                detailsElement.open = isOpen;
-            }
-        }
-    }
-
-    #isToolInPalettes(palettes, toolRef) {
-        for (const palette of palettes) {
-            if (palette.some(x => EntityReference.areEqual(x, toolRef))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    #updateToolFromPalettesData(palettes, oldToolRef, newToolRef) {
-        const newPalettesData = [];
-        for (const palette of palettes) {
-            const newPalette = [];
-            for (const item of palette) {
-                if (EntityReference.areEqual(item, oldToolRef)) {
-                    newPalette.push(newToolRef.getData());
-                }
-                else {
-                    newPalette.push(item);
-                }
-            }
-            newPalettesData.push(newPalette);
-        }
-        return newPalettesData;
-    }
-
-    #getMapItemsToUpdate(map, oldTemplateRef, newTemplateRef) {
-        const mapItems = [];
-        for (const layer of map.layers) {
-            for (const mapItemGroup of layer.mapItemGroups) {
-                for (const mapItem of mapItemGroup.mapItems) {
-                    if (EntityReference.areEqual(oldTemplateRef, mapItem.mapItemTemplateRef)) {
-                        mapItems.push({
-                            layerName: layer.name,
-                            mapItemGroupId: mapItemGroup.id,
-                            mapItemId: mapItem.id,
-                            oldValue: oldTemplateRef.getData(),
-                            newValue: newTemplateRef.getData()
-                        })
-                    }
-                }
-            }
-        }
-        return mapItems;
-    }
-
     #componentElement;
     #getElement(selector) {
         if (!this.#componentElement) {
@@ -793,12 +617,30 @@ class MapItemTemplateViewModel {
         return this.#componentElement.querySelectorAll(selector);
     }
 
-    #updatePathStyleLabels() {
-        for (const fill of this.mapItemTemplate.fills) {
-            this.#updatePathStyleLabel(fill);
+    async #reRenderElement(elementId) {
+        const element = this.#getElement(`#${elementId}`);
+        if (element) {
+            const componentId = element.getAttribute("data-kit-component-id");
+            if (KitComponent.find(componentId)) {
+                await KitRenderer.renderComponent(componentId);
+            }
         }
-        for (const stroke of this.mapItemTemplate.strokes) {
-            this.#updatePathStyleLabel(stroke);
+    }
+
+    #completeRender() {
+        this.#updatePathStyleLabels();
+        this.#loadThumbnail();
+        this.#applyDetailsState();
+    }
+
+    #updatePathStyleLabels() {
+        if (this.mapItemTemplate) {
+            for (const fill of this.mapItemTemplate.fills) {
+                this.#updatePathStyleLabel(fill);
+            }
+            for (const stroke of this.mapItemTemplate.strokes) {
+                this.#updatePathStyleLabel(stroke);
+            }
         }
     }
 
@@ -806,7 +648,7 @@ class MapItemTemplateViewModel {
         const styleType = pathStyle.getStyleOptionValue(PathStyleOption.PathStyleType);
         const isColorSwatchVisible = this.#isColorSwatchVisible(styleType);
         const isImageThumbnailVisible = this.#isImageThumbnailVisible(styleType);
-        const pathStyleLabelContainerElement = this.#getElement(`[data-path-style-label-container="${pathStyle.id}"]`);
+        const pathStyleLabelContainerElement = this.#getElement(`#path-style-id-${pathStyle.id}`);
         if (pathStyleLabelContainerElement) {
             if (isColorSwatchVisible) {
                 const colorSwatch = pathStyleLabelContainerElement.querySelector(".color-swatch");
@@ -824,30 +666,6 @@ class MapItemTemplateViewModel {
             const label = pathStyleLabelContainerElement.querySelector(".path-style-label");
             label.innerHTML = this.#getPathStyleLabel(styleType);
         }
-    }
-
-    #getPathStyleLabel(styleType) {
-        switch (styleType) {
-            case PathStyleType.ColorFill:
-            case PathStyleType.ColorStroke:
-                return "Color";
-            case PathStyleType.LinearGradientFill:
-            case PathStyleType.LinearGradientStroke:
-                return "Linear gradient";
-            case PathStyleType.RadialGradientFill:
-            case PathStyleType.RadialGradientStroke:
-                return "Radial gradient";
-            case PathStyleType.ConicalGradientFill:
-            case PathStyleType.ConicalGradientStroke:
-                return "Conical gradient";
-            case PathStyleType.TileFill:
-            case PathStyleType.TileStroke:
-                return "Tile";
-            case PathStyleType.ImageArrayFill:
-            case PathStyleType.ImageArrayStroke:
-                return "Image array";
-        }
-        return "Style";
     }
 
     #isColorSwatchVisible(styleType) {
@@ -878,7 +696,7 @@ class MapItemTemplateViewModel {
             || styleType == PathStyleType.LinearGradientStroke) {
             const linearGradientId = `linearGradient-${pathStyle.id}`;
             let html = `<defs><linearGradient id="${linearGradientId}" >`;
-            const colorStopsLinear = pathStyle.getColorStops();
+            const colorStopsLinear = pathStyle.getColorStops().filter(cs => cs.offset > 0);
             for (const colorStop of colorStopsLinear) {
                 html += `<stop offset="${colorStop.offset}%" stop-color="${colorStop.color}" />`;
             }
@@ -892,7 +710,7 @@ class MapItemTemplateViewModel {
             || styleType == PathStyleType.ConicalGradientStroke) {
             const radialGradientId = `radialGradient-${pathStyle.id}`;
             let html = `<defs><radialGradient id="${radialGradientId}" cx="0.5" cy="0.5" r="0.5" >`;
-            const colorStopsLinear = pathStyle.getColorStops();
+            const colorStopsLinear = pathStyle.getColorStops().filter(cs => cs.offset > 0);
             for (const colorStop of colorStopsLinear) {
                 html += `<stop offset="${colorStop.offset}%" stop-color="${colorStop.color}" />`;
             }
@@ -915,17 +733,144 @@ class MapItemTemplateViewModel {
         return src;
     }
 
+    #getPathStyleLabel(styleType) {
+        switch (styleType) {
+            case PathStyleType.ColorFill:
+            case PathStyleType.ColorStroke:
+                return "Color";
+            case PathStyleType.LinearGradientFill:
+            case PathStyleType.LinearGradientStroke:
+                return "Linear gradient";
+            case PathStyleType.RadialGradientFill:
+            case PathStyleType.RadialGradientStroke:
+                return "Radial gradient";
+            case PathStyleType.ConicalGradientFill:
+            case PathStyleType.ConicalGradientStroke:
+                return "Conical gradient";
+            case PathStyleType.TileFill:
+            case PathStyleType.TileStroke:
+                return "Tile";
+            case PathStyleType.ImageArrayFill:
+            case PathStyleType.ImageArrayStroke:
+                return "Image array";
+        }
+        return "Style";
+    }
+
     #loadThumbnail() {
         if (this.mapItemTemplate) {
             let src = this.mapItemTemplate.thumbnailSrc ?? MapItemTemplate.defaultThumbnailSrc;
-            const imageElement = this.#getElement("#map-item-template-thumbnail-preview");
+            const imageElement = this.#getElement("#thumbnail-preview");
             if (imageElement) {
                 imageElement.setAttribute("src", src);
             }
-            const dataElement = this.#getElement("#map-item-template-thumbnail");
-            if (dataElement) {
-                dataElement.value = src;
+        }
+    }
+
+    #detailsState;
+    #getDetailsState() {
+        if (!this.#detailsState) {
+            const detailsState = [];
+            const detailsElements = this.#getElements("details");
+            if (detailsElements) {
+                for (const detailsElement of detailsElements) {
+                    detailsState.push({
+                        id: detailsElement.id,
+                        isOpen: detailsElement.open
+                    });
+                }
+            }
+            this.#detailsState = detailsState;
+        }
+        return this.#detailsState;
+    }
+
+    #applyDetailsState() {
+        const detailsElements = this.#getElements("details");
+        if (detailsElements) {
+            const detailsState = this.#getDetailsState();
+            for (const detailsElement of detailsElements) {
+                const isOpen = detailsState.find(x => x.id == detailsElement.id)?.isOpen;
+                detailsElement.open = isOpen;
             }
         }
+    } 
+
+    #currentFill;
+    async #setCurrentFill(fill) {
+        this.#currentFill = fill;
+        await this.#reRenderElement("currentFillForm");
+    }
+
+    #currentStroke;
+    async #setCurrentStroke(stroke) {
+        this.#currentStroke = stroke;
+        await this.#reRenderElement("currentStrokeForm");
+    }
+
+    async #updateMap(changes) {
+
+        // update local copy
+        //const map = await MapWorkerClient.getMap();
+        //map.applyChangeSet(new ChangeSet({ changes: changes }));
+
+        // update map worker
+        MapWorkerClient.postWorkerMessage({
+            messageType: MapWorkerInputMessageType.UpdateMap,
+            changeSet: { changes: changes }
+        });
+    }
+
+    #isToolInPalettes(palettes, toolRef) {
+        for (const palette of palettes) {
+            if (palette.some(x => EntityReference.areEqual(x, toolRef))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    #updateToolFromPalettesData(palettes, oldToolRef, newToolRef) {
+        const newPalettesData = [];
+        for (const palette of palettes) {
+            const newPalette = [];
+            for (const item of palette) {
+                if (EntityReference.areEqual(item, oldToolRef)) {
+                    newPalette.push(newToolRef);
+                }
+                else {
+                    newPalette.push(item);
+                }
+            }
+            newPalettesData.push(newPalette);
+        }
+        return newPalettesData;
+    }
+
+    #getMapItemsToUpdate(map, oldTemplateRef, newTemplateRef) {
+        const mapItems = [];
+        for (const layer of map.layers) {
+            for (const mapItemGroup of layer.mapItemGroups) {
+                for (const mapItem of mapItemGroup.mapItems) {
+                    if (EntityReference.areEqual(oldTemplateRef, mapItem.mapItemTemplateRef)) {
+                        mapItems.push({
+                            layerName: layer.name,
+                            mapItemGroupId: mapItemGroup.id,
+                            mapItemId: mapItem.id,
+                            oldValue: oldTemplateRef,
+                            newValue: newTemplateRef
+                        })
+                    }
+                }
+            }
+        }
+        return mapItems;
+    }
+
+    #getModelFromComponentElement(elementId) {
+        const element = this.#getElement(`#${elementId}`);
+        const componentId = element.getAttribute("data-kit-component-id");
+        const component = KitComponent.find(componentId);
+        return component?.model;
     }
 }

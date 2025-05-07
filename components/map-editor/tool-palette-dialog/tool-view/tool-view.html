@@ -1,42 +1,54 @@
-﻿<kit-if id="if-tool-visible" data-kit-condition="#model.tool != null">
+﻿
+<kit-if id="if-tool-visible" data-kit-condition="#model.tool != null">
     <fieldset data-kit-add-attributes="%{#model.isDisabled()}%">
+
+        <!-- Read-only indicator -->
         <div>
-            <kit-if data-kit-condition="#model.tool.ref.isBuiltIn">
+            <kit-if data-kit-condition="#model.isBuiltIn()">
                 <label><i>Built in (read-only)</i></label>
             </kit-if>
-            <kit-if data-kit-condition="#model.tool.ref.isFromTemplate">
+            <kit-if data-kit-condition="#model.isFromTemplate()">
                 <label><i>From template (read-only)</i></label>
             </kit-if>
         </div>
+        
+        <!-- Name -->
         <div>
-            <label>Name:<span class="validation-message">%{#model.validationResult?.name ?? ""}%</span></label>
-            <input id="tool-name"
+            <label>Name:</label>
+            <div id="validation-name" class="validation-message"></div>
+            <input id="name"
                    type="text"
                    placeholder="Name"
                    maxlength="30"
                    style="width:400px;"
-                   value="%{#model.tool.ref.name}%"
+                   value="%{#model.getName()}%"
                    onchange="#model.updateRef()"
                    onkeydown="#model.onKeyDown(event)" />
         </div>
+
+        <!-- Version -->
         <div>
-            <label>Version:<span class="validation-message">%{#model.validationResult?.version ?? ""}%</span></label>
-            <input id="tool-version"
+            <label>Version:</label>
+            <div id="validation-version" class="validation-message"></div>
+            <input id="version"
                    type="number"
                    min="1"
                    max="1000"
                    onchange="#model.updateRef()"
-                   data-kit-add-attributes="value=%{#model.tool.ref.versionId}%"
+                   data-kit-add-attributes="value=%{#model.getVersion()}%"
                    onkeydown="#model.onKeyDown(event)" />
         </div>
+
+        <!-- Tool type-->
         <div>
             <label>Tool type:</label>
+            <div id="validation-tool-type" class="validation-message"></div>
             <label class="radio-button-2">
                 <input id="tool-type-drawing"
                        type="radio"
                        name="toolType"
-                       onchange="#model.updateProperty('tool-type-drawing')"
-                       data-kit-add-attributes="%{#model.isToolTypeChecked(#model.tool.toolType, 'DrawingTool')}%" />
+                       onchange="#model.update('toolType')"
+                       data-kit-add-attributes="%{#model.isToolTypeChecked('DrawingTool')}%" />
                 <span class="checkmark"></span>
                 <span>Drawing tool</span>
             </label>
@@ -44,71 +56,86 @@
                 <input id="tool-type-editing"
                        type="radio"
                        name="toolType"
-                       onchange="#model.updateProperty('tool-type-editing')"
-                       data-kit-add-attributes="%{#model.isToolTypeChecked(#model.tool.toolType, 'EditingTool')}%" />
+                       onchange="#model.update('toolType')"
+                       data-kit-add-attributes="%{#model.isToolTypeChecked('EditingTool')}%" />
                 <span class="checkmark"></span>
                 <span>Editing tool</span>
             </label>
         </div>
+
+        <!-- Thumbnail -->
         <div>
-            <label>Thumbnail:<span class="validation-message">%{#model.validationResult?.thumbnail ?? ""}%</span></label>
-            <textarea id="tool-thumbnail"
+            <label>Thumbnail:</label>
+            <div id="validation-thumbnail" class="validation-message"></div>
+            <textarea id="thumbnail"
                       maxlength="1000"
                       autocomplete="off"
                       autocorrect="off"
                       autocapitalize="off"
                       spellcheck="false"
-                      onchange="#model.updateProperty('tool-thumbnail')"
-                      onkeydown="#model.onKeyDown(event)">%{#model.tool.thumbnailSrc}%
+                      onchange="#model.update('thumbnailSrc')"
+                      onkeydown="#model.onKeyDown(event)">%{#model.getThumbnailSource()}%
             </textarea>
         </div>
+
+        <!-- Cursor -->
         <div>
-            <label>Cursor:<span class="validation-message">%{#model.validationResult?.cursor ?? ""}%</span></label>
-            <textarea id="tool-cursor"
+            <label>Cursor:</label>
+            <div id="validation-cursor" class="validation-message"></div>
+            <textarea id="cursor"
                       maxlength="1000"
                       autocomplete="off"
                       autocorrect="off"
                       autocapitalize="off"
                       spellcheck="false"
-                      onchange="#model.updateProperty('tool-cursor')"
-                      onkeydown="#model.onKeyDown(event)">%{#model.tool.cursorSrc}%
+                      onchange="#model.update('cursorSrc')"
+                      onkeydown="#model.onKeyDown(event)">%{#model.getCursorSrc()}%
             </textarea>
         </div>
+
+        <!-- Cursor hot spot -->
         <div>
-            <label>Cursor hot spot:<span class="validation-message">%{#model.validationResult?.cursorHotspot ?? ""}%</span></label>
+            <label>Cursor hot spot:</label>
+            <div id="validation-cursor-hot-spot" class="validation-message"></div>
             <div>
                 <label class="inline-label">x:</label>
-                <input id="tool-cursor-hot-spot-x"
+                <input id="cursor-hot-spot-x"
                        type="number"
                        min="0"
                        max="100"
-                       onchange="#model.updateProperty('tool-cursor-hot-spot-x')"
-                       data-kit-add-attributes="value=%{#model.tool.cursorHotspot.x}%"
+                       onchange="#model.update('cursorHotspot')"
+                       data-kit-add-attributes="value=%{#model.getCursorHotspot().x}%"
                        onkeydown="#model.onKeyDown(event)" />
             </div>
             <div>
                 <label class="inline-label">y:</label>
-                <input id="tool-cursor-hot-spot-y"
+                <input id="cursor-hot-spot-y"
                        type="number"
                        min="0"
                        max="100"
-                       onchange="#model.updateProperty('tool-cursor-hot-spot-y')"
-                       data-kit-add-attributes="value=%{#model.tool.cursorHotspot.y}%"
+                       onchange="#model.update('cursorHotspot')"
+                       data-kit-add-attributes="value=%{#model.getCursorHotspot().y}%"
                        onkeydown="#model.onKeyDown(event)" />
             </div>
         </div>
+
+        <!-- Tool source -->
         <div>
-            <label>Source:<span class="validation-message">%{#model.validationResult?.source ?? ""}%</span></label>
-            <textarea id="tool-source"
+            <label>Source:</label>
+            <div id="validation-source" class="validation-message"></div>
+            <textarea id="source"
                       maxlength="200000"
                       style="height:550px;"
                       autocomplete="off"
                       autocorrect="off"
                       autocapitalize="off"
                       spellcheck="false"
-                      onchange="#model.updateProperty('tool-source')"
+                      onchange="#model.update('moduleSrc')"
                       onkeydown="#model.onKeyDown(event)">%{#model.getToolSource()}%
             </textarea>
         </div>
+
+        <div id="scroll-to-here">xxx</div>
+
     </fieldset>
 </kit-if>

@@ -1,7 +1,6 @@
 ﻿
 import { KitMessenger, KitRenderer } from "../../../../ui-kit.js";
 import {
-    ChangeSet,
     ChangeType,
     EntityReference,
     InputUtilities,
@@ -22,17 +21,7 @@ class ToolViewModel {
     // event handlers
     async onRenderStart(componentId, modelInput) {
         this.componentId = componentId;
-        if (modelInput.tool) {
-            this.startingTool = new Tool(modelInput.tool.getData());
-            this.tool = new Tool(modelInput.tool.getData());
-        }
-        else {
-            this.startingTool = null;
-            this.tool = null;
-        }
-        this.validationResult = {
-            isValid: false
-        };
+        this.tool = modelInput.tool;
     }
 
     async onRenderComplete() {
@@ -41,15 +30,14 @@ class ToolViewModel {
 
     async onMapUpdated(message) {
         if (this.tool) {
+            const map = await MapWorkerClient.getMap();
+            this.tool = map.tools.find(t => EntityReference.areEqual(this.tool.ref, t.ref));
             let reRender = false;
             if (message?.data?.changeSet?.changes) {
-                const toolChange = message.data.changeSet.changes.some(c => c.changeObjectType == Tool.name);
+                const toolChange = message.data.changeSet.changes.some(c => c.changeObjectType == Tool.name && EntityReference.areEqual(this.tool.ref, c.toolRef));
                 reRender = toolChange;
             }
             if (reRender) {
-                const map = await MapWorkerClient.getMap();
-                this.startingTool = map.tools.find(t => EntityReference.areEqual(t.ref, this.startingTool.ref));
-                this.tool = new Tool(this.startingTool.getData());
                 await this.#reRenderElement("if-tool-visible");
             }
         }
@@ -64,11 +52,39 @@ class ToolViewModel {
         return (!this.tool || this.tool.ref.isBuiltIn || this.tool.ref.isFromTemplate) ? "disabled" : null;
     }
 
-    isToolTypeChecked(toolType, matchingToolType) {
-        if (toolType == matchingToolType) {
+    isBuiltIn() {
+        return this.tool.ref.isBuiltIn;
+    }
+
+    isFromTemplate() {
+        return this.tool.ref.isFromTemplate;
+    }
+
+    getName() {
+        return this.tool.ref.name;
+    }
+
+    getVersion() {
+        return this.tool.ref.versionId;
+    }
+
+    isToolTypeChecked(toolType) {
+        if (this.tool.toolType == toolType) {
             return "checked";
         }
         return null;
+    }
+
+    getThumbnailSource() {
+        return this.tool.thumbnailSrc;
+    }
+
+    getCursorSrc() {
+        return this.tool.cursorSrc;
+    }
+
+    getCursorHotspot() {
+        return this.tool.cursorHotspot;
     }
 
     getToolSource() {
@@ -80,56 +96,47 @@ class ToolViewModel {
     }
 
     async updateRef() {
-        const tool = {
-            ref: {
-                isBuiltIn: this.tool?.ref.isBuiltIn,
-                isFromTemplate: this.tool?.ref.isFromTemplate
-            }
-        };
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        tool.ref.name = InputUtilities.cleanseString(componentElement.querySelector("#tool-name").value.trim());
-        tool.ref.versionId = parseInt(componentElement.querySelector("#tool-version").value);
-        this.tool = new Tool(tool);
-        this.#update();
-        this.validationResult = await this.#validate();
-        if (this.validationResult.isValid) {
+        const validationResult = await this.validate();
+        if (validationResult.isValid) {
+            const oldValue = this.tool.getData();
+            const newValue = validationResult.toolData;
             const map = await MapWorkerClient.getMap();
-            const toolRefIndex = map.toolRefs.findIndex(tr => EntityReference.areEqual(tr, this.startingTool.ref));
-            const toolIndex = map.tools.findIndex(t => EntityReference.areEqual(t.ref, this.startingTool.ref));
+            const toolRefIndex = map.toolRefs.findIndex(tr => EntityReference.areEqual(tr, oldValue.ref));
+            const toolIndex = map.tools.findIndex(t => EntityReference.areEqual(t.ref, oldValue.ref));
             const changes = [
                 {
                     changeType: ChangeType.Delete,
                     changeObjectType: Map.name,
                     propertyName: "toolRefs",
                     itemIndex: toolRefIndex,
-                    itemValue: this.startingTool.ref.getData()
+                    itemValue: oldValue.ref
                 },
                 {
                     changeType: ChangeType.Delete,
                     changeObjectType: Map.name,
                     propertyName: "tools",
                     itemIndex: toolIndex,
-                    itemValue: this.startingTool.getData()
+                    itemValue: oldValue
                 },
                 {
                     changeType: ChangeType.Insert,
                     changeObjectType: Map.name,
                     propertyName: "toolRefs",
                     itemIndex: toolRefIndex,
-                    itemValue: this.tool.ref.getData()
+                    itemValue: newValue.ref
                 },
                 {
                     changeType: ChangeType.Insert,
                     changeObjectType: Map.name,
                     propertyName: "tools",
                     itemIndex: toolIndex,
-                    itemValue: this.tool.getData()
+                    itemValue: newValue
                 }
             ];
-            const isInEditingToolPalettes = this.#isToolInPalettes(map.toolPalette.editingToolPalettes, this.startingTool.ref);
+            const isInEditingToolPalettes = this.#isToolInPalettes(map.toolPalette.editingToolPalettes, oldValue.ref);
             if (isInEditingToolPalettes) {
                 const oldEditingToolsData = map.toolPalette.getPalettesData(map.toolPalette.editingToolPalettes);
-                let newEditingToolsData = this.#updateToolFromPalettesData(oldEditingToolsData, this.startingTool.ref, this.tool.ref);
+                let newEditingToolsData = this.#updateToolFromPalettesData(oldEditingToolsData, oldValue.ref, newValue.ref);
                 changes.push({
                     changeType: ChangeType.Edit,
                     changeObjectType: ToolPalette.name,
@@ -138,10 +145,10 @@ class ToolViewModel {
                     newValue: newEditingToolsData
                 });
             }
-            const isInDrawingToolPalettes = this.#isToolInPalettes(map.toolPalette.drawingToolPalettes, this.startingTool.ref);
+            const isInDrawingToolPalettes = this.#isToolInPalettes(map.toolPalette.drawingToolPalettes, oldValue.ref);
             if (isInDrawingToolPalettes) {
                 const oldDrawingToolsData = map.toolPalette.getPalettesData(map.toolPalette.drawingToolPalettes);
-                let newDrawingToolsData = this.#updateToolFromPalettesData(oldDrawingToolsData, this.startingTool.ref, this.tool.ref);
+                let newDrawingToolsData = this.#updateToolFromPalettesData(oldDrawingToolsData, oldValue.ref, newValue.ref);
                 changes.push({
                     changeType: ChangeType.Edit,
                     changeObjectType: ToolPalette.name,
@@ -152,218 +159,198 @@ class ToolViewModel {
             }
             await this.#updateMap(changes);
         }
-        else {
-            await this.#reRenderElement("if-tool-visible");
+    }
+
+    async update(propertyName) {
+        const validationResult = await this.validate();
+        if (validationResult.isValid) {
+            let oldValue = null;
+            let newValue = null;
+            switch (propertyName) {
+                case "moduleSrc":
+                    oldValue = this.tool.moduleSrc;
+                    newValue = validationResult.toolData.moduleSrc;
+                    break;
+                case "thumbnailSrc":
+                    oldValue = this.tool.thumbnailSrc;
+                    newValue = validationResult.toolData.thumbnailSrc;
+                    break;
+                case "cursorSrc":
+                    oldValue = this.tool.cursorSrc;
+                    newValue = validationResult.toolData.cursorSrc;
+                    break;
+                case "cursorHotspot":
+                    oldValue = this.tool.cursorHotspot;
+                    newValue = validationResult.toolData.cursorHotspot;
+                    break;
+                case "toolType":
+                    oldValue = this.tool.toolType;
+                    newValue = validationResult.toolData.toolType;
+                    break;
+            }
+            const changes = [
+                {
+                    changeType: ChangeType.Edit,
+                    changeObjectType: Tool.name,
+                    propertyName: propertyName,
+                    oldValue: oldValue,
+                    newValue: newValue,
+                    toolRef: this.tool.ref.getData()
+                }
+            ];
+            const map = await MapWorkerClient.getMap();
+            let removeFromDrawingPalette = false;
+            if (this.tool.toolType == ToolType.DrawingTool && validationResult.toolData.toolType == ToolType.EditingTool) {
+                removeFromDrawingPalette = this.#isToolInPalettes(map.toolPalette.drawingToolPalettes, this.tool.ref);
+            }
+            if (removeFromDrawingPalette) {
+                const oldDrawingToolsData = map.toolPalette.getPalettesData(map.toolPalette.drawingToolPalettes);
+                const newDrawingToolsData = this.#removeToolFromPalettesData(oldDrawingToolsData, this.tool.ref);
+                changes.push({
+                    changeType: ChangeType.Edit,
+                    changeObjectType: ToolPalette.name,
+                    propertyName: "drawingToolPalettes",
+                    oldValue: oldDrawingToolsData,
+                    newValue: newDrawingToolsData
+                });
+            }
+            let removeFromEditingPalette = false;
+            if (this.tool.toolType == ToolType.EditingTool && validationResult.toolData.toolType == ToolType.DrawingTool) {
+                removeFromEditingPalette = this.#isToolInPalettes(map.toolPalette.editingToolPalettes, this.tool.ref);;
+            }
+            if (removeFromEditingPalette) {
+                const oldEditingToolsData = map.toolPalette.getPalettesData(map.toolPalette.editingToolPalettes);
+                const newEditingToolsData = this.#removeToolFromPalettesData(oldEditingToolsData, this.tool.ref);
+                changes.push({
+                    changeType: ChangeType.Edit,
+                    changeObjectType: ToolPalette.name,
+                    propertyName: "editingToolPalettes",
+                    oldValue: oldEditingToolsData,
+                    newValue: newEditingToolsData
+                });
+            }
+            await this.#updateMap(changes);
         }
     }
 
-    async updateProperty(elementId) {
-        this.#update();
-        this.validationResult = await this.#validate();
-        if (this.validationResult.isValid) {
-            const componentElement = KitRenderer.getComponentElement(this.componentId);
-            let element = componentElement.querySelector(`#${elementId}`);
-            let propertyName = null;
-            let oldValue = null;
-            let newValue = null;
-            let removeFromDrawingPalette = false;
-            let removeFromEditingPalette = false;
-            switch (elementId) {
-                case "tool-type-drawing":
-                    propertyName = "toolType";
-                    oldValue = this.startingTool.toolType;
-                    newValue = ToolType.DrawingTool;
-                    removeFromEditingPalette = true;
-                    break;
-                case "tool-type-editing":
-                    propertyName = "toolType";
-                    oldValue = this.startingTool.toolType;
-                    newValue = ToolType.EditingTool;
-                    removeFromDrawingPalette = true;
-                    break;
-                case "tool-thumbnail":
-                    propertyName = "thumbnailSrc";
-                    oldValue = this.startingTool.thumbnailSrc;
-                    newValue = InputUtilities.cleanseSvg(element.value.trim());
-                    break;
-                case "tool-cursor":
-                    propertyName = "cursorSrc";
-                    oldValue = this.startingTool.cursorSrc;
-                    newValue = InputUtilities.cleanseSvg(element.value.trim());
-                    break;
-                case "tool-cursor-hot-spot-x":
-                    propertyName = "cursorHotspot";
-                    oldValue = this.startingTool.cursorHotspot;
-                    newValue = { x: parseInt(element.value), y: this.startingTool.cursorHotspot.y };
-                    break;
-                case "tool-cursor-hot-spot-y":
-                    propertyName = "cursorHotspot";
-                    oldValue = this.startingTool.cursorHotspot;
-                    newValue = { x: this.startingTool.cursorHotspot.x, y: parseInt(element.value) };
-                    break;
-                case "tool-source":
-                    propertyName = "moduleSrc";
-                    oldValue = this.startingTool.moduleSrc;
-                    newValue = `data-${btoa(element.value.trim())}`
-                    break;
-            }
-            if (propertyName) {
-                const changes = [
-                    {
-                        changeType: ChangeType.Edit,
-                        changeObjectType: Tool.name,
-                        propertyName: propertyName,
-                        oldValue: oldValue,
-                        newValue: newValue,
-                        toolRef: this.startingTool.ref.getData()
-                    }
-                ];
-                const map = await MapWorkerClient.getMap();
-                if (removeFromDrawingPalette) {
-                    const isInDrawingToolPalettes = this.#isToolInPalettes(map.toolPalette.drawingToolPalettes, this.startingTool.ref);
-                    if (isInDrawingToolPalettes) {
-                        const oldDrawingToolsData = map.toolPalette.getPalettesData(map.toolPalette.drawingToolPalettes);
-                        let newDrawingToolsData = this.#removeToolFromPalettesData(oldDrawingToolsData, this.startingTool.ref);
-                        changes.push({
-                            changeType: ChangeType.Edit,
-                            changeObjectType: ToolPalette.name,
-                            propertyName: "drawingToolPalettes",
-                            oldValue: oldDrawingToolsData,
-                            newValue: newDrawingToolsData
-                        });
-                    }
-                }
-                if (removeFromEditingPalette) {
-                    const isInEditingToolPalettes = this.#isToolInPalettes(map.toolPalette.editingToolPalettes, this.startingTool.ref);
-                    if (isInEditingToolPalettes) {
-                        const oldEditingToolsData = map.toolPalette.getPalettesData(map.toolPalette.editingToolPalettes);
-                        let newEditingToolsData = this.#removeToolFromPalettesData(oldEditingToolsData, this.startingTool.ref);
-                        changes.push({
-                            changeType: ChangeType.Edit,
-                            changeObjectType: ToolPalette.name,
-                            propertyName: "editingToolPalettes",
-                            oldValue: oldEditingToolsData,
-                            newValue: newEditingToolsData
-                        });
-                    }
-                }
-                await this.#updateMap(changes);
-            }
+    async validate() {
+        let isValid = true;
+        const map = await MapWorkerClient.getMap();
+
+        // validate name
+        const name = this.#getElement("#name")?.value;
+        if (name.length == 0) {
+            this.#getElement("#validation-name").innerHTML = "Name is required.";
+            isValid = false;
         }
-        else {
-            await this.#reRenderElement("if-tool-visible");
+        if (!name.match(/^[a-zA-Z0-9\s()]*$/)) {
+            this.#getElement("#validation-name").innerHTML = "Invalid character(s). Alpha-numeric only.";
+            isValid = false;
         }
+
+        // validate version
+        const versionId = parseInt(this.#getElement("#version")?.value);
+        if (isNaN(versionId)) {
+            this.#getElement("#validation-version").innerHTML = "Version is required.";
+            isValid = false;
+        }
+        if (versionId < 1 || versionId > 1000) {
+            this.#getElement("#validation-version").innerHTML = "Version must be an integer between 1 and 1000.";
+            isValid = false;
+        }
+        const newRef = {
+            versionId: versionId,
+            isBuiltIn: false,
+            isFromTemplate: false,
+            name: name
+        }
+        const isStartingRef = EntityReference.areEqual(this.tool.ref, newRef);
+        if (!isStartingRef && map.toolRefs.some(tr => EntityReference.areEqual(tr, newRef))) {
+            this.#getElement("#validation-name").innerHTML = "The combination of name and version must be unique.";
+            this.#getElement("#validation-version").innerHTML = "The combination of name and version must be unique.";
+            isValid = false;
+        }
+
+        // validate module source
+        let moduleSrc = this.#getElement("#source")?.value;
+        if (!moduleSrc || moduleSrc.length == 0) {
+            this.#getElement("#validation-source").innerHTML = "Source is required.";
+            isValid = false;
+        }
+        if (moduleSrc && !moduleSrc.includes("export function createToolModel()")) {
+            this.#getElement("#validation-source").innerHTML = "Source must export a function named 'createToolModel'";
+            isValid = false;
+        }
+        moduleSrc = `data-${btoa(moduleSrc.trim())}`
+
+        // validate thumbnail
+        const thumbnailSrc = this.#getElement("#thumbnail")?.value;
+        if (!thumbnailSrc || thumbnailSrc.length == 0) {
+            this.#getElement("#validation-thumbnail").innerHTML = "Thumbnail is required.";
+            isValid = false;
+        }
+
+        // validate cursor
+        const cursorSrc = this.#getElement("#cursor")?.value;
+        if (!cursorSrc || cursorSrc.length == 0) {
+            this.#getElement("#validation-cursor").innerHTML = "Cursor is required.";
+            isValid = false;
+        }
+
+        // validate cursor hot spot
+        const cursorHotspotX = parseInt(this.#getElement("#cursor-hot-spot-x")?.value);
+        const cursorHotspotY = parseInt(this.#getElement("#cursor-hot-spot-y")?.value);
+        if (isNaN(cursorHotspotX) || isNaN(cursorHotspotY)) {
+            this.#getElement("#validation-cursor-hot-spot").innerHTML = "Cursor hotspot x and y coordinates are required.";
+            isValid = false;
+        }
+        if (cursorHotspotX < 0 || cursorHotspotX > 100 || cursorHotspotY < 0 || cursorHotspotY > 100) {
+            this.#getElement("#validation-cursor-hot-spot").innerHTML = "Cursor hotspot coordinates must be an integer between 0 and 100.";
+            isValid = false;
+        }
+
+        // validate tool type
+        const isDrawingTool = this.#getElement("#tool-type-drawing")?.checked;
+        const isEditingTool = this.#getElement("#tool-type-editing")?.checked;
+        if (!isDrawingTool && !isEditingTool) {
+            this.#getElement("#validation-tool-type").innerHTML = "Tool type is required.";
+            isValid = false;
+        }
+        const toolType = isDrawingTool ? ToolType.DrawingTool : ToolType.EditingTool;
+
+        return {
+            isValid: isValid,
+            toolData: {
+                ref: newRef,
+                moduleSrc: moduleSrc,
+                thumbnailSrc: thumbnailSrc,
+                cursorSrc: cursorSrc,
+                cursorHotspot: {
+                    x: cursorHotspotX,
+                    y: cursorHotspotY
+                },
+                toolType: toolType
+            }
+        };
     }
 
     // helpers
-    #update() {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        if (componentElement.querySelector("#tool-type-drawing").checked) {
-            this.tool.toolType = ToolType.DrawingTool;
+    #componentElement;
+    #getElement(selector) {
+        if (!this.#componentElement) {
+            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
         }
-        else {
-            this.tool.toolType = ToolType.EditingTool;
-        }
-        this.tool.thumbnailSrc = InputUtilities.cleanseSvg(componentElement.querySelector("#tool-thumbnail").value.trim());
-        this.tool.cursorSrc = InputUtilities.cleanseSvg(componentElement.querySelector("#tool-cursor").value.trim());
-        this.tool.cursorHotspot = InputUtilities.cleansePoint({
-            x: parseInt(componentElement.querySelector("#tool-cursor-hot-spot-x").value),
-            y: parseInt(componentElement.querySelector("#tool-cursor-hot-spot-y").value)
-        });
-        this.tool.moduleSrc = `data-${btoa(componentElement.querySelector("#tool-source").value.trim())}`;
-    }
-
-    async #validate() {
-        const validationResult = {
-            isValid: false
-        };
-        const map = await MapWorkerClient.getMap();
-        if (this.tool && !this.tool.ref.isBuiltIn && !this.tool.ref.isFromTemplate) {
-
-            const isStartingRef = EntityReference.areEqual(this.startingTool.ref, this.tool.ref);
-
-            // validate name
-            if (this.tool.ref.name.length == 0) {
-                validationResult.name = "Name is required.";
-            }
-            if (!this.tool.ref.name.match(/^[a-zA-Z0-9\s()]*$/)) {
-                validationResult.name = "Invalid character(s). Alpha-numeric only.";
-            }
-            if (!isStartingRef && map.toolRefs.some(tr => EntityReference.areEqual(tr, this.tool.ref))) {
-                validationResult.name = "The combination of name and version must be unique.";
-            }
-            
-            // validate version
-            if (isNaN(this.tool.ref.versionId)) {
-                validationResult.version = "Version is required.";
-            }
-            if (this.tool.ref.versionId < 1 || this.tool.ref.versionId > 1000) {
-                validationResult.version = "Version must be an integer between 1 and 1000.";
-            }
-            if (!isStartingRef && map.toolRefs.some(tr => EntityReference.areEqual(tr, this.tool.ref))) {
-                validationResult.version = "The combination of name and version must be unique.";
-            }
-
-            // validate thumbnail
-            if (!this.tool.thumbnailSrc || this.tool.thumbnailSrc.length == 0) {
-                validationResult.thumbnail = "Thumbnail is required.";
-            }
-
-            // validate cursor
-            if (!this.tool.cursorSrc || this.tool.cursorSrc.length == 0) {
-                validationResult.cursor = "Cursor is required.";
-            }
-
-            // validate cursor hotspot
-            if (isNaN(this.tool.cursorHotspot.x) || isNaN(this.tool.cursorHotspot.y)) {
-                validationResult.cursorHotspot = "Cursor hotspot x and y coordinates are required.";
-            }
-            if (this.tool.cursorHotspot.x < 0 || this.tool.cursorHotspot.x > 100 || this.tool.cursorHotspot.y < 0 || this.tool.cursorHotspot.y > 100) {
-                validationResult.cursorHotspot = "Cursor hotspot coordinates must be an integer between 0 and 100.";
-            }
-
-            // validate source
-            if (!this.tool.moduleSrc || this.tool.moduleSrc.length == 0) {
-                validationResult.source = "Source is required.";
-            }
-            const componentElement = KitRenderer.getComponentElement(this.componentId);
-            const source = componentElement.querySelector("#tool-source").value.trim();
-            if (source && !source.includes("export function createToolModel()")) {
-                validationResult.source = "Source must export a function named 'createToolModel'";
-            }
-
-            if (!validationResult.name
-                && !validationResult.version
-                && !validationResult.thumbnail
-                && !validationResult.cursor
-                && !validationResult.cursorHotspot
-                && !validationResult.source) {
-                validationResult.isValid = true;
-            }
-        }
-        return validationResult;
+        return this.#componentElement.querySelector(selector);
     }
 
     async #reRenderElement(elementId) {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        if (componentElement) {
-            const element = componentElement.querySelector(`#${elementId}`);
+        const element = this.#getElement(`#${elementId}`);
+        if (element) {
             const componentId = element.getAttribute("data-kit-component-id");
-            await KitRenderer.renderComponent(componentId);
+            if (KitComponent.find(componentId) && KitComponent.find(this.componentId)) {
+                await KitRenderer.renderComponent(componentId);
+            }
         }
-    }
-
-    async #updateMap(changes) {
-
-        // update local copy
-        //const map = await MapWorkerClient.getMap();
-        //map.applyChangeSet(new ChangeSet({ changes: changes }));
-
-        // update map worker
-        MapWorkerClient.postWorkerMessage({
-            messageType: MapWorkerInputMessageType.UpdateMap,
-            changeSet: { changes: changes }
-        });
     }
 
     #isToolInPalettes(palettes, toolRef) {
@@ -381,7 +368,7 @@ class ToolViewModel {
             const newPalette = [];
             for (const item of palette) {
                 if (EntityReference.areEqual(item, oldToolRef)) {
-                    newPalette.push(newToolRef.getData());
+                    newPalette.push(newToolRef);
                 }
                 else {
                     newPalette.push(item);
@@ -406,5 +393,18 @@ class ToolViewModel {
             }
         }
         return newPalettesData;
+    }
+
+    async #updateMap(changes) {
+
+        // update local copy
+        //const map = await MapWorkerClient.getMap();
+        //map.applyChangeSet(new ChangeSet({ changes: changes }));
+
+        // update map worker
+        MapWorkerClient.postWorkerMessage({
+            messageType: MapWorkerInputMessageType.UpdateMap,
+            changeSet: { changes: changes }
+        });
     }
 }

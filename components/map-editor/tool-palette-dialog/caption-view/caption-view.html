@@ -1,76 +1,72 @@
 ﻿
-<kit-if class="caption-view-component" id="if-visible-caption" data-kit-condition="#model.isVisible()">
-    <fieldset data-kit-add-attributes="%{#model.isDisabled()}%">
-        <div>
-            <label>Default text:</label>
-            <input id="map-item-template-caption-defaultText"
-                   type="text"
-                   placeholder="[Default text]"
-                   maxlength="30"
-                   style="width:200px;"
-                   value="%{#model.getDefaultText()}%"
-                   onchange="#model.updateCaption()"
-                   onkeydown="#model.onKeyDown(event)" />
-        </div>
-        <div>
-            <label>Font color:</label>
-            <input id="map-item-template-caption-fontColor"
-                   type="color"
-                   onchange="#model.updateCaption()"
-                   data-kit-add-attributes="value=%{#model.getFontColor()}%" />
-        </div>
-        <div>
-            <label>Font outine color:</label>
-            <input id="map-item-template-caption-fontOutlineColor"
-                   type="color"
-                   onchange="#model.updateCaption()"
-                   data-kit-add-attributes="value=%{#model.getFontOutlineColor()}%" />
-        </div>
-        <div>
-            <details id="details-text-shadow" ontoggle="#model.onDetailsToggleEvent(event)">
-                <summary class="action-control">Text shadow</summary>
-                <section>
+<fieldset data-kit-add-attributes="%{#model.isDisabled()}%">
+    <div>
+        <label>Default text:</label>
+        <div id="validation-caption-default-text" class="validation-message"></div>
+        <input id="caption-default-text"
+               type="text"
+               placeholder="[Default text]"
+               maxlength="30"
+               style="width:200px;"
+               value="%{#model.getDefaultText()}%"
+               onchange="#model.update()"
+               onkeydown="#model.onKeyDown(event)" />
+    </div>
+    <div>
+        <label>Font:</label>
+        <div id="validation-caption-font" class="validation-message"></div>
+        <input id="caption-font"
+               type="text"
+               placeholder="12px Arial, sans-serif"
+               maxlength="30"
+               style="width:200px;"
+               value="%{#model.getFont()}%"
+               onchange="#model.update()"
+               onkeydown="#model.onKeyDown(event)" />
+    </div>
+    <div>
+        <label>Font variant caps:</label>
+        <div id="validation-caption-font-caps" class="validation-message"></div>
+        <select id="caption-font-caps"
+                title="Font variant caps"
+                onchange="#model.update()">
+        </select>
+    </div>
+    <div>
+        <label>Font color:</label>
+        <div id="validation-caption-font-color" class="validation-message"></div>
+        <input id="caption-font-color"
+               type="color"
+               onchange="#model.update()"
+               data-kit-add-attributes="value=%{#model.getFontColor()}%" />
+    </div>
+    <div>
+        <label>Font outine color:</label>
+        <div id="validation-caption-font-outline-color" class="validation-message"></div>
+        <input id="caption-font-outline-color"
+               type="color"
+               onchange="#model.update()"
+               data-kit-add-attributes="value=%{#model.getFontOutlineColor()}%" />
+    </div>
+    <div>
+        <label>Opacity (%):</label>
+        <div id="validation-caption-font-opacity" class="validation-message"></div>
+        <input id="caption-font-opacity"
+               type="number"
+               min="0"
+               max="100"
+               onchange="#model.update()"
+               data-kit-add-attributes="value=%{#model.getOpacity()}%" />
+    </div>
+    <div>
+        <details id="details-caption-background" ontoggle="#model.onDetailsToggleEvent(event)">
+            <summary class="action-control">Background</summary>
+            <section>
+                <kit-if id="background-fill-if" data-kit-condition="true">
                     <div class="surface-tertiary background">
-                        <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/shadow-view/shadow-view.html"
-                                       data-kit-model-input="{ mapItemTemplateViewModel: #model.getMapItemTemplateViewModel(), isCaptionTextShadow: true, mapItemTemplate: #model.getMapItemTemplate(), captionViewModel: #model }">
-                        </kit-component>
-                    </div>
-                </section>
-            </details>
-        </div>
-        <div>
-            <label>Opacity (%):</label>
-            <input id="map-item-template-caption-opacity"
-                   type="number"
-                   min="0"
-                   max="100"
-                   onchange="#model.updateCaption()"
-                   data-kit-add-attributes="value=%{#model.getOpacity()}%" />
-        </div>
-        <div>
-            <label>Font:</label>
-            <input id="map-item-template-caption-font"
-                   type="text"
-                   placeholder="12px Arial, sans-serif"
-                   maxlength="30"
-                   style="width:200px;"
-                   value="%{#model.getFont()}%"
-                   onchange="#model.updateCaption()"
-                   onkeydown="#model.onKeyDown(event)" />
-        </div>
-        <div>
-            <label>Font variant caps:</label>
-            <select id="map-item-template-caption-fontVariantCaps"
-                    title="Font variant caps" onchange="#model.updateCaption()">
-            </select>
-        </div>
-        <div>
-            <details id="details-caption-background" ontoggle="#model.onDetailsToggleEvent(event)">
-                <summary class="action-control">Background</summary>
-                <section>
-                    <div class="surface-tertiary background">
-                        <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/path-style-view/path-style-view.html"
-                                       data-kit-model-input="{ pathStyle: #model.getBackgroundFill(), mapItemTemplateRef: #model.getMapItemTemplateRef(), isForCaptionBackgroundFill: true }">
+                        <kit-component id="caption-background-fill"
+                                       data-kit-template-path="/components/map-editor/tool-palette-dialog/path-style-view/path-style-view.html"
+                                       data-kit-model-input="{ pathStyleInfo: #model?.getPathStyleInfo(true, false) }">
                         </kit-component>
                         <kit-if data-kit-condition="!#model.hasBackgroundFill()">
                             <fieldset data-kit-add-attributes="%{#model.isDisabled()}%">
@@ -85,44 +81,59 @@
                             </fieldset>
                         </kit-if>
                     </div>
-                </section>
-            </details>
-        </div>
-        <div>
-            <details id="details-caption-border" ontoggle="#model.onDetailsToggleEvent(event)">
-                <summary class="action-control">Border</summary>
-                <section>
-                    <div class="surface-tertiary background">
-                        <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/path-style-view/path-style-view.html"
-                                       data-kit-model-input="{ pathStyle: #model.getBorderStroke(), mapItemTemplateRef: #model.getMapItemTemplateRef(), isForCaptionBorderStroke: true }">
-                        </kit-component>
-                        <kit-if data-kit-condition="!#model.hasBorderStroke()">
-                            <fieldset data-kit-add-attributes="%{#model.isDisabled()}%">
-                                <div>
-                                    <button title="Add border"
-                                            class="action-control"
-                                            data-kit-add-attributes="%{#model.isDisabled()}%"
-                                            onclick="#model.addBorderStroke();">
-                                        Add border
-                                    </button>
-                                </div>
-                            </fieldset>
-                        </kit-if>
-                    </div>
-                </section>
-            </details>
-        </div>
-        <div>
-            <details id="details-caption-shadow" ontoggle="#model.onDetailsToggleEvent(event)">
-                <summary class="action-control">Shadow</summary>
-                <section>
-                    <div class="surface-tertiary background">
-                        <kit-component data-kit-template-path="/components/map-editor/tool-palette-dialog/shadow-view/shadow-view.html"
-                                       data-kit-model-input="{ mapItemTemplateViewModel: #model.getMapItemTemplateViewModel(), isCaptionShadow: true, mapItemTemplate: #model.getMapItemTemplate(), captionViewModel: #model }">
-                        </kit-component>
-                    </div>
-                </section>
-            </details>
-        </div>
-    </fieldset>
-</kit-if>
+                </kit-if>
+            </section>
+        </details>
+    </div>
+    <div>
+        <details id="details-caption-border" ontoggle="#model.onDetailsToggleEvent(event)">
+            <summary class="action-control">Border</summary>
+            <section>
+                <div class="surface-tertiary background">
+                    <kit-component id="caption-border-stroke"
+                                   data-kit-template-path="/components/map-editor/tool-palette-dialog/path-style-view/path-style-view.html"
+                                   data-kit-model-input="{ pathStyleInfo: #model?.getPathStyleInfo(false, true) }">
+                    </kit-component>
+                    <kit-if data-kit-condition="!#model.hasBorderStroke()">
+                        <fieldset data-kit-add-attributes="%{#model.isDisabled()}%">
+                            <div>
+                                <button title="Add border"
+                                        class="action-control"
+                                        data-kit-add-attributes="%{#model.isDisabled()}%"
+                                        onclick="#model.addBorderStroke();">
+                                    Add border
+                                </button>
+                            </div>
+                        </fieldset>
+                    </kit-if>
+                </div>
+            </section>
+        </details>
+    </div>
+    <div>
+        <details id="details-caption-shadow" ontoggle="#model.onDetailsToggleEvent(event)">
+            <summary class="action-control">Shadow</summary>
+            <section>
+                <div class="surface-tertiary background">
+                    <kit-component id="caption-shadow"
+                                   data-kit-template-path="/components/map-editor/tool-palette-dialog/shadow-view/shadow-view.html"
+                                   data-kit-model-input="{ mapItemTemplate: #model?.getMapItemTemplate(), captionViewModel: #model, isCaptionShadow: true }">
+                    </kit-component>
+                </div>
+            </section>
+        </details>
+    </div>
+    <div>
+        <details id="details-text-shadow" ontoggle="#model.onDetailsToggleEvent(event)">
+            <summary class="action-control">Text shadow</summary>
+            <section>
+                <div class="surface-tertiary background">
+                    <kit-component id="caption-text-shadow"
+                                   data-kit-template-path="/components/map-editor/tool-palette-dialog/shadow-view/shadow-view.html"
+                                   data-kit-model-input="{ mapItemTemplate: #model?.getMapItemTemplate(), captionViewModel: #model, isCaptionTextShadow: true }">
+                    </kit-component>
+                </div>
+            </section>
+        </details>
+    </div>
+</fieldset>

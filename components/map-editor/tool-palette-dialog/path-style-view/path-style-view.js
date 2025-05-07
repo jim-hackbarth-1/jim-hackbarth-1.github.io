@@ -1,5 +1,5 @@
 ﻿
-import { KitDependencyManager, KitMessenger, KitRenderer } from "../../../../ui-kit.js";
+import { KitComponent, KitDependencyManager, KitMessenger, KitRenderer } from "../../../../ui-kit.js";
 import {
     ChangeType,
     EntityReference,
@@ -22,48 +22,32 @@ export class PathStyleViewModel {
     // event handlers
     async onRenderStart(componentId, modelInput) {
         this.componentId = componentId;
-        this.mapItemTemplateRef = modelInput?.mapItemTemplateRef;
-        this.pathStyleId = null;
-        this.pathStyle = null;
-        this.isForCaptionBackgroundFill = modelInput.isForCaptionBackgroundFill;
-        this.isForCaptionBorderStroke = modelInput.isForCaptionBorderStroke;
-        if (modelInput?.pathStyle) {
-            this.pathStyleId = modelInput.pathStyle.id;
-            this.pathStyle = await this.#getPathStyle();
-        }
+        this.pathStyleInfo = modelInput.pathStyleInfo;
+        this.pathStyle = await this.#getPathStyle();
     }
 
     async onRenderComplete() {
         KitMessenger.subscribe(EditorModel.MapUpdatedNotificationTopic, this.componentId, this.onMapUpdated.name);
-        this.#loadStyleTypes();
-        this.#loadImageSources();
-        let select = this.#getElement("#selectStyleType");
-        if (this.isForCaptionBackgroundFill) {
-            select = this.#getElement("#selectStyleType-captionBackgroundFill");
-        }
-        if (this.isForCaptionBorderStroke) {
-            select = this.#getElement("#selectStyleType-captionBorderStroke");
-        }
-        if (select) {
-            select.scrollIntoView();
-        }
+        this.#completeRender();
     }
 
     async onMapUpdated(message) {
+        this.pathStyle = await this.#getPathStyle()
         if (this.pathStyle) {
             let reRender = false;
             if (message?.data?.changeSet?.changes) {
-                const pathStyleChange = message.data.changeSet.changes.some(c => c.changeObjectType == PathStyle.name);
+                const pathStyleChange = message.data.changeSet.changes.some(
+                    c => c.changeObjectType == PathStyle.name && c.pathStyleId == this.pathStyle.id);
                 reRender = pathStyleChange;
-            }
-            if (reRender) {
-                this.pathStyle = await this.#getPathStyle();
-                await this.#reRenderElement("if-path-style-visible");
-            }
-            this.#loadStyleTypes();
-            setTimeout(() => {
-                this.#loadImageSources();
+            }   
+            setTimeout(async () => {
+                if (reRender) {
+                    await this.#reRenderElement("if-path-style-visible");
+                }
             }, 20);
+            setTimeout(() => {
+                this.#completeRender();
+            }, 40);
         }
     }
 
@@ -80,8 +64,9 @@ export class PathStyleViewModel {
     }
 
     isDisabled() {
-        if (this.mapItemTemplateRef) {
-            return (this.mapItemTemplateRef.isBuiltIn || this.mapItemTemplateRef.isFromTemplate) ? "disabled" : null;
+        const ref = this.pathStyleInfo.mapItemTemplateRef;
+        if (ref) {
+            return (ref.isBuiltIn || ref.isFromTemplate) ? "disabled" : null;
         }
         return "disabled";
     }
@@ -93,137 +78,77 @@ export class PathStyleViewModel {
         return null;
     }
 
-    getPathStyle() {
-        return this.pathStyle;
-    }
-
-    getSelectStyleTypeId() {
-        let id = "selectStyleType";
-        if (this.isForCaptionBackgroundFill) {
-            id += "-captionBackgroundFill";
-        }
-        if (this.isForCaptionBorderStroke) {
-            id += "-captionBorderStroke";
-        }
-        return id;
-    }
-
-    getValidationMessage(optionName) {
-        return "";
-    }
-
     getOption(optionName) {
         if (this.pathStyle) {
             let optionValue = this.pathStyle.getStyleOptionValue(optionName);
-            if ((optionName == "Dash" || optionName == "ImageArrayOffsets") && optionValue) {
-                optionValue = optionValue.join("-");
+            if (optionName == "Dash" || optionName == "ImageArrayOffsets") {
+                optionValue = (optionValue ?? []).join(", ");
+            }
+            if (optionName == "Opacity") {
+                optionValue = (optionValue ?? 1) * 100;
             }
             return optionValue;
         }
         return null;
     }
 
-    async updateStyleType(selectId) {
-        const newStyleType = this.#getElement(`#${selectId}`).value;
-        const currentStyleType = this.pathStyle.getStyleOptionValue(PathStyleOption.PathStyleType);
-        if (newStyleType == "" && currentStyleType.endsWith("Fill")) {
+    async updateStyleType() {
+        const newStyleType = this.#getElement("#select-style-type").value;        
+        if (newStyleType == "" && this.pathStyleInfo.isCaptionBackgroundFill) {
             await this.#clearCaptionBackgroundFill();
             return;
         }
-        if (newStyleType == "" && currentStyleType.endsWith("Stroke")) {
+        if (newStyleType == "" && this.pathStyleInfo.isCaptionBorderStroke) {
             await this.#clearCaptionBorderStroke();
             return;
         }
-        const originalPathStyle = (await this.#getPathStyle()).getData();
-        this.pathStyle.options = PathStyle.getOptionDefaults(newStyleType);
+        const oldValue = this.pathStyle.getData().options;
+        const newValue = PathStyle.getOptionDefaults(newStyleType);
         const changes = [
             {
                 changeType: ChangeType.Edit,
                 changeObjectType: PathStyle.name,
                 propertyName: "options",
-                oldValue: originalPathStyle.options,
-                newValue: this.pathStyle.options,
-                mapItemTemplateRef: this.mapItemTemplateRef.getData(),
+                oldValue: oldValue,
+                newValue: newValue,
+                mapItemTemplateRef: this.pathStyleInfo.mapItemTemplateRef.getData(),
                 pathStyleId: this.pathStyle.id
             }
         ];
         await this.#updateMap(changes);
     }
 
-    async #clearCaptionBackgroundFill() {
-        const map = await MapWorkerClient.getMap();
-        const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
-        const oldValue = mapItemTemplate.caption.getData();
-        const newValue = mapItemTemplate.caption.getData();
-        newValue.backgroundFill = null;
-        const changes = [
-            {
-                changeType: ChangeType.Edit,
-                changeObjectType: MapItemTemplate.name,
-                propertyName: "caption",
-                oldValue: oldValue,
-                newValue: newValue,
-                mapItemTemplateRef: this.mapItemTemplateRef.getData()
-            }
-        ];
-        await this.#updateMap(changes);
-    }
-
-    async #clearCaptionBorderStroke() {
-        const map = await MapWorkerClient.getMap();
-        const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
-        const oldValue = mapItemTemplate.caption.getData();
-        const newValue = mapItemTemplate.caption.getData();
-        newValue.borderStroke = null;
-        const changes = [
-            {
-                changeType: ChangeType.Edit,
-                changeObjectType: MapItemTemplate.name,
-                propertyName: "caption",
-                oldValue: oldValue,
-                newValue: newValue,
-                mapItemTemplateRef: this.mapItemTemplateRef.getData()
-            }
-        ];
-        await this.#updateMap(changes);
-    }
-
-    async updateOptions() {
-        const originalPathStyle = (await this.#getPathStyle()).getData();
-        this.#update();
-        const validationResult = this.#validate();
-        if (validationResult.isValid) {
-            const changes = [
-                {
-                    changeType: ChangeType.Edit,
-                    changeObjectType: PathStyle.name,
-                    propertyName: "options",
-                    oldValue: originalPathStyle.options,
-                    newValue: this.pathStyle.options,
-                    mapItemTemplateRef: this.mapItemTemplateRef.getData(),
-                    pathStyleId: this.pathStyle.id
-                }
-            ];
-            await this.#updateMap(changes);
-        }
-        else {
-            await this.#reRenderElement("if-path-style-visible");
-        }
-    }
-
     getColorStops() {
+        const colorStops = [];
         if (this.pathStyle) {
-            const colorStops = this.pathStyle.getColorStops();
-            const unspecifiedCount = 5 - colorStops.length;
-            for (let i = 0; i < unspecifiedCount; i++) {
-                colorStops.push({ offset: 0, color: null });
+            for (let i = 1; i <= 5; i++) {
+                colorStops.push({
+                    index: i,
+                    colorStop: this.pathStyle.getStyleOptionValue(`ColorStop${i}`)
+                });
             }
-            return colorStops;
         }
-        return [];
+        return colorStops;
     }
 
-    async browse(optionName) {
+    getImages() {
+        const images = [];
+        if (this.pathStyle) {
+            for (let i = 1; i <= 10; i++) {
+                images.push({
+                    index: i,
+                    image: this.pathStyle.getStyleOptionValue(`ImageArraySource${i}`)
+                });
+            }
+        }
+        return images;
+    }
+
+    getImageSource(imageIndex) {
+        return this.pathStyle.getStyleOptionValue(`ImageArraySource${imageIndex}`);
+    }
+
+    async browseImage(imageIndex) {
         let fileHandles = null;
         try {
             fileHandles = await window.showOpenFilePicker({
@@ -242,81 +167,358 @@ export class PathStyleViewModel {
         }
         const fileHandle = fileHandles[0];
         const imageSource = await FileManager.getImageSource(fileHandle);
-        const dataElement = this.#getElement(`#${optionName}-Data`);
+        let elementId = "image-data";
+        if (imageIndex) {
+            elementId = `image-data-${imageIndex}`;
+        }
+        const dataElement = this.#getElement(`#${elementId}`);
         dataElement.value = imageSource;
-        this.updateOptions();
+        await this.update();
     }
 
-    removeImage(optionName) {
-        const dataElement = this.#getElement(`#${optionName}-Data`);
-        dataElement.value = null;
-        this.updateOptions();
+    hasImage(image) {
+        if (image && image.length > 0) {
+            return true;
+        }
+        return false;
     }
 
-    isRemoveImageDisabled(optionName) {
-        const imageSource = this.pathStyle.getStyleOptionValue(optionName);
+    isRemoveImageDisabled(imageIndex) {
+        const imageSource = this.pathStyle.getStyleOptionValue(`ImageArraySource${imageIndex}`);
         if (imageSource) {
             return "";
         }
         return "disabled";
     }
 
-    getImages() {
-        if (this.pathStyle) {
-            const images = this.pathStyle.getImages();
-            const unspecifiedCount = 10 - images.length;
-            for (let i = 0; i < unspecifiedCount; i++) {
-                images.push(null);
-            }
-            const imagesOut = [];
-            let index = 1;
-            for (const image of images) {
-                imagesOut.push({ sourceId: `ImageArraySource${index}`, image: image });
-                index++;
-            }
-            return imagesOut;
-        }
-        return [];
+    async removeImage(imageIndex) {
+        const dataElement = this.#getElement(`#image-data-${imageIndex}`);
+        dataElement.value = null;
+        await this.update();
     }
 
-    hasImage(imageInfo) {
-        if (imageInfo.image && imageInfo.image.length > 0) {
-            return true;
+    async update() {
+        if (this.pathStyleInfo.captionViewModel) {
+            await this.pathStyleInfo.captionViewModel.update();
         }
-        return false;
+        else {
+            const validationResult = this.validate();
+            if (validationResult.isValid) {
+                const oldValue = this.pathStyle.getData().options;
+                const newValue = validationResult.options;
+                const changes = [
+                    {
+                        changeType: ChangeType.Edit,
+                        changeObjectType: PathStyle.name,
+                        propertyName: "options",
+                        oldValue: oldValue,
+                        newValue: newValue,
+                        mapItemTemplateRef: this.pathStyleInfo.mapItemTemplateRef.getData(),
+                        pathStyleId: this.pathStyle.id
+                    }
+                ];
+                await this.#updateMap(changes);
+            }
+        }
     }
 
-    getMapItemTemplateRef() {
-        return this.mapItemTemplateRef;
+    validate() {
+        let isValid = true;
+        const options = [];
+        const styleType = this.getStyleType();
+        if (styleType && styleType.length > 0) {
+            options.push({ key: PathStyleOption.PathStyleType, value: styleType });
+        }
+        if (styleType == PathStyleType.ColorFill
+            || styleType == PathStyleType.ColorStroke) {
+            const colorResult = this.#validateColor();
+            isValid = isValid && colorResult.isValid;
+            options.push({ key: PathStyleOption.Color, value: colorResult.color });
+        }
+        if (styleType && styleType.length > 0) {
+            const opacityResult = this.#validateOpacity();
+            isValid = isValid && opacityResult.isValid;
+            options.push({ key: PathStyleOption.Opacity, value: opacityResult.opacity });
+        }
+        if (styleType == PathStyleType.LinearGradientFill
+            || styleType == PathStyleType.LinearGradientStroke
+            || styleType == PathStyleType.RadialGradientFill
+            || styleType == PathStyleType.RadialGradientStroke
+            || styleType == PathStyleType.ConicalGradientFill
+            || styleType == PathStyleType.ConicalGradientStroke) {
+            for (let i = 1; i <= 5; i++) {
+                const colorStopResult = this.#validateColorStop(i);
+                isValid = isValid && colorStopResult.isValid;
+                options.push({ key: `ColorStop${i}`, value: colorStopResult.colorStop });
+            }
+            const gradientStartResult = this.#validateGradientStart();
+            isValid = isValid && gradientStartResult.isValid;
+            options.push({ key: PathStyleOption.GradientStart, value: gradientStartResult.gradientStart });
+        }
+        if (styleType == PathStyleType.TileFill
+            || styleType == PathStyleType.TileStroke) {
+            const tileImageSourceResult = this.#validateTileImageSource();
+            isValid = isValid && tileImageSourceResult.isValid;
+            options.push({ key: PathStyleOption.TileImageSource, value: tileImageSourceResult.tileImageSource });
+        }
+        if (styleType == PathStyleType.ImageArrayFill
+            || styleType == PathStyleType.ImageArrayStroke) {
+            const imageArrayOffsetsResult = this.#validateImageArrayOffsets();
+            isValid = isValid && imageArrayOffsetsResult.isValid;
+            options.push({ key: PathStyleOption.ImageArrayOffsets, value: imageArrayOffsetsResult.imageArrayOffsets });
+            for (let i = 1; i <= 10; i++) {
+                const imageResult = this.#validateImageArraySource(i);
+                isValid = isValid && imageResult.isValid;
+                options.push({ key: `ImageArraySource${i}`, value: imageResult.imageSource });
+            }
+        }
+        if (styleType == PathStyleType.ColorStroke
+            || styleType == PathStyleType.LinearGradientStroke
+            || styleType == PathStyleType.RadialGradientStroke
+            || styleType == PathStyleType.ConicalGradientStroke
+            || styleType == PathStyleType.TileStroke
+            || styleType == PathStyleType.ImageArrayStroke) {
+            const strokeStylesResult = this.#validateStrokeStyles();
+            isValid = isValid && strokeStylesResult.isValid;
+            options.push({ key: PathStyleOption.Width, value: strokeStylesResult.width });
+            options.push({ key: PathStyleOption.Dash, value: strokeStylesResult.dash });
+            options.push({ key: PathStyleOption.DashOffset, value: strokeStylesResult.dashOffset });
+            options.push({ key: PathStyleOption.Cap, value: strokeStylesResult.endCap });
+            options.push({ key: PathStyleOption.Join, value: strokeStylesResult.join });
+            options.push({ key: PathStyleOption.StrokeOffset, value: strokeStylesResult.offset });
+        }
+        if (styleType == PathStyleType.LinearGradientFill
+            || styleType == PathStyleType.LinearGradientStroke
+            || styleType == PathStyleType.RadialGradientFill
+            || styleType == PathStyleType.RadialGradientStroke) {
+            const gradientEndResult = this.#validateGradientEnd();
+            isValid = isValid && gradientEndResult.isValid;
+            options.push({ key: PathStyleOption.GradientEnd, value: gradientEndResult.gradientEnd });
+        }
+        if (styleType == PathStyleType.RadialGradientFill
+            || styleType == PathStyleType.RadialGradientStroke) {
+            const gradientStartRadiusResult = this.#validateGradientStartRadius();
+            isValid = isValid && gradientStartRadiusResult.isValid;
+            options.push({ key: PathStyleOption.GradientStartRadius, value: gradientStartRadiusResult.gradientStartRadius });
+            const gradientEndRadiusResult = this.#validateGradientEndRadius();
+            isValid = isValid && gradientEndRadiusResult.isValid;
+            options.push({ key: PathStyleOption.GradientEndRadius, value: gradientEndRadiusResult.gradientEndRadius });
+        }
+        if (styleType == PathStyleType.ConicalGradientFill
+            || styleType == PathStyleType.ConicalGradientStroke) {
+            const gradientStartAngleResult = this.#validateGradientStartAngle();
+            isValid = isValid && gradientStartAngleResult.isValid;
+            options.push({ key: PathStyleOption.GradientAngle, value: gradientStartAngleResult.gradientStartAngle });
+        }
+        return {
+            isValid: isValid,
+            options: options
+        }
     }
 
     // helpers
-    async #getPathStyle() {
-        const map = await MapWorkerClient.getMap();
-        const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
-        let pathStyle = null;
-        if (mapItemTemplate) {
-            pathStyle = mapItemTemplate.fills.find(ps => ps.id == this.pathStyleId);
-            if (!pathStyle) {
-                pathStyle = mapItemTemplate.strokes.find(ps => ps.id == this.pathStyleId);
-            }
-            if (this.isForCaptionBackgroundFill) {
-                pathStyle = mapItemTemplate.caption?.backgroundFill;
-            }
-            if (this.isForCaptionBorderStroke) {
-                pathStyle = mapItemTemplate.caption?.borderStroke;
+    #validateColor() {
+        let isValid = true;
+        const color = this.#getElement("#color")?.value;
+        if (!color || !color.match(/^#[0-9a-f]{6}/i)) {
+            this.#getElement("#validation-color").innerHTML = "Valid hex color value (e.g. '#c0c0c0') required.";
+            isValid = false;
+        }
+        return {
+            isValid: isValid,
+            color: color
+        };
+    }
+
+    #validateOpacity() {
+        let isValid = true;
+        const opacity = parseInt(this.#getElement("#opacity")?.value);
+        if (isNaN(opacity) || opacity < 0 || opacity > 100) {
+            this.#getElement("#validation-opacity").innerHTML = "Valid number between 0 and 100 required";
+            isValid = false;
+        }
+        return {
+            isValid: isValid,
+            opacity: opacity / 100
+        };
+    }
+
+    #validateColorStop(colorStopIndex) {
+        const model = this.#getModelFromComponentElement(`color-stop-${colorStopIndex}`);
+        const validationResult = model.validate();
+        return {
+            isValid: validationResult.isValid,
+            colorStop: {
+                offset: validationResult.offset,
+                color: validationResult.color
             }
         }
-        return pathStyle;
+    }
+
+    #validateTileImageSource() {
+        let isValid = true;
+        const tileImageSource = this.#getElement("#image-data")?.value;
+        if (!tileImageSource || !tileImageSource.startsWith("data:")) {
+            this.#getElement("#validation-image").innerHTML = "Valid tile image source required (e.g. 'data:image/png;base64,iVBOR ...').";
+            isValid = false;
+        }
+        return {
+            isValid: isValid,
+            tileImageSource: tileImageSource
+        };
+    }
+
+    #validateImageArrayOffsets() {
+        let isValid = true;
+        let imageArrayOffsets = this.#getElement("#offsets")?.value;
+        if (imageArrayOffsets) {
+            imageArrayOffsets = imageArrayOffsets.replaceAll(' ', '').split(',').map(o => parseInt(o));
+        }
+        else {
+            imageArrayOffsets = [];
+        }
+        if (imageArrayOffsets.some(o => isNaN(o))) {
+            this.#getElement("#validation-offsets").innerHTML = "Invalid offsets string format. Comma-delimited list of integers expected.";
+            isValid = false;
+        }
+        if (imageArrayOffsets.some(o => o < 1 || o > 10)) {
+            this.#getElement("#validation-offsets").innerHTML = "Invalid offsets value. Offset values must be integers between 1 and 10.";
+            isValid = false;
+        }
+        return {
+            isValid: isValid,
+            imageArrayOffsets: imageArrayOffsets
+        };
+    }
+
+    #validateImageArraySource(imageIndex) {
+        let isValid = true;
+        let imageSource = this.#getElement(`#image-data-${imageIndex}`)?.value;
+        if (imageSource) {
+            imageSource = imageSource.replace("undefined", "");
+        }
+        if (imageSource && imageSource.length > 0) {
+            if (!imageSource.startsWith("data:")) {
+                this.#getElement(`#validation-image-${imageIndex}`).innerHTML = "Valid image source required (e.g. 'data:image/png;base64,iVBOR ...').";
+                isValid = false;
+            }
+        }
+        return {
+            isValid: isValid,
+            imageSource: imageSource
+        };
+    }
+
+    #validateStrokeStyles() {
+        const model = this.#getModelFromComponentElement("stroke-styles");
+        return model.validate();
+    }
+
+    #validateGradientStart() {
+        let isValid = true;
+        const startX = parseInt(this.#getElement("#start-x")?.value);
+        if (isNaN(startX) || startX < 0 || startX > 100) {
+            this.#getElement("#validation-start-x").innerHTML = "Valid number between 0 and 100 required";
+            isValid = false;
+        }
+        const startY = parseInt(this.#getElement("#start-y")?.value);
+        if (isNaN(startY) || startY < 0 || startY > 100) {
+            this.#getElement("#validation-start-y").innerHTML = "Valid number between 0 and 100 required";
+            isValid = false;
+        }
+        return {
+            isValid: isValid,
+            gradientStart: { x: startX, y: startY }
+        };
+    }
+
+    #validateGradientEnd() {
+        let isValid = true;
+        const endX = parseInt(this.#getElement("#end-x")?.value);
+        if (isNaN(endX) || endX < 0 || endX > 100) {
+            this.#getElement("#validation-end-x").innerHTML = "Valid number between 0 and 100 required";
+            isValid = false;
+        }
+        const endY = parseInt(this.#getElement("#end-y")?.value);
+        if (isNaN(endY) || endY < 0 || endY > 100) {
+            this.#getElement("#validation-end-y").innerHTML = "Valid number between 0 and 100 required";
+            isValid = false;
+        }
+        return {
+            isValid: isValid,
+            gradientEnd: { x: endX, y: endY }
+        };
+    }
+
+    #validateGradientStartRadius() {
+        let isValid = true;
+        const startRadius = parseInt(this.#getElement("#start-radius")?.value);
+        if (isNaN(startRadius) || startRadius < 0 || startRadius > 100) {
+            this.#getElement("#validation-start-radius").innerHTML = "Valid number between 0 and 100 required";
+            isValid = false;
+        }
+        return {
+            isValid: isValid,
+            gradientStartRadius: startRadius
+        };
+    }
+
+    #validateGradientEndRadius() {
+        let isValid = true;
+        const endRadius = parseInt(this.#getElement("#end-radius")?.value);
+        if (isNaN(endRadius) || endRadius < 0 || endRadius > 100) {
+            this.#getElement("#validation-end-radius").innerHTML = "Valid number between 0 and 100 required";
+            isValid = false;
+        }
+        return {
+            isValid: isValid,
+            gradientEndRadius: endRadius
+        };
+    }
+
+    #validateGradientStartAngle() {
+        let isValid = true;
+        const startAngle = parseInt(this.#getElement("#start-angle")?.value);
+        if (isNaN(startAngle) || startAngle < 0 || startAngle > 100) {
+            this.#getElement("#validation-start-angle").innerHTML = "Valid number between 0 and 360 required";
+            isValid = false;
+        }
+        return {
+            isValid: isValid,
+            gradientStartAngle: startAngle
+        };
+    }
+
+    async #getPathStyle() {
+        const map = await MapWorkerClient.getMap();
+        const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.pathStyleInfo.mapItemTemplateRef));
+        if (mapItemTemplate) {
+            if (this.pathStyleInfo.isFill) {
+                return mapItemTemplate.fills.find(f => f.id == this.pathStyleInfo.id);
+            }
+            if (this.pathStyleInfo.isStroke) {
+                return mapItemTemplate.strokes.find(s => s.id == this.pathStyleInfo.id);
+            }
+            if (this.pathStyleInfo.isCaptionBackgroundFill) {
+                return mapItemTemplate.caption.backgroundFill;
+            }
+            if (this.pathStyleInfo.isCaptionBorderStroke) {
+                return mapItemTemplate.caption.borderStroke;
+            }
+        }
+        return null;
+    }
+
+    #completeRender() {
+        this.#loadStyleTypes();
+        this.#loadImageSources();
+        let select = this.#getElement("#select-style-type");
+        if (select) {
+            select.scrollIntoView();
+        }
     }
 
     #loadStyleTypes() {
-        let styleType = null;
-        if (this.pathStyle) {
-            styleType = this.pathStyle.getStyleOptionValue(PathStyleOption.PathStyleType);
-        }
-        const appDocument = KitDependencyManager.getDocument();
-        let selectElement = this.#getElement("#selectStyleType");
         let styleTypes = [
             { value: PathStyleType.ColorFill, label: "Color fill" },
             { value: PathStyleType.LinearGradientFill, label: "Linear gradient fill" },
@@ -325,7 +527,7 @@ export class PathStyleViewModel {
             { value: PathStyleType.TileFill, label: "Tile fill" },
             { value: PathStyleType.ImageArrayFill, label: "Image array fill" }
         ];
-        if (styleType && styleType.endsWith("Stroke")) {
+        if (this.pathStyleInfo.isStroke) {
             styleTypes = [
                 { value: PathStyleType.ColorStroke, label: "Color stroke" },
                 { value: PathStyleType.LinearGradientStroke, label: "Linear gradient stroke" },
@@ -335,8 +537,7 @@ export class PathStyleViewModel {
                 { value: PathStyleType.ImageArrayStroke, label: "Image array stroke" }
             ];
         }
-        if (this.isForCaptionBackgroundFill) {
-            selectElement = this.#getElement("#selectStyleType-captionBackgroundFill");
+        if (this.pathStyleInfo.isCaptionBackgroundFill) {
             styleTypes = [
                 { value: "", label: "None" },
                 { value: PathStyleType.ColorFill, label: "Color fill" },
@@ -346,8 +547,7 @@ export class PathStyleViewModel {
                 { value: PathStyleType.TileFill, label: "Tile fill" }
             ];
         }
-        if (this.isForCaptionBorderStroke) {
-            selectElement = this.#getElement("#selectStyleType-captionBorderStroke");
+        if (this.pathStyleInfo.isCaptionBorderStroke) {
             styleTypes = [
                 { value: "", label: "None" },
                 { value: PathStyleType.ColorStroke, label: "Color stroke" },
@@ -357,7 +557,10 @@ export class PathStyleViewModel {
                 { value: PathStyleType.TileStroke, label: "Tile stroke" }
             ];
         }
+        const selectElement = this.#getElement("#select-style-type");
         if (selectElement) {
+            const appDocument = KitDependencyManager.getDocument();
+            const styleType = this.pathStyle.getStyleOptionValue(PathStyleOption.PathStyleType);
             for (const st of styleTypes) {
                 const option = appDocument.createElement("option");
                 option.value = st.value;
@@ -370,19 +573,55 @@ export class PathStyleViewModel {
     }
 
     #loadImageSources() {
-        const imgElements = this.#getElements(".data-tile-preview");
-        const src = this.getOption(PathStyleOption.TileImageSource);
-        for (const img of imgElements) {
-            img.setAttribute("src", src);
+        let imgElement = this.#getElement("#image-preview")
+        if (imgElement) {
+            imgElement.setAttribute("src", this.getOption(PathStyleOption.TileImageSource));
         }
         for (let i = 1; i <= 10; i++) {
-            const idQuery = `#ImageArraySource${i}-Preview`;
-            const imgElement = this.#getElement(idQuery);
-            const imageSource = this.getOption(`ImageArraySource${i}`);
-            if (imgElement && imageSource) {
-                imgElement.setAttribute("src", imageSource);
+            imgElement = this.#getElement(`#image-preview-${i}`)
+            if (imgElement) {
+                const debug = this.getOption(`ImageArraySource${i}`);
+                imgElement.setAttribute("src", this.getOption(`ImageArraySource${i}`));
             }
         }
+    }
+
+    async #clearCaptionBackgroundFill() {
+        const map = await MapWorkerClient.getMap();
+        const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.pathStyleInfo.mapItemTemplateRef));
+        const oldValue = mapItemTemplate.caption.getData();
+        const newValue = mapItemTemplate.caption.getData();
+        newValue.backgroundFill = null;
+        const changes = [
+            {
+                changeType: ChangeType.Edit,
+                changeObjectType: MapItemTemplate.name,
+                propertyName: "caption",
+                oldValue: oldValue,
+                newValue: newValue,
+                mapItemTemplateRef: this.pathStyleInfo.mapItemTemplateRef.getData()
+            }
+        ];
+        await this.#updateMap(changes);
+    }
+
+    async #clearCaptionBorderStroke() {
+        const map = await MapWorkerClient.getMap();
+        const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.pathStyleInfo.mapItemTemplateRef));
+        const oldValue = mapItemTemplate.caption.getData();
+        const newValue = mapItemTemplate.caption.getData();
+        newValue.borderStroke = null;
+        const changes = [
+            {
+                changeType: ChangeType.Edit,
+                changeObjectType: MapItemTemplate.name,
+                propertyName: "caption",
+                oldValue: oldValue,
+                newValue: newValue,
+                mapItemTemplateRef: this.pathStyleInfo.mapItemTemplateRef.getData()
+            }
+        ];
+        await this.#updateMap(changes);
     }
 
     #componentElement;
@@ -393,190 +632,11 @@ export class PathStyleViewModel {
         return this.#componentElement.querySelector(selector);
     }
 
-    #getElements(selector) {
-        if (!this.#componentElement) {
-            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
-        }
-        return this.#componentElement.querySelectorAll(selector);
-    }
-
-    #update() {
-        if (this.pathStyle) {
-            const options = [];
-            let styleSelectElement = this.#getElement("#selectStyleType");
-            if (this.isForCaptionBackgroundFill) {
-                styleSelectElement = this.#getElement("#selectStyleType-captionBackgroundFill");
-            }
-            if (this.isForCaptionBorderStroke) {
-                styleSelectElement = this.#getElement("#selectStyleType-captionBorderStroke");
-            }
-            const styleType = styleSelectElement.value;
-            options.push({ key: PathStyleOption.PathStyleType, value: styleType });
-            switch (styleType) {
-                case PathStyleType.ColorFill:
-                    options.push(this.#getColorOption(styleType));
-                    options.push(this.#getOpacityOption(styleType));
-                    break;
-                case PathStyleType.ColorStroke:
-                    options.push(this.#getColorOption(styleType));
-                    options.push(...this.#getStrokeOptions(styleType));
-                    options.push(this.#getOpacityOption(styleType));
-                    break;
-                case PathStyleType.LinearGradientFill:
-                    options.push(this.#getGradientStartOption(styleType));
-                    options.push(this.#getGradientEndOption(styleType));
-                    options.push(...this.#getColorStopOptions(styleType));
-                    options.push(this.#getOpacityOption(styleType));
-                    break;
-                case PathStyleType.LinearGradientStroke:
-                    options.push(this.#getGradientStartOption(styleType));
-                    options.push(this.#getGradientEndOption(styleType));
-                    options.push(...this.#getColorStopOptions(styleType));
-                    options.push(...this.#getStrokeOptions(styleType));
-                    options.push(this.#getOpacityOption(styleType));
-                    break;
-                case PathStyleType.RadialGradientFill:
-                    options.push(this.#getGradientStartOption(styleType));
-                    options.push(this.#getStartRadiusOption(styleType));
-                    options.push(this.#getGradientEndOption(styleType));
-                    options.push(this.#getEndRadiusOption(styleType));
-                    options.push(...this.#getColorStopOptions(styleType));
-                    options.push(this.#getOpacityOption(styleType));
-                    break;
-                case PathStyleType.RadialGradientStroke:
-                    options.push(this.#getGradientStartOption(styleType));
-                    options.push(this.#getStartRadiusOption(styleType));
-                    options.push(this.#getGradientEndOption(styleType));
-                    options.push(this.#getEndRadiusOption(styleType));
-                    options.push(...this.#getColorStopOptions(styleType));
-                    options.push(...this.#getStrokeOptions(styleType));
-                    options.push(this.#getOpacityOption(styleType));
-                    break;
-                case PathStyleType.ConicalGradientFill:
-                    options.push(this.#getGradientStartOption(styleType));
-                    options.push(this.#getGradientAngleOption(styleType));
-                    options.push(...this.#getColorStopOptions(styleType));
-                    options.push(this.#getOpacityOption(styleType));
-                    break;
-                case PathStyleType.ConicalGradientStroke:
-                    options.push(this.#getGradientStartOption(styleType));
-                    options.push(this.#getGradientAngleOption(styleType));
-                    options.push(...this.#getColorStopOptions(styleType));
-                    options.push(...this.#getStrokeOptions(styleType));
-                    options.push(this.#getOpacityOption(styleType));
-                    break;
-                case PathStyleType.TileFill:
-                    options.push(this.#getTileImageSourceOption(styleType));
-                    options.push(this.#getOpacityOption(styleType));
-                    break;
-                case PathStyleType.TileStroke:
-                    options.push(this.#getTileImageSourceOption(styleType));
-                    options.push(...this.#getStrokeOptions(styleType));
-                    options.push(this.#getOpacityOption(styleType));
-                    break;
-                case PathStyleType.ImageArrayFill:
-                    options.push(...this.#getImageArraySourceOptions(styleType));
-                    options.push(this.#getOpacityOption(styleType));
-                    break;
-                case PathStyleType.ImageArrayStroke:
-                    options.push(...this.#getImageArraySourceOptions(styleType));
-                    options.push(...this.#getStrokeOptions(styleType));
-                    options.push(this.#getOpacityOption(styleType));
-                    break;
-            }
-            this.pathStyle.options = options;
-        }
-    }
-
-    #getColorOption(styleType) {
-        return { key: PathStyleOption.Color, value: this.#getElement(`#${styleType}-Color`).value };
-    }
-
-    #getOpacityOption(styleType) {
-        return { key: PathStyleOption.Opacity, value: parseInt(this.#getElement(`#${styleType}-Opacity`).value) };
-    }
-
-    #getStrokeOptions(styleType) {
-        const dashString = this.#getElement(`#${styleType}-Dash`).value;
-        const dashes = dashString.replaceAll(' ', '').split('-').map(d => parseInt(d));
-        const strokeOffset = {
-            x: this.#getElement(`#${styleType}-StrokeOffset-X`).value,
-            y: this.#getElement(`#${styleType}-StrokeOffset-Y`).value,
-        };
-        return [
-            { key: PathStyleOption.Width, value: this.#getElement(`#${styleType}-Width`).value },
-            { key: PathStyleOption.Dash, value: dashes },
-            { key: PathStyleOption.DashOffset, value: this.#getElement(`#${styleType}-DashOffset`).value },
-            { key: PathStyleOption.StrokeOffset, value: strokeOffset },
-            { key: PathStyleOption.Cap, value: this.#getElement(`#${styleType}-Cap`).value },
-            { key: PathStyleOption.Join, value: this.#getElement(`#${styleType}-Join`).value }
-        ];
-    }
-
-    #getGradientStartOption(styleType) {
-        const x = parseInt(this.#getElement(`#${styleType}-Start-X`).value);
-        const y = parseInt(this.#getElement(`#${styleType}-Start-Y`).value);
-        return { key: PathStyleOption.GradientStart, value: { x: x, y: y } };
-    }
-
-    #getGradientEndOption(styleType) {
-        const x = parseInt(this.#getElement(`#${styleType}-End-X`).value);
-        const y = parseInt(this.#getElement(`#${styleType}-End-Y`).value);
-        return { key: PathStyleOption.GradientEnd, value: { x: x, y: y } };
-    }
-
-    #getColorStopOptions(styleType) {
-        const options = [];
-        for (let i = 1; i <= 5; i++) {
-            const offset = parseInt(this.#getElement(`#${styleType}-ColorStop-${i}-Offset`).value);
-            const color = this.#getElement(`#${styleType}-ColorStop-${i}-Color`).value;
-            if (!isNaN(offset) && color) {
-                options.push({ key: `ColorStop${i}`, value: { offset: offset, color: color } });
-            }
-        }
-        return options;
-    }
-
-    #getStartRadiusOption(styleType) {
-        return { key: PathStyleOption.GradientStartRadius, value: parseInt(this.#getElement(`#${styleType}-StartRadius`).value) };
-    }
-
-    #getEndRadiusOption(styleType) {
-        return { key: PathStyleOption.GradientEndRadius, value: parseInt(this.#getElement(`#${styleType}-EndRadius`).value) };
-    }
-
-    #getGradientAngleOption(styleType) {
-        return { key: PathStyleOption.GradientAngle, value: parseInt(this.#getElement(`#${styleType}-StartAngle`).value) };
-    }
-
-    #getTileImageSourceOption(styleType) {
-        return { key: PathStyleOption.TileImageSource, value: this.#getElement(`#${styleType}-Data`).value };
-    }
-
-    #getImageArraySourceOptions(styleType) {
-        const offsetsString = this.#getElement(`#${styleType}-ImageArrayOffsets`).value;
-        const offsets = offsetsString.replaceAll(' ', '').split('-').map(o => parseInt(o));
-        const options = [
-            { key: PathStyleOption.ImageArrayOffsets, value: offsets }
-        ];
-        for (let i = 1; i <= 10; i++) {
-            const element = this.#getElement(`#ImageArraySource${i}-Data`);
-            if (element) {
-                const data = element.value;
-                if (data && data != "undefined" && data.length > 0) {
-                    options.push({ key: `ImageArraySource${i}`, value: data });
-                }
-            }
-        }
-        return options;
-    }
-
-    #validate() {
-        const validationResult = {
-            isValid: true
-        };
-        // TODO: validation
-        return validationResult;
+    #getModelFromComponentElement(elementId) {
+        const element = this.#getElement(`#${elementId}`);
+        const componentId = element.getAttribute("data-kit-component-id");
+        const component = KitComponent.find(componentId);
+        return component?.model;
     }
 
     async #reRenderElement(elementId) {
@@ -584,7 +644,9 @@ export class PathStyleViewModel {
         if (componentElement) {
             const element = componentElement.querySelector(`#${elementId}`);
             const componentId = element.getAttribute("data-kit-component-id");
-            await KitRenderer.renderComponent(componentId);
+            if (KitComponent.find(componentId) && KitComponent.find(this.componentId)) {
+                await KitRenderer.renderComponent(componentId);
+            }
         }
     }
 

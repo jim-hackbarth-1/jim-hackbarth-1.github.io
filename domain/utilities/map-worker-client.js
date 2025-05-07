@@ -116,6 +116,18 @@ export class MapWorkerClient {
         }
     }
 
+    static async getMapAsImage() {
+        const map = await MapWorkerClient.getMap();
+        const bounds = MapWorkerClient.#getMapBounds(map);
+        map.zoom = 1;
+        map.pan = { x: -bounds.x, y: -bounds.y };
+        const offscreenCanvas = new OffscreenCanvas(bounds.width, bounds.height);
+        const renderingContext = offscreenCanvas.getContext("2d");
+        await map.render(offscreenCanvas, renderingContext, { updatedViewPort: true });
+        const blob = await offscreenCanvas.convertToBlob();
+        return blob;
+    }
+
     // helpers
     static #documentEventHandlersAdded = false;
     static #addDocumentEventHandlers(appDocument) {
@@ -208,5 +220,26 @@ export class MapWorkerClient {
             }
         }
         return toolOptions;
+    }
+
+    static #getMapBounds(map) {
+        let xMin = NaN, xMax = NaN, yMin = NaN, yMax = NaN;
+        for (const layer of map.layers) {
+            for (const mapItemGroup of layer.mapItemGroups) {
+                if (isNaN(xMin) || mapItemGroup.bounds.x < xMin) {
+                    xMin = mapItemGroup.bounds.x;
+                }
+                if (isNaN(xMax) || mapItemGroup.bounds.x + mapItemGroup.bounds.width > xMax) {
+                    xMax = mapItemGroup.bounds.x + mapItemGroup.bounds.width;
+                }
+                if (isNaN(yMin) || mapItemGroup.bounds.y < yMin) {
+                    yMin = mapItemGroup.bounds.y;
+                }
+                if (isNaN(yMax) || mapItemGroup.bounds.y + mapItemGroup.bounds.height > yMax) {
+                    yMax = mapItemGroup.bounds.y + mapItemGroup.bounds.height;
+                }
+            }
+        }
+        return { x: xMin - 5, y: yMin - 5, width: xMax - xMin + 10, height: yMax - yMin + 10 };
     }
 }

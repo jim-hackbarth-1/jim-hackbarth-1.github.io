@@ -237,7 +237,7 @@
                         <div class="button-text">Save</div>
                     </div>
                 </button>
-                <button title="Save map as" class="action-text" data-kit-add-attributes="%{#model.isSaveDisabled()}%">
+                <button title="Save map as" class="action-text" onclick="#model.saveMapAs()" data-kit-add-attributes="%{#model.isSaveDisabled()}%">
                     <div class="button-content">
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/file-save-as.html" data-kit-model="null"></kit-component>
@@ -623,6 +623,7 @@
     </div>
     <kit-component id="file-new-dialog-component" data-kit-template-path="/components/map-editor/file-new-dialog/file-new-dialog.html"></kit-component>
     <kit-component id="file-save-dialog-component" data-kit-template-path="/components/map-editor/file-save-dialog/file-save-dialog.html"></kit-component>
+    <kit-component id="file-save-as-dialog-component" data-kit-template-path="/components/map-editor/file-save-as-dialog/file-save-as-dialog.html"></kit-component>
     <kit-component id="file-open-dialog-component" data-kit-template-path="/components/map-editor/file-open-dialog/file-open-dialog.html"></kit-component>
     <kit-component id="tool-options-dialog-component" data-kit-template-path="/components/map-editor/tool-options-dialog/tool-options-dialog.html"></kit-component>
     <kit-component id="zoom-dialog-component" data-kit-template-path="/components/map-editor/zoom-dialog/zoom-dialog.html"></kit-component>

@@ -1,0 +1,111 @@
+﻿
+<dialog class="file-save-as-dialog-component surface-tertiary background">
+    <style>
+        @scope (.file-save-as-dialog-component) {
+            :scope {
+                height: 310px;
+                width: 600px;
+                border: 1px solid var(--theme-color-secondary-darkest);
+            }
+
+            #file-container {
+                display: flex;
+            }
+
+            #file-name {
+                flex-grow: 4;
+            }
+
+            #browse {
+                margin-left: 5px;
+            }
+
+            input[type="text"] {
+                border: 1px solid var(--theme-color-tertiary-darkest);
+                border-radius: 3px;
+                height: 35px;
+                color: var(--theme-color-tertiary-darkest);
+                background-color: var(--theme-color-tertiary-lighter);
+                display: block;
+                padding: 0 5px 0 5px;
+            }
+
+            input[type="text"][disabled] {
+                background-color: rgb(from var(--theme-color-tertiary-lighter) r g b / 25%);
+                border-color: rgb(from var(--theme-color-tertiary-darkest) r g b / 25%);
+            }
+
+            input[type="text"]::placeholder {
+                color: var(--theme-color-tertiary-darker);
+            }
+
+            input[type="text"][disabled]::placeholder {
+                color: rgb(from var(--theme-color-tertiary-darker) r g b / 25%);
+            }
+
+            input[type="text"]:focus {
+                background-color: var(--theme-color-tertiary-lightest);
+                border: 1px solid var(--theme-color-tertiary-darkest);
+            }
+
+            input[type="text"]:not([disabled]):hover {
+                box-shadow: var(--theme-color-tertiary-lightest) 1px 1px 3px 0 inset, var(--theme-color-tertiary-lightest) -1px -1px 3px 0 inset;
+            }
+
+            #file-type-container {
+                margin-bottom: 40px;
+            }
+
+            .file-type-label {
+                font-weight: normal;
+            }
+        }
+    </style>
+    <header class="surface-tertiary">
+        <div class="icon-container">
+            <kit-component data-kit-template-path="/resources/icons/file-save-as.html" data-kit-model="null"></kit-component>
+        </div>
+        <div>
+            <h1>Save map as</h1>
+        </div>
+        <div class="spacer"></div>
+        <div>
+            <button title="Close" class="action-text" onclick="#model.closeDialog();">
+                <div class="icon-container">
+                    <kit-component data-kit-template-path="/resources/icons/file-close.html" data-kit-model="null"></kit-component>
+                </div>
+            </button>
+        </div>
+    </header>
+    <section>
+        <div>
+            <label>File type:</label>
+        </div>
+        <div id="file-type-container">
+            <div>
+                <label class="radio-button">
+                    <input id="as-map-radio" type="radio" name="file-type" value="map" checked />
+                    <span class="checkmark"></span>
+                    <span class="file-type-label">Map (.json)</span>
+                </label>
+            </div>
+            <div>
+                <label class="radio-button">
+                    <input type="radio" name="file-type" value="image" />
+                    <span class="checkmark"></span>
+                    <span class="file-type-label">Image (.png)</span>
+                </label>
+            </div>
+        </div>
+        <div>
+            <label>Choose file path:</label>
+        </div>
+        <div id="file-container">
+            <input id="file-name" type="text" placeholder="file name" disabled />
+            <button id="browse" class="action-control" title="browse" onclick="#model.browse()">...</button>
+        </div>
+        <div>
+            <button id="button-ok" class="action-control" title="OK" onclick="#model.buttonOkClicked();" disabled>OK</button>
+        </div>
+    </section>
+</dialog>

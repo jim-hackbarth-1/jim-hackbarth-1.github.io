@@ -26,6 +26,7 @@ export class EditorModel {
     // constants
     static NewFileRequestTopic = "NewFileRequestTopic";
     static SaveFileRequestTopic = "SaveFileRequestTopic";
+    static SaveFileAsRequestTopic = "SaveFileAsRequestTopic";
     static OpenFileRequestTopic = "OpenFileRequestTopic";
     static CanvasResizeRequestTopic = "CanvasResizeRequestTopic";
     static MapUpdatedNotificationTopic = "MapUpdatedNotificationTopic";
@@ -146,6 +147,10 @@ export class EditorModel {
         else {
             this.showDialog("file-save-dialog-component");
         }
+    }
+
+    async saveMapAs() {
+        this.showDialog("file-save-as-dialog-component");
     }
 
     async isCloseDisabled() {
@@ -570,6 +575,16 @@ export class EditorModel {
         await FileManager.saveMap(json);
     }
 
+    async onSaveFileAsRequested(message) {
+        if (message.fileType == "image") {
+            const blob = await MapWorkerClient.getMapAsImage();
+            await FileManager.saveMapAs(blob, message.fileHandle);
+        }
+        else {
+            this.onSaveFileRequested(message);
+        }
+    }
+
     async onCanvasResizeRequested(message) {
         const currentCanvas = this.#componentElement.querySelector("#map-canvas");
         const appDocument = KitDependencyManager.getDocument();
@@ -670,6 +685,7 @@ export class EditorModel {
     #subscribeToTopics() {
         KitMessenger.subscribe(EditorModel.NewFileRequestTopic, this.#componentId, this.onNewFileRequested.name);
         KitMessenger.subscribe(EditorModel.SaveFileRequestTopic, this.#componentId, this.onSaveFileRequested.name);
+        KitMessenger.subscribe(EditorModel.SaveFileAsRequestTopic, this.#componentId, this.onSaveFileAsRequested.name);
         KitMessenger.subscribe(EditorModel.OpenFileRequestTopic, this.#componentId, this.onOpenFileRequested.name);
         KitMessenger.subscribe(EditorModel.CanvasResizeRequestTopic, this.#componentId, this.onCanvasResizeRequested.name);
     }

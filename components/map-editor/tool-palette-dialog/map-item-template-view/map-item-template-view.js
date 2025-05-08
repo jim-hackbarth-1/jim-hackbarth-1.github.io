@@ -14,6 +14,7 @@ import {
     ToolPalette
 } from "../../../../domain/references.js";
 import { EditorModel } from "../../editor/editor.js";
+import { ToolPaletteDialogModel } from "../tool-palette-dialog.js";
 
 export function createModel() {
     return new MapItemTemplateViewModel();
@@ -813,6 +814,8 @@ class MapItemTemplateViewModel {
         // update local copy
         //const map = await MapWorkerClient.getMap();
         //map.applyChangeSet(new ChangeSet({ changes: changes }));
+
+        ToolPaletteDialogModel.restoreScrollPosition();
 
         // update map worker
         MapWorkerClient.postWorkerMessage({

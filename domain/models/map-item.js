@@ -262,21 +262,17 @@ export class MapItem {
     }
 
     async renderStroke(context, map, options, strokeIndex, quickRender) {
-        if (this.isHidden != true) {
-            const stroke = this.#getStroke(map, strokeIndex);
-            const closePath = this.#isStrokeClosed(map);
-            for (const path of this.paths) {
-                await path.renderStroke(context, map, stroke, options, closePath, this.zGroup, this.z, quickRender);
-            }
+        const stroke = this.#getStroke(map, strokeIndex);
+        const closePath = this.#isStrokeClosed(map);
+        for (const path of this.paths) {
+            await path.renderStroke(context, map, stroke, options, closePath, this.zGroup, this.z, quickRender);
         }
     }
 
     async renderFill(context, map, options, fillIndex, quickRender) {
-        if (this.isHidden != true) {
-            const fill = this.#getFill(map, fillIndex);
-            for (const path of this.paths) {
-                await path.renderFill(context, map, fill, options, this.zGroup, this.z, quickRender);
-            }
+        const fill = this.#getFill(map, fillIndex);
+        for (const path of this.paths) {
+            await path.renderFill(context, map, fill, options, this.zGroup, this.z, quickRender);
         }
     }
 

@@ -414,7 +414,7 @@ export class EditorModel {
         return "";
     }
 
-    async isReadOnlyViewerDisabled() {
+    async isPresentationViewDisabled() {
         return "disabled";
     }
 

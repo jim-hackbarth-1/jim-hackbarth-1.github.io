@@ -33,7 +33,8 @@ export const PathStyleOption = {
     GradientStartRadius: "GradientStartRadius",
     GradientEndRadius: "GradientEndRadius",
     GradientAngle: "GradientAngle",
-    StrokeOffset: "StrokeOffset"
+    StrokeOffset: "StrokeOffset",
+    PresentationMode: "PresentationMode"
 };
 
 /** @readonly @enum {string} */
@@ -50,6 +51,13 @@ export const PathStyleType = {
     TileStroke: "TileStroke",
     ImageArrayFill: "ImageArrayFill",
     ImageArrayStroke: "ImageArrayStroke"
+};
+
+/** @readonly @enum {string} */
+export const PresentationMode = {
+    Normal: "Normal",
+    EditViewOnly: "EditViewOnly",
+    PresentationViewOnly: "PresentationViewOnly"
 };
 
 export class PathStyle {
@@ -124,6 +132,7 @@ export class PathStyle {
 
     async setStyle(context, map, bounds) {
         const pathStyleType = this.options.find(o => o.key == PathStyleOption.PathStyleType).value;
+        this.#setOpacity(context);
         switch (pathStyleType) {
             case PathStyleType.ColorFill:
             case PathStyleType.ImageArrayFill:
@@ -162,30 +171,28 @@ export class PathStyle {
 
     static getOptionDefaults(pathStyleType) {
         const options = [
-            { key: PathStyleOption.PathStyleType, value: pathStyleType }
+            { key: PathStyleOption.PathStyleType, value: pathStyleType },
+            { key: PathStyleOption.Opacity, value: 1 },
+            { key: PathStyleOption.PresentationMode, value: PresentationMode.Normal }
         ];
         switch (pathStyleType) {
             case PathStyleType.ColorFill:
                 options.push({ key: PathStyleOption.Color, value: "#c0c0c0" });
-                options.push({ key: PathStyleOption.Opacity, value: 1 });
                 break;
             case PathStyleType.ColorStroke:
                 options.push(...PathStyle.#getStrokeDefaults());
                 options.push({ key: PathStyleOption.Color, value: "#696969" });
-                options.push({ key: PathStyleOption.Opacity, value: 1 });
                 break;
             case PathStyleType.LinearGradientFill:
                 options.push(...PathStyle.#getColorStopDefaults());
                 options.push({ key: PathStyleOption.GradientStart, value: { x: 0, y: 0 } });
                 options.push({ key: PathStyleOption.GradientEnd, value: { x: 100, y: 100 } });
-                options.push({ key: PathStyleOption.Opacity, value: 1 });
                 break;
             case PathStyleType.LinearGradientStroke:
                 options.push(...PathStyle.#getColorStopDefaults());
                 options.push(...PathStyle.#getStrokeDefaults());
                 options.push({ key: PathStyleOption.GradientStart, value: { x: 0, y: 0 } });
                 options.push({ key: PathStyleOption.GradientEnd, value: { x: 100, y: 100 } });
-                options.push({ key: PathStyleOption.Opacity, value: 1 });
                 break;
             case PathStyleType.RadialGradientFill:
                 options.push(...PathStyle.#getColorStopDefaults());
@@ -193,7 +200,6 @@ export class PathStyle {
                 options.push({ key: PathStyleOption.GradientStartRadius, value: 0 });
                 options.push({ key: PathStyleOption.GradientEnd, value: { x: 50, y: 50 } });
                 options.push({ key: PathStyleOption.GradientEndRadius, value: 100 });
-                options.push({ key: PathStyleOption.Opacity, value: 1 });
                 break;
             case PathStyleType.RadialGradientStroke:
                 options.push(...PathStyle.#getColorStopDefaults());
@@ -202,38 +208,31 @@ export class PathStyle {
                 options.push({ key: PathStyleOption.GradientStartRadius, value: 0 });
                 options.push({ key: PathStyleOption.GradientEnd, value: { x: 0, y: 0 } });
                 options.push({ key: PathStyleOption.GradientEndRadius, value: 100 });
-                options.push({ key: PathStyleOption.Opacity, value: 1 });
                 break;
             case PathStyleType.ConicalGradientFill:
                 options.push(...PathStyle.#getColorStopDefaults());
                 options.push({ key: PathStyleOption.GradientStart, value: { x: 50, y: 50 } });
                 options.push({ key: PathStyleOption.GradientAngle, value: 0 });
-                options.push({ key: PathStyleOption.Opacity, value: 1 });
                 break;
             case PathStyleType.ConicalGradientStroke:
                 options.push(...PathStyle.#getColorStopDefaults());
                 options.push(...PathStyle.#getStrokeDefaults());
                 options.push({ key: PathStyleOption.GradientStart, value: { x: 50, y: 50 } });
                 options.push({ key: PathStyleOption.GradientAngle, value: 0 });
-                options.push({ key: PathStyleOption.Opacity, value: 1 });
                 break;
             case PathStyleType.TileFill:
                 options.push({ key: PathStyleOption.TileImageSource, value: PathStyle.#getDefaultTileFill() });
-                options.push({ key: PathStyleOption.Opacity, value: 1 });
                 break;
             case PathStyleType.TileStroke:
                 options.push(...PathStyle.#getStrokeDefaults());
                 options.push({ key: PathStyleOption.TileImageSource, value: PathStyle.#getDefaultTileStroke() });
-                options.push({ key: PathStyleOption.Opacity, value: 1 });
                 break;
             case PathStyleType.ImageArrayFill:
                 options.push(...PathStyle.#getDefaultImageArray());
-                options.push({ key: PathStyleOption.Opacity, value: 1 });
                 break;
             case PathStyleType.ImageArrayStroke:
                 options.push(...PathStyle.#getDefaultImageArray());
                 options.push(...PathStyle.#getStrokeDefaults());
-                options.push({ key: PathStyleOption.Opacity, value: 1 });
                 break;
         }
         return options;
@@ -430,6 +429,7 @@ export class PathStyle {
                     case PathStyleOption.ImageArraySource10:
                     case PathStyleOption.Cap:
                     case PathStyleOption.Join:
+                    case PathStyleOption.PresentationMode:
                         optionsOut.push({ key: option.key, value: InputUtilities.cleanseString(option.value) });
                         break;
                     case PathStyleOption.Opacity:
@@ -469,12 +469,10 @@ export class PathStyle {
     }
 
     #setColorFill(context) {
-        this.#setOpacity(context);
         context.fillStyle = this.options.find(o => o.key == PathStyleOption.Color)?.value ?? "#c0c0c0";
     }
 
     #setColorStroke(context, map) {
-        this.#setOpacity(context);
         this.#setStrokeOptions(context, map);
         context.strokeStyle = this.options.find(o => o.key == PathStyleOption.Color)?.value ?? "#696969";
     }
@@ -486,7 +484,6 @@ export class PathStyle {
         end = this.#getAbsoluteCoordinates(bounds, end);
         const gradient = context.createLinearGradient(start.x, start.y, end.x, end.y);
         this.#setColorStops(gradient);
-        this.#setOpacity(context);
         context.fillStyle = gradient;
     }
 
@@ -497,7 +494,6 @@ export class PathStyle {
         end = this.#getAbsoluteCoordinates(bounds, end);
         const gradient = context.createLinearGradient(start.x, start.y, end.x, end.y);
         this.#setColorStops(gradient);
-        this.#setOpacity(context);
         this.#setStrokeOptions(context, map);
         context.strokeStyle = gradient;
     }
@@ -513,7 +509,6 @@ export class PathStyle {
         endRadius = this.#getAbsoluteRadius(bounds, endRadius);
         const gradient = context.createRadialGradient(start.x, start.y, startRadius, end.x, end.y, endRadius);
         this.#setColorStops(gradient);
-        this.#setOpacity(context);
         context.fillStyle = gradient;
     }
 
@@ -528,7 +523,6 @@ export class PathStyle {
         endRadius = this.#getAbsoluteRadius(bounds, endRadius);
         const gradient = context.createRadialGradient(start.x, start.y, startRadius, end.x, end.y, endRadius);
         this.#setColorStops(gradient);
-        this.#setOpacity(context);
         this.#setStrokeOptions(context, map);
         context.strokeStyle = gradient;
     }
@@ -539,7 +533,6 @@ export class PathStyle {
         const startAngle = this.options.find(o => o.key == PathStyleOption.GradientAngle)?.value ?? 0;
         const gradient = context.createConicGradient(startAngle, start.x, start.y);
         this.#setColorStops(gradient);
-        this.#setOpacity(context);
         context.fillStyle = gradient;
     }
 
@@ -549,7 +542,6 @@ export class PathStyle {
         const startAngle = this.options.find(o => o.key == PathStyleOption.GradientAngle)?.value ?? 0;
         const gradient = context.createConicGradient(startAngle, start.x, start.y);
         this.#setColorStops(gradient);
-        this.#setOpacity(context);
         this.#setStrokeOptions(context, map);
         context.strokeStyle = gradient;
     }
@@ -558,7 +550,6 @@ export class PathStyle {
         const key = `${this.id}-${PathStyleOption.TileFill}`;
         const data = this.options.find(o => o.key == PathStyleOption.TileImageSource).value; 
         const pattern = await this.#getPattern(context, map, key, data);
-        this.#setOpacity(context);
         context.fillStyle = pattern;
     }
 
@@ -566,7 +557,6 @@ export class PathStyle {
         const key = `${this.id}-${PathStyleOption.TileStroke}`;
         const data = this.options.find(o => o.key == PathStyleOption.TileImageSource).value;
         const pattern = await this.#getPattern(context, map, key, data);
-        this.#setOpacity(context);
         this.#setStrokeOptions(context, map);
         context.strokeStyle = pattern;
     }

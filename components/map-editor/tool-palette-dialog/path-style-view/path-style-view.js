@@ -9,9 +9,11 @@ import {
     MapWorkerInputMessageType,
     PathStyle,
     PathStyleOption,
-    PathStyleType
+    PathStyleType,
+    PresentationMode
 } from "../../../../domain/references.js";
 import { EditorModel } from "../../editor/editor.js";
+import { ToolPaletteDialogModel } from "../tool-palette-dialog.js";
 
 export function createModel() {
     return new PathStyleViewModel();
@@ -239,6 +241,10 @@ export class PathStyleViewModel {
             const opacityResult = this.#validateOpacity();
             isValid = isValid && opacityResult.isValid;
             options.push({ key: PathStyleOption.Opacity, value: opacityResult.opacity });
+
+            const presentationModeResult = this.#validatePresentationMode();
+            isValid = isValid && presentationModeResult.isValid;
+            options.push({ key: PathStyleOption.PresentationMode, value: presentationModeResult.presentationMode });
         }
         if (styleType == PathStyleType.LinearGradientFill
             || styleType == PathStyleType.LinearGradientStroke
@@ -316,6 +322,14 @@ export class PathStyleViewModel {
         }
     }
 
+    isSelected(optionName, optionValue) {
+        const currentValue = this.getOption(optionName);
+        if (currentValue == optionValue) {
+            return "selected";
+        }
+        return "";
+    }
+
     // helpers
     #validateColor() {
         let isValid = true;
@@ -340,6 +354,20 @@ export class PathStyleViewModel {
         return {
             isValid: isValid,
             opacity: opacity / 100
+        };
+    }
+
+    #validatePresentationMode() {
+        let isValid = true;
+        const presentationMode = this.#getElement("#presentation-mode")?.value ?? "";
+        const presentationModes = [PresentationMode.Normal, PresentationMode.EditViewOnly, PresentationMode.PresentationViewOnly];
+        if (!presentationModes.includes(presentationMode)) {
+            this.#getElement("#validation-presentation-mode").innerHTML = "Valid presentation mode selection required.";
+            isValid = false;
+        }
+        return {
+            isValid: isValid,
+            presentationMode: presentationMode
         };
     }
 
@@ -655,6 +683,8 @@ export class PathStyleViewModel {
         // update local copy
         //const map = await MapWorkerClient.getMap();
         //map.applyChangeSet(new ChangeSet({ changes: changes }));
+
+        ToolPaletteDialogModel.restoreScrollPosition();
 
         // update map worker
         MapWorkerClient.postWorkerMessage({

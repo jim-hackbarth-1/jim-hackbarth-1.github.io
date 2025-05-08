@@ -1,5 +1,5 @@
 ﻿
-import { KitComponent, KitMessenger, KitRenderer } from "../../../ui-kit.js";
+import { KitComponent, KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
 import {
     ChangeType,
     EntityReference,
@@ -20,7 +20,7 @@ export function createModel() {
     return new ToolPaletteDialogModel();
 }
 
-class ToolPaletteDialogModel {
+export class ToolPaletteDialogModel {
 
     // event handlers
     async onRenderStart(componentId) {
@@ -111,6 +111,19 @@ class ToolPaletteDialogModel {
     }
 
     // methods
+    static restoreScrollPosition() {
+        const appDocument = KitDependencyManager.getDocument();
+        const topDetailsList = appDocument.querySelector("#top-details-list");
+        const scrollPosition = topDetailsList.scrollTop;
+        setTimeout(() => {
+            topDetailsList.scrollTo({
+                top: scrollPosition,
+                left: 0,
+                behavior: "smooth",
+            });
+        }, 100);
+    }
+
     async showDialog() {
         this.#isVisible = true;
         await this.#reRenderElement("kitIfVisible");
@@ -458,17 +471,7 @@ class ToolPaletteDialogModel {
     async getTools() {
         const map = await MapWorkerClient.getMap();
         let tools = map.tools;
-        function sortTools(tool1, tool2) {
-            if (tool1.ref.name < tool2.ref.name) {
-                return -1;
-            }
-            if (tool1.ref.name > tool2.ref.name) {
-                return 1;
-            }
-            return 0;
-        }
-        tools.sort(sortTools);
-
+        tools.sort(this.#sortByRefName);
         return tools.map(t => ({
             elementId: `${t.ref.name}-${t.ref.versionId}${t.ref.isBuiltIn ? "-builtin" : ""}${t.ref.isFromTemplate ? "-fromtemplate" : ""}`,
             thumbnailSrc: t.thumbnailSrc,
@@ -482,17 +485,7 @@ class ToolPaletteDialogModel {
     async getMapItemTemplates() {
         const map = await MapWorkerClient.getMap();
         let mapItemTemplates = map.mapItemTemplates;
-        function sortMapItemTemplates(mapItemTemplate1, mapItemTemplate2) {
-            if (mapItemTemplate1.ref.name < mapItemTemplate2.ref.name) {
-                return -1;
-            }
-            if (mapItemTemplate1.ref.name > mapItemTemplate2.ref.name) {
-                return 1;
-            }
-            return 0;
-        }
-        mapItemTemplates.sort(sortMapItemTemplates);
-
+        mapItemTemplates.sort(this.#sortByRefName);
         return mapItemTemplates.map(mit => ({
             elementId: `${mit.ref.name}-${mit.ref.versionId}${mit.ref.isBuiltIn ? "-builtin" : ""}${mit.ref.isFromTemplate ? "-fromtemplate" : ""}`,
             thumbnailSrc: `<image height="100%" width="100%" href="${mit.thumbnailSrc}" />`,
@@ -882,11 +875,23 @@ class ToolPaletteDialogModel {
         this.#applyDetailsState();
     }
 
+    #sortByRefName(item1, item2) {
+        if (item1.ref.name < item2.ref.name) {
+            return -1;
+        }
+        if (item1.ref.name > item2.ref.name) {
+            return 1;
+        }
+        return 0;
+    }
+
     async #updateMap(changes) {
 
         // update local copy
         //const map = await MapWorkerClient.getMap();
         //map.applyChangeSet(new ChangeSet({ changes: changes }));
+
+        ToolPaletteDialogModel.restoreScrollPosition();
 
         // update map worker
         MapWorkerClient.postWorkerMessage({

@@ -9,6 +9,7 @@ import {
     PathStyle,
     PathStyleType
 } from "../../../../domain/references.js";
+import { ToolPaletteDialogModel } from "../tool-palette-dialog.js";
 
 export function createModel() {
     return new CaptionViewModel();
@@ -310,6 +311,8 @@ export class CaptionViewModel {
         // update local copy
         //const map = await MapWorkerClient.getMap();
         //map.applyChangeSet(new ChangeSet({ changes: changes }));
+
+        ToolPaletteDialogModel.restoreScrollPosition();
 
         // update map worker
         MapWorkerClient.postWorkerMessage({

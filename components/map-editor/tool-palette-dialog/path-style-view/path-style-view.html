@@ -17,16 +17,6 @@
                        onchange="#model.update()"
                        data-kit-add-attributes="value=%{#model.getOption('Color')}%" />
             </div>
-            <div>
-                <label>Opacity (%):</label>
-                <div id="validation-opacity" class="validation-message"></div>
-                <input id="opacity"
-                       type="number"
-                       min="0"
-                       max="100"
-                       onchange="#model.update()"
-                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
-            </div>
         </kit-if>
 
         <!-- ColorStroke -->
@@ -39,20 +29,10 @@
                        onchange="#model.update()"
                        data-kit-add-attributes="value=%{#model.getOption('Color')}%" />
             </div>
-            <kit-component id="stroke-styles" 
+            <kit-component id="stroke-styles"
                            data-kit-template-path="/components/map-editor/tool-palette-dialog/stroke-styles-view/stroke-styles-view.html"
                            data-kit-model-input="{ pathStyleViewModel: #model }">
             </kit-component>
-            <div>
-                <label>Opacity (%):</label>
-                <div id="validation-opacity" class="validation-message"></div>
-                <input id="opacity"
-                       type="number"
-                       min="0"
-                       max="100"
-                       onchange="#model.update()"
-                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
-            </div>
         </kit-if>
 
         <!-- LinearGradientFill -->
@@ -115,21 +95,11 @@
                 <label>Color stops:</label>
                 <kit-array data-kit-array="#model.getColorStops()"
                            data-kit-item-ref="colorStopInfo">
-                    <kit-component id="color-stop-%{#colorStopInfo.index}%" 
+                    <kit-component id="color-stop-%{#colorStopInfo.index}%"
                                    data-kit-template-path="/components/map-editor/tool-palette-dialog/color-stop-view/color-stop-view.html"
                                    data-kit-model-input="{ pathStyleViewModel: #model, colorStop: #colorStopInfo.colorStop }">
                     </kit-component>
                 </kit-array>
-            </div>
-            <div>
-                <label>Opacity (%):</label>
-                <div id="validation-opacity" class="validation-message"></div>
-                <input id="opacity"
-                       type="number"
-                       min="0"
-                       max="100"
-                       onchange="#model.update()"
-                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
             </div>
         </kit-if>
 
@@ -199,20 +169,10 @@
                     </kit-component>
                 </kit-array>
             </div>
-            <kit-component id="stroke-styles" 
+            <kit-component id="stroke-styles"
                            data-kit-template-path="/components/map-editor/tool-palette-dialog/stroke-styles-view/stroke-styles-view.html"
                            data-kit-model-input="{ pathStyleViewModel: #model }">
             </kit-component>
-            <div>
-                <label>Opacity (%):</label>
-                <div id="validation-opacity" class="validation-message"></div>
-                <input id="opacity"
-                       type="number"
-                       min="0"
-                       max="100"
-                       onchange="#model.update()"
-                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
-            </div>
         </kit-if>
 
         <!-- RadialGradientFill -->
@@ -300,16 +260,6 @@
                                    data-kit-model-input="{ pathStyleViewModel: #model, colorStop: #colorStopInfo.colorStop }">
                     </kit-component>
                 </kit-array>
-            </div>
-            <div>
-                <label>Opacity (%):</label>
-                <div id="validation-opacity" class="validation-message"></div>
-                <input id="opacity"
-                       type="number"
-                       min="0"
-                       max="100"
-                       onchange="#model.update()"
-                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
             </div>
         </kit-if>
 
@@ -399,20 +349,10 @@
                     </kit-component>
                 </kit-array>
             </div>
-            <kit-component id="stroke-styles" 
+            <kit-component id="stroke-styles"
                            data-kit-template-path="/components/map-editor/tool-palette-dialog/stroke-styles-view/stroke-styles-view.html"
                            data-kit-model-input="{ pathStyleViewModel: #model }">
             </kit-component>
-            <div>
-                <label>Opacity (%):</label>
-                <div id="validation-opacity" class="validation-message"></div>
-                <input id="opacity"
-                       type="number"
-                       min="0"
-                       max="100"
-                       onchange="#model.update()"
-                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
-            </div>
         </kit-if>
 
         <!-- ConicalGradientFill -->
@@ -463,16 +403,6 @@
                                    data-kit-model-input="{ pathStyleViewModel: #model, colorStop: #colorStopInfo.colorStop }">
                     </kit-component>
                 </kit-array>
-            </div>
-            <div>
-                <label>Opacity (%):</label>
-                <div id="validation-opacity" class="validation-message"></div>
-                <input id="opacity"
-                       type="number"
-                       min="0"
-                       max="100"
-                       onchange="#model.update()"
-                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
             </div>
         </kit-if>
 
@@ -525,20 +455,10 @@
                     </kit-component>
                 </kit-array>
             </div>
-            <kit-component id="stroke-styles" 
+            <kit-component id="stroke-styles"
                            data-kit-template-path="/components/map-editor/tool-palette-dialog/stroke-styles-view/stroke-styles-view.html"
                            data-kit-model-input="{ pathStyleViewModel: #model }">
             </kit-component>
-            <div>
-                <label>Opacity (%):</label>
-                <div id="validation-opacity" class="validation-message"></div>
-                <input id="opacity"
-                       type="number"
-                       min="0"
-                       max="100"
-                       onchange="#model.update()"
-                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
-            </div>
         </kit-if>
 
         <!-- TileFill -->
@@ -556,17 +476,7 @@
                     <div>
                         <button class="action-control" title="browse" onclick="#model.browseImage()">...</button>
                     </div>
-                </div>    
-            </div>
-            <div>
-                <label>Opacity (%):</label>
-                <div id="validation-opacity" class="validation-message"></div>
-                <input id="opacity"
-                       type="number"
-                       min="0"
-                       max="100"
-                       onchange="#model.update()"
-                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
+                </div>
             </div>
         </kit-if>
 
@@ -585,22 +495,12 @@
                     <div>
                         <button class="action-control" title="browse" onclick="#model.browseImage()">...</button>
                     </div>
-                </div>           
+                </div>
             </div>
-            <kit-component id="stroke-styles" 
+            <kit-component id="stroke-styles"
                            data-kit-template-path="/components/map-editor/tool-palette-dialog/stroke-styles-view/stroke-styles-view.html"
                            data-kit-model-input="{ pathStyleViewModel: #model }">
             </kit-component>
-            <div>
-                <label>Opacity (%):</label>
-                <div id="validation-opacity" class="validation-message"></div>
-                <input id="opacity"
-                       type="number"
-                       min="0"
-                       max="100"
-                       onchange="#model.update()"
-                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
-            </div>
         </kit-if>
 
         <!-- ImageArrayFill -->
@@ -621,11 +521,12 @@
                                 <input id="image-data-%{#imageInfo.index}%" type="hidden" value="%{#model.getImageSource(#imageInfo.index)}%" />
                             </div>
                             <div>
-                                <button 
-                                        class="action-control" 
-                                        style="padding:15px;margin-right:4px;" 
-                                        title="browse" 
-                                        onclick="#model.browseImage(#imageInfo.index)">...</button>
+                                <button class="action-control"
+                                        style="padding:15px;margin-right:4px;"
+                                        title="browse"
+                                        onclick="#model.browseImage(#imageInfo.index)">
+                                    ...
+                                </button>
                             </div>
                             <div>
                                 <button title="Remove image"
@@ -653,16 +554,6 @@
                        onchange="#model.update()"
                        onkeydown="#model.onKeyDown(event)" />
             </div>
-            <div>
-                <label>Opacity (%):</label>
-                <div id="validation-opacity" class="validation-message"></div>
-                <input id="opacity"
-                       type="number"
-                       min="0"
-                       max="100"
-                       onchange="#model.update()"
-                       data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
-            </div>
         </kit-if>
 
         <!-- ImageArrayStroke -->
@@ -683,11 +574,12 @@
                                 <input id="image-data-%{#imageInfo.index}%" type="hidden" value="%{#model.getImageSource(#imageInfo.index)}%" />
                             </div>
                             <div>
-                                <button 
-                                        class="action-control" 
-                                        style="padding:15px;margin-right:4px;" 
-                                        title="browse" 
-                                        onclick="#model.browseImage(#imageInfo.index)">...</button>
+                                <button class="action-control"
+                                        style="padding:15px;margin-right:4px;"
+                                        title="browse"
+                                        onclick="#model.browseImage(#imageInfo.index)">
+                                    ...
+                                </button>
                             </div>
                             <div>
                                 <button title="Remove image"
@@ -715,10 +607,14 @@
                        onchange="#model.update()"
                        onkeydown="#model.onKeyDown(event)" />
             </div>
-            <kit-component id="stroke-styles" 
+            <kit-component id="stroke-styles"
                            data-kit-template-path="/components/map-editor/tool-palette-dialog/stroke-styles-view/stroke-styles-view.html"
                            data-kit-model-input="{ pathStyleViewModel: #model }">
             </kit-component>
+        </kit-if>
+
+        <!-- Common properties -->
+        <kit-if data-kit-condition="#model.getStyleType() != ''">
             <div>
                 <label>Opacity (%):</label>
                 <div id="validation-opacity" class="validation-message"></div>
@@ -728,6 +624,17 @@
                        max="100"
                        onchange="#model.update()"
                        data-kit-add-attributes="value=%{#model.getOption('Opacity')}%" />
+            </div>
+            <div>
+                <label>Presentation mode:</label>
+                <div id="validation-presentation-mode" class="validation-message"></div>
+                <select id="presentation-mode"
+                        title="Presentation mode"
+                        onchange="#model.update()">
+                    <option value="Normal" data-kit-add-attributes="%{#model.isSelected('PresentationMode', 'Normal')}%">Normal</option>
+                    <option value="EditViewOnly" data-kit-add-attributes="%{#model.isSelected('PresentationMode', 'EditViewOnly')}%">Edit view only</option>
+                    <option value="PresentationViewOnly" data-kit-add-attributes="%{#model.isSelected('PresentationMode', 'PresentationViewOnly')}%">Presentation view only</option>
+                </select>
             </div>
         </kit-if>
 

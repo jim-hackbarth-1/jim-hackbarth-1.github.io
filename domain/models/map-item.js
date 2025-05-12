@@ -1,5 +1,5 @@
 ﻿
-import { Change, ChangeSet, ChangeType, EntityReference, InputUtilities, Path, PathStyle, PathStyleType } from "../references.js";
+import { Caption, Change, ChangeSet, ChangeType, EntityReference, InputUtilities, Path, PathStyle, PathStyleType } from "../references.js";
 
 export class MapItem {
 
@@ -107,7 +107,7 @@ export class MapItem {
     get isCaptionVisible() {
         return this.#isCaptionVisible;
     }
-    set isCaptionVisibile(isCaptionVisible) {
+    set isCaptionVisible(isCaptionVisible) {
         const changeSet = this.#getPropertyChange("isCaptionVisible", this.#isCaptionVisible, isCaptionVisible);
         this.#isCaptionVisible = isCaptionVisible;
         this.#onChange(changeSet, false);
@@ -288,14 +288,15 @@ export class MapItem {
 
     async renderCaption(context, map, options) {
         if (this.isCaptionVisible && this.captionText.length > 0) {
-            const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
-            if (mapItemTemplate?.caption) {
-                let location = {
-                    x: this.bounds.x + this.bounds.width / 2 + this.captionLocation.x,
-                    y: this.bounds.y + this.bounds.height / 2 + this.captionLocation.y
-                };
-                await mapItemTemplate.caption.render(context, map, this.captionText, location);
-            }
+            const caption = this.#getCaption(map);
+            let location = {
+                x: this.bounds.x + this.bounds.width / 2 + this.captionLocation.x,
+                y: this.bounds.y + this.bounds.height / 2 + this.captionLocation.y
+            };
+            await caption.render(context, map, this.captionText, location);
+        }
+        if (this.isHidden) {
+            this.#renderHiddenBadge(context);
         }
     }
 
@@ -490,6 +491,15 @@ export class MapItem {
         return fill;
     }
 
+    #getCaption(map) {      
+        const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
+        let caption = mapItemTemplate?.caption;
+        if (!caption) {
+            caption = new Caption();
+        }
+        return caption;
+    }
+
     #getDefaultStyle(mapItemTemplate, pathStyleType) {
         if (!mapItemTemplate
             || (mapItemTemplate.fills.length == 0 && mapItemTemplate.strokes.length == 0)) {
@@ -498,5 +508,37 @@ export class MapItem {
             });
         }
         return null;
+    }
+
+    #renderHiddenBadge(context) {
+        let location = {
+            x: this.bounds.x + this.bounds.width / 2 + this.captionLocation.x,
+            y: this.bounds.y + this.bounds.height / 2 + this.captionLocation.y
+        };
+        const width = 50;
+        const height = 30;
+        location.x = location.x - width - 5;
+        location.y = location.y - height - 5;
+        const eye = new Path2D(`M ${location.x + width / 2},${location.y + 8} m -10,0 a 15 15 0 0 0 20 0 a 15 15 0 0 0 -20 0`);
+        const eyeBall = new Path2D(`M ${location.x + width / 2},${location.y + 8} m -3.5,0 a 3.5 3.5 0 0 0 7 0 a 3.5 3.5 0 0 0 -7 0`);
+        const rect = new Path2D(`M ${location.x},${location.y} l ${width},0 0,${height} ${-(width)},0 z`);
+        context.lineWidth = 1;
+        context.fillStyle = "lightgray";
+        context.globalAlpha = 0.75;
+        context.fill(rect);
+        context.globalAlpha = 1;
+        context.strokeStyle = "dimgray";
+        context.stroke(rect);
+        context.fillStyle = "white";
+        context.fill(eye);
+        context.fillStyle = "dimgray";
+        context.fill(eyeBall);
+        context.stroke(eyeBall);
+        context.stroke(eye);
+        const textX = location.x + 4;
+        const textY = location.y + height - 6;
+        context.fillStyle = "dimgray";
+        context.font = "12px sans-serif";
+        context.fillText("[hidden]", textX, textY);
     }
 }

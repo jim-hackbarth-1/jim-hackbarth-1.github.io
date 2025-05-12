@@ -617,42 +617,22 @@ kit-if:not([data-kit-component-id]) {
 
 .checkbox:hover input ~ .checkmark {
     background-color: var(--theme-color-primary-lighter);
-    border-color: var(--theme-color-primary-lightest);
     box-shadow: var(--theme-color-primary-lightest) 1px 1px 3px 0, var(--theme-color-primary-lightest) -1px -1px 3px 0;
 }
 
 .surface-secondary .checkbox:hover input ~ .checkmark {
     background-color: var(--theme-color-secondary-lighter);
-    border-color: var(--theme-color-secondary-lightest);
     box-shadow: var(--theme-color-secondary-lightest) 1px 1px 3px 0, var(--theme-color-secondary-lightest) -1px -1px 3px 0;
 }
 
 .surface-tertiary .checkbox:hover input ~ .checkmark {
     background-color: var(--theme-color-tertiary-lighter);
-    border-color: var(--theme-color-tertiary-lightest);
     box-shadow: var(--theme-color-tertiary-lightest) 1px 1px 3px 0, var(--theme-color-tertiary-lightest) -1px -1px 3px 0;
 }
 
 .surface-complementary .checkbox:hover input ~ .checkmark {
     background-color: var(--theme-color-complementary-lighter);
-    border-color: var(--theme-color-complementary-lightest);
     box-shadow: var(--theme-color-complementary-lightest) 1px 1px 3px 0, var(--theme-color-complementary-lightest) -1px -1px 3px 0;
-}
-
-.checkbox input:checked ~ .checkmark {
-    background-color: var(--theme-color-primary-lighter);
-}
-
-.surface-secondary .checkbox input:checked ~ .checkmark {
-    background-color: var(--theme-color-secondary-lighter);
-}
-
-.surface-tertiary .checkbox input:checked ~ .checkmark {
-    background-color: var(--theme-color-tertiary-lighter);
-}
-
-.surface-complementary .checkbox input:checked ~ .checkmark {
-    background-color: var(--theme-color-complementary-lighter);
 }
 
 .checkmark:after {

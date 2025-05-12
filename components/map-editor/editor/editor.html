@@ -333,7 +333,7 @@
                         <div class="button-text">Tool options ...</div>
                     </div>
                 </button>
-                <button title="Edit selections" class="action-text" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
+                <button id="menuEditEditSelections" title="Edit selections" class="action-text" onclick="#model.showDialog('edit-selections-dialog-component')" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
                     <div class="button-content">
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/edit-edit-selections.html" data-kit-model="null"></kit-component>
@@ -480,7 +480,7 @@
                     </div>
                 </div>
             </button>
-            <button title="Edit selections" class="action-text" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
+            <button id="buttonEditSelections" title="Edit selections" class="action-text" onclick="#model.showDialog('edit-selections-dialog-component')" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
                 <div class="button-content">
                     <div class="icon-container">
                         <kit-component data-kit-template-path="/resources/icons/edit-edit-selections.html" data-kit-model="null"></kit-component>
@@ -626,6 +626,7 @@
     <kit-component id="file-save-as-dialog-component" data-kit-template-path="/components/map-editor/file-save-as-dialog/file-save-as-dialog.html"></kit-component>
     <kit-component id="file-open-dialog-component" data-kit-template-path="/components/map-editor/file-open-dialog/file-open-dialog.html"></kit-component>
     <kit-component id="tool-options-dialog-component" data-kit-template-path="/components/map-editor/tool-options-dialog/tool-options-dialog.html"></kit-component>
+    <kit-component id="edit-selections-dialog-component" data-kit-template-path="/components/map-editor/edit-selections-dialog/edit-selections-dialog.html"></kit-component>
     <kit-component id="zoom-dialog-component" data-kit-template-path="/components/map-editor/zoom-dialog/zoom-dialog.html"></kit-component>
     <kit-component id="canvas-size-dialog-component" data-kit-template-path="/components/map-editor/canvas-size-dialog/canvas-size-dialog.html"></kit-component>
     <kit-component id="overlay-dialog-component" data-kit-template-path="/components/map-editor/overlay-dialog/overlay-dialog.html"></kit-component>

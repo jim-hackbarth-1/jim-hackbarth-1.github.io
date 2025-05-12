@@ -83,6 +83,8 @@ export class EditorModel {
             this.#componentElement.querySelector("#buttonDelete").disabled = !doesMapHaveSelections;
             this.#componentElement.querySelector("#menuEditToolOptions").disabled = !this.#hasVisibleToolOption();
             this.#componentElement.querySelector("#buttonToolOptions").disabled = !this.#hasVisibleToolOption();
+            this.#componentElement.querySelector("#menuEditEditSelections").disabled = !doesMapHaveSelections;
+            this.#componentElement.querySelector("#buttonEditSelections").disabled = !doesMapHaveSelections;
             if (message?.data?.changeSet?.changes) {
                 for (const change of message.data.changeSet.changes) {
                     if (change.changeObjectType == Map.name) {

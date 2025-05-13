@@ -323,7 +323,7 @@ export class SelectionUtilities {
                 if ((!usePrimarySelectionMode && mapItemGroup.selectionStatus) || (mapItemGroup.selectionStatus == "Primary")) {
                     for (const mapItem of mapItemGroup.mapItems) {
                         if (moveCaptionMode) {
-                            if (mapItem.isCaptionVisible && mapItem.captionText.length > 0) {
+                            if (this.#canMoveMapItemCaption(mapItem)) {
                                 mapItem.captionLocation = { x: mapItem.captionLocation.x + dx, y: mapItem.captionLocation.y + dy };
                             }
                         }
@@ -534,7 +534,7 @@ export class SelectionUtilities {
                 const mapItemGroup = layer.mapItemGroups.find(mit => mit.id == selection.mapItemGroupId);
                 if (mapItemGroup) {
                     const mapItem = mapItemGroup.mapItems.find(mi => mi.id == selection.mapItemId);
-                    if (mapItem && mapItem.isCaptionVisible && mapItem.captionText.length > 0) {
+                    if (this.#canMoveMapItemCaption(mapItem)) {
                         mapItemSelections.push({
                             mapItem: mapItem,
                             startingCaptionLocation: selection.startingPathData.mapItemCaptionLocation
@@ -941,35 +941,27 @@ export class SelectionUtilities {
 
     #getBoundsToCheck(selectionBounds, boundsType) {
         if (selectionBounds) {
-            if (boundsType === ActivityState.Rotate) {
-                return selectionBounds.rotate;
-            }
-            if (boundsType === ActivityState.ResizeNW) {
-                return selectionBounds.resizeNW;
-            }
-            if (boundsType === ActivityState.ResizeN) {
-                return selectionBounds.resizeN;
-            }
-            if (boundsType === ActivityState.ResizeNE) {
-                return selectionBounds.resizeNE;
-            }
-            if (boundsType === ActivityState.ResizeE) {
-                return selectionBounds.resizeE;
-            }
-            if (boundsType === ActivityState.ResizeSE) {
-                return selectionBounds.resizeSE;
-            }
-            if (boundsType === ActivityState.ResizeS) {
-                return selectionBounds.resizeS;
-            }
-            if (boundsType === ActivityState.ResizeSW) {
-                return selectionBounds.resizeSW;
-            }
-            if (boundsType === ActivityState.ResizeW) {
-                return selectionBounds.resizeW;
-            }
-            if (boundsType === ActivityState.Move) {
-                return selectionBounds.move;
+            switch (boundsType) {
+                case ActivityState.Rotate:
+                    return selectionBounds.rotate;
+                case ActivityState.ResizeNW:
+                    return selectionBounds.resizeNW;
+                case ActivityState.ResizeN:
+                    return selectionBounds.resizeN;
+                case ActivityState.ResizeNE:
+                    return selectionBounds.resizeNE;
+                case ActivityState.ResizeE:
+                    return selectionBounds.resizeE;
+                case ActivityState.ResizeSE:
+                    return selectionBounds.resizeSE;
+                case ActivityState.ResizeS:
+                    return selectionBounds.resizeS;
+                case ActivityState.ResizeSW:
+                    return selectionBounds.resizeSW;
+                case ActivityState.ResizeW:
+                    return selectionBounds.resizeW;
+                case ActivityState.Move:
+                    return selectionBounds.move;
             }
         }
         return null;
@@ -977,6 +969,13 @@ export class SelectionUtilities {
 
     #getListData(list) {
         return list ? list.map(x => x.getData ? x.getData() : x) : null;
+    }
+
+    #canMoveMapItemCaption(mapItem) {
+        if (mapItem && (mapItem.isHidden || (mapItem.isCaptionVisible && mapItem.captionText.length > 0))) {
+            return true;
+        }
+        return false;
     }
 }
 

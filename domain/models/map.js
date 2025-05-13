@@ -7,7 +7,6 @@ import {
     ClipPath,
     EntityReference,
     ErrorMessage,
-    getOverlandTemplate,
     InputUtilities,
     Layer,
     MapItem,
@@ -19,23 +18,6 @@ import {
     Tool,
     ToolPalette
 } from "../references.js";
-
-export class BuiltInTemplates {
-
-    static #templates = null;
-
-    static getTemplates() {
-        if (!BuiltInTemplates.#templates) {
-            BuiltInTemplates.#templates = [];
-            BuiltInTemplates.#templates.push(getOverlandTemplate())
-        }
-        return BuiltInTemplates.#templates;
-    }
-
-    static getTemplate(templateRef) {
-        return BuiltInTemplates.getTemplates().find(t => EntityReference.areEqual(t.ref, templateRef));
-    }
-}
 
 export class Map {
 

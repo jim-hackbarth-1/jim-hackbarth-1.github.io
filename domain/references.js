@@ -15,7 +15,6 @@ export * from "./models/overlay.js";
 export * from "./models/shadow.js";
 export * from "./models/tool.js";
 export * from "./models/tool-palette.js";
-export * from "./templates/overland.js";
 export * from "./tools/draw-ellipse.js";
 export * from "./tools/draw-path.js";
 export * from "./tools/fit-selection.js";

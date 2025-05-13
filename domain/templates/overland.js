@@ -1,7 +1,7 @@
 ﻿
 import { Map, PathStyleOption, PathStyleType } from "../references.js";
 
-export function getOverlandTemplate() {
+export function getTemplate() {
     const blueRegion = {
         ref: { name: "Blue Region", versionId: 1 },
         thumbnailSrc: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsAAAA7AAWrWiQkAAABVSURBVEhL7dcxFYAwDEXRT2Vgi6VyKqcLtrABnDYW8rL8uySZ3hxVOWJKQ29sucZu7vAfvfuz1mzXPFe8xY1zGOMwxmGMwxiHMQ5jHMY4jCl7YYpIH6JYCTa6CrVbAAAAAElFTkSuQmCC",

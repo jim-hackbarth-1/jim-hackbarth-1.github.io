@@ -1,6 +1,5 @@
 ﻿
 import {
-    BuiltInTemplates,
     BuiltInTools,
     ChangeType,
     EntityReference,
@@ -16,6 +15,7 @@ import {
     ToolPalette
 } from "../../../domain/references.js";
 import { KitComponent, KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
+import { BuiltInTemplates } from "../file-new-dialog/file-new-dialog.js";
 
 export function createModel() {
     return new EditorModel();
@@ -537,7 +537,7 @@ export class EditorModel {
         let template = null;
         if (templateRef) {
             if (templateRef.isBuiltIn) {
-                template = BuiltInTemplates.getTemplate(templateRef);
+                template = await BuiltInTemplates.getTemplate(templateRef);
             }
             else {
                 // TODO: get template from api

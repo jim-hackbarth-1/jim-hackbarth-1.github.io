@@ -280,6 +280,13 @@ export class SharedToolOptions {
                 keyboardEventInfo: { key: "Enter", requiresAltKey: true },
                 description: "Create poly-transit map item, accept preview set operation, ..."
             }),
+            new BooleanToolOption({
+                name: "AlternateSelectionMode",
+                label: "Alternate selection mode",
+                keyboardEventInfo: { key: "A", requiresAltKey: true },
+                description: "Toggle selection status when selecting (Primary, Secondary, not selected)",
+                isToggledOn: false
+            }),
             new ToolOption({
                 name: "CancelChanges",
                 label: "Cancel changes",

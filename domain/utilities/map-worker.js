@@ -16,7 +16,8 @@ import {
     SetUtilities,
     SharedToolOptions,
     StatesToolOption,
-    ToolOption
+    ToolOption,
+    ToolType
 } from "../references.js";
 
 /**
@@ -437,7 +438,7 @@ export class MapWorker {
         }
         else {
             if (this.activeToolModel && this.activeToolModel.handleClientEvent) {
-                if (eventType == "pointerdown" && !this.activeMapItemTemplate) {
+                if (eventType == "pointerdown" && this.activeTool?.toolType == ToolType.DrawingTool && !this.activeMapItemTemplate) {
                     this.#printMessage("Map item template selection required.")
                 }
                 await this.activeToolModel.handleClientEvent({

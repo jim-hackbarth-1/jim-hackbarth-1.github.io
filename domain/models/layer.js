@@ -399,22 +399,49 @@ export class Layer {
 
     #processSelectionResults(selectionResults, toggleCurrentSelections) { 
         if (toggleCurrentSelections) {
+            const tempResults = [];
             for (const selectionResult of selectionResults) {
+                let selectionStatus = null;
                 if (selectionResult.isSelected) {
-                    if (selectionResult.mapItemGroup.selectionStatus) {
-                        selectionResult.mapItemGroup.selectionStatus = null;
+                    switch (selectionResult.mapItemGroup.selectionStatus) {
+                        case SelectionStatusType.Primary:
+                            selectionStatus = SelectionStatusType.Secondary;
+                            break;
+                        case SelectionStatusType.Secondary:
+                            selectionStatus = null;
+                            break;
+                        default:
+                            selectionStatus = SelectionStatusType.Primary;
+                            break;
                     }
-                    else {
-                        selectionResult.mapItemGroup.selectionStatus = SelectionStatusType.Secondary;
-                    }
+                }
+                else {
+                    selectionStatus = selectionResult.mapItemGroup.selectionStatus;
+                }
+                tempResults.push({
+                    mapItemGroupId: selectionResult.mapItemGroup.id,
+                    selectionStatus: selectionStatus,
+                    isSelected: selectionResult.isSelected
+                });
+            }
+            const primarySelections = tempResults.filter(r => r.selectionStatus == SelectionStatusType.Primary);
+            if (primarySelections.length == 0) {
+                let firstSecondary = tempResults.find(r => r.selectionStatus == SelectionStatusType.Secondary && !r.isSelected);
+                if (!firstSecondary) {
+                    firstSecondary = tempResults.find(r => r.selectionStatus == SelectionStatusType.Secondary);
+                }
+                if (firstSecondary) {
+                    firstSecondary.selectionStatus = SelectionStatusType.Primary;
                 }
             }
-            let currentPrimary = selectionResults.find(r => r.mapItemGroup.selectionStatus == SelectionStatusType.Primary);
-            if (!currentPrimary) {
-                currentPrimary = selectionResults.find(r => r.mapItemGroup.selectionStatus == SelectionStatusType.Secondary);
-                if (currentPrimary) {
-                    currentPrimary.mapItemGroup.selectionStatus = SelectionStatusType.Primary;
+            if (primarySelections.length > 1) {
+                for (let i = 1; i < primarySelections.length; i++) {
+                    primarySelections[i].selectionStatus = SelectionStatusType.Secondary;
                 }
+            }
+            for (const tempResult of tempResults) {
+                const selection = selectionResults.find(r => r.mapItemGroup.id == tempResult.mapItemGroupId);
+                selection.mapItemGroup.selectionStatus = tempResult.selectionStatus;
             }
         }
         else {

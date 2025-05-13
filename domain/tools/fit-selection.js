@@ -18,6 +18,7 @@ class FitSelectionTool {
     #moveIncrementIteration;
     #isLockModeOn;
     #isToggleSelectionModeOn;
+    #isAlternateSelectionModeOn;
     #isSingleSelectionModeOn;
     #isSnapToOverlayModeOn;
     #isMoveCaptionModeOn;
@@ -81,6 +82,9 @@ class FitSelectionTool {
             await this.#performSetOperation();
             return;
         }
+        if (name == "AlternateSelectionMode") {
+            this.#isAlternateSelectionModeOn = value;
+        }
         if (name == "LockMode") {
             this.#isLockModeOn = value;
         }
@@ -103,7 +107,8 @@ class FitSelectionTool {
     }
 
     #initializeToolOptions() {
-        this.#mapWorker.initializeToolOptions(["AcceptChanges", "LockMode", "SetOperationMode", "SingleSelectionMode", "SnapToOverlay", "MoveCaptionMode"]);
+        this.#mapWorker.initializeToolOptions(["AcceptChanges", "AlternateSelectionMode", "LockMode", "SetOperationMode", "SingleSelectionMode", "SnapToOverlay", "MoveCaptionMode"]);
+        this.#isAlternateSelectionModeOn = this.#mapWorker.getToolOption("AlternateSelectionMode").isToggledOn;
         this.#isLockModeOn = this.#mapWorker.getToolOption("LockMode").isToggledOn;
         this.#setOperationMode = this.#mapWorker.getToolOption("SetOperationMode").currentStateName;
         this.#isSingleSelectionModeOn = this.#mapWorker.getToolOption("SingleSelectionMode").isToggledOn;
@@ -116,7 +121,7 @@ class FitSelectionTool {
             this.#pointDown = { x: eventData.offsetX, y: eventData.offsetY };
             this.#points = [];
             const transformedPoint = this.#transformCanvasPoint(eventData.offsetX, eventData.offsetY);
-            this.#selectionUtilities.setActivityState(transformedPoint, this.#isToggleSelectionModeOn);
+            this.#selectionUtilities.setActivityState(transformedPoint, this.#isAltSelectModeOn());
             if (this.#selectionUtilities.activityState === "Select") {
                 this.#selectDown(eventData);
             }
@@ -206,6 +211,9 @@ class FitSelectionTool {
         }
         if (eventData.key == "ArrowDown") {
             await this.#moveIncrement(eventData, 0, 1);
+        }
+        if (eventData.altKey && eventData.key?.toLowerCase() == "a" && !eventData.repeat) {
+            this.#updateToolOptionValue("AlternateSelectionMode", !this.#isAlternateSelectionModeOn, true);
         }
         if (eventData.altKey && eventData.key?.toLowerCase() == "o" && !eventData.repeat) {
             await this.#updateToolOptionValue("SnapToOverlay", !this.#isSnapToOverlayModeOn, true);
@@ -312,7 +320,7 @@ class FitSelectionTool {
         const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
         const points = this.#points.map(pt => this.#mapWorker.geometryUtilities.transformPoint(pt, scale, translation));
         const layer = this.#mapWorker.map.getActiveLayer();
-        layer.selectByPoints(this.#mapWorker.renderingContext, this.#mapWorker.map, points, this.#isToggleSelectionModeOn);
+        layer.selectByPoints(this.#mapWorker.renderingContext, this.#mapWorker.map, points, this.#isAltSelectModeOn());
     }
 
     #selectByPath() {
@@ -349,7 +357,7 @@ class FitSelectionTool {
             transits: transits
         };
         const layer = this.#mapWorker.map.getActiveLayer();
-        layer.selectByPath(this.#mapWorker.geometryUtilities, selectionBounds, selectionPath, this.#isToggleSelectionModeOn, true);
+        layer.selectByPath(this.#mapWorker.geometryUtilities, selectionBounds, selectionPath, this.#isAltSelectModeOn(), true);
     }
 
     #drawSelectionLine(x, y) {
@@ -483,5 +491,9 @@ class FitSelectionTool {
             this.#selectionUtilities.moveIncrement(this.#mapWorker, dx, dy, this.#isSingleSelectionModeOn, this.#isMoveCaptionModeOn);
             this.#previewSetOperation();
         }
+    }
+
+    #isAltSelectModeOn() {
+        return this.#isAlternateSelectionModeOn || this.#isToggleSelectionModeOn;
     }
 }

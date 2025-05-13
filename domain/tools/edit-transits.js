@@ -17,6 +17,7 @@ class EditTransitsTool {
     #moveIncrementIteration;
     #isLockModeOn;
     #isToggleSelectionModeOn;
+    #isAlternateSelectionModeOn;
     #isSingleSelectionModeOn;
     #bounds;
     #moveTransitMode;
@@ -80,6 +81,9 @@ class EditTransitsTool {
 
     // helpers
     #updateToolOptionValue(name, value, notifyMapWorker) {
+        if (name == "AlternateSelectionMode") {
+            this.#isAlternateSelectionModeOn = value;
+        }
         if (name == "LockMode") {
             this.#isLockModeOn = value;
         }
@@ -98,7 +102,8 @@ class EditTransitsTool {
     }
 
     #initializeToolOptions() {
-        this.#mapWorker.initializeToolOptions(["LockMode", "SingleSelectionMode", "SnapToOverlay", "MoveCaptionMode"]);
+        this.#mapWorker.initializeToolOptions(["AlternateSelectionMode", "LockMode", "SingleSelectionMode", "SnapToOverlay", "MoveCaptionMode"]);
+        this.#isAlternateSelectionModeOn = this.#mapWorker.getToolOption("AlternateSelectionMode").isToggledOn;
         this.#isLockModeOn = this.#mapWorker.getToolOption("LockMode").isToggledOn;
         this.#isSingleSelectionModeOn = this.#mapWorker.getToolOption("SingleSelectionMode").isToggledOn;
         this.#isSnapToOverlayModeOn = this.#mapWorker.getToolOption("SnapToOverlay").isToggledOn;
@@ -117,7 +122,7 @@ class EditTransitsTool {
             }
             else {
                 this.#moveTransitMode = false;
-                this.#selectionUtilities.setActivityState(transformedPoint, this.#isToggleSelectionModeOn);
+                this.#selectionUtilities.setActivityState(transformedPoint, this.#isAltSelectModeOn());
                 if (this.#selectionUtilities.activityState === "Select") {
                     this.#selectDown(eventData);
                 }
@@ -219,6 +224,9 @@ class EditTransitsTool {
         }
         if (eventData.key == "ArrowDown") {
             await this.#moveIncrement(eventData, 0, 1);
+        }
+        if (eventData.altKey && eventData.key?.toLowerCase() == "a" && !eventData.repeat) {
+            this.#updateToolOptionValue("AlternateSelectionMode", !this.#isAlternateSelectionModeOn, true);
         }
         if (eventData.altKey && eventData.key?.toLowerCase() == "o" && !eventData.repeat) {
             this.#updateToolOptionValue("SnapToOverlay", !this.#isSnapToOverlayModeOn, true);
@@ -326,7 +334,7 @@ class EditTransitsTool {
         const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
         const points = this.#points.map(pt => this.#mapWorker.geometryUtilities.transformPoint(pt, scale, translation));
         const layer = this.#mapWorker.map.getActiveLayer();
-        layer.selectByPoints(this.#mapWorker.renderingContext, this.#mapWorker.map, points, this.#isToggleSelectionModeOn);
+        layer.selectByPoints(this.#mapWorker.renderingContext, this.#mapWorker.map, points, this.#isAltSelectModeOn());
     }
 
     #selectByPath() {
@@ -363,7 +371,7 @@ class EditTransitsTool {
             transits: transits
         };
         const layer = this.#mapWorker.map.getActiveLayer();
-        layer.selectByPath(this.#mapWorker.geometryUtilities, selectionBounds, selectionPath, this.#isToggleSelectionModeOn, true);
+        layer.selectByPath(this.#mapWorker.geometryUtilities, selectionBounds, selectionPath, this.#isAltSelectModeOn(), true);
     }
 
     #drawSelectionLine(x, y) {
@@ -696,5 +704,9 @@ class EditTransitsTool {
             maxDifference = 2;
         }
         return (Math.abs(point1.x - point2.x) <= maxDifference) && (Math.abs(point1.y - point2.y) <= maxDifference)
+    }
+
+    #isAltSelectModeOn() {
+        return this.#isAlternateSelectionModeOn || this.#isToggleSelectionModeOn;
     }
 }

@@ -1,71 +1,73 @@
 ﻿
-<nav class="navigation-component surface-primary">
-    <style>
-        @scope (.navigation-component) {
-            :scope {
-                position: fixed;
-                left: var(--app-nav-left);
-                width: var(--app-nav-width-expanded);
-                top: 60px;
-                bottom: 0;
-                background: linear-gradient(180deg, var(--theme-color-primary) 25%, var(--theme-color-primary-lightest) 100%);
-                box-shadow: 2px 2px 2px 0px var(--theme-color-primary-darkest-fixed);
-                transition: left 0.5s, width 0.5s;
-                overflow: hidden;
-            }
+<kit-if data-kit-condition="!#model.isPresentationView()">
+    <nav class="navigation-component surface-primary">
+        <style>
+            @scope (.navigation-component) {
+                :scope {
+                    position: fixed;
+                    left: var(--app-nav-left);
+                    width: var(--app-nav-width-expanded);
+                    top: 60px;
+                    bottom: 0;
+                    background: linear-gradient(180deg, var(--theme-color-primary) 25%, var(--theme-color-primary-lightest) 100%);
+                    box-shadow: 2px 2px 2px 0px var(--theme-color-primary-darkest-fixed);
+                    transition: left 0.5s, width 0.5s;
+                    overflow: hidden;
+                }
 
-            li {
-                display: flex;
-            }
+                li {
+                    display: flex;
+                }
 
-            .link-content {
-                display: flex;
-                white-space: nowrap;
-                align-items: center;
-                padding: 2px;
-            }
+                .link-content {
+                    display: flex;
+                    white-space: nowrap;
+                    align-items: center;
+                    padding: 2px;
+                }
 
-            .icon-container {
-                min-height: 30px;
-                min-width: 30px;
-                margin: 2px;
-            }
+                .icon-container {
+                    min-height: 30px;
+                    min-width: 30px;
+                    margin: 2px;
+                }
 
-            .link-text {
-                padding-left: 10px;
-            }
-
-            .selected-link-indicator {
-                min-width: 10px;
-                align-self: stretch;
-            }
-
-            li.selected .selected-link-indicator {
-                background-color: var(--theme-color-complementary);
-            }
-
-            @media (max-width: 768px) {
                 .link-text {
-                    display: none;
+                    padding-left: 10px;
+                }
+
+                .selected-link-indicator {
+                    min-width: 10px;
+                    align-self: stretch;
+                }
+
+                li.selected .selected-link-indicator {
+                    background-color: var(--theme-color-complementary);
+                }
+
+                @media (max-width: 768px) {
+                    .link-text {
+                        display: none;
+                    }
                 }
             }
-        }
-    </style>
-    <ul>
-        <kit-array data-kit-array="#model.getNavItems()" data-kit-item-ref="navItem">
-            <li id="%{#navItem.id}%">
-                <div class="selected-link-indicator"></div>
-                <div>
-                    <a href="#%{#navItem.id}%" title="%{#navItem.label}%" class="action-text">
-                        <div class="link-content">
-                            <div class="icon-container">
-                                <kit-component data-kit-template-path="/resources/icons/%{#navItem.id}%.html" data-kit-model="null"></kit-component>
+        </style>
+        <ul>
+            <kit-array data-kit-array="#model.getNavItems()" data-kit-item-ref="navItem">
+                <li id="%{#navItem.id}%">
+                    <div class="selected-link-indicator"></div>
+                    <div>
+                        <a href="#%{#navItem.id}%" title="%{#navItem.label}%" class="action-text">
+                            <div class="link-content">
+                                <div class="icon-container">
+                                    <kit-component data-kit-template-path="/resources/icons/%{#navItem.id}%.html" data-kit-model="null"></kit-component>
+                                </div>
+                                <div class="link-text">%{#navItem.label}%</div>
                             </div>
-                            <div class="link-text">%{#navItem.label}%</div>
-                        </div>
-                    </a>
-                </div>
-            </li>
-        </kit-array>
-    </ul>
-</nav>
+                        </a>
+                    </div>
+                </li>
+            </kit-array>
+        </ul>
+    </nav>
+</kit-if>

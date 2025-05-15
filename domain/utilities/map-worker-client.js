@@ -47,8 +47,8 @@ export class MapWorkerClient {
     }
 
     static #map;
-    static async getMap() {
-        if (!MapWorkerClient.#map) {
+    static async getMap(refreshFromDb) {
+        if (refreshFromDb || !MapWorkerClient.#map) {
             const mapData = await DbManager.getMap();
             MapWorkerClient.#map = mapData ? new Map(mapData) : null;
 

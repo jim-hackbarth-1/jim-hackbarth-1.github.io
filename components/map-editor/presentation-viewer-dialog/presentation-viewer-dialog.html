@@ -1,0 +1,59 @@
+﻿
+<dialog class="presentation-viewer-dialog-component surface-tertiary background">
+    <style>
+        @scope (.presentation-viewer-dialog-component) {
+            :scope {
+                height: 210px;
+                width: 300px;
+                border: 1px solid var(--theme-color-tertiary-darkest);
+            }
+
+            .controls-container {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .controls-container div {
+                margin: 5px;
+            }
+
+            .form-button {
+                width: 175px;
+            }
+        }
+    </style>
+    <header class="surface-tertiary">
+        <div class="icon-container">
+            <kit-component data-kit-template-path="/resources/icons/view-read-only-viewer.html" data-kit-model="null"></kit-component>
+        </div>
+        <div>
+            <h1>Presentation viewer</h1>
+        </div>
+        <div class="spacer"></div>
+        <div>
+            <button title="Close" class="action-text" onclick="#model.closeDialog();">
+                <div class="icon-container">
+                    <kit-component data-kit-template-path="/resources/icons/file-close.html" data-kit-model="null"></kit-component>
+                </div>
+            </button>
+        </div>
+    </header>
+    <section>
+        <div class="controls-container">
+            <button id="button-open-viewer-window" class="action-control form-button" onclick="#model.openViewerWindow()">
+                Open viewer window
+            </button>
+        </div>
+        <div class="controls-container">
+            <button id="button-flip-map" class="action-control form-button" onclick="#model.flipMap()">
+                Flip map
+            </button>
+        </div>
+        <div class="controls-container">
+            <button id="button-refresh" class="action-control form-button" onclick="#model.refresh()">
+                Refresh
+            </button>
+        </div>
+    </section>
+</dialog>

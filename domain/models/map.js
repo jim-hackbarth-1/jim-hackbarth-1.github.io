@@ -498,8 +498,18 @@ export class Map {
     }
 
     async render(canvas, context, options) {
+        if (!options) {
+            options = {};
+        }
         context.resetTransform();
         context.clearRect(0, 0, canvas.width, canvas.height);
+        if (options.flipped) {
+            const x = canvas.width / 2;
+            const y = canvas.height / 2;
+            context.translate(x, y);
+            context.rotate(Math.PI);
+            context.translate(-x, -y);
+        }
         context.scale(this.zoom, this.zoom);
         context.translate(this.pan.x, this.pan.y);
         this.#currentViewPort = {

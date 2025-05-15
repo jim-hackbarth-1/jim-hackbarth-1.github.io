@@ -262,7 +262,13 @@ export class MapItem {
     }
 
     async renderStroke(context, map, options, strokeIndex, quickRender) {
+        if (this.isHidden && options.presentationView) {
+            return;
+        }
         const stroke = this.#getStroke(map, strokeIndex);
+        if (PathStyle.isPathStyleHidden(stroke, options)) {
+            return;
+        }
         const closePath = this.#isStrokeClosed(map);
         for (const path of this.paths) {
             await path.renderStroke(context, map, stroke, options, closePath, this.zGroup, this.z, quickRender);
@@ -270,13 +276,22 @@ export class MapItem {
     }
 
     async renderFill(context, map, options, fillIndex, quickRender) {
+        if (this.isHidden && options.presentationView) {
+            return;
+        }
         const fill = this.#getFill(map, fillIndex);
+        if (PathStyle.isPathStyleHidden(fill, options)) {
+            return;
+        }
         for (const path of this.paths) {
             await path.renderFill(context, map, fill, options, this.zGroup, this.z, quickRender);
         }
     }
 
     renderShadow(context, map, options) {
+        if (this.isHidden && options.presentationView) {
+            return;
+        }
         const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
         let shadow = mapItemTemplate?.shadow;
         if (shadow && (shadow.blur > 0 || shadow.offsetX != 0 || shadow.offsetY != 0)) {
@@ -287,13 +302,16 @@ export class MapItem {
     }
 
     async renderCaption(context, map, options) {
+        if (this.isHidden && options.presentationView) {
+            return;
+        }
         if (this.isCaptionVisible && this.captionText.length > 0) {
             const caption = this.#getCaption(map);
             let location = {
                 x: this.bounds.x + this.bounds.width / 2 + this.captionLocation.x,
                 y: this.bounds.y + this.bounds.height / 2 + this.captionLocation.y
             };
-            await caption.render(context, map, this.captionText, location);
+            await caption.render(context, map, this.captionText, location, options);
         }
         if (this.isHidden) {
             this.#renderHiddenBadge(context);

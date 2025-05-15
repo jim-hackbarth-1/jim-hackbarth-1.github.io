@@ -379,12 +379,20 @@
                     </div>
                 </button>
                 <hr />
-                <button title="Presentation viewer" class="action-text" data-kit-add-attributes="%{#model.isPresentationViewDisabled()}%">
+                <button title="Presentation viewer" class="action-text" onclick="#model.showDialog('presentation-viewer-dialog-component')" data-kit-add-attributes="%{#model.isPresentationViewDisabled()}%">
                     <div class="button-content">
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/view-read-only-viewer.html" data-kit-model="null"></kit-component>
                         </div>
                         <div class="button-text">Presentation viewer ...</div>
+                    </div>
+                </button>
+                <button id="refresh-presentation-view-menu-button" title="Refresh presentation viewer" class="action-text" onclick="#model.refreshPresentationViewer()" data-kit-add-attributes="%{#model.isRefreshPresentationViewerDisabled()}%">
+                    <div class="button-content">
+                        <div class="icon-container">
+                            <kit-component data-kit-template-path="/resources/icons/refresh.html" data-kit-model="null"></kit-component>
+                        </div>
+                        <div class="button-text">Refresh presentation viewer</div>
                     </div>
                 </button>
             </div>
@@ -520,6 +528,13 @@
                     <div id="divActiveLayer">%{#model.getActiveLayerName()}%</div>
                 </div>
             </button>
+            <button id="refresh-presentation-view-toolbar-button" title="Refresh presentation viewer" class="action-text" onclick="#model.refreshPresentationViewer()" data-kit-add-attributes="%{#model.isRefreshPresentationViewerDisabled()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component data-kit-template-path="/resources/icons/refresh.html" data-kit-model="null"></kit-component>
+                    </div>
+                </div>
+            </button>
         </div>
     </div>
     <div id="tools-and-map">
@@ -632,4 +647,5 @@
     <kit-component id="overlay-dialog-component" data-kit-template-path="/components/map-editor/overlay-dialog/overlay-dialog.html"></kit-component>
     <kit-component id="layers-dialog-component" data-kit-template-path="/components/map-editor/layers-dialog/layers-dialog.html"></kit-component>
     <kit-component id="tool-palette-dialog-component" data-kit-template-path="/components/map-editor/tool-palette-dialog/tool-palette-dialog.html"></kit-component>
+    <kit-component id="presentation-viewer-dialog-component" data-kit-template-path="/components/map-editor/presentation-viewer-dialog/presentation-viewer-dialog.html"></kit-component>
 </section>

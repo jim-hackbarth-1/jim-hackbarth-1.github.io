@@ -1,0 +1,15 @@
+﻿
+<kit-if data-kit-condition="#model.isPresentationView()">
+    <style>
+        #full-screen-button {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+    <canvas id="presentation-canvas"></canvas>
+    <button id="full-screen-button" class="action-control" onclick="#model.toggleFullScreen()">Full screen</button>
+</kit-if>

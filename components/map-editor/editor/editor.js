@@ -30,6 +30,7 @@ export class EditorModel {
     static OpenFileRequestTopic = "OpenFileRequestTopic";
     static CanvasResizeRequestTopic = "CanvasResizeRequestTopic";
     static MapUpdatedNotificationTopic = "MapUpdatedNotificationTopic";
+    static PresentationViewerStatusTopic = "PresentationViewerStatusTopic";
 
     // instance fields
     #componentId;
@@ -417,7 +418,8 @@ export class EditorModel {
     }
 
     async isPresentationViewDisabled() {
-        return "disabled";
+        const map = await MapWorkerClient.getMap();
+        return map ? null : "disabled";
     }
 
     async toggleToolsPinned() {
@@ -598,6 +600,15 @@ export class EditorModel {
         this.#initializeMapWorker();
     }
 
+    #presentationWindow = null;
+    async onPresentationViewerStatusChanged(message) {
+        this.#presentationWindow = message.presentationWindow;
+        const componentElement = KitRenderer.getComponentElement(this.#componentId);
+        const disabled = !this.#presentationWindow;
+        componentElement.querySelector("#refresh-presentation-view-menu-button").disabled = disabled;
+        componentElement.querySelector("#refresh-presentation-view-toolbar-button").disabled = disabled;
+    }
+
     async getZoom() {      
         let zoom = "";
         const map = await MapWorkerClient.getMap();
@@ -605,6 +616,20 @@ export class EditorModel {
             zoom = parseFloat(map.zoom * 100).toFixed(0) + "%"
         }
         return zoom;
+    }
+
+    async isRefreshPresentationViewerDisabled() {
+        if (this.#presentationWindow) {
+            return "";
+        }
+        return "disabled";
+    }
+
+    async refreshPresentationViewer() {
+        if (this.#presentationWindow) {
+            const appWindow = KitDependencyManager.getWindow();
+            this.#presentationWindow.postMessage({ messageType: "refresh" }, appWindow.location.origin);
+        }
     }
 
     // helpers
@@ -690,6 +715,7 @@ export class EditorModel {
         KitMessenger.subscribe(EditorModel.SaveFileAsRequestTopic, this.#componentId, this.onSaveFileAsRequested.name);
         KitMessenger.subscribe(EditorModel.OpenFileRequestTopic, this.#componentId, this.onOpenFileRequested.name);
         KitMessenger.subscribe(EditorModel.CanvasResizeRequestTopic, this.#componentId, this.onCanvasResizeRequested.name);
+        KitMessenger.subscribe(EditorModel.PresentationViewerStatusTopic, this.#componentId, this.onPresentationViewerStatusChanged.name);
     }
 
     async #initializeToolsAndCanvas() {

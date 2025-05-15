@@ -1,40 +1,42 @@
 ﻿
-<section class="content-component">
-    <style>
-        @scope (.content-component) {
-            :scope {
-                margin-top: 60px;
-                margin-left: calc(var(--app-nav-left) + var(--app-nav-width-expanded));
-                transition: margin-left 0.5s;
-                position: fixed;
-                left: 3px;
-                right: 0;
-                top: 3px;
-                bottom: 0;
-                overflow:auto;
-            }
+<kit-if data-kit-condition="!#model.isPresentationView()">
+    <section class="content-component">
+        <style>
+            @scope (.content-component) {
+                :scope {
+                    margin-top: 60px;
+                    margin-left: calc(var(--app-nav-left) + var(--app-nav-width-expanded));
+                    transition: margin-left 0.5s;
+                    position: fixed;
+                    left: 3px;
+                    right: 0;
+                    top: 3px;
+                    bottom: 0;
+                    overflow: auto;
+                }
 
-            .hide {
-                display: none;
+                .hide {
+                    display: none;
+                }
             }
-        }
-    </style>
-    <div id="loading-indicator-container" style="width:100%;height:100px;">
-        <kit-component data-kit-template-path="/components/loading-indicator/loading-indicator.html"></kit-component>
-    </div>
-    <kit-if data-kit-condition="!#model.routeName || #model.routeName.startsWith('#home')">
-        <kit-component data-kit-template-path="/components/home/home.html" data-kit-model="null"></kit-component>
-    </kit-if>
-    <kit-if data-kit-condition="#model.routeName.startsWith('#editor')">
-        <kit-component data-kit-template-path="/components/map-editor/editor/editor.html"></kit-component>
-    </kit-if>
-    <kit-if data-kit-condition="#model.routeName.startsWith('#catalog')">
-        <kit-component data-kit-template-path="/components/catalog/catalog.html" data-kit-model="null"></kit-component>
-    </kit-if>
-    <kit-if data-kit-condition="#model.routeName.startsWith('#account')">
-        <kit-component data-kit-template-path="/components/account/account.html"></kit-component>
-    </kit-if>
-    <kit-if data-kit-condition="#model.routeName.startsWith('#help')">
-        <kit-component data-kit-template-path="/components/help/help.html"></kit-component>
-    </kit-if>
-</section>
+        </style>
+        <div id="loading-indicator-container" style="width:100%;height:100px;">
+            <kit-component data-kit-template-path="/components/loading-indicator/loading-indicator.html"></kit-component>
+        </div>
+        <kit-if data-kit-condition="!#model.routeName || #model.routeName.startsWith('#home')">
+            <kit-component data-kit-template-path="/components/home/home.html" data-kit-model="null"></kit-component>
+        </kit-if>
+        <kit-if data-kit-condition="#model.routeName.startsWith('#editor')">
+            <kit-component data-kit-template-path="/components/map-editor/editor/editor.html"></kit-component>
+        </kit-if>
+        <kit-if data-kit-condition="#model.routeName.startsWith('#catalog')">
+            <kit-component data-kit-template-path="/components/catalog/catalog.html" data-kit-model="null"></kit-component>
+        </kit-if>
+        <kit-if data-kit-condition="#model.routeName.startsWith('#account')">
+            <kit-component data-kit-template-path="/components/account/account.html"></kit-component>
+        </kit-if>
+        <kit-if data-kit-condition="#model.routeName.startsWith('#help')">
+            <kit-component data-kit-template-path="/components/help/help.html"></kit-component>
+        </kit-if>
+    </section>
+</kit-if>

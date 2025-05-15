@@ -109,7 +109,7 @@ export class Caption {
         };
     }
 
-    async render(context, map, captionText, captionLocation) {
+    async render(context, map, captionText, captionLocation, options) {
 
         // get bounding box
         const scale = map.zoom;
@@ -136,14 +136,14 @@ export class Caption {
                 context.shadowOffsetY = this.shadow.offsetY * scale;
                 context.shadowBlur = this.shadow.blur;
             }
-            if (this.backgroundFill) {
+            if (!PathStyle.isPathStyleHidden(this.backgroundFill, options)) {
                 this.backgroundFill.setStyle(context, map, rectBounds);
                 context.fill(rectPath);
             }
             context.shadowOffsetX = 0;
             context.shadowOffsetY = 0;
             context.shadowBlur = 0;
-            if (this.borderStroke) {
+            if (!PathStyle.isPathStyleHidden(this.borderStroke, options)) {
                 this.borderStroke.setStyle(context, map, rectBounds);
                 context.stroke(rectPath);
             }

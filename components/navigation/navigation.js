@@ -47,4 +47,9 @@ class NavigationModel {
         ];
     }
 
+    isPresentationView() {
+        const routeName = KitNavigator.getCurrentUrlFragment() ?? "";
+        return (routeName == "#presentation-view");
+    }
+
 }

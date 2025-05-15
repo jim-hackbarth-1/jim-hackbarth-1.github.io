@@ -1,5 +1,5 @@
 ﻿
-import { KitDependencyManager } from "../../ui-kit.js";
+import { KitDependencyManager, KitNavigator } from "../../ui-kit.js";
 
 export function createModel() {
     return new HeadingModel();
@@ -23,6 +23,11 @@ class HeadingModel {
         const appDocument = KitDependencyManager.getDocument();
         const element = appDocument.documentElement;
         element.style.setProperty("--app-nav-left", appNavLeft);
+    }
+
+    isPresentationView() {
+        const routeName = KitNavigator.getCurrentUrlFragment() ?? "";
+        return (routeName == "#presentation-view");
     }
    
 }

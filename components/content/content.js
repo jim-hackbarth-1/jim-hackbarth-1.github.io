@@ -14,12 +14,19 @@ class ContentModel {
     }
 
     async onRenderComplete() {
-        const element = KitRenderer.getComponentElement(this.componentId);
-        element.querySelector("#loading-indicator-container").classList.add("hide");
+        if (!this.isPresentationView()) {
+            const element = KitRenderer.getComponentElement(this.componentId);
+            element.querySelector("#loading-indicator-container").classList.add("hide");
+        }
     }
 
     onNavigation(url) {
         this.routeName = KitNavigator.getUrlFragment(url) ?? "";
         KitRenderer.renderComponent(this.componentId);
+    }
+
+    isPresentationView() {
+        const routeName = KitNavigator.getCurrentUrlFragment() ?? "";
+        return (routeName == "#presentation-view");
     }
 }

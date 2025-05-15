@@ -135,6 +135,7 @@ class EditSelectionsDialogModel {
         const clickedCheckboxId = `#map-item-checkbox-${clickedSelection.mapItem.id}`;
         const clickedCheckbox = this.#getElement(clickedCheckboxId);
         const checked = clickedCheckbox.checked;
+        let primarySelectionMapItemGroupId = null;
         if (clickedSelection) {
             const selections = this.#initialSelections.filter(s => s.mapItemGroupId == clickedSelection.mapItemGroupId);
             for (const selection of selections) {
@@ -144,8 +145,11 @@ class EditSelectionsDialogModel {
                     checkbox.checked = checked;
                 }
             }
+            if (checked) {
+                primarySelectionMapItemGroupId = clickedSelection.mapItemGroupId;
+            }
         }
-        await this.#updateSelections();
+        await this.#updateSelections(primarySelectionMapItemGroupId);
     }
 
     toggleDetails(mapItemId) {
@@ -491,7 +495,7 @@ class EditSelectionsDialogModel {
         return mapItems;
     }
 
-    async #updateSelections() {
+    async #updateSelections(primarySelectionMapItemGroupId) {
         const map = await MapWorkerClient.getMap();
         const layer = map.getActiveLayer();
         const mapItemGroups = [];
@@ -511,8 +515,19 @@ class EditSelectionsDialogModel {
                             newSelectionStatus = SelectionStatusType.Secondary;
                         }
                         else {
-                            newSelectionStatus = SelectionStatusType.Primary;
-                            hasPrimary = true;
+                            if (primarySelectionMapItemGroupId) {
+                                if (mapItemGroup.id == primarySelectionMapItemGroupId) {
+                                    newSelectionStatus = SelectionStatusType.Primary;
+                                    hasPrimary = true;
+                                }
+                                else {
+                                    newSelectionStatus = SelectionStatusType.Secondary;
+                                }
+                            }
+                            else {
+                                newSelectionStatus = SelectionStatusType.Primary;
+                                hasPrimary = true;
+                            }
                         }
                     }
                     if (currentSelectionStatus != newSelectionStatus) {

@@ -88,6 +88,22 @@ export class PathStyle {
     }
 
     // methods
+    static isPathStyleHidden(pathStyle, options) {
+        if (pathStyle) {
+            const presentationMode = pathStyle.getStyleOptionValue(PathStyleOption.PresentationMode);
+            if (presentationMode == PresentationMode.Normal) {
+                return false;
+            }
+            if (options.presentationView) {
+                return presentationMode == PresentationMode.EditViewOnly;
+            }
+            else {
+                return presentationMode == PresentationMode.PresentationViewOnly;
+            }
+        }
+        return true;
+    }
+
     getData() {
         return {
             id: this.#id,

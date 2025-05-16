@@ -416,8 +416,22 @@
                 }
 
                 .copy-map-item-template-button {
-                    margin-right:10px;
-                    margin-bottom:10px;
+                    margin-right: 10px;
+                    margin-bottom: 10px;
+                }
+
+                .img-preview {
+                    border: 1px solid var(--theme-color-tertiary-darkest-fixed);
+                    border-radius: 3px;
+                    margin-right: 6px;
+                }
+
+                .image-thumbnail {
+                    height: 21px;
+                    width: 21px;
+                    border: 1px solid dimgray;
+                    border-radius: 3px;
+                    background-position: center;
                 }
             }
         </style>
@@ -620,10 +634,10 @@
                                                             title="%{#tool.data.ref.name}%"
                                                             draggable="true"
                                                             ondragstart="#model.dragItem(event)">
-                                                        <svg data-map-item-template-thumbnail="%{#tool.elementId}%" 
-                                                             height="25" 
-                                                             width="25" 
-                                                             viewBox="0 0 100 100">%{#tool.thumbnail}%</svg>
+                                                        <div style="margin-bottom:0;">
+                                                            <div class="image-thumbnail" data-map-item-template-thumbnail="%{#tool.elementId}%">
+                                                            </div>
+                                                        </div>
                                                     </button>
                                                 </kit-array>
                                             </div>
@@ -637,15 +651,13 @@
                                          ondrop="#model.dropPaletteItem(event, 'MapItemTemplates')">
                                         <kit-array data-kit-array="#model.getAvailableItems('MapItemTemplates')" 
                                                    data-kit-item-ref="mapItemTemplate">
-                                            <div id="%{#mapItemTemplate.elementId}%" 
-                                                 class="action-control available-item" 
-                                                 draggable="true" 
+                                            <div id="%{#mapItemTemplate.elementId}%"
+                                                 class="action-control available-item"
+                                                 draggable="true"
                                                  ondragstart="#model.dragItem(event)">
-                                                <div class="icon-container">
-                                                    <svg data-map-item-template-thumbnail="%{#mapItemTemplate.elementId}%" 
-                                                         height="25" 
-                                                         width="25" 
-                                                         viewBox="0 0 100 100">%{#mapItemTemplate.thumbnail}%</svg>
+                                                <div style="margin:5px;">
+                                                    <div class="image-thumbnail" data-map-item-template-thumbnail="%{#mapItemTemplate.elementId}%">
+                                                    </div>
                                                 </div>
                                                 <div>
                                                     <label data-map-item-template-name="%{#mapItemTemplate.elementId}%">%{#mapItemTemplate.name}%</label>
@@ -655,11 +667,11 @@
                                                     <label>%{#mapItemTemplate.referenceTypeLabel}%</label>
                                                 </div>
                                                 <div class="move-container">
-                                                    <button title="Move" 
-                                                            class="action-text" 
+                                                    <button title="Move"
+                                                            class="action-text"
                                                             onclick="#model.dragStartItem(event, #mapItemTemplate.elementId);">
                                                         <div class="icon-container">
-                                                            <kit-component data-kit-template-path="/resources/icons/move.html" 
+                                                            <kit-component data-kit-template-path="/resources/icons/move.html"
                                                                            data-kit-model="null">
                                                             </kit-component>
                                                         </div>
@@ -768,14 +780,12 @@
                         <div class="item-list map-item-templates-list">
                             <kit-array data-kit-array="#model.getMapItemTemplates()" 
                                        data-kit-item-ref="mapItemTemplate">
-                                <div id="%{#mapItemTemplate.elementId}%" 
-                                     class="map-item-template-item" 
+                                <div id="%{#mapItemTemplate.elementId}%"
+                                     class="map-item-template-item"
                                      onclick="#model.selectMapItemTemplate(#mapItemTemplate.elementId)">
-                                    <div class="icon-container">
-                                        <svg data-map-item-template-thumbnail="%{#mapItemTemplate.elementId}%" 
-                                             height="25" 
-                                             width="25" 
-                                             viewBox="0 0 100 100">%{#mapItemTemplate.thumbnailSrc}%</svg>
+                                    <div style="padding:4px;max-height:30px">
+                                        <div id="thumbnail-preview" class="image-thumbnail" data-map-item-template-thumbnail="%{#mapItemTemplate.elementId}%">  
+                                        </div>
                                     </div>
                                     <div>
                                         <label data-map-item-template-name="%{#mapItemTemplate.elementId}%">%{#mapItemTemplate.name}%</label>

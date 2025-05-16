@@ -162,6 +162,144 @@ class MapItemTemplateViewModel {
         await this.update("thumbnailSrc");
     }
 
+    async generateThumbnail() {
+        let thumbnailSrc = this.#getThumbnailSrcFromPathStyles();
+        if (!thumbnailSrc) {
+            const defaultShape = this.#getElement("#thumbnail-shape-select").value;
+            const thumbnailPathData = this.#getThumbnailPathData(defaultShape);
+            let path2D = new Path2D(thumbnailPathData);
+            const offscreenCanvas = new OffscreenCanvas(30, 30);
+            const context = offscreenCanvas.getContext("2d");
+            context.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+            const bounds = { x: 5, y: 5, width: 90, height: 90 };
+            const map = await MapWorkerClient.getMap();
+            map.zoom = 1;
+            map.pan = { x: 0, y: 0 };
+            const fillCount = this.getFills().length;
+            for (let i = fillCount - 1; i > -1; i--) {
+                let fill = this.mapItemTemplate.fills[i];
+                await fill.setStyle(context, map, bounds);
+                context.fill(path2D);
+            }
+            if (fillCount > 0) {
+                const widestStroke = this.#getWidestStroke();
+                if (widestStroke) {
+                    let strokeData = widestStroke.getData();
+                    for (const option of strokeData.options) {
+                        if (option.key == PathStyleOption.Width) {
+                            option.value = 2;
+                        }
+                    }
+                    let stroke = new PathStyle(strokeData);
+                    await stroke.setStyle(context, map, bounds);
+                    context.stroke(path2D);
+                }
+            }
+            else {
+                const strokes = this.getStrokes();
+                const strokeCount = strokes.length;
+                let width = 8;
+                for (let i = strokeCount - 1; i > -1; i--) {
+                    width -= 3;
+                    if (width <= 0) {
+                        break;
+                    }
+                    let strokeData = strokes[i].getData();
+                    for (const option of strokeData.options) {
+                        if (option.key == PathStyleOption.Width) {
+                            option.value = width;
+                        }
+                    }
+                    let stroke = new PathStyle(strokeData);
+                    await stroke.setStyle(context, map, bounds);
+                    context.stroke(path2D);
+                }
+            }
+            
+            const blob = await offscreenCanvas.convertToBlob();
+            thumbnailSrc = await MapItemTemplateViewModel.#getDataUrl(blob);
+        }
+        if (thumbnailSrc) {
+            const dataElement = this.#getElement("#thumbnail-data");
+            dataElement.value = thumbnailSrc;
+            await this.update("thumbnailSrc");
+        }
+    }
+
+    static async #getDataUrl(blob) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                resolve(reader.result);
+            };
+            reader.onerror = (error) => {
+                reject(error);
+            };
+            reader.readAsDataURL(blob);
+        });
+    }
+
+    #getWidestStroke() {
+        let widestStroke = null;
+        let maxWidth = 0;
+        const strokes = this.getStrokes();
+        for (const stroke of strokes) {
+            let width = stroke.getStyleOptionValue("Width");
+            if (width > maxWidth) {
+                widestStroke = stroke;
+                maxWidth = width;
+            }
+        }
+        return widestStroke;
+    }
+
+    #getThumbnailSrcFromPathStyles() {
+        if (!this.mapItemTemplate) {
+            return null;
+        }
+        for (const pathStyle of this.mapItemTemplate.fills) {
+            const styleType = pathStyle.getStyleOptionValue(PathStyleOption.PathStyleType);
+            if (styleType == PathStyleType.TileFill || styleType == PathStyleType.ImageArrayFill) {
+                return this.#getImageThumbnailSrc(pathStyle)
+            }
+        }
+        for (const pathStyle of this.mapItemTemplate.strokes) {
+            const styleType = pathStyle.getStyleOptionValue(PathStyleOption.PathStyleType);
+            if (styleType == PathStyleType.TileStroke || styleType == PathStyleType.ImageArrayStroke) {
+                return this.#getImageThumbnailSrc(pathStyle)
+            }
+        }
+        return null;
+    }
+
+    #getThumbnailPathData(defaultShape) {
+        let pathData = "M 5,5 l 20,0 0,20 -20,0 0,-20";
+        if (defaultShape == "circle") {
+            pathData = "M 15,5 a 10 10 0 0 0 0 20 a 10 10 0 0 0 0 -20";
+        }
+        const hasFills = this.hasFills();
+        if (defaultShape == "lines") {
+            if (hasFills) {
+                pathData = "M 15,5 l 10,0 0,20 -20,0 0,-10 10,0 0,-15";
+            }
+            else {
+                pathData = "M 5,25 l 10,-15 10,0";
+            }
+        }
+        if (defaultShape == "path") {
+            if (hasFills) {
+                pathData = "M 8,0 M 10.5,8.25 Q 3.75 1, 2.5 3.75 T 6 12  T 6 17  T 6 22  T 13.5 23.25 T 21 22 T 23.5 13.25 T 14.75 7";
+            }
+            else {
+                pathData = "M 5,15 Q10,5 15,15 T25,15";
+            }
+        }
+        if (hasFills) {
+            pathData += " z";
+        }
+        return pathData;
+    }
+
     hasFills() {
         return this.getFills().length > 0;
     }
@@ -763,7 +901,8 @@ class MapItemTemplateViewModel {
             let src = this.mapItemTemplate.thumbnailSrc ?? MapItemTemplate.defaultThumbnailSrc;
             const imageElement = this.#getElement("#thumbnail-preview");
             if (imageElement) {
-                imageElement.setAttribute("src", src);
+                const style = `background-image: url('${src}');`;
+                imageElement.setAttribute("style", style);
             }
         }
     }

@@ -165,6 +165,16 @@
             #tools .icon {
                 stroke-width: 2px;
             }
+
+            .image-thumbnail {
+                height: 25px;
+                width: 25px;
+                border: 1px solid dimgray;
+                border-radius: 3px;
+                background-position: center;
+                margin-bottom:3px;
+            }
+
             /* tools - end */
             /* canvas - start */
             #map-container {
@@ -621,7 +631,10 @@
                                                 onclick="#model.onMapItemTemplateSelected(#mapItemTemplate.id, #mapItemTemplate.data.ref)"
                                                 class="tool-button action-control map-item-template-button"
                                                 title="%{#mapItemTemplate.data.ref.name}%">
-                                            <svg height="25" width="25" viewBox="0 0 100 100">%{#mapItemTemplate.thumbnail}%</svg>
+                                            <div>
+                                                <div class="image-thumbnail" data-map-item-template-thumbnail="%{#mapItemTemplate.id}%">
+                                                </div>
+                                            </div>
                                         </button>
                                     </kit-array>
                                 </div>

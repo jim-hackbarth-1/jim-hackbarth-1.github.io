@@ -29,6 +29,15 @@
                 display: flex;
             }
 
+            .thumbnail-generator-container {
+                display: flex;
+                margin-left: 10px;
+            }
+
+            .thumbnail-generator-container > div {
+                padding-right: 5px;
+            }
+
             .img-preview {
                 border: 1px solid var(--theme-color-tertiary-darkest-fixed);
                 border-radius: 3px;
@@ -72,15 +81,15 @@
             }
 
             .image-thumbnail {
-                height: 21px;
-                width: 21px;
+                height: 25px;
+                width: 25px;
                 border: 1px solid dimgray;
                 border-radius: 3px;
                 background-position: center;
             }
 
             .no-item-placeholder {
-                margin:5px;
+                margin: 5px;
             }
         }
     </style>  
@@ -130,8 +139,9 @@
                 <div id="validation-thumbnail" class="validation-message"></div>
             </div>
             <div class="image-container">
-                <div class="img-preview" style="padding:4px 4px 0 4px;">
-                    <img id="thumbnail-preview" />
+                <div class="img-preview" style="padding:4px;max-height:34px">
+                    <div id="thumbnail-preview" class="image-thumbnail">
+                    </div>
                     <input id="thumbnail-data" type="hidden" value="%{#model.getThumbnailSource()}%" />
                 </div>
                 <div>
@@ -141,6 +151,27 @@
                             onclick="#model.browseThumbnail()">
                         ...
                     </button>
+                </div>
+                <div>
+                    <fieldset class="thumbnail-generator-container">
+                        <legend>Generate thumbnail</legend>
+                        <div>
+                            <select id="thumbnail-shape-select">
+                                <option value="square">Choose thumbnail shape</option>
+                                <option value="path">Path</option>
+                                <option value="lines">Lines</option>
+                                <option value="square">Square</option>
+                                <option value="circle">Circle</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button class="action-control"
+                                    data-kit-add-attributes="%{#model.isDisabledAttribute()}%"
+                                    onclick="#model.generateThumbnail()">
+                                Generate
+                            </button>
+                        </div>
+                    </fieldset>
                 </div>
             </div>
         </div>

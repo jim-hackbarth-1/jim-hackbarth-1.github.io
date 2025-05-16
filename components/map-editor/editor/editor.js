@@ -50,6 +50,7 @@ export class EditorModel {
         this.#subscribeToTopics();
         await this.#initializeToolsAndCanvas();
         this.#initializeMapWorker();
+        await this.#updateMapItemTemplateThumbnails();
     }
 
     onMapChanged = async (message) => {
@@ -104,10 +105,29 @@ export class EditorModel {
                         setTimeout(async () => {
                             await this.#reRenderElement("tool-palette-content");
                         }, 20);
+                        setTimeout(async () => {
+                            await this.#updateMapItemTemplateThumbnails();
+                        }, 40);
                     }
                 }
             }
             KitMessenger.publish(EditorModel.MapUpdatedNotificationTopic, message);
+        }
+    }
+
+    async #updateMapItemTemplateThumbnails() {
+        const palettes = await this.getToolPalettes("MapItemTemplates");
+        const palettesLength = palettes.length;
+        for (let i = 0; i < palettesLength; i++) {
+            const paletteItems = await this.getToolPaletteItems("MapItemTemplates", i);
+            for (let j = 0; j < paletteItems.length; j++) {
+                const thumbnailSrc = paletteItems[j].data.thumbnailSrc;
+                const elementId = `MapItemTemplates-${i}-${j}`;
+                const query = `[data-map-item-template-thumbnail="${elementId}"]`;
+                const thumbnailElement = this.#componentElement.querySelector(query);
+                const style = `background-image: url('${thumbnailSrc}');`; //margin-bottom:5px;
+                thumbnailElement.setAttribute("style", style);
+            }
         }
     }
 

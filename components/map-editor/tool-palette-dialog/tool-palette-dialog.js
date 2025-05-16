@@ -83,7 +83,9 @@ export class ToolPaletteDialogModel {
                 }, 20);
                 setTimeout(() => {
                     this.#applyDetailsState();
+                    this.#updateMapItemTemplateListItemLabels(map);
                 }, 40);
+
             } 
         }      
     }
@@ -127,6 +129,12 @@ export class ToolPaletteDialogModel {
     async showDialog() {
         this.#isVisible = true;
         await this.#reRenderElement("kitIfVisible");
+
+        setTimeout(async () => {
+            const map = await MapWorkerClient.getMap();
+            this.#updateMapItemTemplateListItemLabels(map);
+        }, 40);
+
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         const dialog = componentElement.querySelector("dialog");
         dialog.showModal();
@@ -862,7 +870,8 @@ export class ToolPaletteDialogModel {
             const elementId = `${mapItemTemplate.ref.name}-${mapItemTemplate.ref.versionId}${mapItemTemplate.ref.isFromTemplate ? "-fromtemplate" : ""}`;
             const thumbnailElements = this.#getElements(`[data-map-item-template-thumbnail="${elementId}"]`);
             for (const thumbnailElement of thumbnailElements) {
-                thumbnailElement.innerHTML = `<image height="100%" width="100%" href="${mapItemTemplate.thumbnailSrc}" />`;
+                const style = `background-image: url('${mapItemTemplate.thumbnailSrc}');margin-bottom:5px;`;
+                thumbnailElement.setAttribute("style", style);
             }
             const titleElements = this.#getElements(`[data-map-item-template-title="${elementId}"]`);
             for (const titleElement of titleElements) {

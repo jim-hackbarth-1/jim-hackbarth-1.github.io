@@ -247,6 +247,9 @@ class DrawEllipseTool {
     #transformMapPoint(x, y) {
         const scale = { x: this.#mapWorker.map.zoom, y: this.#mapWorker.map.zoom };
         const translation = { x: this.#mapWorker.map.pan.x, y: this.#mapWorker.map.pan.y };
-        return this.#mapWorker.geometryUtilities.transformPoint({ x: x, y: y }, scale, translation);
+        return {
+            x: (x + translation.x) * scale.x,
+            y: (y + translation.y) * scale.y
+        };
     }
 }

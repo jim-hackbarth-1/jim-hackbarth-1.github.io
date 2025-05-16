@@ -14,6 +14,7 @@ export class BuiltInTools {
     static async getTools(baseUrl) {
         const selectCursorSrc = '<g stroke="black" stroke-width="4" fill="white"><path d="M 5,5 L 80,80 A 5 5 -45 0 0 90 70 L 35,15 z" /></g>';
         const drawCursorSrc = '<g stroke="white" stroke-width="4" fill="black"><path d="M 5,5 L 80,80 A 5 5 -45 0 0 90 70 L 35,15 z" /></g>';
+        const clipCursorSrc = '<g stroke="black" stroke-width="4" fill="white"><path d="M 25,15 L 70 90 A 15 15 0 0 0 55 60" /><path d="M 75,15 L 30 90 A 15 15 0 0 1 45 60" /></g>';
         if (!BuiltInTools.#tools) {
             BuiltInTools.#tools = [];
 
@@ -66,6 +67,45 @@ export class BuiltInTools {
                 thumbnailSrc: '<g class="icon"><path stroke-dasharray="4" d="M 10,10 l 80,0 0,80 -80,0 z" /><path d="M 15,15 L 65,65 A 2.5 2.5 -45 0 0 70 60 L 35,25 z" /></g>',
                 cursorSrc: selectCursorSrc,
                 cursorHotspot: { x: 0, y: 0 },
+                toolType: ToolType.EditingTool
+            }));
+
+            BuiltInTools.#tools.push(new Tool({
+                ref: {
+                    versionId: 1,
+                    isBuiltIn: true,
+                    name: "Clip path"
+                },
+                moduleSrc: `${baseUrl}/domain/tools/clip-path.js`,
+                thumbnailSrc: '<g class="icon"><path stroke-dasharray="4" d="M 50,5 Q 15 5, 10 15 T 20 40 T 20 60 T 20 80 T 50 85 T 80 80 T 90 45 T 55 20 z" /><path d="M 12.5,7.5 L 35 45 A 7.5 7.5 0 0 0 27.5 30" /><path d="M 37.5,7.5 L 15 45 A 7.5 7.5 0 0 1 22.5 30" /></g>',
+                cursorSrc: clipCursorSrc,
+                cursorHotspot: { x: 15, y: 10 },
+                toolType: ToolType.EditingTool
+            }));
+
+            BuiltInTools.#tools.push(new Tool({
+                ref: {
+                    versionId: 1,
+                    isBuiltIn: true,
+                    name: "Clip rectangle"
+                },
+                moduleSrc: `${baseUrl}/domain/tools/clip-rectangle.js`,
+                thumbnailSrc: '<g class="icon"><path stroke-dasharray="4" d="M 15,15 l 80,0 0,80 -80,0 z" /><path d="M 12.5,7.5 L 35 45 A 7.5 7.5 0 0 0 27.5 30" /><path d="M 37.5,7.5 L 15 45 A 7.5 7.5 0 0 1 22.5 30" /></g>',
+                cursorSrc: clipCursorSrc,
+                cursorHotspot: { x: 15, y: 10 },
+                toolType: ToolType.EditingTool
+            }));
+
+            BuiltInTools.#tools.push(new Tool({
+                ref: {
+                    versionId: 1,
+                    isBuiltIn: true,
+                    name: "Clip ellipse"
+                },
+                moduleSrc: `${baseUrl}/domain/tools/clip-ellipse.js`,
+                thumbnailSrc: '<g class="icon"><path stroke-dasharray="4" d="M 10 50 a 20 20 0 0 0 80 0 a 20 20 0 0 0 -80 0 z" /><path d="M 12.5,7.5 L 35 45 A 7.5 7.5 0 0 0 27.5 30" /><path d="M 37.5,7.5 L 15 45 A 7.5 7.5 0 0 1 22.5 30" /></g>',
+                cursorSrc: clipCursorSrc,
+                cursorHotspot: { x: 15, y: 10 },
                 toolType: ToolType.EditingTool
             }));
 

@@ -615,9 +615,11 @@ export class PathStyle {
 
     static #getColorStopDefaults() {
         return [
-            { key: PathStyleOption.ColorStop1, value: { offset: 25, color: "#dac2bd"} },
-            { key: PathStyleOption.ColorStop2, value: { offset: 50, color: "#c37160" } },
-            { key: PathStyleOption.ColorStop3, value: { offset: 75, color: "#a7351d" } },
+            { key: PathStyleOption.ColorStop1, value: { offset: 20, color: "#a7351d" } },
+            { key: PathStyleOption.ColorStop2, value: { offset: 40, color: "#c37160" } },
+            { key: PathStyleOption.ColorStop3, value: { offset: 60, color: "#dac2bd" } },
+            { key: PathStyleOption.ColorStop4, value: { offset: 80, color: "#c37160" } },
+            { key: PathStyleOption.ColorStop5, value: { offset: 100, color: "#a7351d" } }
         ];
     }
 

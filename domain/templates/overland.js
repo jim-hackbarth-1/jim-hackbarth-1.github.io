@@ -63,11 +63,14 @@ export function getTemplate() {
             editingToolPalettes: [
                 [
                     { versionId: 1, isBuiltIn: true, name: "Select path" },
-                    { versionId: 1, isBuiltIn: true, name: "Select rectangle" }
-                ],
-                [
+                    { versionId: 1, isBuiltIn: true, name: "Select rectangle" },
                     { versionId: 1, isBuiltIn: true, name: "Pan" },
                     { versionId: 1, isBuiltIn: true, name: "Zoom" }
+                ],
+                [
+                    { versionId: 1, isBuiltIn: true, name: "Clip path" },
+                    { versionId: 1, isBuiltIn: true, name: "Clip rectangle" },
+                    { versionId: 1, isBuiltIn: true, name: "Clip ellipse" }
                 ],
                 [
                     { versionId: 1, isBuiltIn: true, name: "Edit transits" },

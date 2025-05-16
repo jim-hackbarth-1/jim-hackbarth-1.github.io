@@ -137,12 +137,12 @@ export class MapItemTemplate {
     }
 
     // methods
-    getData() {
+    getData(copy) {
         return {
             ref: this.#ref ? this.#ref.getData() : null,
             thumbnailSrc: this.#thumbnailSrc,
-            fills: this.#getListData(this.#fills),
-            strokes: this.#getListData(this.#strokes),
+            fills: this.#getListData(this.#fills, copy),
+            strokes: this.#getListData(this.#strokes, copy),
             shadow: this.#shadow ? this.#shadow.getData() : null,
             defaultZGroup: this.#defaultZGroup,
             caption: this.#caption ? this.#caption.getData() : null,
@@ -405,7 +405,7 @@ export class MapItemTemplate {
         }
     }
 
-    #getListData(list) {
-        return list ? list.map(x => x.getData ? x.getData() : x) : null;
+    #getListData(list, copy) {
+        return list ? list.map(x => x.getData ? x.getData(copy) : x) : null;
     }
 }

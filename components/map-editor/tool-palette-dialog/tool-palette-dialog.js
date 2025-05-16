@@ -767,6 +767,50 @@ export class ToolPaletteDialogModel {
         return this.#currentMapItemTemplate;
     }
 
+    async copyMapItemTemplate(elementId) {
+        const parts = elementId.split("-");
+        const name = parts[0];
+        const version = parseInt(parts[1]);
+        const isFromTemplate = parts[2] == "fromtemplate";
+        const isBuiltIn = parts[2] == "builtin";
+        const ref = new EntityReference({
+            name: name,
+            versionId: version,
+            isBuiltIn: isBuiltIn,
+            isFromTemplate: isFromTemplate
+        });
+        const map = await MapWorkerClient.getMap();
+        const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, ref));
+        const newRef =
+        {
+            name: this.#getNewRefName(name, map.mapItemTemplateRefs),
+            versionId: 1,
+            isBuiltIn: false,
+            isFromTemplate: false
+        };
+        const data = mapItemTemplate.getData(true);
+        data.ref = newRef;
+        const newMapItemTemplate = new MapItemTemplate(data);
+        const changes = [
+            {
+                changeType: ChangeType.Insert,
+                changeObjectType: Map.name,
+                propertyName: "mapItemTemplates",
+                itemIndex: map.mapItemTemplates.length,
+                itemValue: newMapItemTemplate.getData()
+            },
+            {
+                changeType: ChangeType.Insert,
+                changeObjectType: Map.name,
+                propertyName: "mapItemTemplateRefs",
+                itemIndex: map.mapItemTemplateRefs.length,
+                itemValue: newRef
+            }
+        ];
+        this.#setCurrentMapItemTemplate(newMapItemTemplate);
+        await this.#updateMap(changes);
+    }
+
     // helpers
     #clickHandlerRegistered;
     #currentTool;

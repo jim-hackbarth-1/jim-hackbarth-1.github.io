@@ -104,9 +104,9 @@ export class PathStyle {
         return true;
     }
 
-    getData() {
+    getData(copy) {
         return {
-            id: this.#id,
+            id: copy ? crypto.randomUUID() : this.#id,
             options: this.#options
         };
     }

@@ -414,6 +414,11 @@
                     color: var(--theme-color-tertiary-darkest);
                     background-color: var(--theme-color-tertiary);
                 }
+
+                .copy-map-item-template-button {
+                    margin-right:10px;
+                    margin-bottom:10px;
+                }
             }
         </style>
         <header class="surface-tertiary">
@@ -776,6 +781,13 @@
                                         <label data-map-item-template-name="%{#mapItemTemplate.elementId}%">%{#mapItemTemplate.name}%</label>
                                     </div>
                                     <div class="spacer"></div>
+                                    <button title="Copy map item template"
+                                            class="action-text copy-map-item-template-button"
+                                            onclick="#model.copyMapItemTemplate(#mapItemTemplate.elementId);">
+                                        <div class="icon-container">
+                                            <kit-component data-kit-template-path="/resources/icons/edit-copy.html" data-kit-model="null"></kit-component>
+                                        </div>
+                                    </button>
                                     <div class="secondary-info">
                                         <label>%{#mapItemTemplate.referenceTypeLabel}%</label>
                                         <label data-map-item-template-version="%{#mapItemTemplate.elementId}%">%{#mapItemTemplate.versionLabel}%</label>

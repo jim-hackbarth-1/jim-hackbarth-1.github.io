@@ -125,7 +125,7 @@ export class EditorModel {
                 const elementId = `MapItemTemplates-${i}-${j}`;
                 const query = `[data-map-item-template-thumbnail="${elementId}"]`;
                 const thumbnailElement = this.#componentElement.querySelector(query);
-                const style = `background-image: url('${thumbnailSrc}');`; //margin-bottom:5px;
+                const style = `background-image: url('${thumbnailSrc}');`;
                 thumbnailElement.setAttribute("style", style);
             }
         }

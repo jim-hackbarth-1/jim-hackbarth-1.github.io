@@ -91,6 +91,10 @@
             .no-item-placeholder {
                 margin: 5px;
             }
+
+            .path-style-width-label {
+                font-size: smaller;
+            }
         }
     </style>  
     <fieldset data-kit-add-attributes="%{#model.isDisabledAttribute()}%">
@@ -331,6 +335,9 @@
                                     <label class="path-style-label"></label>
                                 </div>
                                 <div class="spacer"></div>
+                                <div>
+                                    <label class="path-style-width-label"></label>
+                                </div>
                                 <div class="move-container">
                                     <button title="Move" class="action-text" style="height:35px;" onclick="#model.dragStartItem(event, #stroke.id);">
                                         <div class="icon-container">

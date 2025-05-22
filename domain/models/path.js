@@ -531,6 +531,7 @@ export class Path {
             const offset = stroke.getStyleOptionValue(PathStyleOption.StrokeOffset) ?? { x: 0, y: 0 };
             if (!quickRender && stroke.getStyleOptionValue(PathStyleOption.PathStyleType) == PathStyleType.ImageArrayStroke) {
                 const imageArrayInfo = await Path.#getImageArrayInfo(map, this, false, stroke);
+                context.globalAlpha = stroke.options.find(o => o.key == PathStyleOption.Opacity)?.value ?? 1;
                 map.renderImageArray(context, this, imageArrayInfo, zGroup, z, offset);
                 if (this.clipPaths) {
                     for (const clipPath of this.clipPaths) {
@@ -577,6 +578,7 @@ export class Path {
         if (fill && this.#isViewable(map, options)) {
             if (!quickRender && fill.getStyleOptionValue(PathStyleOption.PathStyleType) == PathStyleType.ImageArrayFill) {
                 let imageArrayInfo = await Path.#getImageArrayInfo(map, this, false, fill);
+                context.globalAlpha = fill.options.find(o => o.key == PathStyleOption.Opacity)?.value ?? 1;
                 map.renderImageArray(context, this, imageArrayInfo, zGroup, z, { x: 0, y: 0 });
                 if (this.clipPaths) {
                     for (const clipPath of this.clipPaths) {
@@ -784,8 +786,9 @@ export class Path {
     #isViewable(map, options) {
         if (options?.updatedViewPort || this.inView === undefined) {
             const geometryUtilities = new GeometryUtilities();
-            const startInBounds = geometryUtilities.isPointInBounds(this.start, map.currentViewPort);
-            if (startInBounds) {
+            const startInViewPort = geometryUtilities.isPointInBounds(this.start, map.currentViewPort);
+            const viewPortStartInBounds = geometryUtilities.isPointInBounds({ x: map.currentViewPort.x, y: map.currentViewPort.y }, this.bounds);
+            if (startInViewPort || viewPortStartInBounds) {
                 this.#inView = true;
             }
             else {

@@ -156,25 +156,25 @@ export class PathStyle {
                 break;
             case PathStyleType.ColorStroke:
             case PathStyleType.ImageArrayStroke:
-                this.#setColorStroke(context, map);
+                this.#setColorStroke(context);
                 break;
             case PathStyleType.LinearGradientFill:
                 this.#setLinearGradientFill(context, bounds);
                 break;
             case PathStyleType.LinearGradientStroke:
-                this.#setLinearGradientStroke(context, map, bounds);
+                this.#setLinearGradientStroke(context, bounds);
                 break;
             case PathStyleType.RadialGradientFill:
                 this.#setRadialGradientFill(context, bounds);
                 break;
             case PathStyleType.RadialGradientStroke:
-                this.#setRadialGradientStroke(context, map, bounds);
+                this.#setRadialGradientStroke(context, bounds);
                 break;
             case PathStyleType.ConicalGradientFill:
                 this.#setConicalGradientFill(context, bounds);
                 break;
             case PathStyleType.ConicalGradientStroke:
-                this.#setConicalGradientStroke(context, map, bounds);
+                this.#setConicalGradientStroke(context, bounds);
                 break;
             case PathStyleType.TileFill:
                 await this.#setTileFill(context, map);
@@ -488,8 +488,8 @@ export class PathStyle {
         context.fillStyle = this.options.find(o => o.key == PathStyleOption.Color)?.value ?? "#c0c0c0";
     }
 
-    #setColorStroke(context, map) {
-        this.#setStrokeOptions(context, map);
+    #setColorStroke(context) {
+        this.#setStrokeOptions(context);
         context.strokeStyle = this.options.find(o => o.key == PathStyleOption.Color)?.value ?? "#696969";
     }
 
@@ -503,14 +503,14 @@ export class PathStyle {
         context.fillStyle = gradient;
     }
 
-    #setLinearGradientStroke(context, map, bounds) {
+    #setLinearGradientStroke(context, bounds) {
         let start = this.options.find(o => o.key == PathStyleOption.GradientStart)?.value ?? { x: 0, y: 0 };
         start = this.#getAbsoluteCoordinates(bounds, start);
         let end = this.options.find(o => o.key == PathStyleOption.GradientEnd)?.value ?? { x: 100, y: 100 };
         end = this.#getAbsoluteCoordinates(bounds, end);
         const gradient = context.createLinearGradient(start.x, start.y, end.x, end.y);
         this.#setColorStops(gradient);
-        this.#setStrokeOptions(context, map);
+        this.#setStrokeOptions(context);
         context.strokeStyle = gradient;
     }
 
@@ -528,7 +528,7 @@ export class PathStyle {
         context.fillStyle = gradient;
     }
 
-    #setRadialGradientStroke(context, map, bounds) {
+    #setRadialGradientStroke(context, bounds) {
         let start = this.options.find(o => o.key == PathStyleOption.GradientStart)?.value ?? { x: 0, y: 0 };
         start = this.#getAbsoluteCoordinates(bounds, start);
         let end = this.options.find(o => o.key == PathStyleOption.GradientEnd)?.value ?? { x: 100, y: 100 };
@@ -539,7 +539,7 @@ export class PathStyle {
         endRadius = this.#getAbsoluteRadius(bounds, endRadius);
         const gradient = context.createRadialGradient(start.x, start.y, startRadius, end.x, end.y, endRadius);
         this.#setColorStops(gradient);
-        this.#setStrokeOptions(context, map);
+        this.#setStrokeOptions(context);
         context.strokeStyle = gradient;
     }
 
@@ -552,28 +552,28 @@ export class PathStyle {
         context.fillStyle = gradient;
     }
 
-    #setConicalGradientStroke(context, map, bounds) {
+    #setConicalGradientStroke(context, bounds) {
         let start = this.options.find(o => o.key == PathStyleOption.GradientStart)?.value ?? { x: 0, y: 0 };
         start = this.#getAbsoluteCoordinates(bounds, start);
         const startAngle = this.options.find(o => o.key == PathStyleOption.GradientAngle)?.value ?? 0;
         const gradient = context.createConicGradient(startAngle, start.x, start.y);
         this.#setColorStops(gradient);
-        this.#setStrokeOptions(context, map);
+        this.#setStrokeOptions(context);
         context.strokeStyle = gradient;
     }
 
     async #setTileFill(context, map) {
-        const key = `${this.id}-${PathStyleOption.TileFill}`;
+        const key = `${this.id}-${PathStyleType.TileFill}`;
         const data = this.options.find(o => o.key == PathStyleOption.TileImageSource).value; 
         const pattern = await this.#getPattern(context, map, key, data);
         context.fillStyle = pattern;
     }
 
     async #setTileStroke(context, map) {
-        const key = `${this.id}-${PathStyleOption.TileStroke}`;
+        const key = `${this.id}-${PathStyleType.TileStroke}`;
         const data = this.options.find(o => o.key == PathStyleOption.TileImageSource).value;
         const pattern = await this.#getPattern(context, map, key, data);
-        this.#setStrokeOptions(context, map);
+        this.#setStrokeOptions(context);
         context.strokeStyle = pattern;
     }
 
@@ -581,9 +581,8 @@ export class PathStyle {
         context.globalAlpha = this.options.find(o => o.key == PathStyleOption.Opacity)?.value ?? 1;
     }
 
-    #setStrokeOptions(context, map) {
-        const scale = 1 / map.zoom;
-        context.lineWidth = (this.options.find(o => o.key == PathStyleOption.Width)?.value ?? 3) * scale;
+    #setStrokeOptions(context) {
+        context.lineWidth = this.options.find(o => o.key == PathStyleOption.Width)?.value ?? 3;
         context.setLineDash(this.options.find(o => o.key == PathStyleOption.Dash)?.value ?? []);
         context.lineDashOffset = this.options.find(o => o.key == PathStyleOption.DashOffset)?.value ?? 0;
         context.lineCap = this.options.find(o => o.key == PathStyleOption.Cap)?.value ?? "round";

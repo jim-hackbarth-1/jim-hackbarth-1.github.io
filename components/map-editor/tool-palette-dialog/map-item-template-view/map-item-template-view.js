@@ -263,12 +263,6 @@ class MapItemTemplateViewModel {
                 return this.#getImageThumbnailSrc(pathStyle)
             }
         }
-        for (const pathStyle of this.mapItemTemplate.strokes) {
-            const styleType = pathStyle.getStyleOptionValue(PathStyleOption.PathStyleType);
-            if (styleType == PathStyleType.TileStroke || styleType == PathStyleType.ImageArrayStroke) {
-                return this.#getImageThumbnailSrc(pathStyle)
-            }
-        }
         return null;
     }
 
@@ -804,6 +798,12 @@ class MapItemTemplateViewModel {
             imageThumbnailContainerElement.style.display = isImageThumbnailVisible ? "block" : "none";
             const label = pathStyleLabelContainerElement.querySelector(".path-style-label");
             label.innerHTML = this.#getPathStyleLabel(styleType);
+            const widthLabel = pathStyleLabelContainerElement.querySelector(".path-style-width-label");
+            if (widthLabel) {
+                let width = pathStyle.getStyleOptionValue(PathStyleOption.Width);
+                width = `Width: ${width}`;
+                widthLabel.innerHTML = width;
+            }
         }
     }
 
@@ -893,7 +893,7 @@ class MapItemTemplateViewModel {
             case PathStyleType.ImageArrayStroke:
                 return "Image array";
         }
-        return "Style";
+        return `Style${width}`;
     }
 
     #loadThumbnail() {

@@ -223,6 +223,9 @@ export class Layer {
 
     #renderedImages;
     renderImageArray(context, path, imageArrayInfo, zGroup, z, offset) {
+        if (!this.#renderedImages) {
+            return;
+        }
         let pathsToCheck = [];
         const geometryUtilities = new GeometryUtilities();
         for (const item of this.#renderedImages) {
@@ -242,7 +245,7 @@ export class Layer {
                     if (pathToCheck) {
                         pathsToCheck.push(pathToCheck);
                     }
-                }        
+                }
             }
         }
         const locationsToRender = [];
@@ -276,7 +279,9 @@ export class Layer {
         }
         context.translate(-offset.x, -offset.y);
         const pathItem = this.#renderedImages.find(x => x.pathId == path.id);
-        pathItem.renderedLocations = locationsToRender.map(l => l.bounds);
+        if (pathItem) {
+            pathItem.renderedLocations = locationsToRender.map(l => l.bounds);
+        }
     }
 
     selectByPath(geometryUtilities, selectionBounds, selectionPath, toggleCurrentSelections, mustBeContained) { 

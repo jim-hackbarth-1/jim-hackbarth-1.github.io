@@ -15,6 +15,7 @@ import {
     Overlay,
     Path,
     PathStyle,
+    PathStyleOption,
     Tool,
     ToolPalette
 } from "../references.js";
@@ -529,7 +530,7 @@ export class Map {
         }
         this.overlay.render(context, this, options);
         for (const layer of this.layers) {
-            layer.renderCaptions(context, this, options);
+            await layer.renderCaptions(context, this, options);
         }
         if (this.#eventListeners[Map.AfterRenderEvent]) {
             for (const listener of this.#eventListeners[Map.AfterRenderEvent]) {
@@ -697,6 +698,9 @@ export class Map {
                                 pathStyle = mapItemTemplate.caption.borderStroke;
                             }
                             if (pathStyle) {
+                                const styleType = pathStyle.getStyleOptionValue(PathStyleOption.PathStyleType);
+                                const key = `${pathStyle.id}-${styleType}`;
+                                this.clearImage(key);
                                 pathStyle.applyChange(change, undoing);
                             }
                             break;
@@ -831,6 +835,16 @@ export class Map {
             this.#images.push({ key: key, image: image });
         }
         return image;
+    }
+
+    clearImage(key) {
+        if (!this.#images) {
+            this.#images = [];
+        }
+        const index = this.#images.findIndex(i => i.key == key);
+        if (index > -1) {
+            this.#images.splice(index, 1);
+        }
     }
 
     renderImageArray(context, path, imageArrayInfo, zGroup, z, offset) {

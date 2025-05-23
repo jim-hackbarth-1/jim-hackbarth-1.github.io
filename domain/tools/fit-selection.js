@@ -56,7 +56,7 @@ class FitSelectionTool {
                 await this.#onPointerUp(eventData);
                 break;
             case "keydown":
-                this.#onKeyDown(eventData);
+                await this.#onKeyDown(eventData);
                 break;
             case "keyup":
                 this.#onKeyUp(eventData);
@@ -213,7 +213,7 @@ class FitSelectionTool {
             await this.#moveIncrement(eventData, 0, 1);
         }
         if (eventData.altKey && eventData.key?.toLowerCase() == "a" && !eventData.repeat) {
-            this.#updateToolOptionValue("AlternateSelectionMode", !this.#isAlternateSelectionModeOn, true);
+            await this.#updateToolOptionValue("AlternateSelectionMode", !this.#isAlternateSelectionModeOn, true);
         }
         if (eventData.altKey && eventData.key?.toLowerCase() == "o" && !eventData.repeat) {
             await this.#updateToolOptionValue("SnapToOverlay", !this.#isSnapToOverlayModeOn, true);
@@ -237,7 +237,7 @@ class FitSelectionTool {
             await this.#updateToolOptionValue("AcceptChanges", null, false);
         }
         if (eventData.altKey && eventData.key?.toLowerCase() == "c" && !eventData.repeat) {
-            this.#updateToolOptionValue("MoveCaptionMode", !this.#isMoveCaptionModeOn, true);
+            await this.#updateToolOptionValue("MoveCaptionMode", !this.#isMoveCaptionModeOn, true);
         }
     }
 
@@ -489,7 +489,7 @@ class FitSelectionTool {
         maxIteration = maxIteration * this.#mapWorker.map.zoom;
         if (this.#moveIncrementIteration < maxIteration && this.#isArrowPressed) {
             this.#selectionUtilities.moveIncrement(this.#mapWorker, dx, dy, this.#isSingleSelectionModeOn, this.#isMoveCaptionModeOn);
-            this.#previewSetOperation();
+            await this.#previewSetOperation();
         }
     }
 

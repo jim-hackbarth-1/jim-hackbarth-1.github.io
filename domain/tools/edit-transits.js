@@ -59,7 +59,7 @@ class EditTransitsTool {
                 await this.#onPointerUp(eventData);
                 break;
             case "keydown":
-                this.#onKeyDown(eventData);
+                await this.#onKeyDown(eventData);
                 break;
             case "keyup":
                 this.#onKeyUp(eventData);
@@ -214,13 +214,13 @@ class EditTransitsTool {
             this.#isToggleSelectionModeOn = true;
         }
         if (eventData.key == "ArrowLeft") {
-            this.#moveIncrement(eventData, -1, 0);
+            await this.#moveIncrement(eventData, -1, 0);
         }
         if (eventData.key == "ArrowRight") {
-            this.#moveIncrement(eventData, 1, 0);
+            await this.#moveIncrement(eventData, 1, 0);
         }
         if (eventData.key == "ArrowUp") {
-            this.#moveIncrement(eventData, 0, -1);
+            await this.#moveIncrement(eventData, 0, -1);
         }
         if (eventData.key == "ArrowDown") {
             await this.#moveIncrement(eventData, 0, 1);

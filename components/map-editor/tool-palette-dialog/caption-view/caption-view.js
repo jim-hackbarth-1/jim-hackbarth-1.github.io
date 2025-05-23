@@ -320,15 +320,4 @@ export class CaptionViewModel {
             changeSet: { changes: changes }
         });
     }
-
-    async #reRenderElement(elementId) {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        if (componentElement) {
-            const element = componentElement.querySelector(`#${elementId}`);
-            const componentId = element.getAttribute("data-kit-component-id");
-            if (KitComponent.find(componentId) && KitComponent.find(this.componentId)) {
-                await KitRenderer.renderComponent(componentId);
-            }
-        }
-    }
 }

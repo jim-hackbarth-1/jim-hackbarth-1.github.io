@@ -137,14 +137,14 @@ export class Caption {
                 context.shadowBlur = this.shadow.blur;
             }
             if (!PathStyle.isPathStyleHidden(this.backgroundFill, options)) {
-                this.backgroundFill.setStyle(context, map, rectBounds);
+                await this.backgroundFill.setStyle(context, map, rectBounds);
                 context.fill(rectPath);
             }
             context.shadowOffsetX = 0;
             context.shadowOffsetY = 0;
             context.shadowBlur = 0;
             if (!PathStyle.isPathStyleHidden(this.borderStroke, options)) {
-                this.borderStroke.setStyle(context, map, rectBounds);
+                await this.borderStroke.setStyle(context, map, rectBounds);
                 context.stroke(rectPath);
             }
         }

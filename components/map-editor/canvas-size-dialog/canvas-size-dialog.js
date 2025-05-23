@@ -39,7 +39,7 @@ class CanvasSizeDialogModel {
     #clickHandlerRegistered;
 
     async onSizeChange() {
-        this.#updateCanvasSize();
+        await this.#updateCanvasSize();
     }
 
     closeDialog() {
@@ -47,10 +47,10 @@ class CanvasSizeDialogModel {
         componentElement.querySelector("dialog").close();
     }
 
-    #updateCanvasSize() {
+    async #updateCanvasSize() {
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         const height = Number(componentElement.querySelector("#inputHeight").value);
         const width = Number(componentElement.querySelector("#inputWidth").value);
-        KitMessenger.publish(EditorModel.CanvasResizeRequestTopic, { height: height, width: width });
+        await KitMessenger.publish(EditorModel.CanvasResizeRequestTopic, { height: height, width: width });
     }
 }

@@ -48,8 +48,8 @@ export const MapWorkerOutputMessageType = {
     ChangeToolOptions: "ChangeToolOptions"
 }
 
-onmessage = (message) => {
-    MapWorker.instance.handleClientMessage(message);
+onmessage = async (message) => {
+    await MapWorker.instance.handleClientMessage(message);
 };
 
 export class MapWorker {

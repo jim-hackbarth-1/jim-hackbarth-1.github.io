@@ -78,11 +78,11 @@ class PresentationViewerModel {
             let resizeTimer;
             appWindow.addEventListener('resize', function (event) {
                 clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(function () {
+                resizeTimer = setTimeout(async function () {
                     const canvas = me.#getElement("#presentation-canvas");
                     canvas.setAttribute("width", appWindow.innerWidth - 10);
                     canvas.setAttribute("height", appWindow.innerHeight - 10);
-                    me.#refresh();
+                    await me.#refresh();
                 }, 250);
             });
             this.#messageHandlerRegistered = true;

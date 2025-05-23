@@ -72,9 +72,10 @@ class FileSaveAsDialogModel {
     }
 
     async buttonOkClicked() {
-        const fileType = this.#asMap ? "map" : "image";
-        KitMessenger.publish(EditorModel.SaveFileAsRequestTopic, { fileHandle: this.#fileHandle, fileType: fileType });
         this.closeDialog();
+        const fileType = this.#asMap ? "map" : "image";
+        await KitMessenger.publish(EditorModel.SaveFileAsRequestTopic, { fileHandle: this.#fileHandle, fileType: fileType });
+        
     }
 
     // helpers

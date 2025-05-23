@@ -165,30 +165,30 @@ export class KitNavigator {
     static navTopicName = "navigation";
 
     /** This method is called to configure an application to generate navigation events from the browser `popstate` event. */
-    static initialize() {
+    static async initialize() {
 
         // handle pop state event
         const document = KitDependencyManager.getDocument();
         const window = KitDependencyManager.getWindow();
-        window.addEventListener("popstate", () => {
-            KitNavigator.navigate(document.location.href);
+        window.addEventListener("popstate", async () => {
+            await KitNavigator.navigate(document.location.href);
         });
 
         // publish initial navigation message
-        KitMessenger.publish(KitNavigator.navTopicName, document.location.href);
+        await KitMessenger.publish(KitNavigator.navTopicName, document.location.href);
     }
 
     /**
      * Navigates to the specified url
      * @param {string} url - The destination url
      */
-    static navigate(url) {
+    static async navigate(url) {
         const document = KitDependencyManager.getDocument();
         const window = KitDependencyManager.getWindow();
         if (url && url !== document.location.href) {
             window.history.pushState(null, null, url);
         }
-        KitMessenger.publish(KitNavigator.navTopicName, url);
+        await KitMessenger.publish(KitNavigator.navTopicName, url);
     }
 
     /**
@@ -222,7 +222,7 @@ export class KitMessenger {
      * @param {string} topicName - The name of the topic
      * @param {any} message - The message to be published
      */
-    static publish(topicName, message) {
+    static async publish(topicName, message) {
         if (!topicName) {
             throw new Error("topicName not provided");
         }
@@ -240,7 +240,7 @@ export class KitMessenger {
                 if (component && component.model && typeof component.model[subscriber.callback] === "function") {
                     activeSubscribers.push(subscriber);
                     try {
-                        component.model[subscriber.callback](message);
+                        await component.model[subscriber.callback](message);
                     }
                     catch (error) {
                         appConsole.error(error);
@@ -1092,7 +1092,7 @@ export class KitStartup {
         KitDependencyManager.setResourceManager(new KitResourceManager());
 
         // navigator
-        KitNavigator.initialize();
+        await KitNavigator.initialize();
 
         // component manager
         window.kitComponentManager = {
@@ -1113,5 +1113,5 @@ export class KitStartup {
 
 }
 if (globalThis.document) {
-    document.addEventListener("DOMContentLoaded", KitStartup.initialize());
+    document.addEventListener("DOMContentLoaded", async () => { await KitStartup.initialize() });
 }

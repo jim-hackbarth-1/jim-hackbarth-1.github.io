@@ -353,7 +353,7 @@ class MapItemTemplateViewModel {
                     mapItemTemplateRef: this.mapItemTemplate.ref.getData()
                 }
             ];
-            this.#setCurrentFill(null);
+            await this.#setCurrentFill(null);
             await this.#updateMap(changes);
         }
     }
@@ -463,7 +463,7 @@ class MapItemTemplateViewModel {
                     mapItemTemplateRef: this.mapItemTemplate.ref.getData()
                 }
             ];
-            this.#setCurrentStroke(null);
+            await this.#setCurrentStroke(null);
             await this.#updateMap(changes);
         }
     }

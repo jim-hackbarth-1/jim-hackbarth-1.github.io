@@ -217,8 +217,9 @@ export class BuiltInTools {
         return BuiltInTools.#tools;
     }
 
-    static getTool(baseUrl, toolRef) {
-        return BuiltInTools.getTools(baseUrl).find(t => EntityReference.areEqual(t.ref, toolRef));
+    static async getTool(baseUrl, toolRef) {
+        const tools = await BuiltInTools.getTools(baseUrl);
+        return tools.find(t => EntityReference.areEqual(t.ref, toolRef));
     }
 }
 

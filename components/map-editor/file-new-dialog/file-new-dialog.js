@@ -94,8 +94,9 @@ class FileNewDialogModel {
         componentElement.querySelector("#button-ok").disabled = false;
     }
 
-    buttonOkClicked() {
-        KitMessenger.publish(EditorModel.NewFileRequestTopic, { templateRef: this.#templateRef });
+    async buttonOkClicked() {
         this.closeDialog();
+        await KitMessenger.publish(EditorModel.NewFileRequestTopic, { templateRef: this.#templateRef });
+        
     }
 }

@@ -20,9 +20,9 @@ class ContentModel {
         }
     }
 
-    onNavigation(url) {
+    async onNavigation(url) {
         this.routeName = KitNavigator.getUrlFragment(url) ?? "";
-        KitRenderer.renderComponent(this.componentId);
+        await KitRenderer.renderComponent(this.componentId);
     }
 
     isPresentationView() {

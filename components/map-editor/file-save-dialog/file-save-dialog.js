@@ -61,7 +61,8 @@ class FileSaveDialogModel {
     }
 
     async buttonOkClicked() {
-        KitMessenger.publish(EditorModel.SaveFileRequestTopic, { fileHandle: this.#fileHandle });
         this.closeDialog();
+        await KitMessenger.publish(EditorModel.SaveFileRequestTopic, { fileHandle: this.#fileHandle });
+        
     }
 }

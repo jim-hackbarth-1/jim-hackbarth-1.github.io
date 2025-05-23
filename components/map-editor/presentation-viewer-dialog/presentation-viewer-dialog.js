@@ -94,18 +94,18 @@ class PresentationViewerDialogModel {
     async #startListeningForMessages() {
         const appWindow = KitDependencyManager.getWindow();
         if (!this.#messageHandlerRegistered) {
-            appWindow.addEventListener('message', (event) => {
+            appWindow.addEventListener('message', async (event) => {
                 if (event.origin === appWindow.origin) {
                     switch (event.data.messageType) {
                         case "loaded":
                             this.#updateButtonAvailability();
-                            KitMessenger.publish(EditorModel.PresentationViewerStatusTopic, { presentationWindow: this.#presentationWindow });
+                            await KitMessenger.publish(EditorModel.PresentationViewerStatusTopic, { presentationWindow: this.#presentationWindow });
                             this.refresh();
                             break;
                         case "unloading":
                             this.#presentationWindow = null;
                             this.#updateButtonAvailability();
-                            KitMessenger.publish(EditorModel.PresentationViewerStatusTopic, { isPresentationWindowOpen: null });
+                            await KitMessenger.publish(EditorModel.PresentationViewerStatusTopic, { isPresentationWindowOpen: null });
                             break;
                     }
                 }

@@ -539,7 +539,7 @@ export class ToolPaletteDialogModel {
                 itemValue: tool.ref.getData()
             }
         ];
-        this.#setCurrentTool(tool);
+        await this.#setCurrentTool(tool);
         await this.#updateMap(changes);
     }
 
@@ -575,7 +575,7 @@ export class ToolPaletteDialogModel {
                 itemValue: mapItemTemplate.ref.getData()
             }
         ];
-        this.#setCurrentMapItemTemplate(mapItemTemplate);
+        await this.#setCurrentMapItemTemplate(mapItemTemplate);
         await this.#updateMap(changes);
     }
 
@@ -627,7 +627,7 @@ export class ToolPaletteDialogModel {
                 });
             }
 
-            this.#setCurrentTool(null);
+            await this.#setCurrentTool(null);
             await this.#updateMap(changes);
         }
     }
@@ -686,7 +686,7 @@ export class ToolPaletteDialogModel {
                 itemIndex: mapItemTemplateRefIndex,
                 itemValue: this.#currentMapItemTemplate.ref.getData()
             })
-            this.#setCurrentMapItemTemplate(null);
+            await this.#setCurrentMapItemTemplate(null);
             await this.#updateMap(changes);
         }
     }
@@ -815,7 +815,7 @@ export class ToolPaletteDialogModel {
                 itemValue: newRef
             }
         ];
-        this.#setCurrentMapItemTemplate(newMapItemTemplate);
+        await this.#setCurrentMapItemTemplate(newMapItemTemplate);
         await this.#updateMap(changes);
     }
 

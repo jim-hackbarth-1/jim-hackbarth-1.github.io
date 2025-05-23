@@ -111,7 +111,7 @@ export class EditorModel {
                     }
                 }
             }
-            KitMessenger.publish(EditorModel.MapUpdatedNotificationTopic, message);
+            await KitMessenger.publish(EditorModel.MapUpdatedNotificationTopic, message);
         }
     }
 
@@ -136,10 +136,10 @@ export class EditorModel {
         appDocument.getElementById(dropdownId).classList.toggle("show");
     }
 
-    showDialog(dialogId) {
+    async showDialog(dialogId) {
         const dialogComponentId = this.#componentElement.querySelector(`#${dialogId}`).getAttribute("data-kit-component-id");
         const model = KitComponent.find(dialogComponentId).model;
-        model.showDialog();
+        await model.showDialog();
     }
 
     async isSaveDisabled() {
@@ -168,12 +168,12 @@ export class EditorModel {
             await FileManager.saveMap(json);
         }
         else {
-            this.showDialog("file-save-dialog-component");
+            await this.showDialog("file-save-dialog-component");
         }
     }
 
     async saveMapAs() {
-        this.showDialog("file-save-as-dialog-component");
+        await this.showDialog("file-save-as-dialog-component");
     }
 
     async isCloseDisabled() {
@@ -189,7 +189,7 @@ export class EditorModel {
     async closeMap() {
         FileManager.fileHandle = null;
         await MapWorkerClient.setMap(null);
-        KitRenderer.renderComponent(this.#componentId);
+        await KitRenderer.renderComponent(this.#componentId);
     }
 
     async isSelectAllInViewDisabled() {
@@ -586,7 +586,7 @@ export class EditorModel {
         let template = null;
         if (mapData.templateRef) {
             if (mapData.templateRef.isBuiltIn) {
-                template = BuiltInTemplates.getTemplate(mapData.templateRef);
+                template = await BuiltInTemplates.getTemplate(mapData.templateRef);
             }
         }
         await this.#openMap(mapData, template);
@@ -605,7 +605,7 @@ export class EditorModel {
             await FileManager.saveMapAs(blob, message.fileHandle);
         }
         else {
-            this.onSaveFileRequested(message);
+            await this.onSaveFileRequested(message);
         }
     }
 
@@ -760,7 +760,7 @@ export class EditorModel {
         }
         if (map) {
             this.#toolsPinned = false;
-            this.toggleToolsPinned();
+            await this.toggleToolsPinned();
         }
     }
 
@@ -864,7 +864,7 @@ export class EditorModel {
 
         // display
         await MapWorkerClient.setMap(new Map(mapData));
-        KitRenderer.renderComponent(this.#componentId);
+        await KitRenderer.renderComponent(this.#componentId);
     }
 
     #setMapCursor(cursorName) {

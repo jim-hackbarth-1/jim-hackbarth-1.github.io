@@ -271,7 +271,8 @@ class ClipRectangleTool {
         for (const mapItemGroup of mapItemGroups) {
             for (const mapItem of mapItemGroup.mapItems) {
                 const primaryPaths = mapItem.paths.map(p => p.getData());
-                const setOperationPaths = this.#mapWorker.setUtilities.getExclusionAll(primaryPaths, [selectionPath]);
+                const hasFills = this.#hasFills(mapItem);
+                const setOperationPaths = this.#mapWorker.setUtilities.getExclusionAll(primaryPaths, [selectionPath], hasFills);
                 mapItemPaths = [];
                 for (const setOperationPath of setOperationPaths) {
                     mapItemPaths.push(this.#mapWorker.createPath(setOperationPath));
@@ -294,5 +295,13 @@ class ClipRectangleTool {
         }
         const changeSet = this.#mapWorker.createChangeSet(changes);
         this.#mapWorker.map.completeChangeSet(changeSet);
+    }
+
+    #hasFills(mapItem) {
+        const mapItemTemplate = this.#mapWorker.getMapItemTemplate(mapItem);
+        if (mapItemTemplate) {
+            return (mapItemTemplate.fills.length > 0);
+        }
+        return false;
     }
 }

@@ -173,7 +173,7 @@ class DrawRectangleTool {
                 { x: 0, y: start.y - end.y }
             ];
             const bounds = this.#mapWorker.geometryUtilities.getPathBounds(start, transits);
-            if (bounds.height < 5 || bounds.width < 5) {
+            if (!this.#isBiggerThanMinSize(bounds)) {
                 await this.#mapWorker.renderMap();
                 return;
             }
@@ -210,5 +210,14 @@ class DrawRectangleTool {
             x: (x + translation.x) * scale.x,
             y: (y + translation.y) * scale.y
         };
+    }
+
+    #isBiggerThanMinSize(bounds) {
+        if (this.#mapWorker.activeMapItemTemplate.fills.length == 0) {
+            return (bounds.height >= 5 || bounds.width >= 5);
+        }
+        else {
+            return (bounds.height >= 5 && bounds.width >= 5);
+        }
     }
 }

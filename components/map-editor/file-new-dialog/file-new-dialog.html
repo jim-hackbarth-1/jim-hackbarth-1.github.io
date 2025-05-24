@@ -46,6 +46,11 @@
             .template-item:hover img {
                 border-color: var(--theme-color-tertiary-lightest);
             }
+
+            .detail-info {
+                font-size: x-small;
+                margin-left: 2px;
+            }
         }
     </style>
     <header class="surface-tertiary">
@@ -75,7 +80,11 @@
                         <input type="radio" name="template" onclick="#model.templateSelected(#template.ref)" />
                         <span class="checkmark"></span>
                         <span><img data-src="%{#template.thumbnailSrc}%" /></span>
-                        <span>%{#template.ref.name}%</span>
+                        <span>
+                            <span>%{#template.ref.name}%</span>
+                            <br/>
+                            <span class="detail-info">%{#template.description}%</span>
+                        </span>
                     </label>
                 </div>
             </kit-array>

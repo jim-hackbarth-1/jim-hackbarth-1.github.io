@@ -13,7 +13,7 @@ export class SetUtilities {
     }
 
     // methods
-    getUnionAll(primaryPaths, secondaryPaths) {
+    getUnionAll(primaryPaths, secondaryPaths, closedPath) {
         let pathsOut = [];
         let pathsIn = [];
         for (const path of primaryPaths) {
@@ -22,7 +22,7 @@ export class SetUtilities {
         for (const secondaryPath of secondaryPaths) {
             pathsOut = [];
             for (const pathIn of pathsIn) {
-                const unionPaths = this.getUnion(pathIn, secondaryPath);
+                const unionPaths = this.getUnion(pathIn, secondaryPath, closedPath);
                 for (const unionPath of unionPaths) {
                     if (!pathsOut.some(p => this.geometryUtilities.arePointsEqual(p.start, unionPath.start))) {
                         pathsOut.push(unionPath);
@@ -34,15 +34,15 @@ export class SetUtilities {
         return pathsOut;
     }
 
-    getUnion(pathInfoA, pathInfoB) {
+    getUnion(pathInfoA, pathInfoB, closedPath) {
 
         // get bounds
         const boundsA = this.geometryUtilities.getPathBounds(pathInfoA.start, pathInfoA.transits);
         const boundsB = this.geometryUtilities.getPathBounds(pathInfoB.start, pathInfoB.transits);
 
         // get transits into
-        const transitsInfoA = this.#getTransitsIntersectionInfo(pathInfoA, boundsB, pathInfoB);
-        const transitsInfoB = this.#getTransitsIntersectionInfo(pathInfoB, boundsA, pathInfoA);
+        const transitsInfoA = this.#getTransitsIntersectionInfo(pathInfoA, boundsB, pathInfoB, closedPath);
+        const transitsInfoB = this.#getTransitsIntersectionInfo(pathInfoB, boundsA, pathInfoA, true);
 
         // mark shared transits
         this.#markSharedTransitInfos(transitsInfoA, transitsInfoB);
@@ -67,7 +67,7 @@ export class SetUtilities {
         return setPathInfos
     }
 
-    getIntersectionAll(primaryPaths, secondaryPaths) {
+    getIntersectionAll(primaryPaths, secondaryPaths, closedPath) {
         const pathsOut = [];
         let unionOfSecondaryPaths = secondaryPaths;
         if (secondaryPaths.length > 1) {
@@ -77,7 +77,7 @@ export class SetUtilities {
         }
         for (const secondaryPath of unionOfSecondaryPaths) {
             for (const primaryPath of primaryPaths) {
-                const intersectionPaths = this.getIntersection(primaryPath, secondaryPath);
+                const intersectionPaths = this.getIntersection(primaryPath, secondaryPath, closedPath);
                 for (const intersectionPath of intersectionPaths) {
                     pathsOut.push(intersectionPath);
                 }
@@ -86,15 +86,15 @@ export class SetUtilities {
         return pathsOut;
     }
 
-    getIntersection(pathInfoA, pathInfoB) {
+    getIntersection(pathInfoA, pathInfoB, closedPath) {
 
         // get bounds
         const boundsA = this.geometryUtilities.getPathBounds(pathInfoA.start, pathInfoA.transits);
         const boundsB = this.geometryUtilities.getPathBounds(pathInfoB.start, pathInfoB.transits);
 
         // get transits into
-        const transitsInfoA = this.#getTransitsIntersectionInfo(pathInfoA, boundsB, pathInfoB);
-        const transitsInfoB = this.#getTransitsIntersectionInfo(pathInfoB, boundsA, pathInfoA);
+        const transitsInfoA = this.#getTransitsIntersectionInfo(pathInfoA, boundsB, pathInfoB, closedPath);
+        const transitsInfoB = this.#getTransitsIntersectionInfo(pathInfoB, boundsA, pathInfoA, true);
 
         // mark shared transits
         this.#markSharedTransitInfos(transitsInfoA, transitsInfoB);
@@ -119,7 +119,7 @@ export class SetUtilities {
         return setPathInfos
     }
 
-    getExclusionAll(primaryPaths, secondaryPaths) {
+    getExclusionAll(primaryPaths, secondaryPaths, closedPath) {
         let pathsOut = [];
         let pathsIn = [];
         for (const path of primaryPaths) {
@@ -128,7 +128,7 @@ export class SetUtilities {
         for (const secondaryPath of secondaryPaths) {
             pathsOut = [];
             for (const pathIn of pathsIn) {
-                const exclusionPaths = this.getExclusion(pathIn, secondaryPath);
+                const exclusionPaths = this.getExclusion(pathIn, secondaryPath, closedPath);
                 for (const exclusionPath of exclusionPaths) {
                     pathsOut.push(exclusionPath);
                 }
@@ -138,15 +138,15 @@ export class SetUtilities {
         return pathsOut;
     }
 
-    getExclusion(pathInfoA, pathInfoB) {
+    getExclusion(pathInfoA, pathInfoB, closedPath) {
 
         // get bounds
         const boundsA = this.geometryUtilities.getPathBounds(pathInfoA.start, pathInfoA.transits);
         const boundsB = this.geometryUtilities.getPathBounds(pathInfoB.start, pathInfoB.transits);
 
         // get transits into
-        const transitsInfoA = this.#getTransitsIntersectionInfo(pathInfoA, boundsB, pathInfoB);
-        const transitsInfoB = this.#getTransitsIntersectionInfo(pathInfoB, boundsA, pathInfoA);
+        const transitsInfoA = this.#getTransitsIntersectionInfo(pathInfoA, boundsB, pathInfoB, closedPath);
+        const transitsInfoB = this.#getTransitsIntersectionInfo(pathInfoB, boundsA, pathInfoA, true);
 
         // mark shared transits
         this.#markSharedTransitInfos(transitsInfoA, transitsInfoB);
@@ -172,16 +172,18 @@ export class SetUtilities {
     }
 
     // helpers
-    #getTransitsIntersectionInfo(pathInfo, intersectingPathBounds, intersectingPath) {
+    #getTransitsIntersectionInfo(pathInfo, intersectingPathBounds, intersectingPath, addClosingTransit) {
 
         // get starting info
         let transitsIntersectionInfo = [];
         let start = pathInfo.start;
         let isIntersecting = this.geometryUtilities.isPointInPath(start, intersectingPathBounds, intersectingPath);
         const transits = [...pathInfo.transits];
-        const closingTransit = this.geometryUtilities.getPathClosingTransit(pathInfo);
-        if (Math.abs(closingTransit.x) > 2 || Math.abs(closingTransit.y) > 2) {
-            transits.push(closingTransit);
+        if (addClosingTransit) {
+            const closingTransit = this.geometryUtilities.getPathClosingTransit(pathInfo);
+            if (Math.abs(closingTransit.x) > 2 || Math.abs(closingTransit.y) > 2) {
+                transits.push(closingTransit);
+            }
         }
         
         // get intersections info

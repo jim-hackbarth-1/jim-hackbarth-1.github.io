@@ -111,7 +111,7 @@ class DrawPathTool {
             const start = this.#mapWorker.geometryUtilities.transformPoint({ x: this.#xStart, y: this.#yStart }, scale, translation);
             const points = this.#points.map(pt => this.#mapWorker.geometryUtilities.transformPoint(pt, scale));
             const bounds = this.#mapWorker.geometryUtilities.getPathBounds(start, points);
-            if (bounds.height < 5 || bounds.width < 5) {
+            if (!this.#isBiggerThanMinSize(bounds)) {
                 await this.#mapWorker.renderMap();
                 return;
             }
@@ -133,5 +133,14 @@ class DrawPathTool {
             this.#mapWorker.map.getActiveLayer().addMapItemGroup(mapItemGroup);
         }
         await this.#mapWorker.renderMap();
+    }
+
+    #isBiggerThanMinSize(bounds) {
+        if (this.#mapWorker.activeMapItemTemplate.fills.length == 0) {
+            return (bounds.height >= 5 || bounds.width >= 5);
+        }
+        else {
+            return (bounds.height >= 5 && bounds.width >= 5);
+        }
     }
 }

@@ -401,7 +401,7 @@ class FitSelectionTool {
         }
 
         // preview set operation
-        const setOperationPaths = this.#getSetOperationPaths(primaryPaths, secondaryPaths);
+        const setOperationPaths = this.#getSetOperationPaths(primaryPaths, secondaryPaths, true);
         for (const setOperationPath of setOperationPaths) {
             const path = this.#mapWorker.createPath(setOperationPath);
             this.#displayPath(path);
@@ -431,7 +431,8 @@ class FitSelectionTool {
         for (const mapItemGroup of primarySelections) {
             for (const mapItem of mapItemGroup.mapItems) {
                 const primaryPaths = mapItem.paths.map(p => p.getData());
-                const setOperationPaths = this.#getSetOperationPaths(primaryPaths, secondaryPaths);
+                const hasFills = this.#hasFills(mapItem);
+                const setOperationPaths = this.#getSetOperationPaths(primaryPaths, secondaryPaths, hasFills);
                 mapItemPaths = [];
                 for (const setOperationPath of setOperationPaths) {
                     mapItemPaths.push(this.#mapWorker.createPath(setOperationPath));
@@ -450,7 +451,7 @@ class FitSelectionTool {
         await this.#mapWorker.renderMap();
     }
 
-    #getSetOperationPaths(primaryPaths, secondaryPaths) {
+    #getSetOperationPaths(primaryPaths, secondaryPaths, hasFills) {
         if (this.#setOperationMode == "Union") {
             return this.#mapWorker.setUtilities.getUnionAll(primaryPaths, secondaryPaths);
         }
@@ -495,5 +496,13 @@ class FitSelectionTool {
 
     #isAltSelectModeOn() {
         return this.#isAlternateSelectionModeOn || this.#isToggleSelectionModeOn;
+    }
+
+    #hasFills(mapItem) {
+        const mapItemTemplate = this.#mapWorker.getMapItemTemplate(mapItem);
+        if (mapItemTemplate) {
+            return (mapItemTemplate.fills.length > 0);
+        }
+        return false;
     }
 }

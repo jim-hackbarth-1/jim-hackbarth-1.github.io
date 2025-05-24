@@ -273,6 +273,13 @@ export class MapWorker {
         this.postMessage({ messageType: MapWorkerOutputMessageType.ChangeToolOptions, data: { toolOptions: toolOptionsData } });
     }
 
+    getMapItemTemplate(mapItem) {
+        if (this.map) {
+            return this.map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, mapItem.mapItemTemplateRef));
+        }
+        return null;
+    }
+
     // helpers
     async #initialize(ports, canvas, baseUrl) {
         this.#messagePort = ports[0];

@@ -53,6 +53,13 @@ class PresentationViewerDialogModel {
         }
     }
 
+    toggleCaptions() {
+        if (this.#presentationWindow) {
+            const appWindow = KitDependencyManager.getWindow();
+            this.#presentationWindow.postMessage({ messageType: "toggle-captions" }, appWindow.location.origin);
+        }
+    }
+
     refresh() {
         if (this.#presentationWindow) {
             const appWindow = KitDependencyManager.getWindow();
@@ -85,6 +92,10 @@ class PresentationViewerDialogModel {
         if (element) {
             element.disabled = disabled;
         }
+        element = this.#getElement("#button-toggle-captions");
+        if (element) {
+            element.disabled = disabled;
+        }
         element = this.#getElement("#button-refresh");
         if (element) {
             element.disabled = disabled;
@@ -106,6 +117,15 @@ class PresentationViewerDialogModel {
                             this.#presentationWindow = null;
                             this.#updateButtonAvailability();
                             await KitMessenger.publish(EditorModel.PresentationViewerStatusTopic, { isPresentationWindowOpen: null });
+                            break;
+                        case "resized":
+                            let width = event.data.width;
+                            let height = event.data.height;
+                            if (width < 1200 && height < 750) {
+                                width = 1200;
+                                height = 750
+                            }
+                            await KitMessenger.publish(EditorModel.CanvasResizeRequestTopic, { width: width, height: height });
                             break;
                     }
                 }

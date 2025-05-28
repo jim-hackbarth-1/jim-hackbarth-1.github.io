@@ -364,7 +364,9 @@ class DrawPolytransitTool {
             }
         }
         this.#initializeTransitInfo();
-        await this.#drawTransitInfo();
+        setTimeout(async () => {
+            await this.#mapWorker.renderMap();
+        }, 20);
     }
 
     #transformCanvasPoint(x, y) {

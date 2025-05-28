@@ -690,15 +690,14 @@ export class Path {
         context.globalAlpha = 1;
         context.filter = `blur(${shadow.blur}px)`;
         context.lineWidth = shadow.blur;
-        context.globalAlpha = 1;
         let pathInfo = this.getPathInfo();
         if (hasFills) {
             pathInfo += " z";
         }
         let path2D = new Path2D(pathInfo);
 
-        const offsetX = shadow.offsetX; // / 2;
-        const offsetY = shadow.offsetY; // / 2;
+        const offsetX = shadow.offsetX;
+        const offsetY = shadow.offsetY;
         context.translate(offsetX, offsetY);
 
         context.stroke(path2D);

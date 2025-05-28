@@ -3,7 +3,7 @@
     <style>
         @scope (.presentation-viewer-dialog-component) {
             :scope {
-                height: 210px;
+                height: 250px;
                 width: 300px;
                 border: 1px solid var(--theme-color-tertiary-darkest);
             }
@@ -48,6 +48,11 @@
         <div class="controls-container">
             <button id="button-flip-map" class="action-control form-button" onclick="#model.flipMap()">
                 Flip map
+            </button>
+        </div>
+        <div class="controls-container">
+            <button id="button-toggle-captions" class="action-control form-button" onclick="#model.toggleCaptions()">
+                Toggle captions
             </button>
         </div>
         <div class="controls-container">

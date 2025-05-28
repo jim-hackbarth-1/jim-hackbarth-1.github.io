@@ -280,6 +280,35 @@ export class MapWorker {
         return null;
     }
 
+    printMessage(message, start) {
+        const scale = 1 / this.map.zoom;
+        const translation = { x: -this.map.pan.x, y: -this.map.pan.y };
+        const fontSize = 12 * scale;
+        this.renderingContext.font = `${fontSize}px sans-serif`;
+        const bounds = this.renderingContext.measureText(message);
+        const padding = 10 * scale;
+        let width = bounds.width + padding;
+        const minWidth = 100 * scale;
+        if (width < minWidth) {
+            width = minWidth;
+        }
+        const height = bounds.actualBoundingBoxAscent + bounds.actualBoundingBoxDescent + padding;
+        const rectStart = this.geometryUtilities.transformPoint(start, scale, translation);
+        const rect = new Path2D(`M ${rectStart.x},${rectStart.y} l ${width},0 0,${height} ${-(width)},0 z`);
+        this.renderingContext.lineWidth = 2 * scale;
+        this.renderingContext.fillStyle = "white";
+        this.renderingContext.globalAlpha = 1;
+        this.renderingContext.fill(rect);
+        this.renderingContext.strokeStyle = "dimgray";
+        this.renderingContext.setLineDash([]);
+        this.renderingContext.stroke(rect);
+        let textStart = { x: start.x + 5*scale, y: start.y + 15*scale };
+        textStart = this.geometryUtilities.transformPoint(textStart, scale, translation);
+        this.renderingContext.fillStyle = "dimgray";
+        this.renderingContext.fillText(message, textStart.x, textStart.y);
+    }
+
+
     // helpers
     async #initialize(ports, canvas, baseUrl) {
         this.#messagePort = ports[0];
@@ -434,6 +463,7 @@ export class MapWorker {
             if (this.activeToolModel && this.activeToolModel.onMapItemTemplateActivated) {
                 await this.activeToolModel.onMapItemTemplateActivated();
             }
+            await this.renderMap();
         }
     }
 
@@ -445,8 +475,13 @@ export class MapWorker {
         }
         else {
             if (this.activeToolModel && this.activeToolModel.handleClientEvent) {
+                const scale = 1 / this.map.zoom;
+                if (eventType == "pointermove" && eventData) {
+                    const point = this.#transformCanvasPoint(eventData.offsetX, eventData.offsetY);
+                    this.printMessage(`x: ${point.x}, y: ${point.y}`, { x: 5 * scale, y: 5 * scale });
+                }
                 if (eventType == "pointerdown" && this.activeTool?.toolType == ToolType.DrawingTool && !this.activeMapItemTemplate) {
-                    this.#printMessage("Map item template selection required.")
+                    this.printMessage("Map item template selection required.", { x: 5 * scale, y: 36 * scale });
                 }
                 await this.activeToolModel.handleClientEvent({
                     eventType: eventType,
@@ -456,29 +491,6 @@ export class MapWorker {
         }
     }
 
-    #printMessage(message) {
-        const scale = 1 / this.map.zoom;
-        const translation = { x: -this.map.pan.x, y: -this.map.pan.y };
-        const fontSize = 12 * scale;
-        this.renderingContext.font = `${fontSize}px sans-serif`;
-        const bounds = this.renderingContext.measureText(message);
-        const padding = 10 * scale;
-        const width = bounds.width + padding;
-        const height = bounds.actualBoundingBoxAscent + bounds.actualBoundingBoxDescent + padding;
-        const rectStart = this.geometryUtilities.transformPoint({ x: 5, y: 5 }, scale, translation);
-        const rect = new Path2D(`M ${rectStart.x},${rectStart.y} l ${width},0 0,${height} ${-(width)},0 z`);
-        this.renderingContext.lineWidth = 2 * scale;
-        this.renderingContext.fillStyle = "white";
-        this.renderingContext.globalAlpha = 0.5;
-        this.renderingContext.fill(rect);
-        this.renderingContext.globalAlpha = 1;
-        this.renderingContext.strokeStyle = "dimgray";
-        this.renderingContext.stroke(rect);
-        const textStart = this.geometryUtilities.transformPoint({ x: 10, y: 20 }, scale, translation);
-        this.renderingContext.fillStyle = "dimgray";
-        this.renderingContext.fillText(message, textStart.x, textStart.y);
-    }
-    
     #wheelTimeout = undefined;
     #wheelStartZoom;
     async #incrementZoom(eventData) {
@@ -561,5 +573,16 @@ export class MapWorker {
         if (this.activeToolModel && this.activeToolModel.onApplyToolOption) {
             await this.activeToolModel.onApplyToolOption(toolOptionInfo);
         }
+    }
+
+    #transformCanvasPoint(x, y) {
+        let point = { x: x, y: y };
+        if (this.map) {
+            const scale = { x: 1 / this.map.zoom, y: 1 / this.map.zoom };
+            const translation = { x: -this.map.pan.x, y: -this.map.pan.y };
+            point = this.geometryUtilities.transformPoint({ x: x, y: y }, scale, translation);
+            point = { x: Math.round(point.x), y: Math.round(point.y) };
+        }
+        return point;
     }
 }

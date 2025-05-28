@@ -44,6 +44,7 @@ class PresentationViewerModel {
     #componentElement;
     #messageHandlerRegistered;
     #flipped;
+    #showCaptions;
 
     #getElement(selector) {
         if (!this.#componentElement) {
@@ -69,6 +70,10 @@ class PresentationViewerModel {
                             me.#flipped = !me.#flipped;
                             await me.#refresh();
                             break;
+                        case "toggle-captions":
+                            me.#showCaptions = !me.#showCaptions;
+                            await me.#refresh();
+                            break;
                     }
                 }
             });
@@ -82,6 +87,8 @@ class PresentationViewerModel {
                     const canvas = me.#getElement("#presentation-canvas");
                     canvas.setAttribute("width", appWindow.innerWidth);
                     canvas.setAttribute("height", appWindow.innerHeight);
+                    const message = { messageType: "resized", width: appWindow.innerWidth, height: appWindow.innerHeight };
+                    appWindow.opener.postMessage(message, appWindow.location.origin);
                     await me.#refresh();
                 }, 250);
             });
@@ -96,7 +103,8 @@ class PresentationViewerModel {
         const options = {
             updatedViewPort: true,
             flipped: this.#flipped,
-            presentationView: true
+            presentationView: true,
+            hideCaptions: !this.#showCaptions
         };
         await map.render(canvas, context, options);
         const appDocument = KitDependencyManager.getDocument();

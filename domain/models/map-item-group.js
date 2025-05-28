@@ -263,6 +263,15 @@ export class MapItemGroup {
     getSelectionBounds(map) {
         const bounds = this.bounds;
         const handleSize = 10 / map.zoom;
+        const min = handleSize * 4;
+        if (bounds.width < min) {
+            bounds.x = bounds.x + (bounds.width - min) / 2;
+            bounds.width = min;
+        }
+        if (bounds.height < min) {
+            bounds.y = bounds.y + (bounds.height - min) / 2;
+            bounds.height = min;
+        }
         return {
             mapItemGroup: this,
             rotate: { x: bounds.x + (bounds.width - handleSize) / 2, y: bounds.y - (4 * handleSize), width: handleSize, height: handleSize },

@@ -611,13 +611,15 @@ export class EditorModel {
 
     async onCanvasResizeRequested(message) {
         const currentCanvas = this.#componentElement.querySelector("#map-canvas");
-        const appDocument = KitDependencyManager.getDocument();
-        const newCanvas = appDocument.createElement("canvas");
-        newCanvas.id = "map-canvas";
-        newCanvas.height = message.height;
-        newCanvas.width = message.width;
-        currentCanvas.parentNode.replaceChild(newCanvas, currentCanvas); 
-        this.#initializeMapWorker();
+        if (currentCanvas.height != message.height || currentCanvas.width != message.width) {
+            const appDocument = KitDependencyManager.getDocument();
+            const newCanvas = appDocument.createElement("canvas");
+            newCanvas.id = "map-canvas";
+            newCanvas.height = message.height;
+            newCanvas.width = message.width;
+            currentCanvas.parentNode.replaceChild(newCanvas, currentCanvas);
+            this.#initializeMapWorker();
+        }
     }
 
     #presentationWindow = null;

@@ -461,7 +461,18 @@ export function getTemplate() {
                     }
                 ]
             },
-            landFill
+            {
+                "options": [
+                    {
+                        "key": "PathStyleType",
+                        "value": "ColorFill"
+                    },
+                    {
+                        "key": "Color",
+                        "value": "#f5deb3"
+                    }
+                ]
+            }
         ],
         "strokes": [
             {
@@ -496,10 +507,6 @@ export function getTemplate() {
                     {
                         "key": "PathStyleType",
                         "value": "TileStroke"
-                    },
-                    {
-                        "key": "Opacity",
-                        "value": 1
                     },
                     {
                         "key": "TileImageSource",
@@ -542,6 +549,13 @@ export function getTemplate() {
                 ]
             }
         ],
+        "shadow": {
+            "blur": 6,
+            "color": "#8b4513",
+            "offsetX": 0,
+            "offsetY": 6,
+            "renderingOrder": "AboveStrokes"
+        },
         "defaultZGroup": 1,
         "caption": caption
     };
@@ -561,7 +575,7 @@ export function getTemplate() {
                     },
                     {
                         "key": "Color",
-                        "value": "#000000"
+                        "value": "#8b4513"
                     },
                     {
                         "key": "Opacity",
@@ -569,9 +583,36 @@ export function getTemplate() {
                     }
                 ]
             },
-            landFill
+            {
+                "options": [
+                    {
+                        "key": "PathStyleType",
+                        "value": "ColorFill"
+                    },
+                    {
+                        "key": "Color",
+                        "value": "#f5deb3"
+                    }
+                ]
+            }
         ],
         "strokes": [
+            {
+                "options": [
+                    {
+                        "key": "PathStyleType",
+                        "value": "ColorStroke"
+                    },
+                    {
+                        "key": "Color",
+                        "value": "#5b2c0b"
+                    },
+                    {
+                        "key": "Width",
+                        "value": 2
+                    }
+                ]
+            },
             {
                 "options": [
                     {
@@ -604,10 +645,6 @@ export function getTemplate() {
                     {
                         "key": "PathStyleType",
                         "value": "TileStroke"
-                    },
-                    {
-                        "key": "Opacity",
-                        "value": 1
                     },
                     {
                         "key": "TileImageSource",
@@ -650,6 +687,13 @@ export function getTemplate() {
                 ]
             }
         ],
+        "shadow": {
+            "blur": 6,
+            "color": "#8b4513",
+            "offsetX": 0,
+            "offsetY": -6,
+            "renderingOrder": "AboveStrokes"
+        },
         "defaultZGroup": 1,
         "caption": caption
     };

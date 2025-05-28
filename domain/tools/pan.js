@@ -151,29 +151,7 @@ class PanTool {
         }
         const text = `pan: ${x}, ${y}`;
         const scale = 1 / this.#mapWorker.map.zoom;
-        const fontSize = 12 * scale;
-        this.#mapWorker.renderingContext.font = `${fontSize}px sans-serif`;
-        const bounds = this.#mapWorker.renderingContext.measureText(text);
-        const padding = 10 * scale;
-        const width = bounds.width + padding;
-        const height = bounds.actualBoundingBoxAscent + bounds.actualBoundingBoxDescent + padding;
-        const rectStart = this.#transformCanvasPoint(5, 5);
-        const rect = new Path2D(`M ${rectStart.x},${rectStart.y} l ${width},0 0,${height} ${-(width)},0 z`);      
-        this.#mapWorker.renderingContext.lineWidth = 2 * scale;
-        this.#mapWorker.renderingContext.fillStyle = "white";
-        this.#mapWorker.renderingContext.globalAlpha = 0.5; 
-        this.#mapWorker.renderingContext.fill(rect);
-        this.#mapWorker.renderingContext.globalAlpha = 1; 
-        this.#mapWorker.renderingContext.strokeStyle = "dimgray";
-        this.#mapWorker.renderingContext.stroke(rect);
-        const textStart = this.#transformCanvasPoint(10, 20);
-        this.#mapWorker.renderingContext.fillStyle = "dimgray";
-        this.#mapWorker.renderingContext.fillText(text, textStart.x, textStart.y);
-    }
-
-    #transformCanvasPoint(x, y) {
-        const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
-        const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
-        return this.#mapWorker.geometryUtilities.transformPoint({ x: x, y: y }, scale, translation);
+        const start = { x: 5 * scale, y: 36 * scale };
+        this.#mapWorker.printMessage(text, start);
     }
 }

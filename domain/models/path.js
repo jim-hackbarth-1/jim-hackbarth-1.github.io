@@ -556,7 +556,7 @@ export class Path {
                 pathInfo += " z";
             }
             const path2D = new Path2D(pathInfo);
-            await stroke.setStyle(context, map, this.bounds);
+            await stroke.setStyle(context, map, this.bounds, closePath);
             context.stroke(path2D);
             if (isRotatedTileStyle) {
                 context.setTransform(currentTransform);
@@ -613,7 +613,7 @@ export class Path {
                 context.rotate((this.rotationAngle * Math.PI) / 180);
                 context.translate(-center.x, -center.y);
             }
-            await fill.setStyle(context, map, this.bounds);
+            await fill.setStyle(context, map, this.bounds, true);
             context.fill(path2D);
             if (isRotatedTileStyle) {
                 context.setTransform(currentTransform);
@@ -622,10 +622,16 @@ export class Path {
         }
     }
 
-    renderShadow(context, map, options, shadow) {
+    renderShadow(context, map, options, shadow, hasFills, aboveStrokes) {
         if (this.#isViewable(map, options)) {
+            if (aboveStrokes) {
+                this.#renderShadowAboveStrokes(context, shadow, hasFills);
+                return;
+            }
             let pathInfo = this.getPathInfo();
-            pathInfo += " z";
+            if (hasFills) {
+                pathInfo += " z";
+            }
             context.save();
             let path2D = new Path2D(pathInfo);
             if (this.clipPaths && this.clipPaths.length > 0) {
@@ -663,13 +669,54 @@ export class Path {
             context.shadowOffsetX = shadow.offsetX;
             context.shadowOffsetY = shadow.offsetY;
             context.shadowBlur = shadow.blur;
-            context.fillStyle = shadow.color;
-            context.fill(path2D);
+            if (hasFills) {
+                context.fillStyle = shadow.color;
+                context.fill(path2D);
+            }
+            else {
+                context.strokeStyle = shadow.color;
+                context.stroke(path2D);
+            }
             context.shadowOffsetX = 0;
             context.shadowOffsetY = 0;
             context.shadowBlur = 0;
             context.restore();
         }
+    }
+
+    #renderShadowAboveStrokes(context, shadow, hasFills) {
+
+        context.strokeStyle = shadow.color;
+        context.globalAlpha = 1;
+        context.filter = `blur(${shadow.blur}px)`;
+        context.lineWidth = shadow.blur;
+        context.globalAlpha = 1;
+        let pathInfo = this.getPathInfo();
+        if (hasFills) {
+            pathInfo += " z";
+        }
+        let path2D = new Path2D(pathInfo);
+
+        const offsetX = shadow.offsetX; // / 2;
+        const offsetY = shadow.offsetY; // / 2;
+        context.translate(offsetX, offsetY);
+
+        context.stroke(path2D);
+        context.stroke(path2D);
+
+        if (this.clipPaths) {
+            for (const clipPath of this.clipPaths) {
+                pathInfo = clipPath.getPathInfo();
+                pathInfo += " z";
+                path2D = new Path2D(pathInfo);
+                context.stroke(path2D);
+                context.stroke(path2D);
+            }
+        }
+
+        context.translate(-offsetX, -offsetY);
+        context.filter = "none";
+
     }
 
     #getShadowPathInfo(shadow) {

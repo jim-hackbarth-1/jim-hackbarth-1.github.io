@@ -178,7 +178,7 @@ class MapItemTemplateViewModel {
             const fillCount = this.getFills().length;
             for (let i = fillCount - 1; i > -1; i--) {
                 let fill = this.mapItemTemplate.fills[i];
-                await fill.setStyle(context, map, bounds);
+                await fill.setStyle(context, map, bounds, true);
                 context.fill(path2D);
             }
             if (fillCount > 0) {
@@ -191,7 +191,7 @@ class MapItemTemplateViewModel {
                         }
                     }
                     let stroke = new PathStyle(strokeData);
-                    await stroke.setStyle(context, map, bounds);
+                    await stroke.setStyle(context, map, bounds, true);
                     context.stroke(path2D);
                 }
             }
@@ -211,7 +211,7 @@ class MapItemTemplateViewModel {
                         }
                     }
                     let stroke = new PathStyle(strokeData);
-                    await stroke.setStyle(context, map, bounds);
+                    await stroke.setStyle(context, map, bounds, false);
                     context.stroke(path2D);
                 }
             }
@@ -651,7 +651,7 @@ class MapItemTemplateViewModel {
 
         // validate name
         const name = this.#getElement("#name")?.value;
-        if (name.length == 0) {
+        if (!name || name.length == 0) {
             this.#getElement("#validation-name").innerHTML = "Name is required.";
             isValid = false;
         }
@@ -716,6 +716,7 @@ class MapItemTemplateViewModel {
             blur: shadowValidationResult.blur,
             offsetX: shadowValidationResult.offsetX,
             offsetY: shadowValidationResult.offsetY,
+            renderingOrder: shadowValidationResult.renderingOrder
         }
 
         const mapItemTemplateData = this.mapItemTemplate.getData();

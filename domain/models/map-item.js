@@ -1,5 +1,16 @@
 ﻿
-import { Caption, Change, ChangeSet, ChangeType, EntityReference, InputUtilities, Path, PathStyle, PathStyleType } from "../references.js";
+import {
+    Caption,
+    Change,
+    ChangeSet,
+    ChangeType,
+    EntityReference,
+    InputUtilities,
+    Path,
+    PathStyle,
+    PathStyleType,
+    RenderingOrder
+} from "../references.js";
 
 export class MapItem {
 
@@ -288,15 +299,16 @@ export class MapItem {
         }
     }
 
-    renderShadow(context, map, options) {
+    renderShadow(context, map, options, aboveStrokes) {
         if (this.isHidden && options.presentationView) {
             return;
         }
         const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, this.mapItemTemplateRef));
         let shadow = mapItemTemplate?.shadow;
-        if (shadow && (shadow.blur > 0 || shadow.offsetX != 0 || shadow.offsetY != 0)) {
+        if (this.#doShadowRender(shadow, aboveStrokes)) {
+            const hasFills = (mapItemTemplate.fills.length > 0);
             for (const path of this.paths) {
-                path.renderShadow(context, map, options, shadow);
+                path.renderShadow(context, map, options, shadow, hasFills, aboveStrokes);
             }
         }
     }
@@ -558,5 +570,18 @@ export class MapItem {
         context.fillStyle = "dimgray";
         context.font = "12px sans-serif";
         context.fillText("[hidden]", textX, textY);
+    }
+
+    #doShadowRender(shadow, aboveStrokes) {
+        if (!shadow) {
+            return false;
+        }
+        if (aboveStrokes && shadow.renderingOrder == RenderingOrder.BelowStrokes) {
+            return false;
+        }
+        if (!aboveStrokes && shadow.renderingOrder == RenderingOrder.AboveStrokes) {
+            return false;
+        }
+        return (shadow.blur > 0 || shadow.offsetX != 0 || shadow.offsetY != 0)
     }
 }

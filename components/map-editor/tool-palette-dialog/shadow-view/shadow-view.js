@@ -1,5 +1,6 @@
 ﻿
-import { KitRenderer } from "../../../../ui-kit.js";
+import { KitDependencyManager, KitRenderer } from "../../../../ui-kit.js";
+import { RenderingOrder } from "../../../../domain/references.js";
 
 export function createModel() {
     return new ShadowViewModel();
@@ -17,6 +18,10 @@ export class ShadowViewModel {
         this.mapItemTemplate = modelInput.mapItemTemplate;
     }
 
+    async onRenderComplete() {
+        this.#loadLists();
+    }
+
     onKeyDown(event) {
         event.stopPropagation();
     }
@@ -27,6 +32,10 @@ export class ShadowViewModel {
             return (this.mapItemTemplate.ref.isBuiltIn || this.mapItemTemplate.ref.isFromTemplate) ? "disabled" : null;
         }
         return "disabled";
+    }
+
+    isForCaption() {
+        return this.isCaptionShadow || this.isCaptionTextShadow;
     }
 
     getColor() {
@@ -80,15 +89,19 @@ export class ShadowViewModel {
             isValid = false;
         }
 
+        const renderingOrder = this.#getElement("#shadow-rendering-order")?.value ?? RenderingOrder.BelowStrokes;
+
         return {
             isValid: isValid,
             color: color,
             blur: blur,
             offsetX: offsetX,
-            offsetY: offsetY
+            offsetY: offsetY,
+            renderingOrder: renderingOrder
         };
     }
 
+    // helpers
     #componentElement;
     #getElement(selector) {
         if (!this.#componentElement) {
@@ -106,5 +119,26 @@ export class ShadowViewModel {
             shadow = this.mapItemTemplate?.caption?.shadow;
         }
         return shadow;
+    }
+
+    #loadLists() {
+        const renderingOrderList = [
+            { value: RenderingOrder.BelowStrokes, label: "Below strokes (default)" },
+            { value: RenderingOrder.AboveStrokes, label: "Above strokes" }
+        ];
+        const shadow = this.#getShadow();
+        const selectedRenderingOrder = shadow?.renderingOrder ?? RenderingOrder.BelowStrokes;
+        const selectElement = this.#getElement("#shadow-rendering-order");
+        if (selectElement) {
+            const appDocument = KitDependencyManager.getDocument();
+            for (const renderingOrder of renderingOrderList) {
+                const option = appDocument.createElement("option");
+                option.value = renderingOrder.value;
+                option.title = renderingOrder.label;
+                option.innerHTML = renderingOrder.label;
+                option.selected = (renderingOrder.value == selectedRenderingOrder);
+                selectElement.appendChild(option);
+            }
+        }
     }
 }

@@ -136,15 +136,17 @@ export class Caption {
                 context.shadowOffsetY = this.shadow.offsetY * scale;
                 context.shadowBlur = this.shadow.blur;
             }
+            let hasFill = false;
             if (!PathStyle.isPathStyleHidden(this.backgroundFill, options)) {
-                await this.backgroundFill.setStyle(context, map, rectBounds);
+                await this.backgroundFill.setStyle(context, map, rectBounds, true);
                 context.fill(rectPath);
+                hasFill = true;
             }
             context.shadowOffsetX = 0;
             context.shadowOffsetY = 0;
             context.shadowBlur = 0;
             if (!PathStyle.isPathStyleHidden(this.borderStroke, options)) {
-                await this.borderStroke.setStyle(context, map, rectBounds);
+                await this.borderStroke.setStyle(context, map, rectBounds, hasFill);
                 context.stroke(rectPath);
             }
         }

@@ -61,8 +61,8 @@ class PresentationViewerModel {
                     switch (event.data.messageType) {
                         case "refresh":
                             const canvas = me.#getElement("#presentation-canvas");
-                            canvas.setAttribute("width", appWindow.innerWidth - 10);
-                            canvas.setAttribute("height", appWindow.innerHeight - 10);
+                            canvas.setAttribute("width", appWindow.innerWidth );
+                            canvas.setAttribute("height", appWindow.innerHeight);
                             await me.#refresh();
                             break;
                         case "flip-map":
@@ -80,8 +80,8 @@ class PresentationViewerModel {
                 clearTimeout(resizeTimer);
                 resizeTimer = setTimeout(async function () {
                     const canvas = me.#getElement("#presentation-canvas");
-                    canvas.setAttribute("width", appWindow.innerWidth - 10);
-                    canvas.setAttribute("height", appWindow.innerHeight - 10);
+                    canvas.setAttribute("width", appWindow.innerWidth);
+                    canvas.setAttribute("height", appWindow.innerHeight);
                     await me.#refresh();
                 }, 250);
             });

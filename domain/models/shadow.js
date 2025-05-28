@@ -1,6 +1,12 @@
 ﻿
 import { InputUtilities } from "../references.js";
 
+/** @readonly @enum {string} */
+export const RenderingOrder = {
+    BelowStrokes: "BelowStrokes",
+    AboveStrokes: "AboveStrokes"
+};
+
 export class Shadow {
 
     // constructor
@@ -10,6 +16,7 @@ export class Shadow {
             this.#color = InputUtilities.cleanseString(data.color);
             this.#offsetX = InputUtilities.cleanseNumber(data.offsetX);
             this.#offsetY = InputUtilities.cleanseNumber(data.offsetY);
+            this.#renderingOrder = InputUtilities.cleanseString(data.renderingOrder);
         }
     }
 
@@ -38,13 +45,20 @@ export class Shadow {
         return this.#offsetY ?? 0;
     }
 
+    /** @type {RenderingOrder}  */
+    #renderingOrder;
+    get renderingOrder() {
+        return this.#renderingOrder ?? RenderingOrder.BelowStrokes;
+    }
+
     // methods
     getData() {
         return {
             blur: this.#blur,
             color: this.#color,
             offsetX: this.#offsetX,
-            offsetY: this.#offsetY
+            offsetY: this.#offsetY,
+            renderingOrder: this.#renderingOrder
         };
     }
 }

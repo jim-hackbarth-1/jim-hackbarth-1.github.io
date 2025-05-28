@@ -45,4 +45,14 @@
             </div>
         </div>
     </div>
+    <kit-if data-kit-condition="!#model.isForCaption()">
+        <div>
+            <label>Rendering order:</label>
+            <div id="validation-shadow-rendering-order" class="validation-message"></div>
+            <select id="shadow-rendering-order"
+                    title="Rendering order"
+                    onchange="#model.update()">
+            </select>
+        </div>
+    </kit-if>
 </fieldset>

@@ -146,7 +146,7 @@ export class PathStyle {
         return this.options.filter(o => o.key.startsWith("ImageArraySource")).map(o => o.value);
     }
 
-    async setStyle(context, map, bounds) {
+    async setStyle(context, map, bounds, hasFill) {
         const pathStyleType = this.options.find(o => o.key == PathStyleOption.PathStyleType).value;
         this.#setOpacity(context);
         switch (pathStyleType) {
@@ -156,31 +156,31 @@ export class PathStyle {
                 break;
             case PathStyleType.ColorStroke:
             case PathStyleType.ImageArrayStroke:
-                this.#setColorStroke(context);
+                this.#setColorStroke(context, hasFill);
                 break;
             case PathStyleType.LinearGradientFill:
                 this.#setLinearGradientFill(context, bounds);
                 break;
             case PathStyleType.LinearGradientStroke:
-                this.#setLinearGradientStroke(context, bounds);
+                this.#setLinearGradientStroke(context, bounds, hasFill);
                 break;
             case PathStyleType.RadialGradientFill:
                 this.#setRadialGradientFill(context, bounds);
                 break;
             case PathStyleType.RadialGradientStroke:
-                this.#setRadialGradientStroke(context, bounds);
+                this.#setRadialGradientStroke(context, bounds, hasFill);
                 break;
             case PathStyleType.ConicalGradientFill:
                 this.#setConicalGradientFill(context, bounds);
                 break;
             case PathStyleType.ConicalGradientStroke:
-                this.#setConicalGradientStroke(context, bounds);
+                this.#setConicalGradientStroke(context, bounds, hasFill);
                 break;
             case PathStyleType.TileFill:
                 await this.#setTileFill(context, map);
                 break;
             case PathStyleType.TileStroke:
-                await this.#setTileStroke(context, map);
+                await this.#setTileStroke(context, map, hasFill);
                 break;
         }
     }
@@ -488,8 +488,8 @@ export class PathStyle {
         context.fillStyle = this.options.find(o => o.key == PathStyleOption.Color)?.value ?? "#c0c0c0";
     }
 
-    #setColorStroke(context) {
-        this.#setStrokeOptions(context);
+    #setColorStroke(context, hasFill) {
+        this.#setStrokeOptions(context, hasFill);
         context.strokeStyle = this.options.find(o => o.key == PathStyleOption.Color)?.value ?? "#696969";
     }
 
@@ -503,14 +503,14 @@ export class PathStyle {
         context.fillStyle = gradient;
     }
 
-    #setLinearGradientStroke(context, bounds) {
+    #setLinearGradientStroke(context, bounds, hasFill) {
         let start = this.options.find(o => o.key == PathStyleOption.GradientStart)?.value ?? { x: 0, y: 0 };
         start = this.#getAbsoluteCoordinates(bounds, start);
         let end = this.options.find(o => o.key == PathStyleOption.GradientEnd)?.value ?? { x: 100, y: 100 };
         end = this.#getAbsoluteCoordinates(bounds, end);
         const gradient = context.createLinearGradient(start.x, start.y, end.x, end.y);
         this.#setColorStops(gradient);
-        this.#setStrokeOptions(context);
+        this.#setStrokeOptions(context, hasFill);
         context.strokeStyle = gradient;
     }
 
@@ -528,7 +528,7 @@ export class PathStyle {
         context.fillStyle = gradient;
     }
 
-    #setRadialGradientStroke(context, bounds) {
+    #setRadialGradientStroke(context, bounds, hasFill) {
         let start = this.options.find(o => o.key == PathStyleOption.GradientStart)?.value ?? { x: 0, y: 0 };
         start = this.#getAbsoluteCoordinates(bounds, start);
         let end = this.options.find(o => o.key == PathStyleOption.GradientEnd)?.value ?? { x: 100, y: 100 };
@@ -539,7 +539,7 @@ export class PathStyle {
         endRadius = this.#getAbsoluteRadius(bounds, endRadius);
         const gradient = context.createRadialGradient(start.x, start.y, startRadius, end.x, end.y, endRadius);
         this.#setColorStops(gradient);
-        this.#setStrokeOptions(context);
+        this.#setStrokeOptions(context, hasFill);
         context.strokeStyle = gradient;
     }
 
@@ -552,13 +552,13 @@ export class PathStyle {
         context.fillStyle = gradient;
     }
 
-    #setConicalGradientStroke(context, bounds) {
+    #setConicalGradientStroke(context, bounds, hasFill) {
         let start = this.options.find(o => o.key == PathStyleOption.GradientStart)?.value ?? { x: 0, y: 0 };
         start = this.#getAbsoluteCoordinates(bounds, start);
         const startAngle = this.options.find(o => o.key == PathStyleOption.GradientAngle)?.value ?? 0;
         const gradient = context.createConicGradient(startAngle, start.x, start.y);
         this.#setColorStops(gradient);
-        this.#setStrokeOptions(context);
+        this.#setStrokeOptions(context, hasFill);
         context.strokeStyle = gradient;
     }
 
@@ -569,11 +569,11 @@ export class PathStyle {
         context.fillStyle = pattern;
     }
 
-    async #setTileStroke(context, map) {
+    async #setTileStroke(context, map, hasFill) {
         const key = `${this.id}-${PathStyleType.TileStroke}`;
         const data = this.options.find(o => o.key == PathStyleOption.TileImageSource).value;
         const pattern = await this.#getPattern(context, map, key, data);
-        this.#setStrokeOptions(context);
+        this.#setStrokeOptions(context, hasFill);
         context.strokeStyle = pattern;
     }
 
@@ -581,8 +581,12 @@ export class PathStyle {
         context.globalAlpha = this.options.find(o => o.key == PathStyleOption.Opacity)?.value ?? 1;
     }
 
-    #setStrokeOptions(context) {
-        context.lineWidth = this.options.find(o => o.key == PathStyleOption.Width)?.value ?? 3;
+    #setStrokeOptions(context, hasFill) {
+        let width = this.options.find(o => o.key == PathStyleOption.Width)?.value ?? 3;
+        if (hasFill) {
+            width = width * 2;
+        }
+        context.lineWidth = width;
         context.setLineDash(this.options.find(o => o.key == PathStyleOption.Dash)?.value ?? []);
         context.lineDashOffset = this.options.find(o => o.key == PathStyleOption.DashOffset)?.value ?? 0;
         context.lineCap = this.options.find(o => o.key == PathStyleOption.Cap)?.value ?? "round";

@@ -31,6 +31,7 @@ class FileSaveAsDialogModel {
                 }
             });
         }
+        this.#asMap = true;
         this.#getElement("#as-map-radio").checked = true;
         this.#getElement("#file-name").value = "";
         this.#getElement("#button-ok").disabled = true;
@@ -42,6 +43,15 @@ class FileSaveAsDialogModel {
     closeDialog() {
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         componentElement.querySelector("dialog").close();
+    }
+
+    asMap() {
+        return this.#asMap;
+    }
+
+    async setAsMap(asMap) {
+        this.#asMap = asMap;
+        await this.#reRenderElement("file-controls-container");
     }
 
     async browse() {
@@ -71,11 +81,25 @@ class FileSaveAsDialogModel {
         componentElement.querySelector("#button-ok").disabled = false;
     }
 
+    onFileNameChanged() {
+        const element = this.#getElement("#file-name");
+        let disabled = true;
+        if (element.value && element.value.trim().length > 0) {
+            disabled = false;
+        }
+        this.#getElement("#button-ok").disabled = disabled;
+    }
+
     async buttonOkClicked() {
         this.closeDialog();
         const fileType = this.#asMap ? "map" : "image";
-        await KitMessenger.publish(EditorModel.SaveFileAsRequestTopic, { fileHandle: this.#fileHandle, fileType: fileType });
-        
+        if (fileType == "map") {
+            await KitMessenger.publish(EditorModel.SaveFileAsRequestTopic, { fileHandle: this.#fileHandle, fileType: fileType });
+        }
+        else {
+            const fileName = this.#getElement("#file-name").value.trim();
+            await KitMessenger.publish(EditorModel.SaveFileAsRequestTopic, { fileName: fileName, fileType: fileType });
+        }
     }
 
     // helpers
@@ -85,5 +109,12 @@ class FileSaveAsDialogModel {
             this.#componentElement = KitRenderer.getComponentElement(this.componentId);
         }
         return this.#componentElement.querySelector(selector);
+    }
+
+    async #reRenderElement(elementId) {
+        const componentElement = KitRenderer.getComponentElement(this.componentId);
+        const element = componentElement.querySelector(`#${elementId}`);
+        const componentId = element.getAttribute("data-kit-component-id");
+        await KitRenderer.renderComponent(componentId);
     }
 }

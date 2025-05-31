@@ -308,6 +308,66 @@ export class MapWorker {
         this.renderingContext.fillText(message, textStart.x, textStart.y);
     }
 
+    strokeDrawingPath(path, scale) {
+        if (!scale) {
+            scale = 1;
+        }
+        this.renderingContext.strokeStyle = "dimgray";
+        this.renderingContext.lineWidth = 3 * scale;
+        this.renderingContext.stroke(path);
+        this.renderingContext.strokeStyle = "white";
+        this.renderingContext.lineWidth = 2 * scale;
+        this.renderingContext.stroke(path);
+        this.renderingContext.setLineDash([5 * scale, 5 * scale]);
+        this.renderingContext.strokeStyle = "royalblue";
+        this.renderingContext.stroke(path);
+        this.renderingContext.setLineDash([]);
+    }
+
+    strokeSelectionPath(path, scale) {
+        if (!scale) {
+            scale = 1;
+        }
+        this.renderingContext.strokeStyle = "dimgray";
+        this.renderingContext.lineWidth = 3 * scale;
+        this.renderingContext.stroke(path);
+        this.renderingContext.strokeStyle = "white";
+        this.renderingContext.lineWidth = 2 * scale;
+        this.renderingContext.stroke(path);
+        this.renderingContext.setLineDash([5 * scale, 5 * scale]);
+        this.renderingContext.strokeStyle = "orange";
+        this.renderingContext.stroke(path);
+        this.renderingContext.setLineDash([]);
+    }
+
+    strokeClipPath(path, scale) {
+        if (!scale) {
+            scale = 1;
+        }
+        this.renderingContext.strokeStyle = "dimgray";
+        this.renderingContext.lineWidth = 3 * scale;
+        this.renderingContext.stroke(path);
+        this.renderingContext.strokeStyle = "white";
+        this.renderingContext.lineWidth = 2 * scale;
+        this.renderingContext.stroke(path);
+        this.renderingContext.setLineDash([5 * scale, 5 * scale]);
+        this.renderingContext.strokeStyle = "darkred";
+        this.renderingContext.stroke(path);
+        this.renderingContext.setLineDash([]);
+    }
+
+    strokeGuidePath(path, scale) {
+        if (!scale) {
+            scale = 1;
+        }
+        this.renderingContext.strokeStyle = "black";
+        this.renderingContext.lineWidth = 2 * scale;
+        this.renderingContext.stroke(path);
+        this.renderingContext.strokeStyle = "white";
+        this.renderingContext.setLineDash([3 * scale, 3 * scale]);
+        this.renderingContext.stroke(path);
+        this.renderingContext.setLineDash([]);
+    }
 
     // helpers
     async #initialize(ports, canvas, baseUrl) {

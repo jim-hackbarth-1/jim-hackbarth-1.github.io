@@ -53,7 +53,7 @@ class DrawPolytransitTool {
 
     handleMapChange = async (change) => {
         this.#initializeTransitInfo();
-        await this.#drawTransitInfo();
+        await this.#drawTransitInfo(false);
     }
 
     // helpers
@@ -64,11 +64,11 @@ class DrawPolytransitTool {
         }
         if (name == "ArcMode") {
             this.#isArcModeOn = value;
-            await this.#drawCandidate();
+            await this.#drawCandidate(false);
         }
         if (name == "CancelChanges") {
             this.#initializeTransitInfo();
-            await this.#drawTransitInfo();
+            await this.#drawTransitInfo(false);
             return;
         }
         if (name == "LockMode") {
@@ -80,7 +80,7 @@ class DrawPolytransitTool {
                 this.#transits.pop();
                 this.#last = this.#points[this.#points.length - 1];
             }
-            await this.#drawTransitInfo();
+            await this.#drawTransitInfo(false);
             return;
         }
         if (name == "SnapToOverlay") {
@@ -88,7 +88,7 @@ class DrawPolytransitTool {
         }
         if (name == "SweepFlag") {
             this.#sweepFlag = value ? 1 : 0;
-            await this.#drawCandidate();
+            await this.#drawCandidate(false);
         }
         if (notifyMapWorker) {
             this.#mapWorker.setToolOptionValue(name, value);
@@ -162,7 +162,7 @@ class DrawPolytransitTool {
     async #onPointerMove(eventData) {
         if (eventData && this.#last) {
             this.#setCandidate(eventData);
-            await this.#drawCandidate();
+            await this.#drawCandidate(true);
         }
     }
 
@@ -212,7 +212,7 @@ class DrawPolytransitTool {
         this.#transits.push(transit);
         this.#points.push(next);
         this.#last = next;
-        await this.#drawTransitInfo();
+        await this.#drawTransitInfo(false);
     }
 
     #getPoint(pointIn, previousPoint) {
@@ -290,8 +290,8 @@ class DrawPolytransitTool {
         return transit;
     }
 
-    async #drawTransitInfo() {
-        await this.#mapWorker.renderMap();
+    async #drawTransitInfo(quickRender) {
+        await this.#mapWorker.renderMap({ quickRender: quickRender });
         const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
         const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
         if (this.#start && this.#transits.length > 0) {
@@ -311,20 +311,15 @@ class DrawPolytransitTool {
     }
 
     #drawPath(path) {
-        this.#mapWorker.renderingContext.strokeStyle = "darkgray";
-        this.#mapWorker.renderingContext.lineWidth = 3;
-        this.#mapWorker.renderingContext.stroke(path);
-        this.#mapWorker.renderingContext.strokeStyle = "white";
-        this.#mapWorker.renderingContext.lineWidth = 1;
-        this.#mapWorker.renderingContext.stroke(path);
+        this.#mapWorker.strokeDrawingPath(path);
     }
 
     #setCandidate(eventData) {
         this.#candidate = this.#getPoint({ x: eventData.offsetX, y: eventData.offsetY }, this.#last);
     }
 
-    async #drawCandidate() {
-        await this.#drawTransitInfo();
+    async #drawCandidate(quickRender) {
+        await this.#drawTransitInfo(quickRender);
         if (this.#candidate) {
             const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
             const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };

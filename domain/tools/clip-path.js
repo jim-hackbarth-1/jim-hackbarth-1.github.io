@@ -9,8 +9,7 @@ class ClipPathTool {
     #mapWorker;
     #pointDown;
     #points;
-    #pathDark;
-    #pathLight;
+    #path;
     #selectionUtilities;
     #isClipModeOn;
 
@@ -77,10 +76,8 @@ class ClipPathTool {
         this.#points.push({ x: eventData.offsetX, y: eventData.offsetY });
         this.#mapWorker.renderingContext.resetTransform();
         this.#mapWorker.renderingContext.restore();
-        this.#pathDark = new Path2D();
-        this.#pathLight = new Path2D();
-        this.#pathDark.moveTo(eventData.offsetX, eventData.offsetY);
-        this.#pathLight.moveTo(eventData.offsetX, eventData.offsetY);
+        this.#path = new Path2D();
+        this.#path.moveTo(eventData.offsetX, eventData.offsetY);
     }
 
     #selectMove(eventData) {
@@ -165,15 +162,8 @@ class ClipPathTool {
     }
 
     #drawSelectionLine(x, y) {
-        this.#mapWorker.renderingContext.setLineDash([5, 5]);
-        this.#mapWorker.renderingContext.strokeStyle = this.#isClipModeOn ? "black" : "dimgray";
-        this.#mapWorker.renderingContext.lineWidth = 3;
-        this.#pathDark.lineTo(x, y);
-        this.#mapWorker.renderingContext.stroke(this.#pathDark);
-        this.#mapWorker.renderingContext.strokeStyle = this.#isClipModeOn ? "orange" : "lightyellow";
-        this.#mapWorker.renderingContext.lineWidth = 1;
-        this.#pathLight.lineTo(x, y);
-        this.#mapWorker.renderingContext.stroke(this.#pathLight);
+        this.#path.lineTo(x, y);
+        this.#mapWorker.strokeClipPath(this.#path);
     }
 
     #hasSelection() {

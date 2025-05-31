@@ -33,7 +33,7 @@ export function getTemplate() {
                 },
                 {
                     "key": "Width",
-                    "value": 20
+                    "value": 10
                 }
             ]
         },
@@ -49,7 +49,7 @@ export function getTemplate() {
                 },
                 {
                     "key": "Width",
-                    "value": 20
+                    "value": 10
                 }
             ]
         },
@@ -65,7 +65,7 @@ export function getTemplate() {
                 },
                 {
                     "key": "Width",
-                    "value": 23
+                    "value": 12
                 }
             ]
         },
@@ -81,7 +81,7 @@ export function getTemplate() {
                 },
                 {
                     "key": "Width",
-                    "value": 40
+                    "value": 20
                 }
             ]
         }
@@ -128,6 +128,13 @@ export function getTemplate() {
             "offsetY": 10
         }
     };
+    const landShadow = {
+        "blur": 5,
+        "color": "#562606",
+        "offsetX": 0,
+        "offsetY": 0,
+        "renderingOrder": "AboveStrokes"
+    }
 
     const land = {
         "ref": {
@@ -137,6 +144,7 @@ export function getTemplate() {
         "thumbnailSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAABGFJREFUSEvtln9MW1UUx7/3tbCFjI32FcyACUREmSDbNMiPODNsC3U/jC5zTjMy1LAEBxtbC+o2A0ZCaCtmM+IvlCU4dWhclqlIHxh0xB/oYoYMYkAhIENZX5GFMGT0Xb2vUPnVFmqW/eP959177jn3c8595557CW5QIzeICzfYquNrKEEWJPoupWgqanJ8fj2dksFWHV9GgedmgghgDnaIR/aex7Xr4YAMtug01QB9Mm37ToRFxeCr92vhGBwAKD3HKZT5hxqGLniCW7XqTCeQyhGygRAIHOHqDzZc7vbl7BSYZ9uaacjbj5ik9bLNByWHXXCQHgrkFAn2L2cuZs0IiYJCeYSCPjUXIgHaYkFs8gZ3gbXqAyDk5bu3PIjkrQ+59eurjqHnwo9s7OBAcghHOiQqGSglBoAaphXTd+ySu/2dF9HX3gaO4/olOvmAyTbc7gkugysz+AinAr+x/uMvmrEqNMyt31xbg44WOdhJAMqZC0UnrZcd1ay52S22vVmF7vOtIASvGG1igVewK8HU71GQXXEpadDm5M7SF95+HV2t38qy6DuTEBmfgPC426CJ/Bc4bTA67EBd6VE6Pn51DJhINNlGehaCu4+TWadKJ1A0AnR52vZHsU6fNUv/cl8vVKsjoAwI8JU3aDl1Em1fCJAoLS1udJR4BbNJs5bPJwTHWX/rfiPWrE3wCVlIYfDXLpyuKAMBaTEK9nt9gmW4jq8hwB62jdsKTVi+ItgveHVhHibGxqDkSHhhg31w7iLzSqZFf1MYoU4bBU2KT9+ITdlP+AU+U1mBgZ87WWnMNgpirU+wK2q1noA0sP7Gx7KRcF/GkuGtZ0/jh0/OMPAxoyAeWBTY9b81RkKoJVjNY3f5S0sGd33/HYTq15jdWZMgbls0mCladJrPWKHQ5+Yh9q7kJcHtfX2oK3ueRXzRKIjzsnTWP67QqksIIQ8TgB3QVdOkzfsKEZWYtCTwtYkJvJUv14OrJkEM8hixOSPsFqJwuot7YFAQVvIaTFenJVGnlN85tA/jo6OYDJxUP/vpyPDMNdwRl2eFRCudip4VIWpkV1T6w5lnc+qFoxAH+iFRrC1uFDsXBDOhVce3USBxocrlyRPJOYk///gdwXwoApYtm6X2UXkphnp7AEo2mRrtzR7BFp3mIEDlFPZVufo72vHNx3VwXLoEBmdt3f2ZiE1OQVh0jDw+YSrA2JUroEpFbFH90C8ewa5M5tn51atXRyAz92mowsPnBTtiH8LJw0Vu+T+Vrpe6klHFhJHxd2ClJhQd55pZVvcGKlW3F9R3/+UVPAWn7OsJXrV3j7wGBV6VqPTGM43DP7GxWa/eSSh2A2TzNMT1iBBPeMzquRMWPf81KFIZPC4lFRuytsj3LLtvWfN281j1KoNTIvcoODJktIkugznN6/PWqtPUUdAd843Ih0bB/oinhFuM3Oe72qrX5FJKWSW4lQD9AOn4r1DmmE/wYrz3R+d/sD+75pfN36Vxfy6GU9aQAAAAAElFTkSuQmCC",
         "fills": [landFill],
         "strokes": landStrokes,
+        "shadow": landShadow,
         "caption": caption
     };
 
@@ -156,6 +164,7 @@ export function getTemplate() {
             landFill
         ],
         "strokes": landStrokes,
+        "shadow": landShadow,
         "caption": caption
     };
 
@@ -175,6 +184,7 @@ export function getTemplate() {
             landFill
         ],
         "strokes": landStrokes,
+        "shadow": landShadow,
         "caption": caption
     };
 
@@ -194,6 +204,7 @@ export function getTemplate() {
             landFill
         ],
         "strokes": landStrokes,
+        "shadow": landShadow,
         "caption": caption
     };
 
@@ -213,6 +224,7 @@ export function getTemplate() {
             landFill
         ],
         "strokes": landStrokes,
+        "shadow": landShadow,
         "caption": caption
     };
 
@@ -232,6 +244,7 @@ export function getTemplate() {
             landFill
         ],
         "strokes": landStrokes,
+        "shadow": landShadow,
         "caption": caption
     };
 
@@ -251,6 +264,7 @@ export function getTemplate() {
             landFill
         ],
         "strokes": landStrokes,
+        "shadow": landShadow,
         "caption": caption
     };
 
@@ -270,6 +284,7 @@ export function getTemplate() {
             landFill
         ],
         "strokes": landStrokes,
+        "shadow": landShadow,
         "caption": caption
     };
 
@@ -491,7 +506,7 @@ export function getTemplate() {
                     },
                     {
                         "key": "Width",
-                        "value": 12
+                        "value": 6
                     },
                     {
                         "key": "StrokeOffset",
@@ -514,7 +529,7 @@ export function getTemplate() {
                     },
                     {
                         "key": "Width",
-                        "value": 12
+                        "value": 6
                     },
                     {
                         "key": "StrokeOffset",
@@ -537,23 +552,23 @@ export function getTemplate() {
                     },
                     {
                         "key": "Width",
-                        "value": 15
+                        "value": 8
                     },
                     {
                         "key": "StrokeOffset",
                         "value": {
                             "x": 0,
-                            "y": 6
+                            "y": 8
                         }
                     }
                 ]
             }
         ],
         "shadow": {
-            "blur": 6,
-            "color": "#8b4513",
+            "blur": 3,
+            "color": "#7e3807",
             "offsetX": 0,
-            "offsetY": 6,
+            "offsetY": 3,
             "renderingOrder": "AboveStrokes"
         },
         "defaultZGroup": 1,
@@ -629,7 +644,7 @@ export function getTemplate() {
                     },
                     {
                         "key": "Width",
-                        "value": 12
+                        "value": 6
                     },
                     {
                         "key": "StrokeOffset",
@@ -652,7 +667,7 @@ export function getTemplate() {
                     },
                     {
                         "key": "Width",
-                        "value": 12
+                        "value": 6
                     },
                     {
                         "key": "StrokeOffset",
@@ -675,7 +690,7 @@ export function getTemplate() {
                     },
                     {
                         "key": "Width",
-                        "value": 15
+                        "value": 9
                     },
                     {
                         "key": "StrokeOffset",
@@ -688,10 +703,10 @@ export function getTemplate() {
             }
         ],
         "shadow": {
-            "blur": 6,
-            "color": "#8b4513",
+            "blur": 3,
+            "color": "#7e3807",
             "offsetX": 0,
-            "offsetY": -6,
+            "offsetY": -3,
             "renderingOrder": "AboveStrokes"
         },
         "defaultZGroup": 1,
@@ -731,7 +746,7 @@ export function getTemplate() {
                     },
                     {
                         "key": "Width",
-                        "value": 20
+                        "value": 10
                     }
                 ]
             },
@@ -747,7 +762,7 @@ export function getTemplate() {
                     },
                     {
                         "key": "Width",
-                        "value": 23
+                        "value": 12
                     }
                 ]
             }

@@ -426,9 +426,6 @@ export class SelectionUtilities {
 
     drawArcsRadii(mapWorker) {
         const lineScale = 1 / mapWorker.map.zoom;
-        mapWorker.renderingContext.strokeStyle = "green";
-        mapWorker.renderingContext.lineWidth = 1 * lineScale;
-        mapWorker.renderingContext.setLineDash([4 * lineScale, 4 * lineScale]);
         let selectionStartData = this.selectionStartData;
         if (selectionStartData) {
             for (const selection of selectionStartData) {
@@ -438,7 +435,7 @@ export class SelectionUtilities {
                     if (transit.radii) {
                         arcCount++;
                         if (arcCount < 2) {
-                            this.#drawRadii(mapWorker, transitStart, transit);
+                            this.#drawRadii(mapWorker, transitStart, transit, lineScale);
                         }
                         transitStart = { x: transitStart.x + transit.end.x, y: transitStart.y + transit.end.y };
                     }
@@ -461,16 +458,7 @@ export class SelectionUtilities {
         };
         const line = new Path2D(`M ${currentPoint.x},${currentPoint.y} L ${centerOfRotation.x},${centerOfRotation.y}`);
         const lineScale = 1 / mapWorker.map.zoom;
-        const radius = 5 * lineScale;
-        const circle = new Path2D(`M ${centerOfRotation.x},${centerOfRotation.y} m 0,${-radius} a ${radius} ${radius} 0 0 0 0 ${2 * radius} a ${radius} ${radius} 0 0 0 0 ${-2 * radius} z`);
-        mapWorker.renderingContext.setLineDash([5 * lineScale, 5 * lineScale]);
-        mapWorker.renderingContext.strokeStyle = "dimgray";
-        mapWorker.renderingContext.lineWidth = 3 * lineScale;
-        mapWorker.renderingContext.stroke(line);
-        mapWorker.renderingContext.stroke(circle);
-        mapWorker.renderingContext.strokeStyle = "lightyellow";
-        mapWorker.renderingContext.lineWidth = 1 * lineScale;
-        mapWorker.renderingContext.stroke(line);
+        mapWorker.strokeGuidePath(line, lineScale);
     }
 
     removeExteriorClipPaths(mapWorker) {
@@ -919,7 +907,7 @@ export class SelectionUtilities {
         }
     }
 
-    #drawRadii(mapWorker, start, arc) {
+    #drawRadii(mapWorker, start, arc, scale) {
         let theta = arc.rotationAngle * (Math.PI / 180);
         if (theta < 0) {
             theta += (Math.PI * 2);
@@ -935,8 +923,8 @@ export class SelectionUtilities {
         let pt4 = { x: start.x + arc.center.x - ryX, y: start.y + arc.center.y + ryY };
         const radius1Path = new Path2D(`M ${pt1.x},${pt1.y} L ${pt2.x},${pt2.y}`);
         const radius2Path = new Path2D(`M ${pt3.x},${pt3.y} L ${pt4.x},${pt4.y}`);
-        mapWorker.renderingContext.stroke(radius1Path);
-        mapWorker.renderingContext.stroke(radius2Path);
+        mapWorker.strokeGuidePath(radius1Path, scale);
+        mapWorker.strokeGuidePath(radius2Path, scale);
     }
 
     #getBoundsToCheck(selectionBounds, boundsType) {

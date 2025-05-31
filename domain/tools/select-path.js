@@ -10,8 +10,7 @@ class SelectPathTool {
     #cursor;
     #pointDown;
     #points;
-    #pathDark;
-    #pathLight;
+    #path;
     #selectionUtilities;
     #isArrowPressed;
     #moveIncrementIteration;
@@ -130,17 +129,17 @@ class SelectPathTool {
             }
             if (this.#selectionUtilities.activityState === "Move") {
                 this.#selectionUtilities.move(this.#mapWorker, this.#pointDown, currentPoint, this.#isLockModeOn, this.#isMoveCaptionModeOn);
-                await this.#mapWorker.renderMap();
+                await this.#mapWorker.renderMap({ quickRender: true });
             }
             if (this.#selectionUtilities.activityState.startsWith("Resize")) {
                 this.#selectionUtilities.resize(this.#mapWorker, this.#pointDown, currentPoint, this.#isLockModeOn);
-                await this.#mapWorker.renderMap();
+                await this.#mapWorker.renderMap({ quickRender: true });
                 this.#selectionUtilities.drawArcsRadii(this.#mapWorker);
             }
             if (this.#selectionUtilities.activityState === "Rotate") {
                 const point = this.#transformCanvasPoint(eventData.offsetX, eventData.offsetY);
                 this.#selectionUtilities.rotateMove(this.#mapWorker, point, this.#isLockModeOn);
-                await this.#mapWorker.renderMap();
+                await this.#mapWorker.renderMap({ quickRender: true });
                 this.#selectionUtilities.drawRotationIndicator(this.#mapWorker, point);
                 this.#selectionUtilities.drawArcsRadii(this.#mapWorker);
             }
@@ -240,10 +239,8 @@ class SelectPathTool {
         this.#points.push({ x: eventData.offsetX, y: eventData.offsetY });
         this.#mapWorker.renderingContext.resetTransform();
         this.#mapWorker.renderingContext.restore();
-        this.#pathDark = new Path2D();
-        this.#pathLight = new Path2D();
-        this.#pathDark.moveTo(eventData.offsetX, eventData.offsetY);
-        this.#pathLight.moveTo(eventData.offsetX, eventData.offsetY);
+        this.#path = new Path2D();
+        this.#path.moveTo(eventData.offsetX, eventData.offsetY);
     }
 
     #selectMove(eventData) {
@@ -323,15 +320,8 @@ class SelectPathTool {
     }
 
     #drawSelectionLine(x, y) {
-        this.#mapWorker.renderingContext.setLineDash([5, 5]);
-        this.#mapWorker.renderingContext.strokeStyle = "dimgray";
-        this.#mapWorker.renderingContext.lineWidth = 3;
-        this.#pathDark.lineTo(x, y);
-        this.#mapWorker.renderingContext.stroke(this.#pathDark);
-        this.#mapWorker.renderingContext.strokeStyle = "lightyellow";
-        this.#mapWorker.renderingContext.lineWidth = 1;
-        this.#pathLight.lineTo(x, y);
-        this.#mapWorker.renderingContext.stroke(this.#pathLight);
+        this.#path.lineTo(x, y);
+        this.#mapWorker.strokeSelectionPath(this.#path);
     }
 
     async #moveIncrement(eventData, dx, dy) {
@@ -348,7 +338,7 @@ class SelectPathTool {
         maxIteration = maxIteration * this.#mapWorker.map.zoom;
         if (this.#moveIncrementIteration < maxIteration && this.#isArrowPressed) {
             this.#selectionUtilities.moveIncrement(this.#mapWorker, dx, dy, this.#isSingleSelectionModeOn, this.#isMoveCaptionModeOn);
-            await this.#mapWorker.renderMap();
+            await this.#mapWorker.renderMap({ quickRender: true });
         }
     }
 

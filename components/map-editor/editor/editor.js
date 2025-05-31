@@ -593,16 +593,35 @@ export class EditorModel {
     }
 
     async onSaveFileRequested(message) {
-        const map = await MapWorkerClient.getMap();
-        const json = EditorModel.#mapToJson(map);
-        FileManager.fileHandle = message.fileHandle;
-        await FileManager.saveMap(json);
+        const appDocument = KitDependencyManager.getDocument();
+        const startCursor = appDocument.body.style.cursor;
+        try {
+            appDocument.body.style.cursor = "wait";
+            const map = await MapWorkerClient.getMap();
+            const json = EditorModel.#mapToJson(map);
+            FileManager.fileHandle = message.fileHandle;
+            await FileManager.saveMap(json);
+            this.#showSavedNotification()
+        }
+        finally {
+            appDocument.body.style.cursor = startCursor;
+        }
     }
 
     async onSaveFileAsRequested(message) {
         if (message.fileType == "image") {
-            const blob = await MapWorkerClient.getMapAsImage();
-            await FileManager.saveMapAs(blob, message.fileHandle);
+            const appDocument = KitDependencyManager.getDocument();
+            const startCursor = appDocument.body.style.cursor;
+            appDocument.body.style.cursor = "wait";
+            try {
+                const blob = await MapWorkerClient.getMapAsImage();
+                const anchor = appDocument.createElement("a");
+                await FileManager.saveMapAs(blob, message.fileName, anchor);
+                this.#showSavedNotification()
+            }
+            finally {
+                appDocument.body.style.cursor = startCursor;
+            }
         }
         else {
             await this.onSaveFileRequested(message);
@@ -954,5 +973,13 @@ export class EditorModel {
         const element = componentElement.querySelector(`#${elementId}`);
         const componentId = element.getAttribute("data-kit-component-id");
         await KitRenderer.renderComponent(componentId);
+    }
+
+    #showSavedNotification() {
+        const element = this.#componentElement.querySelector("#map-saved-notification");
+        element.classList.remove("hidden");
+        setTimeout(() => {
+            element.classList.add("hidden");
+        }, 5000);
     }
 }

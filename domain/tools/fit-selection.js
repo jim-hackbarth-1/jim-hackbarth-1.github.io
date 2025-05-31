@@ -10,8 +10,7 @@ class FitSelectionTool {
     #cursor;
     #pointDown;
     #points;
-    #pathDark;
-    #pathLight;
+    #path;
     #selectionUtilities;
     #setOperationMode;
     #isArrowPressed;
@@ -166,7 +165,7 @@ class FitSelectionTool {
             }
         }
         if (preview) {
-            await this.#previewSetOperation();
+            await this.#previewSetOperation(false, true);
         }
         if (drawRotationIndicator && rotatePoint) {
             this.#selectionUtilities.drawRotationIndicator(this.#mapWorker, rotatePoint);
@@ -279,10 +278,8 @@ class FitSelectionTool {
         this.#points.push({ x: eventData.offsetX, y: eventData.offsetY });
         this.#mapWorker.renderingContext.resetTransform();
         this.#mapWorker.renderingContext.restore();
-        this.#pathDark = new Path2D();
-        this.#pathLight = new Path2D();
-        this.#pathDark.moveTo(eventData.offsetX, eventData.offsetY);
-        this.#pathLight.moveTo(eventData.offsetX, eventData.offsetY);
+        this.#path = new Path2D();
+        this.#path.moveTo(eventData.offsetX, eventData.offsetY);
     }
 
     #selectMove(eventData) {
@@ -361,20 +358,13 @@ class FitSelectionTool {
     }
 
     #drawSelectionLine(x, y) {
-        this.#mapWorker.renderingContext.setLineDash([5, 5]);
-        this.#mapWorker.renderingContext.strokeStyle = "dimgray";
-        this.#mapWorker.renderingContext.lineWidth = 3;
-        this.#pathDark.lineTo(x, y);
-        this.#mapWorker.renderingContext.stroke(this.#pathDark);
-        this.#mapWorker.renderingContext.strokeStyle = "lightyellow";
-        this.#mapWorker.renderingContext.lineWidth = 1;
-        this.#pathLight.lineTo(x, y);
-        this.#mapWorker.renderingContext.stroke(this.#pathLight);
+        this.#path.lineTo(x, y);
+        this.#mapWorker.strokeSelectionPath(this.#path);
     }
 
-    async #previewSetOperation(doNotPreRenderMap) {
+    async #previewSetOperation(doNotPreRenderMap, quickRender) {
         if (!doNotPreRenderMap) {
-            await this.#mapWorker.renderMap();
+            await this.#mapWorker.renderMap({ quickRender: quickRender });
         }
         
         // get primary paths
@@ -467,13 +457,7 @@ class FitSelectionTool {
     #displayPath(path) {
         const scale = 1 / this.#mapWorker.map.zoom;
         const path2D = new Path2D(`${path.getPathInfo()} z`);
-        this.#mapWorker.renderingContext.setLineDash([]);
-        this.#mapWorker.renderingContext.strokeStyle = "darkred";
-        this.#mapWorker.renderingContext.lineWidth = 3 * scale;
-        this.#mapWorker.renderingContext.stroke(path2D);
-        this.#mapWorker.renderingContext.strokeStyle = "white";
-        this.#mapWorker.renderingContext.lineWidth = 1 * scale;;
-        this.#mapWorker.renderingContext.stroke(path2D);
+        this.#mapWorker.strokeClipPath(path2D);
     }
 
     async #moveIncrement(eventData, dx, dy) {
@@ -490,7 +474,7 @@ class FitSelectionTool {
         maxIteration = maxIteration * this.#mapWorker.map.zoom;
         if (this.#moveIncrementIteration < maxIteration && this.#isArrowPressed) {
             this.#selectionUtilities.moveIncrement(this.#mapWorker, dx, dy, this.#isSingleSelectionModeOn, this.#isMoveCaptionModeOn);
-            await this.#previewSetOperation();
+            await this.#previewSetOperation(false, true);
         }
     }
 

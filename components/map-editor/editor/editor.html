@@ -172,9 +172,8 @@
                 border: 1px solid dimgray;
                 border-radius: 3px;
                 background-position: center;
-                margin-bottom:3px;
+                margin-bottom: 3px;
             }
-
             /* tools - end */
             /* canvas - start */
             #map-container {
@@ -208,6 +207,19 @@
                 display: none;
             }
             /* canvas - end */
+
+            #map-saved-notification {
+                position: absolute;
+                top: 0;
+                border: 1px solid var(--theme-color-complementary-darkest-fixed);
+                border-radius: 3px;
+                padding: 5px;
+            }
+
+            .hidden {
+                opacity: 0;
+                transition: opacity 1.0s ease-out, overlay 1.0s ease-out allow-discrete, display 1.0s ease-out allow-discrete;
+            }
         }
     </style>
     <div id="menu" class="surface-secondary">
@@ -647,6 +659,9 @@
         <div id="map-container" class="surface-primary background">
             <canvas id="map-canvas" width="1200" height="750"></canvas>
             <div id="no-map">[No map]</div>
+            <div id="map-saved-notification" class="surface-complementary hidden">
+                Saved
+            </div>
         </div>
     </div>
     <kit-component id="file-new-dialog-component" data-kit-template-path="/components/map-editor/file-new-dialog/file-new-dialog.html"></kit-component>

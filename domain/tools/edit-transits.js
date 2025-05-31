@@ -10,8 +10,7 @@ class EditTransitsTool {
     #cursor;
     #pointDown;
     #points;
-    #pathDark;
-    #pathLight;
+    #path;
     #selectionUtilities;
     #isArrowPressed;
     #moveIncrementIteration;
@@ -173,7 +172,7 @@ class EditTransitsTool {
             }
         }
         if (displayTransitEndpoints) {
-            await this.#displayTransitEndpoints();
+            await this.#displayTransitEndpoints(false, true);
         }
         if (drawRotationIndicator && rotatePoint) {
             this.#selectionUtilities.drawRotationIndicator(this.#mapWorker, rotatePoint);
@@ -296,10 +295,8 @@ class EditTransitsTool {
         this.#points.push({ x: eventData.offsetX, y: eventData.offsetY });
         this.#mapWorker.renderingContext.resetTransform();
         this.#mapWorker.renderingContext.restore();
-        this.#pathDark = new Path2D();
-        this.#pathLight = new Path2D();
-        this.#pathDark.moveTo(eventData.offsetX, eventData.offsetY);
-        this.#pathLight.moveTo(eventData.offsetX, eventData.offsetY);
+        this.#path = new Path2D();
+        this.#path.moveTo(eventData.offsetX, eventData.offsetY);
     }
 
     #selectMove(eventData) {
@@ -378,15 +375,8 @@ class EditTransitsTool {
     }
 
     #drawSelectionLine(x, y) {
-        this.#mapWorker.renderingContext.setLineDash([5, 5]);
-        this.#mapWorker.renderingContext.strokeStyle = "dimgray";
-        this.#mapWorker.renderingContext.lineWidth = 3;
-        this.#pathDark.lineTo(x, y);
-        this.#mapWorker.renderingContext.stroke(this.#pathDark);
-        this.#mapWorker.renderingContext.strokeStyle = "lightyellow";
-        this.#mapWorker.renderingContext.lineWidth = 1;
-        this.#pathLight.lineTo(x, y);
-        this.#mapWorker.renderingContext.stroke(this.#pathLight);
+        this.#path.lineTo(x, y);
+        this.#mapWorker.strokeSelectionPath(this.#path);
     }
 
     async #moveIncrement(eventData, dx, dy) {
@@ -403,13 +393,13 @@ class EditTransitsTool {
         maxIteration = maxIteration * this.#mapWorker.map.zoom;
         if (this.#moveIncrementIteration < maxIteration && this.#isArrowPressed) {
             this.#selectionUtilities.moveIncrement(this.#mapWorker, dx, dy, this.#isSingleSelectionModeOn, this.#isMoveCaptionModeOn);
-            await this.#displayTransitEndpoints();
+            await this.#displayTransitEndpoints(false, true);
         }
     }
 
-    async #displayTransitEndpoints(doNotPreRenderMap) {
+    async #displayTransitEndpoints(doNotPreRenderMap, quickRender) {
         if (!doNotPreRenderMap) {
-            await this.#mapWorker.renderMap();
+            await this.#mapWorker.renderMap({ quickRender: quickRender });
         }
         this.#bounds = this.#getBounds();
         for (const boundsItem of this.#bounds) {
@@ -546,7 +536,7 @@ class EditTransitsTool {
             clipPathId = path.id;
         }
         this.#updatePath(path, dx, dy, clipPathId);
-        await this.#displayTransitEndpoints();
+        await this.#displayTransitEndpoints(false, true);
     }
 
     #updatePath(path, dx, dy, clipPathId) {

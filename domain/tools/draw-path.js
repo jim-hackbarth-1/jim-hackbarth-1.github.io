@@ -12,8 +12,7 @@ class DrawPathTool {
     #xCurrent;
     #yCurrent;
     #isDrawing;
-    #pathDark;
-    #pathLight;
+    #path;
     #points;
 
     // methods
@@ -63,10 +62,8 @@ class DrawPathTool {
         this.#yStart = eventData.offsetY;
         this.#xCurrent = eventData.offsetX;
         this.#yCurrent = eventData.offsetY;
-        this.#pathDark = new Path2D();
-        this.#pathLight = new Path2D();
-        this.#pathDark.moveTo(this.#xStart, this.#yStart);
-        this.#pathLight.moveTo(this.#xStart, this.#yStart);
+        this.#path = new Path2D();
+        this.#path.moveTo(this.#xStart, this.#yStart);
         this.#points = [];
         this.#isDrawing = true;
     }
@@ -94,14 +91,8 @@ class DrawPathTool {
     }
 
     #drawLine(x, y) {
-        this.#mapWorker.renderingContext.strokeStyle = "darkgray";
-        this.#mapWorker.renderingContext.lineWidth = 3;
-        this.#pathDark.lineTo(x, y);
-        this.#mapWorker.renderingContext.stroke(this.#pathDark);
-        this.#mapWorker.renderingContext.strokeStyle = "white";
-        this.#mapWorker.renderingContext.lineWidth = 1;
-        this.#pathLight.lineTo(x, y);
-        this.#mapWorker.renderingContext.stroke(this.#pathLight);
+        this.#path.lineTo(x, y);
+        this.#mapWorker.strokeDrawingPath(this.#path);
     }
 
     async #addMapItemGroup() {  

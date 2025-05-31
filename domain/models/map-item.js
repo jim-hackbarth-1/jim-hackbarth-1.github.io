@@ -349,6 +349,7 @@ export class MapItem {
         else {
             for (const path of this.paths) {
                 if (geometryUtilities.isPath1ContainedInPath2(path, selectionPath)
+                    || geometryUtilities.isPath1ContainedInPath2(selectionPath, path)
                     || geometryUtilities.hasPathPathIntersections(path, selectionPath)) {
                     return true;
                 }
@@ -553,7 +554,7 @@ export class MapItem {
         const eyeBall = new Path2D(`M ${location.x + width / 2},${location.y + 8} m -3.5,0 a 3.5 3.5 0 0 0 7 0 a 3.5 3.5 0 0 0 -7 0`);
         const rect = new Path2D(`M ${location.x},${location.y} l ${width},0 0,${height} ${-(width)},0 z`);
         context.lineWidth = 1;
-        context.fillStyle = "lightgray";
+        context.fillStyle = "gold";
         context.globalAlpha = 0.75;
         context.fill(rect);
         context.globalAlpha = 1;

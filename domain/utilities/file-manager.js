@@ -11,21 +11,20 @@ export class FileManager {
     }
 
     static async saveMap(json) {
-        await FileManager.saveMapAs(json, FileManager.fileHandle);
-    }
-
-    static async saveMapAs(data, fileHandle) {
-        const writable = await fileHandle.createWritable();
+        const writable = await FileManager.fileHandle.createWritable();
         try {
-            await writable.write(data);
+            await writable.write(json);
             await writable.close();
-            console.log("saved");
         }
         catch (error) {
-            console.log("error saving file");
             await writable.abort();
-            console.log("save file cancelled");
         }
+    }
+
+    static async saveMapAs(data, fileName, anchor) {
+        anchor.href = URL.createObjectURL(data);
+        anchor.download = fileName;
+        anchor.click();
     }
 
     static async getImageSource(fileHandle) {

@@ -127,17 +127,17 @@ class SelectRectangleTool {
             }
             if (this.#selectionUtilities.activityState === "Move") {
                 this.#selectionUtilities.move(this.#mapWorker, this.#pointDown, currentPoint, this.#isLockModeOn, this.#isMoveCaptionModeOn);
-                await this.#mapWorker.renderMap();
+                await this.#mapWorker.renderMap({ quickRender: true });
             }
             if (this.#selectionUtilities.activityState.startsWith("Resize")) {
                 this.#selectionUtilities.resize(this.#mapWorker, this.#pointDown, currentPoint, this.#isLockModeOn);
-                await this.#mapWorker.renderMap();
+                await this.#mapWorker.renderMap({ quickRender: true });
                 this.#selectionUtilities.drawArcsRadii(this.#mapWorker);
             }
             if (this.#selectionUtilities.activityState === "Rotate") {
                 const point = this.#transformCanvasPoint(eventData.offsetX, eventData.offsetY);
                 this.#selectionUtilities.rotateMove(this.#mapWorker, point, this.#isLockModeOn);
-                await this.#mapWorker.renderMap();
+                await this.#mapWorker.renderMap({ quickRender: true });
                 this.#selectionUtilities.drawRotationIndicator(this.#mapWorker, point);
                 this.#selectionUtilities.drawArcsRadii(this.#mapWorker);
             }          
@@ -240,7 +240,7 @@ class SelectRectangleTool {
 
     async #selectMove(eventData) {
         this.#pointCurrent = { x: eventData.offsetX, y: eventData.offsetY };
-        await this.#mapWorker.renderMap();
+        await this.#mapWorker.renderMap({ quickRender: true });
         this.#mapWorker.renderingContext.restore();
         this.#mapWorker.renderingContext.resetTransform();
         const startX = this.#pointDown.x;
@@ -248,13 +248,7 @@ class SelectRectangleTool {
         const currentX = this.#pointCurrent.x;
         const currentY = this.#pointCurrent.y;
         const rect = new Path2D(`M ${startX},${startY} L ${startX},${currentY} ${currentX},${currentY} ${currentX},${startY} z`);
-        this.#mapWorker.renderingContext.setLineDash([5, 5]);
-        this.#mapWorker.renderingContext.strokeStyle = "dimgray";
-        this.#mapWorker.renderingContext.lineWidth = 3;
-        this.#mapWorker.renderingContext.stroke(rect);
-        this.#mapWorker.renderingContext.strokeStyle = "lightyellow";
-        this.#mapWorker.renderingContext.lineWidth = 1;
-        this.#mapWorker.renderingContext.stroke(rect);
+        this.#mapWorker.strokeSelectionPath(rect);
     }
 
     async #selectUp(eventData) {
@@ -329,7 +323,7 @@ class SelectRectangleTool {
         maxIteration = maxIteration * this.#mapWorker.map.zoom;
         if (this.#moveIncrementIteration < maxIteration && this.#isArrowPressed) {
             this.#selectionUtilities.moveIncrement(this.#mapWorker, dx, dy, this.#isSingleSelectionModeOn, this.#isMoveCaptionModeOn);
-            await this.#mapWorker.renderMap();
+            await this.#mapWorker.renderMap({ quickRender: true });
         }
     }
 

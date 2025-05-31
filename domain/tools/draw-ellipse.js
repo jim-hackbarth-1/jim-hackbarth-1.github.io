@@ -150,7 +150,7 @@ class DrawEllipseTool {
     }
 
     async #drawEllipse() {
-        await this.#mapWorker.renderMap();
+        await this.#mapWorker.renderMap({ quickRender: true });
         this.#mapWorker.renderingContext.restore();
         this.#mapWorker.renderingContext.resetTransform();
         const rect = new Path2D(`M ${this.#xStart},${this.#yStart} L ${this.#xStart},${this.#yCurrent} ${this.#xCurrent},${this.#yCurrent} ${this.#xCurrent},${this.#yStart} z`);
@@ -160,14 +160,8 @@ class DrawEllipseTool {
         const yRadius = Math.abs((this.#yCurrent - this.#yStart) / 2);
         const end = (this.#yCurrent < this.#yStart) ? -2 : 2;
         const ellipse = new Path2D(`M ${xStart},${yStart} a ${xRadius} ${yRadius} 0 0 0 0 ${end * yRadius} a ${xRadius} ${yRadius} 0 0 0 0 ${-end * yRadius} z`);
-        this.#mapWorker.renderingContext.strokeStyle = "darkgray";
-        this.#mapWorker.renderingContext.lineWidth = 1;
-        this.#mapWorker.renderingContext.stroke(rect);
-        this.#mapWorker.renderingContext.lineWidth = 3;
-        this.#mapWorker.renderingContext.stroke(ellipse);
-        this.#mapWorker.renderingContext.strokeStyle = "white";
-        this.#mapWorker.renderingContext.lineWidth = 1;
-        this.#mapWorker.renderingContext.stroke(ellipse);        
+        this.#mapWorker.strokeGuidePath(rect);
+        this.#mapWorker.strokeDrawingPath(ellipse);   
     }
 
     async #addMapItemGroup() {

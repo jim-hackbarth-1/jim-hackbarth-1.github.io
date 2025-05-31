@@ -184,16 +184,20 @@ export class Layer {
             const zGroups = this.#getZOrderGroups();
             for (const zGroup of zGroups) {
                 const mapItems = this.#getMapItemsByZGroup(zGroup);
-                for (const mapItem of mapItems) {
-                    mapItem.renderShadow(context, map, options, false);
+                if (!quickRender) {
+                    for (const mapItem of mapItems) {
+                        mapItem.renderShadow(context, map, options, false);
+                    }
                 }
                 for (let i = maxStrokesLength - 1; i > -1; i--) {
                     for (const mapItem of mapItems) {
                         await mapItem.renderStroke(context, map, options, i, quickRender);
                     }
                 }
-                for (const mapItem of mapItems) {
-                    mapItem.renderShadow(context, map, options, true);
+                if (!quickRender) {
+                    for (const mapItem of mapItems) {
+                        mapItem.renderShadow(context, map, options, true);
+                    }
                 }
                 for (let i = maxFillsLength - 1; i > -1; i--) {
                     for (const mapItem of mapItems) {

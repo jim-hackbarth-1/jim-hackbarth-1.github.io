@@ -51,10 +51,6 @@ export class MapWorkerClient {
         if (refreshFromDb || !MapWorkerClient.#map) {
             const mapData = await DbManager.getMap();
             MapWorkerClient.#map = mapData ? new Map(mapData) : null;
-
-            // DEBUG
-            //console.log("get map");
-            //await new Promise(r => setTimeout(r, 3000));
         }
         return MapWorkerClient.#map;
     }

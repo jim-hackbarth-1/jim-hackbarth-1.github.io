@@ -130,7 +130,7 @@ class ClipEllipseTool {
         else {
             this.#pointCurrent = { x: eventData.offsetX, y: eventData.offsetY };
         }
-        await this.#mapWorker.renderMap();
+        await this.#mapWorker.renderMap({ quickRender: true });
         this.#mapWorker.renderingContext.restore();
         this.#mapWorker.renderingContext.resetTransform();
         const startX = this.#pointDown.x;
@@ -144,16 +144,7 @@ class ClipEllipseTool {
         const yRadius = Math.abs((currentY - startY) / 2);
         const end = (currentY < startY) ? -2 : 2;
         const ellipse = new Path2D(`M ${ellipseXStart},${ellipseYStart} a ${xRadius} ${yRadius} 0 0 0 0 ${end * yRadius} a ${xRadius} ${yRadius} 0 0 0 0 ${-end * yRadius} z`);
-        this.#mapWorker.renderingContext.strokeStyle = "dimgray";
-        this.#mapWorker.renderingContext.setLineDash([5, 5]);
-        this.#mapWorker.renderingContext.lineWidth = 3;
-        this.#mapWorker.renderingContext.stroke(rect);
-        this.#mapWorker.renderingContext.strokeStyle = this.#isClipModeOn ? "black" : "dimgray";
-        this.#mapWorker.renderingContext.lineWidth = 3;
-        this.#mapWorker.renderingContext.stroke(ellipse);
-        this.#mapWorker.renderingContext.strokeStyle = this.#isClipModeOn ? "orange" : "lightyellow";
-        this.#mapWorker.renderingContext.lineWidth = 1;
-        this.#mapWorker.renderingContext.stroke(ellipse);  
+        this.#mapWorker.strokeClipPath(ellipse); 
     }
 
     async #selectUp(eventData) {

@@ -150,16 +150,11 @@ class DrawRectangleTool {
     }
 
     async #drawRectangle() {
-        await this.#mapWorker.renderMap();
+        await this.#mapWorker.renderMap({ quickRender: true });
         this.#mapWorker.renderingContext.restore();
         this.#mapWorker.renderingContext.resetTransform();
         const rect = new Path2D(`M ${this.#xStart},${this.#yStart} L ${this.#xStart},${this.#yCurrent} ${this.#xCurrent},${this.#yCurrent} ${this.#xCurrent},${this.#yStart} z`);
-        this.#mapWorker.renderingContext.strokeStyle = "darkgray";
-        this.#mapWorker.renderingContext.lineWidth = 3;
-        this.#mapWorker.renderingContext.stroke(rect);
-        this.#mapWorker.renderingContext.strokeStyle = "white";
-        this.#mapWorker.renderingContext.lineWidth = 2;
-        this.#mapWorker.renderingContext.stroke(rect);
+        this.#mapWorker.strokeDrawingPath(rect);
     }
 
     async #addMapItemGroup() {

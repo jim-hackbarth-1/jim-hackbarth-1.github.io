@@ -150,7 +150,7 @@ class DrawArcTool {
     }
 
     async #drawArc() {
-        await this.#mapWorker.renderMap();
+        await this.#mapWorker.renderMap({ quickRender: true });
         this.#mapWorker.renderingContext.restore();
         this.#mapWorker.renderingContext.resetTransform();
         const rect = new Path2D(`M ${this.#xStart},${this.#yStart} L ${this.#xStart},${this.#yCurrent} ${this.#xCurrent},${this.#yCurrent} ${this.#xCurrent},${this.#yStart} z`);
@@ -165,14 +165,8 @@ class DrawArcTool {
             sweepFlag = 1;
         }
         const arc = new Path2D(`M ${this.#xStart},${this.#yStart} a ${xRadius} ${yRadius} 0 0 ${sweepFlag} ${end.x} ${end.y} l ${-end.x},0 0,${-end.y} z`);
-        this.#mapWorker.renderingContext.strokeStyle = "darkgray";
-        this.#mapWorker.renderingContext.lineWidth = 1;
-        this.#mapWorker.renderingContext.stroke(rect);
-        this.#mapWorker.renderingContext.lineWidth = 3;
-        this.#mapWorker.renderingContext.stroke(arc);
-        this.#mapWorker.renderingContext.strokeStyle = "white";
-        this.#mapWorker.renderingContext.lineWidth = 1;
-        this.#mapWorker.renderingContext.stroke(arc);
+        this.#mapWorker.strokeGuidePath(rect);
+        this.#mapWorker.strokeDrawingPath(arc);
     }
 
     async #addMapItemGroup() {

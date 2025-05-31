@@ -89,6 +89,9 @@ export class PathStyleViewModel {
             if (optionName == "Opacity") {
                 optionValue = (optionValue ?? 1) * 100;
             }
+            if (optionName == "DashOffset" && !optionValue) {
+                optionValue = 0;
+            }
             return optionValue;
         }
         return null;

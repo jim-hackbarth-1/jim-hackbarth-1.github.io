@@ -445,7 +445,6 @@ class EditSelectionsDialogModel {
             }
         }
         if (changes.length > 0) {
-            //console.log(changes);
             this.#updateMap(changes);
         }
     }

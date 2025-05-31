@@ -521,7 +521,7 @@ export class Map {
         };
         const maxStrokeLength = this.#getMaxStrokesLength();
         const maxFillsLength = this.#getMaxFillsLength();
-        const quickRender = this.#changeSetStarted;
+        const quickRender = this.#changeSetStarted || options.quickRender;
         for (const layer of this.layers) {
             await layer.render(context, this, options, maxStrokeLength, maxFillsLength, quickRender);
         }

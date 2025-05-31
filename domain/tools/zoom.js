@@ -44,7 +44,7 @@ class ZoomTool {
     async #onPointerMove(eventData) {
         if (eventData && this.#isDrawing) {     
             this.#pointCurrent = { x: eventData.offsetX, y: eventData.offsetY };
-            await this.#mapWorker.renderMap();
+            await this.#mapWorker.renderMap({ quickRender: true });
             this.#mapWorker.renderingContext.restore();
             this.#mapWorker.renderingContext.resetTransform();
             const startX = this.#pointDown.x;
@@ -52,13 +52,16 @@ class ZoomTool {
             const currentX = this.#pointCurrent.x;
             const currentY = this.#pointCurrent.y;
             const rect = new Path2D(`M ${startX},${startY} L ${startX},${currentY} ${currentX},${currentY} ${currentX},${startY} z`);
-            this.#mapWorker.renderingContext.setLineDash([5, 5]);
             this.#mapWorker.renderingContext.strokeStyle = "dimgray";
             this.#mapWorker.renderingContext.lineWidth = 3;
             this.#mapWorker.renderingContext.stroke(rect);
-            this.#mapWorker.renderingContext.strokeStyle = "lightyellow";
-            this.#mapWorker.renderingContext.lineWidth = 1;
+            this.#mapWorker.renderingContext.strokeStyle = "white";
+            this.#mapWorker.renderingContext.lineWidth = 2;
             this.#mapWorker.renderingContext.stroke(rect);
+            this.#mapWorker.renderingContext.setLineDash([5, 5]);
+            this.#mapWorker.renderingContext.strokeStyle = "green";
+            this.#mapWorker.renderingContext.stroke(rect);
+            this.#mapWorker.renderingContext.setLineDash([]);
         }
     }
 

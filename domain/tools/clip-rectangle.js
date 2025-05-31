@@ -130,7 +130,7 @@ class ClipRectangleTool {
         else {
             this.#pointCurrent = { x: eventData.offsetX, y: eventData.offsetY };
         }
-        await this.#mapWorker.renderMap();
+        await this.#mapWorker.renderMap({ quickRender: true });
         this.#mapWorker.renderingContext.restore();
         this.#mapWorker.renderingContext.resetTransform();
         const startX = this.#pointDown.x;
@@ -138,13 +138,7 @@ class ClipRectangleTool {
         const currentX = this.#pointCurrent.x;
         const currentY = this.#pointCurrent.y;
         const rect = new Path2D(`M ${startX},${startY} L ${startX},${currentY} ${currentX},${currentY} ${currentX},${startY} z`);
-        this.#mapWorker.renderingContext.setLineDash([5, 5]);
-        this.#mapWorker.renderingContext.strokeStyle = this.#isClipModeOn ? "black" : "dimgray";
-        this.#mapWorker.renderingContext.lineWidth = 3;
-        this.#mapWorker.renderingContext.stroke(rect);
-        this.#mapWorker.renderingContext.strokeStyle = this.#isClipModeOn ? "orange" : "lightyellow";
-        this.#mapWorker.renderingContext.lineWidth = 1;
-        this.#mapWorker.renderingContext.stroke(rect);
+        this.#mapWorker.strokeClipPath(rect);
     }
 
     async #selectUp(eventData) {

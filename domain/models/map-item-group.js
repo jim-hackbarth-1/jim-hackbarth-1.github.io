@@ -220,7 +220,7 @@ export class MapItemGroup {
                     x: start.x,
                     y: selectionBounds.move.y + (selectionBounds.move.height / 2)
                 };
-                this.#drawRotationLine(context, map, start, end);
+                this.#drawRotationLine(context, map, start, end, this.selectionStatus);
             }
         }
     }
@@ -384,34 +384,33 @@ export class MapItemGroup {
         if (height < minSize) {
             height = minSize;
         }
-        const pathDark = new Path2D(`M ${bounds.x},${bounds.y} l ${width},${0} ${0},${height} ${-width},${0} z`);
-        const pathLight = new Path2D(`M ${bounds.x + 1 * scale},${bounds.y + 1 * scale} l ${width},${0} ${0},${height} ${-width},${0} z`);
-        context.setLineDash([2 * scale, 2 * scale]);
-        context.lineWidth = 2 * scale;
-        context.strokeStyle = (selectionStatus == SelectionStatusType.Primary) ? "yellow" : "white";
-        context.stroke(pathLight);
-        context.lineWidth = 2 * scale;
-        context.strokeStyle = "dimgray";
-        context.stroke(pathDark);
+        const path = new Path2D(`M ${bounds.x},${bounds.y} l ${width},${0} ${0},${height} ${-width},${0} z`);
+        this.#strokeSelectionPath(context, path, selectionStatus, scale);
     }
 
-    #drawRotationLine(context, map, start, end) {
+    #drawRotationLine(context, map, start, end, selectionStatus) {
         const scale = 1 / map.zoom;
-        const pathDark = new Path2D(`M ${start.x},${start.y} L ${end.x},${end.y}}`);
-        const pathLight = new Path2D(`M ${start.x + 1 * scale},${start.y + 1 * scale} L ${end.x},${end.y}`);
+        const path = new Path2D(`M ${start.x},${start.y} L ${end.x},${end.y}}`);
         const radius = 5 * scale;
         const circle = new Path2D(`M ${end.x},${end.y} m 0,${-radius} a ${radius} ${radius} 0 0 0 0 ${2 * radius} a ${radius} ${radius} 0 0 0 0 ${-2 * radius}`);
-        context.setLineDash([2 * scale, 2 * scale]);
-        context.lineWidth = 2 * scale;
-        context.strokeStyle = "white";
-        context.stroke(pathLight);
-        context.lineWidth = 2 * scale;
-        context.strokeStyle = "dimgray";
-        context.stroke(pathDark);
-        context.setLineDash([]);
+        this.#strokeSelectionPath(context, path, selectionStatus, scale);
+        context.strokeStyle = (selectionStatus == SelectionStatusType.Primary) ? "orange" : "silver";
         context.stroke(circle);
         context.fillStyle = "white";
         context.fill(circle);
+    }
+
+    #strokeSelectionPath(context, path, selectionStatus, scale) {
+        context.strokeStyle = "dimgray";
+        context.lineWidth = 3 * scale;
+        context.stroke(path);
+        context.strokeStyle = "white";
+        context.lineWidth = 2 * scale;
+        context.stroke(path);
+        context.setLineDash([5 * scale, 5 * scale]);
+        context.strokeStyle = (selectionStatus == SelectionStatusType.Primary) ? "orange" : "silver";
+        context.stroke(path);
+        context.setLineDash([]);
     }
 
     #getListData(list, copy) {

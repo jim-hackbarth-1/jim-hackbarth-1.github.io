@@ -84,26 +84,38 @@
         <div id="file-type-container">
             <div>
                 <label class="radio-button">
-                    <input id="as-map-radio" type="radio" name="file-type" value="map" checked />
+                    <input id="as-map-radio" type="radio" name="file-type" value="map" checked onclick="#model.setAsMap(true)" />
                     <span class="checkmark"></span>
                     <span class="file-type-label">Map (.json)</span>
                 </label>
             </div>
             <div>
                 <label class="radio-button">
-                    <input type="radio" name="file-type" value="image" />
+                    <input type="radio" name="file-type" value="image" onclick="#model.setAsMap(false)" />
                     <span class="checkmark"></span>
                     <span class="file-type-label">Image (.png)</span>
                 </label>
             </div>
         </div>
-        <div>
-            <label>Choose file path:</label>
-        </div>
-        <div id="file-container">
-            <input id="file-name" type="text" placeholder="file name" disabled />
-            <button id="browse" class="action-control" title="browse" onclick="#model.browse()">...</button>
-        </div>
+        <kit-if id="file-controls-container" data-kit-condition="true">
+            <kit-if data-kit-condition="#model.asMap()">
+                <div>
+                    <label>Choose file path:</label>
+                </div>
+                <div id="file-container">
+                    <input id="file-name" type="text" placeholder="file name" disabled />
+                    <button id="browse" class="action-control" title="browse" onclick="#model.browse()">...</button>
+                </div>
+            </kit-if>
+            <kit-if data-kit-condition="!#model.asMap()">
+                <div>
+                    <label>Choose file name:</label>
+                </div>
+                <div id="file-container">
+                    <input id="file-name" type="text" placeholder="file name" onchange="#model.onFileNameChanged()" />
+                </div>
+            </kit-if>
+        </kit-if>
         <div>
             <button id="button-ok" class="action-control" title="OK" onclick="#model.buttonOkClicked();" disabled>OK</button>
         </div>

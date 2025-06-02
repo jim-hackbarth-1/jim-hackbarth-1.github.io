@@ -55,7 +55,6 @@ class DrawPathTool {
     }
 
     #drawStart(eventData) {
-        this.#mapWorker.renderingContext.restore();
         this.#mapWorker.renderingContext.resetTransform();
         this.#mapWorker.renderingContext.setLineDash([5, 10]);
         this.#xStart = eventData.offsetX;

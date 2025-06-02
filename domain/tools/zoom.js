@@ -45,7 +45,6 @@ class ZoomTool {
         if (eventData && this.#isDrawing) {     
             this.#pointCurrent = { x: eventData.offsetX, y: eventData.offsetY };
             await this.#mapWorker.renderMap({ quickRender: true });
-            this.#mapWorker.renderingContext.restore();
             this.#mapWorker.renderingContext.resetTransform();
             const startX = this.#pointDown.x;
             const startY = this.#pointDown.y;

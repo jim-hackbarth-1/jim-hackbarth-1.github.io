@@ -21,6 +21,7 @@ export const SelectionStatusType = {
 export const ToolSource = {
     Default: `
 
+
 export function createToolModel() {
     return new CustomTool();
 }
@@ -34,8 +35,7 @@ class CustomTool {
     #xCurrent;
     #yCurrent;
     #isDrawing;
-    #pathDark;
-    #pathLight;
+    #path;
     #points;
 
     // methods
@@ -78,25 +78,21 @@ class CustomTool {
     }
 
     #drawStart(eventData) {
-        this.#mapWorker.renderingContext.restore();
         this.#mapWorker.renderingContext.resetTransform();
         this.#mapWorker.renderingContext.setLineDash([5, 10]);
         this.#xStart = eventData.offsetX;
         this.#yStart = eventData.offsetY;
         this.#xCurrent = eventData.offsetX;
         this.#yCurrent = eventData.offsetY;
-        this.#pathDark = new Path2D();
-        this.#pathLight = new Path2D();
-        this.#pathDark.moveTo(this.#xStart, this.#yStart);
-        this.#pathLight.moveTo(this.#xStart, this.#yStart);
+        this.#path = new Path2D();
+        this.#path.moveTo(this.#xStart, this.#yStart);
         this.#points = [];
         this.#isDrawing = true;
     }
 
     #draw(eventData) {
         this.#drawLine(eventData.offsetX, eventData.offsetY);
-        const distance
-            = Math.sqrt((eventData.offsetX - this.#xCurrent) ** 2 + (eventData.offsetY - this.#yCurrent) ** 2);
+        const distance = Math.sqrt((eventData.offsetX - this.#xCurrent) ** 2 + (eventData.offsetY - this.#yCurrent) ** 2);
         if (distance > 5) {
             this.#points.push({ x: eventData.offsetX - this.#xCurrent, y: eventData.offsetY - this.#yCurrent });
             this.#xCurrent = eventData.offsetX;
@@ -108,8 +104,7 @@ class CustomTool {
     async #drawEnd(eventData) {
         this.#drawLine(eventData.offsetX, eventData.offsetY);
         this.#drawLine(this.#xStart, this.#yStart);
-        const distance
-            = Math.sqrt((eventData.offsetX - this.#xCurrent) ** 2 + (eventData.offsetY - this.#yCurrent) ** 2);
+        const distance = Math.sqrt((eventData.offsetX - this.#xCurrent) ** 2 + (eventData.offsetY - this.#yCurrent) ** 2);
         if (distance > 5) {
             this.#points.push({ x: eventData.offsetX - this.#xCurrent, y: eventData.offsetY - this.#yCurrent });
         }
@@ -118,25 +113,18 @@ class CustomTool {
     }
 
     #drawLine(x, y) {
-        this.#mapWorker.renderingContext.strokeStyle = "darkgray";
-        this.#mapWorker.renderingContext.lineWidth = 3;
-        this.#pathDark.lineTo(x, y);
-        this.#mapWorker.renderingContext.stroke(this.#pathDark);
-        this.#mapWorker.renderingContext.strokeStyle = "white";
-        this.#mapWorker.renderingContext.lineWidth = 1;
-        this.#pathLight.lineTo(x, y);
-        this.#mapWorker.renderingContext.stroke(this.#pathLight);
+        this.#path.lineTo(x, y);
+        this.#mapWorker.strokeDrawingPath(this.#path);
     }
 
     async #addMapItemGroup() {
         if (this.#mapWorker.map && this.#mapWorker.activeMapItemTemplate) {
             const scale = { x: 1 / this.#mapWorker.map.zoom, y: 1 / this.#mapWorker.map.zoom };
             const translation = { x: -this.#mapWorker.map.pan.x, y: -this.#mapWorker.map.pan.y };
-            const start = this.#mapWorker.geometryUtilities.transformPoint(
-                { x: this.#xStart, y: this.#yStart }, scale, translation);
+            const start = this.#mapWorker.geometryUtilities.transformPoint({ x: this.#xStart, y: this.#yStart }, scale, translation);
             const points = this.#points.map(pt => this.#mapWorker.geometryUtilities.transformPoint(pt, scale));
             const bounds = this.#mapWorker.geometryUtilities.getPathBounds(start, points);
-            if (bounds.height < 5 || bounds.width < 5) {
+            if (!this.#isBiggerThanMinSize(bounds)) {
                 await this.#mapWorker.renderMap();
                 return;
             }
@@ -158,6 +146,15 @@ class CustomTool {
             this.#mapWorker.map.getActiveLayer().addMapItemGroup(mapItemGroup);
         }
         await this.#mapWorker.renderMap();
+    }
+
+    #isBiggerThanMinSize(bounds) {
+        if (this.#mapWorker.activeMapItemTemplate.fills.length == 0) {
+            return (bounds.height >= 5 || bounds.width >= 5);
+        }
+        else {
+            return (bounds.height >= 5 && bounds.width >= 5);
+        }
     }
 }
 

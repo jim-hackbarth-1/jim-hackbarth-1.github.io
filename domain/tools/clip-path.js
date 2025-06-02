@@ -75,7 +75,6 @@ class ClipPathTool {
     #selectDown(eventData) {
         this.#points.push({ x: eventData.offsetX, y: eventData.offsetY });
         this.#mapWorker.renderingContext.resetTransform();
-        this.#mapWorker.renderingContext.restore();
         this.#path = new Path2D();
         this.#path.moveTo(eventData.offsetX, eventData.offsetY);
     }

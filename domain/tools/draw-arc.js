@@ -151,7 +151,6 @@ class DrawArcTool {
 
     async #drawArc() {
         await this.#mapWorker.renderMap({ quickRender: true });
-        this.#mapWorker.renderingContext.restore();
         this.#mapWorker.renderingContext.resetTransform();
         const rect = new Path2D(`M ${this.#xStart},${this.#yStart} L ${this.#xStart},${this.#yCurrent} ${this.#xCurrent},${this.#yCurrent} ${this.#xCurrent},${this.#yStart} z`);
         const xRadius = Math.abs(this.#xCurrent - this.#xStart);

@@ -53,7 +53,6 @@ class DrawPolytransitTool {
 
     handleMapChange = async (change) => {
         this.#initializeTransitInfo();
-        await this.#drawTransitInfo(false);
     }
 
     // helpers
@@ -155,6 +154,7 @@ class DrawPolytransitTool {
 
     async #onPointerDown(eventData) {
         if (eventData && eventData.button === 0 && this.#mapWorker.activeMapItemTemplate) {
+            this.#mapWorker.renderingContext.resetTransform();
             await this.#addTransit(eventData);
         }
     }
@@ -359,9 +359,7 @@ class DrawPolytransitTool {
             }
         }
         this.#initializeTransitInfo();
-        setTimeout(async () => {
-            await this.#mapWorker.renderMap();
-        }, 20);
+        await this.#mapWorker.renderMap();
     }
 
     #transformCanvasPoint(x, y) {

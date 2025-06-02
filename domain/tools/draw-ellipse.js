@@ -151,7 +151,6 @@ class DrawEllipseTool {
 
     async #drawEllipse() {
         await this.#mapWorker.renderMap({ quickRender: true });
-        this.#mapWorker.renderingContext.restore();
         this.#mapWorker.renderingContext.resetTransform();
         const rect = new Path2D(`M ${this.#xStart},${this.#yStart} L ${this.#xStart},${this.#yCurrent} ${this.#xCurrent},${this.#yCurrent} ${this.#xCurrent},${this.#yStart} z`);
         const xStart = (this.#xCurrent + this.#xStart) / 2;

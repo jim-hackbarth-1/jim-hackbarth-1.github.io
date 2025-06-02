@@ -374,7 +374,6 @@ export class MapWorker {
         this.#messagePort = ports[0];
         this.#canvas = canvas;
         this.#renderingContext = this.canvas.getContext("2d");
-        this.renderingContext.save();
         this.#baseUrl = baseUrl;
         await this.#loadMap();
         this.initializeToolOptions([]);

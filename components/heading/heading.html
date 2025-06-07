@@ -11,8 +11,46 @@
                     left: 0;
                     display: flex;
                     align-items: center;
-                    background: linear-gradient(90deg, var(--theme-color-primary) var(--app-nav-width-expanded), var(--theme-color-primary-lightest) 75%);
-                    box-shadow: 0px 2px 2px 0px var(--theme-color-primary-darkest-fixed);
+                    background: linear-gradient(90deg, var(--color-primary-container) var(--app-nav-width-expanded), hsl(from var(--color-primary-container) h s 30%) 100%);
+                }
+
+                .action-text {
+                    color: var(--color-primary-container-on);
+                }
+
+                .icon {
+                    stroke: var(--color-primary-container-on);
+                }
+
+                .icon-text {
+                    stroke: var(--color-primary-container-on);
+                    fill: var(--color-primary-container-on);
+                }
+
+                .action-text[disabled] {
+                    color: var(--color-primary-container-on-disabled);
+                }
+
+                .action-text[disabled] .icon {
+                    stroke: var(--color-primary-container-on-disabled);
+                }
+
+                .action-text[disabled] .icon-text {
+                    stroke: var(--color-primary-container-on-disabled);
+                    fill: var(--color-primary-container-on-disabled);
+                }
+
+                .action-text:not([disabled]):hover {
+                    color: var(--color-primary-container-on-variant-2);
+                }
+
+                .action-text:not([disabled]):hover .icon {
+                    stroke: var(--color-primary-container-on-variant-2);
+                }
+
+                .action-text:not([disabled]):hover .icon-text {
+                    stroke: var(--color-primary-container-on-variant-2);
+                    fill: var(--color-primary-container-on-variant-2);
                 }
 
                 #nav-toggle-button {
@@ -37,6 +75,7 @@
                     overflow: hidden;
                     white-space: nowrap;
                     text-overflow: ellipsis;
+                    color: var(--color-primary-container-on);
                 }
 
                 #spacer {

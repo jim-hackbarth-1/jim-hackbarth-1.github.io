@@ -1,24 +1,21 @@
-﻿<kit-if class="map-item-template-view-component" id="if-map-item-template-visible" data-kit-condition="#model.isVisible()">
+﻿
+<kit-if class="map-item-template-view-component" id="if-map-item-template-visible" data-kit-condition="#model.isVisible()">
     <style>
         @scope (.map-item-template-view-component) {
 
-            .fill-item,
-            .stroke-item {
-                display: flex;
-                padding: 0;
-                margin-bottom: 2px;
+            .fill-item .move-container,
+            .stroke-item .move-container {
+                margin: -6px -4px 0 0;
             }
 
-            .fill-item div,
-            .stroke-item div {
-                padding: 0;
-                margin: 2px 0 0 2px;
+            .fill-item .grip,
+            .stroke-item .grip {
+                stroke: var(--color-secondary-container-on) !important;
             }
 
-            .fill-item label,
-            .stroke-item label {
-                display: block;
-                margin: 0px 5px 10px 5px;
+            .fill-item:hover .grip,
+            .stroke-item:hover .grip {
+                stroke: var(--color-primary-on) !important;
             }
 
             .point {
@@ -39,7 +36,7 @@
             }
 
             .img-preview {
-                border: 1px solid var(--theme-color-tertiary-darkest-fixed);
+                border: 1px solid var(--color-outline);
                 border-radius: 3px;
                 margin-right: 6px;
             }
@@ -83,7 +80,7 @@
             .image-thumbnail {
                 height: 25px;
                 width: 25px;
-                border: 1px solid dimgray;
+                border: 1px solid var(--color-outline);
                 border-radius: 3px;
                 background-position: center;
             }
@@ -149,7 +146,7 @@
                     <input id="thumbnail-data" type="hidden" value="%{#model.getThumbnailSource()}%" />
                 </div>
                 <div>
-                    <button class="action-control"
+                    <button class="button dialog-button"
                             title="browse"
                             data-kit-add-attributes="%{#model.isDisabledAttribute()}%"
                             onclick="#model.browseThumbnail()">
@@ -169,7 +166,7 @@
                             </select>
                         </div>
                         <div>
-                            <button class="action-control"
+                            <button class="button dialog-button"
                                     data-kit-add-attributes="%{#model.isDisabledAttribute()}%"
                                     onclick="#model.generateThumbnail()">
                                 Generate
@@ -209,7 +206,7 @@
         <!-- Fills -->
         <div>
             <details id="details-fills" ontoggle="#model.onDetailsToggleEvent(event)">
-                <summary class="action-control">Fills</summary>
+                <summary>Fills</summary>
                 <section>
                     <div class="list-label-row">
                         <label>Fills:</label>
@@ -217,7 +214,7 @@
                         <div>
                             <button id="add-fill-button"
                                     title="Add fill"
-                                    class="action-control"
+                                    class="button dialog-button"
                                     data-kit-add-attributes="%{#model.isDisabledAttribute()}%"
                                     onclick="#model.addFill();">
                                 <div class="icon-container">
@@ -228,8 +225,8 @@
                         <div>
                             <button id="delete-fill-button"
                                     title="Delete fill"
-                                    class="action-control"
-                                    data-kit-add-attributes="%{#model.isDisabledAttribute()}%"
+                                    class="button dialog-button"
+                                    data-kit-add-attributes="%{#model.canDeleteFillAttribute()}%"
                                     onclick="#model.deleteFill();">
                                 <div class="icon-container">
                                     <kit-component data-kit-template-path="/resources/icons/delete.html" data-kit-model="null"></kit-component>
@@ -243,9 +240,9 @@
                                    data-kit-item-ref="fill" 
                                    data-kit-item-index-ref="fillIndex">
                             <div id="path-style-id-%{#fill.id}%"
-                                 class="fill-item action-control"
+                                 class="fill-item tool-button"
                                  onclick="#model.selectFill(#fill.id)"
-                                 data-kit-add-attributes="draggable=%{#model.isDraggable()}%"
+                                 data-kit-add-attributes="draggable=%{#model.isDraggable()}%,data-selected=%{#model.isCurrentFill(#fill.id)}%"
                                  ondragstart="#model.dragItem(event)">
                                 <div class="icon-container color-swatch-container">
                                     <svg class="color-swatch" height="25" width="25" viewBox="0 0 100 100">
@@ -287,7 +284,7 @@
         <!-- Strokes -->
         <div>
             <details id="details-strokes" ontoggle="#model.onDetailsToggleEvent(event)">
-                <summary class="action-control">Strokes</summary>
+                <summary>Strokes</summary>
                 <section>
                     <div class="list-label-row">
                         <label>Strokes:</label>
@@ -295,7 +292,7 @@
                         <div>
                             <button id="add-stroke-button"
                                     title="Add stroke"
-                                    class="action-control"
+                                    class="button dialog-button"
                                     data-kit-add-attributes="%{#model.isDisabledAttribute()}%"
                                     onclick="#model.addStroke();">
                                 <div class="icon-container">
@@ -306,8 +303,8 @@
                         <div>
                             <button id="delete-stroke-button"
                                     title="Delete stroke"
-                                    class="action-control"
-                                    data-kit-add-attributes="%{#model.isDisabledAttribute()}%"
+                                    class="button dialog-button"
+                                    data-kit-add-attributes="%{#model.canDeleteStrokeAttribute()}%"
                                     onclick="#model.deleteStroke();">
                                 <div class="icon-container">
                                     <kit-component data-kit-template-path="/resources/icons/delete.html" data-kit-model="null"></kit-component>
@@ -319,9 +316,9 @@
                         <!-- dynamic content here -->
                         <kit-array data-kit-array="#model.getStrokes()" data-kit-array-ref="strokes" data-kit-item-ref="stroke" data-kit-item-index-ref="strokeIndex">
                             <div id="path-style-id-%{#stroke.id}%"
-                                 class="stroke-item action-control"
+                                 class="stroke-item tool-button"
                                  onclick="#model.selectStroke(#stroke.id)"
-                                 data-kit-add-attributes="draggable=%{#model.isDraggable()}%"
+                                 data-kit-add-attributes="draggable=%{#model.isDraggable()}%,data-selected=%{#model.isCurrentStroke(#stroke.id)}%"
                                  ondragstart="#model.dragItem(event)">
                                 <div class="icon-container color-swatch-container">
                                     <svg class="color-swatch" height="25" width="25" viewBox="0 0 100 100">
@@ -366,7 +363,7 @@
         <!-- Shadow -->
         <div>
             <details id="details-shadow" ontoggle="#model.onDetailsToggleEvent(event)">
-                <summary class="action-control">Shadow</summary>
+                <summary>Shadow</summary>
                 <section>
                     <div class="surface-tertiary background">
                         <kit-component id="shadow"
@@ -381,7 +378,7 @@
         <!-- Caption -->
         <div>
             <details id="details-caption" ontoggle="#model.onDetailsToggleEvent(event)">
-                <summary class="action-control">Caption</summary>
+                <summary>Caption</summary>
                 <section>
                     <div class="surface-tertiary background">
                         <kit-component id="caption" 

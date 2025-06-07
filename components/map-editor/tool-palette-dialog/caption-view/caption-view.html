@@ -60,7 +60,7 @@
     </div>
     <div>
         <details id="details-caption-background" ontoggle="#model.onDetailsToggleEvent(event)">
-            <summary class="action-control">Background</summary>
+            <summary>Background</summary>
             <section>
                 <kit-if id="background-fill-if" data-kit-condition="true">
                     <div class="surface-tertiary background">
@@ -72,7 +72,7 @@
                             <fieldset data-kit-add-attributes="%{#model.isDisabled()}%">
                                 <div>
                                     <button title="Add background"
-                                            class="action-control"
+                                            class="button dialog-button"
                                             data-kit-add-attributes="%{#model.isDisabled()}%"
                                             onclick="#model.addBackgroundFill();">
                                         Add background
@@ -87,7 +87,7 @@
     </div>
     <div>
         <details id="details-caption-border" ontoggle="#model.onDetailsToggleEvent(event)">
-            <summary class="action-control">Border</summary>
+            <summary>Border</summary>
             <section>
                 <div class="surface-tertiary background">
                     <kit-component id="caption-border-stroke"
@@ -98,7 +98,7 @@
                         <fieldset data-kit-add-attributes="%{#model.isDisabled()}%">
                             <div>
                                 <button title="Add border"
-                                        class="action-control"
+                                        class="button dialog-button"
                                         data-kit-add-attributes="%{#model.isDisabled()}%"
                                         onclick="#model.addBorderStroke();">
                                     Add border
@@ -112,7 +112,7 @@
     </div>
     <div>
         <details id="details-caption-shadow" ontoggle="#model.onDetailsToggleEvent(event)">
-            <summary class="action-control">Shadow</summary>
+            <summary>Shadow</summary>
             <section>
                 <div class="surface-tertiary background">
                     <kit-component id="caption-shadow"
@@ -125,7 +125,7 @@
     </div>
     <div>
         <details id="details-text-shadow" ontoggle="#model.onDetailsToggleEvent(event)">
-            <summary class="action-control">Text shadow</summary>
+            <summary>Text shadow</summary>
             <section>
                 <div class="surface-tertiary background">
                     <kit-component id="caption-text-shadow"

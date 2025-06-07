@@ -1,0 +1,12 @@
+﻿
+.button {
+    cursor: pointer;
+    outline: none;
+    padding: 8px;
+    border-radius: 3px;
+    border: 1px solid;
+}
+
+.button[disabled] {
+    cursor: default;
+}

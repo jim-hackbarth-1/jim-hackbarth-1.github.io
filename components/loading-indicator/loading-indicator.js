@@ -14,12 +14,12 @@ class LoadingIndicatorModel {
 
         const appDocument = KitDependencyManager.getDocument();
         const style = getComputedStyle(appDocument.documentElement);
-        const color1 = style.getPropertyValue("--theme-color-primary");
-        const color2 = style.getPropertyValue("--theme-color-secondary");
-        const color3 = style.getPropertyValue("--theme-color-tertiary");
-        const color4 = style.getPropertyValue("--theme-color-complementary");
-        const color1Lightest = style.getPropertyValue("--theme-color-primary-lightest");
-        const color1Darkest = style.getPropertyValue("--theme-color-primary-darkest");
+        const color1 = style.getPropertyValue("--color-primary");
+        const color2 = style.getPropertyValue("--color-secondary");
+        const color3 = style.getPropertyValue("--color-tertiary");
+        const color4 = style.getPropertyValue("--color-alert");
+        const color1Lightest = style.getPropertyValue("--color-surface");
+        const color1Darkest = style.getPropertyValue("--color-outline");
 
         this.backgroundSvg = btoa(`
 <svg aria-hidden="true"

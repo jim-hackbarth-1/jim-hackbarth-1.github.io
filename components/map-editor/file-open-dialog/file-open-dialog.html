@@ -1,11 +1,26 @@
 ﻿
-<dialog class="file-open-dialog-component surface-tertiary background">
+<dialog class="file-open-dialog-component">
     <style>
         @scope (.file-open-dialog-component) {
             :scope {
                 height: 200px;
                 width: 600px;
-                border: 1px solid var(--theme-color-secondary-darkest);
+            }
+
+            @media (max-width: 600px), (max-height: 300px) {
+                :scope {
+                    position: absolute;
+                    transform: unset;
+                    top: 0;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    max-height: 100%;
+                    max-width: 100%;
+                    height: 100%;
+                    width: 100%;
+                    padding-bottom: 50px;
+                }
             }
 
             #file-container {
@@ -19,41 +34,9 @@
             #browse {
                 margin-left: 5px;
             }
-
-            input[type="text"] {
-                border: 1px solid var(--theme-color-tertiary-darkest);
-                border-radius: 3px;
-                height: 35px;
-                color: var(--theme-color-tertiary-darkest);
-                background-color: var(--theme-color-tertiary-lighter);
-                display: block;
-                padding: 0 5px 0 5px;
-            }
-
-            input[type="text"][disabled] {
-                background-color: rgb(from var(--theme-color-tertiary-lighter) r g b / 25%);
-                border-color: rgb(from var(--theme-color-tertiary-darkest) r g b / 25%);
-            }
-
-            input[type="text"]::placeholder {
-                color: var(--theme-color-tertiary-darker);
-            }
-
-            input[type="text"][disabled]::placeholder {
-                color: rgb(from var(--theme-color-tertiary-darker) r g b / 25%);
-            }
-
-            input[type="text"]:focus {
-                background-color: var(--theme-color-tertiary-lightest);
-                border: 1px solid var(--theme-color-tertiary-darkest);
-            }
-
-            input[type="text"]:not([disabled]):hover {
-                box-shadow: var(--theme-color-tertiary-lightest) 1px 1px 3px 0 inset, var(--theme-color-tertiary-lightest) -1px -1px 3px 0 inset;
-            }
         }
     </style>
-    <header class="surface-tertiary">
+    <header>
         <div class="icon-container">
             <kit-component data-kit-template-path="/resources/icons/file-open.html" data-kit-model="null"></kit-component>
         </div>
@@ -75,10 +58,10 @@
         </div>
         <div id="file-container">
             <input id="file-name" type="text" placeholder="file name" disabled />
-            <button id="browse" class="action-control" title="browse" onclick="#model.browse()">...</button>
+            <button id="browse" class="button dialog-button" title="browse" onclick="#model.browse()">...</button>
         </div>
         <div>
-            <button id="button-ok" class="action-control" title="OK" onclick="#model.buttonOkClicked();" disabled>OK</button>
+            <button id="button-ok" class="button dialog-button" title="OK" onclick="#model.buttonOkClicked();" disabled>OK</button>
         </div>
     </section>
 </dialog>

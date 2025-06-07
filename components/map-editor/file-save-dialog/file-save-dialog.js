@@ -8,7 +8,7 @@ export function createModel() {
 
 class FileSaveDialogModel {
 
-    #fileHandle = null;
+    #fileHandle;
 
     async onRenderStart(componentId) {
         this.componentId = componentId;
@@ -31,6 +31,9 @@ class FileSaveDialogModel {
                 }
             });
         }
+        componentElement.querySelector("#file-name").value = "";
+        componentElement.querySelector("#button-ok").disable = true;
+        this.#fileHandle = null;
     }
 
     #clickHandlerRegistered;

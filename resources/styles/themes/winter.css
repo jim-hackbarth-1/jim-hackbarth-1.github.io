@@ -1,0 +1,36 @@
+﻿
+:scope {
+    --winter-primary: rgb(90 91 132);
+    --winter-primary-on: rgb(255 255 255);
+    --winter-primary-container: rgb(156 156 201);
+    --winter-primary-container-on: rgb(50 51 89);
+    --winter-secondary: rgb(93 93 111);
+    --winter-secondary-on: rgb(255 255 255);
+    --winter-secondary-container: rgb(227 224 246);
+    --winter-secondary-container-on: rgb(99 99 117);
+    --winter-tertiary: rgb(123 81 111);
+    --winter-tertiary-on: rgb(255 255 255);
+    --winter-tertiary-container: rgb(194 145 178);
+    --winter-tertiary-container-on: rgb(79 42 70);
+    --winter-alert: rgb(186 26 26);
+    --winter-alert-on: rgb(255 255 255);
+    --winter-alert-container: rgb(255 218 214);
+    --winter-alert-container-on: rgb(147 0 10);
+    --winter-surface: rgb(252 248 252);
+    --winter-surface-on: rgb(28 27 30);
+    --winter-surface-container: rgb(240 237 241);
+    --winter-surface-container-on: rgb(28 27 30);
+    --winter-background: rgb(252 248 252);
+    --winter-background-on: rgb(28 27 30);
+    --winter-outline: rgb(119 118 127);
+    --winter-shadow: rgb(0 0 0);
+    --winter-primary-container-on-variant-1: var(--winter-tertiary);
+    --winter-primary-container-on-variant-2: hsl(from var(--winter-primary-container-on) h s 90%);
+    --winter-primary-container-on-disabled: rgb(from var(--winter-primary-container-on) r g b / 25%);
+    --winter-secondary-container-on-variant-1: var(--winter-alert);
+    --winter-secondary-container-on-variant-2: hsl(from var(--winter-secondary-container-on) h s 10%);
+    --winter-secondary-container-on-disabled: rgb(from var(--winter-secondary-container-on) r g b / 25%);
+    --winter-tertiary-container-on-variant-1: var(--winter-primary);
+    --winter-tertiary-container-on-variant-2: hsl(from var(--winter-tertiary-container-on) h s 10%);
+    --winter-tertiary-container-on-disabled: rgb(from var(--winter-tertiary-container-on) r g b / 25%);
+}

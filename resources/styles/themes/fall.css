@@ -1,0 +1,36 @@
+﻿
+:scope {
+    --fall-primary: rgb(109 91 72);
+    --fall-primary-on: rgb(255 255 255);
+    --fall-primary-container: rgb(201 179 156);
+    --fall-primary-container-on: rgb(85 69 51);
+    --fall-secondary: rgb(102 93 84);
+    --fall-secondary-on: rgb(255 255 255);
+    --fall-secondary-container: rgb(238 224 212);
+    --fall-secondary-container-on: rgb(108 99 89);
+    --fall-tertiary: rgb(94 96 76);
+    --fall-tertiary-on: rgb(255 255 255);
+    --fall-tertiary-container: rgb(183 184 160);
+    --fall-tertiary-container-on: rgb(71 73 54);
+    --fall-alert: rgb(186 26 26);
+    --fall-alert-on: rgb(255 255 255);
+    --fall-alert-container: rgb(255 218 214);
+    --fall-alert-container-on: rgb(147 0 10);
+    --fall-surface: rgb(255 248 245);
+    --fall-surface-on: rgb(29 27 25);
+    --fall-surface-container: rgb(243 237 233);
+    --fall-surface-container-on: rgb(29 27 25);
+    --fall-background: rgb(255 248 245);
+    --fall-background-on: rgb(29 27 25);
+    --fall-outline: rgb(127 117 109);
+    --fall-shadow: rgb(0 0 0);
+    --fall-primary-container-on-variant-1: var(--fall-tertiary);
+    --fall-primary-container-on-variant-2: hsl(from var(--fall-primary-container-on) h s 90%);
+    --fall-primary-container-on-disabled: rgb(from var(--fall-primary-container-on) r g b / 25%);
+    --fall-secondary-container-on-variant-1: var(--fall-alert);
+    --fall-secondary-container-on-variant-2: hsl(from var(--fall-secondary-container-on) h s 10%);
+    --fall-secondary-container-on-disabled: rgb(from var(--fall-secondary-container-on) r g b / 25%);
+    --fall-tertiary-container-on-variant-1: var(--fall-primary);
+    --fall-tertiary-container-on-variant-2: hsl(from var(--fall-tertiary-container-on) h s 10%);
+    --fall-tertiary-container-on-disabled: rgb(from var(--fall-tertiary-container-on) r g b / 25%);
+}

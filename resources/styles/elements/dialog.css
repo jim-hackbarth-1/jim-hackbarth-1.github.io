@@ -1,0 +1,223 @@
+﻿
+@import "../themes/base.css";
+
+dialog {
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    overflow: auto;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    background-color: var(--color-background);
+    color: var(--color-background-on);
+    border-radius: 3px;
+    border: 1px solid var(--color-outline);
+    opacity: 0;
+    transition: opacity 0.25s ease-out, overlay 0.25s ease-out allow-discrete, display 0.25s ease-out allow-discrete;
+}
+
+dialog[open] {
+    opacity: 1;
+}
+
+@starting-style {
+
+    dialog[open] {
+        opacity: 0;
+    }
+
+    dialog[open]::backdrop {
+        background-color: rgb(0 0 0 / 0%);
+    }
+}
+
+dialog::backdrop {
+    background-color: rgb(from var(--color-shadow) r g b / 25%);
+    transition: display 0.25s allow-discrete, overlay 0.25s allow-discrete, background-color 0.25s;
+}
+
+dialog[open]::backdrop {
+    background-color: rgb(from var(--color-shadow) r g b / 25%);
+}
+
+dialog header {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    padding: 5px;
+    border-bottom: 2px solid var(--color-outline);
+    color: var(--color-tertiary-container-on);
+    background-color: var(--color-tertiary-container);
+    z-index: 10;
+}
+
+dialog .icon-container .icon {
+    stroke: var(--color-tertiary-container-on);
+}
+
+dialog .icon-container .icon-text {
+    stroke: var(--color-tertiary-container-on);
+    fill: var(--color-tertiary-container-on);
+}
+
+dialog header h1 {
+    margin-top: 2px;
+    padding-left: 5px;
+}
+
+dialog .spacer {
+    flex-grow: 4;
+}
+
+dialog section {
+    padding: 20px 20px 0 20px;
+}
+
+dialog section div {
+    margin-bottom: 10px;
+}
+
+dialog section label {
+    font-weight: bold;
+}
+
+.dialog-close-button {
+    color: var(--color-tertiary-container-on);
+    text-decoration: none;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+    outline: none;
+}
+
+.dialog-close-button .icon {
+    stroke: var(--color-tertiary-container-on);
+}
+
+.dialog-close-button .icon-text {
+    stroke: var(--color-tertiary-container-on);
+    fill: var(--color-tertiary-container-on);
+}
+
+.dialog-close-button:hover {
+    color: var(--color-tertiary-container-on-variant-2);
+}
+
+.dialog-close-button:hover .icon {
+    stroke: var(--color-tertiary-container-on-variant-2);
+}
+
+.dialog-close-button:hover .icon-text {
+    stroke: var(--color-tertiary-container-on-variant-2);
+    fill: var(--color-tertiary-container-on-variant-2);
+}
+
+.dialog-button {
+    background-color: var(--color-tertiary-container);
+    color: var(--color-tertiary-container-on);
+    border-color: var(--color-outline);
+}
+
+.dialog-button .icon {
+    stroke: var(--color-tertiary-container-on);
+}
+
+.dialog-button .icon-text {
+    stroke: var(--color-tertiary-container-on);
+    fill: var(--color-tertiary-container-on);
+}
+
+.dialog-button:not([disabled]):hover {
+    color: var(--color-primary-on);
+    background-color: var(--color-primary);
+    box-shadow: var(--color-primary-on) 1px 1px 3px 0 inset, var(--color-primary-on) -1px -1px 3px 0 inset;
+}
+
+.dialog-button:not([disabled]):hover .icon {
+    stroke: var(--color-primary-on);
+}
+
+.dialog-button:not([disabled]):hover .icon-text {
+    stroke: var(--color-primary-on);
+    fill: var(--color-primary-on);
+}
+
+.dialog-button:focus {
+    color: var(--color-primary-on);
+    background-color: var(--color-primary);
+    box-shadow: var(--color-primary-on) 1px 1px 3px 0 inset, var(--color-primary-on) -1px -1px 3px 0 inset;
+}
+
+.dialog-button:focus .icon {
+    stroke: var(--color-primary-on);
+}
+
+.dialog-button:focus .icon-text {
+    stroke: var(--color-primary-on);
+    fill: var(--color-primary-on);
+}
+
+input[type="text"],
+input[type="number"],
+input[type="color"],
+select,
+.checkbox .checkmark
+.radio-button .checkmark,
+textarea {
+    background-color: var(--color-surface-container);
+    color: var(--color-surface-container-on);
+    border-color: var(--color-outline);
+}
+
+input:invalid + .invalid::after {
+    background-color: var(--color-alert-container);
+    color: var(--color-alert-container-on);
+    border-color: var(--color-alert-container-on);
+}
+
+.checkbox .checkmark:after,
+.radio-button .checkmark:after {
+    background-color: var(--color-surface-container-on);
+}
+
+input[type="text"]::placeholder,
+textarea::placeholder {
+    color: hsl(from var(--color-surface-container-on) h s 60%);
+}
+
+input[type="text"]:not([disabled]):hover,
+input[type="number"]:not([disabled]):hover,
+input[type="color"]:not([disabled]):hover,
+select:not([disabled]):hover,
+.checkbox input:not([disabled]):hover ~ .checkmark,
+.radio-button input:not([disabled]):hover ~ .checkmark,
+textarea:not([disabled]):hover {
+    box-shadow: var(--color-tertiary-container) 1px 1px 3px 0 inset, var(--color-tertiary-container) -1px -1px 3px 0 inset;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="color"]:focus,
+select:focus,
+.checkbox input:focus ~ .checkmark,
+.radio-button input:focus ~ .checkmark,
+textarea:focus {
+    background-color: var(--color-secondary);
+    color: var(--color-secondary-on);
+    border-color: var(--color-outline);
+    box-shadow: var(--color-secondary-on) 1px 1px 3px 0 inset, var(--color-secondary-on) -1px -1px 3px 0 inset;
+}
+
+input[type="text"]:focus::placeholder,
+textarea:focus::placeholder {
+    color: var(--color-secondary-on-variant-1);
+}
+
+.dialog-button[disabled],
+input[disabled],
+select[disabled],
+textarea[disabled] {
+    background: rgba(0, 0, 0, 0.25);
+}

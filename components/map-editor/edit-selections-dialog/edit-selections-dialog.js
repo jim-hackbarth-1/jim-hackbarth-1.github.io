@@ -154,7 +154,7 @@ class EditSelectionsDialogModel {
 
     toggleDetails(mapItemId) {
         const detailsRowElement = this.#getElement(`#map-item-details-row-${mapItemId}`);
-        detailsRowElement.classList.toggle("hidden");
+        detailsRowElement.classList.toggle("hidden-details");
     }
 
     async getCurrentSelectionCount() {

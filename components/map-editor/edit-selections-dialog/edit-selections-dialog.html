@@ -1,15 +1,16 @@
 ﻿
-<dialog class="edit-selections-dialog-component surface-tertiary background">
+<dialog class="edit-selections-dialog-component">
     <kit-if id="kitIfVisible" data-kit-condition="#model.isVisible()">
         <style>
             @scope (.edit-selections-dialog-component) {
                 :scope {
                     height: 750px;
                     width: 600px;
-                    border: 1px solid var(--theme-color-tertiary-darkest);
+                    overflow: hidden;
+                    scrollbar-color: var(--color-tertiary) var(--color-tertiary-container);
                 }
 
-                @media (max-width: 768px), (max-height: 500px) {
+                @media (max-width: 600px), (max-height: 850px) {
                     :scope {
                         position: absolute;
                         transform: unset;
@@ -21,7 +22,13 @@
                         max-width: 100%;
                         height: 100%;
                         width: 100%;
+                        padding-bottom: 50px;
                     }
+                }
+
+                #content-section {
+                    overflow: auto;
+                    height: 100%;
                 }
 
                 .controls-container {
@@ -32,36 +39,24 @@
                 .section-container {
                     border-radius: 3px;
                     border: 1px solid;
-                    border-color: var(--theme-color-tertiary-darkest-fixed);
+                    border-color: var(--color-outline);
                     overflow-y: auto;
                 }
 
                 #map-item-list-container {
                     height: 150px;
+                    background-color: var(--color-surface-container);
                 }
 
                 #map-items-command-row {
                     display: flex;
-                    margin: 0;
+                    margin: 0 5px -2px 9px;
                     padding: 0;
-                }
-
-                #select-all-container {
-                    padding: 10px 0 0 5px;
-                    margin: 10px 8px 12px 4px;
+                    font-size: smaller;
                 }
 
                 #update-selections-container {
                     margin: 2px;
-                }
-
-                .list-item {
-                    margin: 2px;
-                    border-radius: 3px;
-                    border: 1px solid;
-                    background-color: var(--theme-color-tertiary);
-                    color: var(--theme-color-tertiary-darkest);
-                    border-color: var(--theme-color-tertiary-darkest-fixed);
                 }
 
                 .list-item-row {
@@ -74,11 +69,6 @@
                     margin: 0;
                 }
 
-                .checkbox-container {
-                    padding: 10px 0 0 5px;
-                    margin: 12px 0 10px 0 !important;
-                }
-
                 .list-item-text-container, .list-item-text-container > div {
                     overflow: hidden;
                     white-space: nowrap;
@@ -89,7 +79,7 @@
                 .thumbnail {
                     border-radius: 3px;
                     border: 1px solid;
-                    border-color: var(--theme-color-tertiary-darkest-fixed);
+                    border-color: var(--color-outline);
                     padding: 2px;
                 }
 
@@ -113,7 +103,7 @@
                 .list-item-details-container {
                     border-radius: 3px;
                     border: 1px solid;
-                    border-color: var(--theme-color-tertiary-darkest-fixed);
+                    border-color: var(--color-outline);
                     margin: 0 5px 5px 0 !important;
                 }
 
@@ -138,7 +128,7 @@
                     margin-right: 10px
                 }
 
-                .hidden {
+                .hidden-details {
                     display: none;
                 }
 
@@ -147,9 +137,19 @@
                     padding: 5px;
                 }
 
+                #edit-selection-properties-container[disabled],
+                #edit-selection-properties-container[disabled] button,
+                #edit-selection-properties-container[disabled] input,
+                #edit-selection-properties-container[disabled] select {
+                    background: rgba(0, 0, 0, 0.25);
+                }
+
                 fieldset {
-                    margin-top: 10px;
+                    margin: 10px 5px 10px 5px;
                     position: relative;
+                    padding: 5px 5px 10px 10px;
+                    border: 3px double;
+                    border-color: var(--color-outline);
                 }
 
                 fieldset[disabled]:after {
@@ -161,38 +161,17 @@
                     bottom: 0;
                     left: 0;
                     right: 0;
-                    background: rgba(0, 0, 0, 0.25);
                 }
 
                 legend {
-                    margin-left: 10px;
+                    margin-left: 5px;
                     font-weight: bolder;
-                }
-
-                input[type="text"], input[type="number"] {
-                    border: 1px solid var(--theme-color-tertiary-darkest);
-                    border-radius: 3px;
-                    height: 35px;
-                    color: var(--theme-color-tertiary-darkest);
-                    display: block;
+                    color: var(--color-outline);
                     padding: 0 5px 0 5px;
                 }
 
-                input[type="text"]::placeholder {
-                    color: var(--theme-color-tertiary-darker);
-                }
-
-                input[type="text"]:focus, input[type="number"]:focus {
-                    background-color: var(--theme-color-tertiary-lightest);
-                    border: 1px solid var(--theme-color-tertiary-darkest);
-                }
-
-                input[type="text"]:hover, input[type="number"]:hover {
-                    box-shadow: var(--theme-color-tertiary-lightest) 1px 1px 3px 0 inset, var(--theme-color-tertiary-lightest) -1px -1px 3px 0 inset;
-                }
-
                 .property-group {
-                    margin: 20px 5px 5px 5px;
+                    margin: 10px 5px 5px 5px;
                 }
 
                 .property-label-container {
@@ -205,13 +184,6 @@
 
                 .flex-control-group button {
                     margin-left: 5px;
-                }
-
-                select {
-                    border: 1px solid var(--theme-color-tertiary-darkest);
-                    border-radius: 3px;
-                    height: 35px;
-                    color: var(--theme-color-tertiary-darkest);
                 }
 
                 #presentation-view-control-group {
@@ -233,15 +205,9 @@
                     margin: 0;
                     padding: 0;
                 }
-
-                .focus-button:focus {
-                    background-color: var(--theme-color-tertiary-darker);
-                    color: var(--theme-color-tertiary-lightest);
-                    box-shadow: var(--theme-color-tertiary-lightest) 1px 1px 3px 0 inset, var(--theme-color-tertiary-lightest) -1px -1px 3px 0 inset;
-                }
             }
         </style>
-        <header class="surface-tertiary">
+        <header>
             <div class="icon-container">
                 <kit-component data-kit-template-path="/resources/icons/edit-edit-selections.html" data-kit-model="null"></kit-component>
             </div>
@@ -250,29 +216,30 @@
             </div>
             <div class="spacer"></div>
             <div>
-                <button title="Close" class="action-text" onclick="#model.closeDialog();">
+                <button title="Close" class="dialog-close-button" onclick="#model.closeDialog();">
                     <div class="icon-container">
                         <kit-component data-kit-template-path="/resources/icons/file-close.html" data-kit-model="null"></kit-component>
                     </div>
                 </button>
             </div>
         </header>
-        <section>
+        <section id="content-section">
             <div class="controls-container">
                 <div>
                     <label>Map items:</label>
                 </div>
                 <div id="map-items-command-row">
-                    <div id="select-all-container" title="Select all">
+                    <div title="Select / un-select all">
                         <label class="checkbox">
                             <input id="toggle-selection-checkbox" type="checkbox" onclick="#model.toggleSelections()" />
                             <span class="checkmark"></span>
                         </label>
                     </div>
+                    <div>Select / un-select all</div>
                 </div>
-                <div id="map-item-list-container" class="surface-tertiary background section-container">
+                <div id="map-item-list-container" class="section-container">
                     <kit-array data-kit-array="#model.getMapItems()" data-kit-item-ref="mapItem">
-                        <div class="list-item">
+                        <div class="tool-button">
                             <div class="list-item-row">
                                 <div class="checkbox-container" title="Select">
                                     <label class="checkbox">
@@ -307,7 +274,7 @@
                                     <div class="list-item-details-link" onclick="#model.toggleDetails(#mapItem.id)">Details</div>
                                 </div>
                             </div>
-                            <div id="map-item-details-row-%{#mapItem.id}%" class="list-item-row hidden">
+                            <div id="map-item-details-row-%{#mapItem.id}%" class="list-item-row hidden-details">
                                 <div class="spacer"></div>
                                 <div class="list-item-details-container">
                                     <div class="list-item-details-sub-section-label">location</div>
@@ -334,7 +301,7 @@
                     </kit-array>
                 </div>
             </div>
-            <div id="edit-selection-properties-container" class="section-container">
+            <div id="edit-selection-properties-container" class="section-container" data-kit-add-attributes="%{#model.isDisabledAttribute()}%">
                 <div>
                     <label>Edit current selection properties (%{#model.getCurrentSelectionCount()}%):</label>
                 </div>
@@ -351,8 +318,8 @@
                                    maxlength="30"
                                    style="width:250px;"
                                    onkeydown="#model.onKeyDown(event)" />
-                            <button class="action-control focus-button" onclick="#model.updateCaptionText()">Update</button>
-                            <button class="action-control focus-button" onclick="#model.clearCaptionText()">Clear</button>
+                            <button class="button dialog-button" onclick="#model.updateCaptionText()">Update</button>
+                            <button class="button dialog-button" onclick="#model.clearCaptionText()">Clear</button>
                         </div>
                     </div>
                     <div class="property-group">
@@ -360,8 +327,8 @@
                             <label>Visibility:</label>
                         </div>
                         <div>
-                            <button class="action-control focus-button" onclick="#model.setCaptionVisibility(true)">Show</button>
-                            <button class="action-control focus-button" onclick="#model.setCaptionVisibility(false)">Hide</button>
+                            <button class="button dialog-button" onclick="#model.setCaptionVisibility(true)">Show</button>
+                            <button class="button dialog-button" onclick="#model.setCaptionVisibility(false)">Hide</button>
                         </div>
                     </div>
                 </fieldset>
@@ -378,7 +345,7 @@
                                    max="10"
                                    value="0"
                                    onkeydown="#model.onKeyDown(event)" />
-                            <button class="action-control focus-button" onclick="#model.updateZGroup()">Update</button>
+                            <button class="button dialog-button" onclick="#model.updateZGroup()">Update</button>
                         </div>
                     </div>
                     <div class="property-group">
@@ -387,7 +354,7 @@
                         </div>
                         <div class="flex-control-group">
                             <button id="button-bring-forward"
-                                    class="action-control focus-button"
+                                    class="button dialog-button"
                                     style="width:150px;"
                                     onclick="#model.bringForward()">
                                 <div class="button-control-group">
@@ -397,7 +364,7 @@
                                     <div>Bring forward</div>
                                 </div>
                             </button>
-                            <button class="action-control focus-button"
+                            <button class="button dialog-button"
                                     style="width:150px;"
                                     onclick="#model.bringToFront()">
                                 <div class="button-control-group">
@@ -410,7 +377,7 @@
                         </div>
                         <div class="flex-control-group">
                             <button id="button-send-back"
-                                    class="action-control focus-button"
+                                    class="button dialog-button"
                                     style="width:150px;"
                                     onclick="#model.sendBack()">
                                 <div class="button-control-group">
@@ -420,7 +387,7 @@
                                     <div>Send back</div>
                                 </div>
                             </button>
-                            <button class="action-control focus-button"
+                            <button class="button dialog-button"
                                     style="width:150px;"
                                     onclick="#model.sendToBack()">
                                 <div class="button-control-group">
@@ -436,10 +403,10 @@
                 <fieldset data-kit-add-attributes="%{#model.isDisabledAttribute()}%">
                     <legend>Groups</legend>
                     <div class="flex-control-group">
-                        <button class="action-control focus-button" onclick="#model.group()">
+                        <button class="button dialog-button" onclick="#model.group()">
                             Group
                         </button>
-                        <button class="action-control focus-button" onclick="#model.ungroup()">
+                        <button class="button dialog-button" onclick="#model.ungroup()">
                             Ungroup
                         </button>
                     </div>
@@ -447,10 +414,10 @@
                 <fieldset data-kit-add-attributes="%{#model.isDisabledAttribute()}%">
                     <legend>Presentation view visibility</legend>
                     <div id="presentation-view-control-group" class="flex-control-group">
-                        <button class="action-control focus-button" onclick="#model.setPresentationViewVisibility(false)">
+                        <button class="button dialog-button" onclick="#model.setPresentationViewVisibility(false)">
                             Show
                         </button>
-                        <button class="action-control focus-button" onclick="#model.setPresentationViewVisibility(true)">
+                        <button class="button dialog-button" onclick="#model.setPresentationViewVisibility(true)">
                             Hide
                         </button>
                     </div>
@@ -461,7 +428,7 @@
                         <div class="flex-control-group">
                             <select id="select-map-item-template" title="Map item template" style="width:300px;">
                             </select>
-                            <button class="action-control focus-button" onclick="#model.updateMapItemTemplate()">
+                            <button class="button dialog-button" onclick="#model.updateMapItemTemplate()">
                                 Update
                             </button>
                         </div>

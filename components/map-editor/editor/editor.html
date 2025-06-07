@@ -19,29 +19,70 @@
                 padding: 2px;
             }
 
-            .icon-container {
-                height: 20px;
-                width: 20px;
-                margin: 2px 2px 8px 2px;
+            .spacer {
+                flex-grow: 4;
             }
             /* menu - start */
+            .action-text {
+                color: var(--color-secondary-container-on);
+            }
+
+            .action-text .icon {
+                stroke: var(--color-secondary-container-on);
+            }
+
+            .action-text .icon-text {
+                stroke: var(--color-secondary-container-on);
+                fill: var(--color-secondary-container-on);
+            }
+
+            .action-text[disabled] {
+                color: var(--color-secondary-container-on-disabled);
+            }
+
+            .action-text[disabled] .icon {
+                stroke: var(--color-secondary-container-on-disabled);
+            }
+
+            .action-text[disabled] .icon-text {
+                stroke: var(--color-secondary-container-on-disabled);
+                fill: var(--color-secondary-container-on-disabled);
+            }
+
+            .action-text:not([disabled]):hover {
+                color: var(--color-secondary-container-on-variant-2);
+            }
+
+            .action-text:not([disabled]):hover .icon {
+                stroke: var(--color-secondary-container-on-variant-2);
+            }
+
+            .action-text:not([disabled]):hover .icon-text {
+                stroke: var(--color-secondary-container-on-variant-2);
+                fill: var(--color-secondary-container-on-variant-2);
+            }
+
             #menu, #toolbar {
                 display: flex;
                 flex-direction: row;
-                background: linear-gradient(90deg, var(--theme-color-secondary) var(--editor-tool-width), var(--theme-color-secondary-lightest) 75%);
-                border-bottom: 1px solid var(--theme-color-secondary-darkest-fixed)
+                background-color: var(--color-secondary-container);
+            }
+
+            #menu, #toolbar {
+                border-bottom: 1px solid var(--color-outline);
             }
 
             .dropdown-content {
                 display: none;
                 position: absolute;
-                margin-left: 2px;
                 min-width: 160px;
-                border-bottom: 1px solid var(--theme-color-secondary-darkest-fixed);
-                border-left: 1px solid var(--theme-color-secondary-darkest-fixed);
-                border-right: 1px solid var(--theme-color-secondary-darkest-fixed);
-                box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+                margin-left: 8px;
+                padding-right: 5px;
+                border-bottom: 1px solid var(--color-outline);
+                border-left: 1px solid var(--color-outline);
+                border-right: 1px solid var(--color-outline);
                 z-index: 1;
+                background-color: var(--color-secondary-container);
             }
 
             .dropdown-content button {
@@ -59,7 +100,7 @@
                 height: 1px;
                 margin-left: 10px;
                 margin-right: 10px;
-                background-color: var(--theme-color-secondary-darker);
+                background-color: var(--color-outline);
             }
 
             .top-menu-item {
@@ -85,7 +126,7 @@
             }
 
             #toolbar .group-divider {
-                border-right: 1px dotted var(--theme-color-secondary-darker);
+                border-right: 1px dotted var(--color-outline);
                 width: 1px;
                 height: 15px;
                 margin-right: -10px;
@@ -99,24 +140,29 @@
             /* tools - start */
             #tools-and-map {
                 display: flex;
+                height: 100%;
+                overflow: hidden;
             }
 
             #tools {
                 flex: 0 0 var(--editor-tool-width);
-                height: 100%;
-                border-right: 1px solid var(--theme-color-secondary-darkest-fixed);
+                background-color: var(--color-surface-container);
+                border-right: 1px solid var(--color-outline);
                 display: none;
                 margin-left: var(--editor-tool-left);
                 transition: margin-left 0.5s;
             }
 
-            #pinned-icon.pinned {
-                border-bottom: 1px solid var(--theme-color-secondary-darker);
+            #pinned-icon {
+                transform: rotate(90deg);
             }
 
-            #tools .icon-container {
-                margin: 0;
-                margin: 2px 2px 2px 2px;
+            #pinned-icon.pinned {
+                transform: unset;
+            }
+
+            #edit-tool-palettes-button {
+                padding-right: 5px;
             }
 
             #tools.has-map {
@@ -124,17 +170,15 @@
             }
 
             #tools header {
-                padding: 5px;
                 display: flex;
-            }
-
-            #tools header .spacer {
-                flex-grow: 4;
+                padding: 5px;
+                border-top: 1px solid var(--color-outline);
             }
 
             #tools-header {
+                background-color: var(--color-secondary-container);
                 font-weight: bolder;
-                border-bottom: 3px double var(--theme-color-tertiary-darkest-fixed);
+                border-bottom: 3px double var(--color-outline);
             }
 
             .tool-types {
@@ -142,47 +186,87 @@
             }
 
             .tool-types header {
-                border-bottom: 1px solid var(--theme-color-secondary-darkest-fixed);
+                background-color: var(--color-secondary-container);
+                border-bottom: 1px solid var(--color-outline);
+            }
+
+            .tool-types section {
+                padding-right: 1px;
             }
 
             .tool-palette {
                 display: flex;
             }
 
-            .surface-secondary .action-control {
-                background-color: var(--theme-color-secondary);
+            .tool-button {
+                background-color: var(--color-secondary-container);
+                padding: 4px;
+                border-radius: 3px;
+                border: 1px solid var(--color-outline);
+                margin: 1px 0 0 1px;
+                cursor: pointer;
+                color: var(--color-secondary-container-on);
             }
 
-            .tool-button {
-                padding: 4px 4px 2px 4px;
+            .tool-button .icon {
+                stroke: var(--color-secondary-container-on);
+                stroke-width: 4px;
+            }
+
+            .tool-button .icon-text {
+                stroke: var(--color-secondary-container-on);
+                fill: var(--color-secondary-container-on);
+            }
+
+            .tool-button:hover {
+                color: var(--color-primary-on);
+                background-color: var(--color-primary);
+                box-shadow: var(--color-primary-on) 1px 1px 3px 0 inset, var(--color-primary-on) -1px -1px 3px 0 inset;
+            }
+
+            .tool-button:hover .icon {
+                stroke: var(--color-primary-on);
+            }
+
+            .tool-button:hover .icon-text {
+                stroke: var(--color-primary-container-on-variant-2);
+                fill: var(--color-primary-container-on-variant-2);
             }
 
             .tool-button.active {
-                box-shadow: var(--theme-color-secondary-darkest) 1px 1px 3px 0 inset, var(--theme-color-secondary-darkest) -1px -1px 3px 0 inset;
-                background-color: var(--theme-color-secondary-lighter);
+                color: var(--color-tertiary-container-on);
+                background-color: var(--color-tertiary-container);
+                box-shadow: var(--color-tertiary-container-on) 1px 1px 3px 0 inset, var(--color-tertiary-container-on) -1px -1px 3px 0 inset;
             }
 
-            #tools .icon {
-                stroke-width: 2px;
+            .tool-button.active .icon {
+                stroke: var(--color-tertiary-container-on);
+            }
+
+            .tool-button.active .icon-text {
+                stroke: var(--color-tertiary-container-on);
+                fill: var(--color-tertiary-container-on);
             }
 
             .image-thumbnail {
                 height: 25px;
                 width: 25px;
-                border: 1px solid dimgray;
+                border: 1px solid var(--color-outline);
                 border-radius: 3px;
                 background-position: center;
-                margin-bottom: 3px;
             }
             /* tools - end */
             /* canvas - start */
             #map-container {
+                display: flex;
+                height: 100%;
+                width: 100%;
                 overflow: auto;
             }
 
             #map-canvas {
                 display: none;
-                border: 1px solid var(--theme-color-secondary);
+                border: 1px solid var(--color-outline);
                 touch-action: none;
             }
 
@@ -207,25 +291,30 @@
                 display: none;
             }
             /* canvas - end */
-
+            /* map saved notification */
             #map-saved-notification {
                 position: absolute;
                 top: 0;
-                border: 1px solid var(--theme-color-complementary-darkest-fixed);
+                left: 220px;
+                border: 1px solid var(--color-outline);
                 border-radius: 3px;
                 padding: 5px;
+                margin: 2px;
+                color: var(--color-tertiary-container-on);
+                background-color: var(--color-tertiary-container);
             }
 
             .hidden {
                 opacity: 0;
                 transition: opacity 1.0s ease-out, overlay 1.0s ease-out allow-discrete, display 1.0s ease-out allow-discrete;
             }
+            /* map saved notification - end*/
         }
     </style>
-    <div id="menu" class="surface-secondary">
+    <div id="menu">
         <div>
-            <button onclick="#model.toggleDropdown('menu-file')" class="dropbtn top-menu-item action-text" data-dropdown-id="menu-file">File</button>
-            <div id="menu-file" class="dropdown-content surface-secondary">
+            <button onclick="#model.toggleDropdown('menu-file')" class="top-menu-item action-text" data-dropdown-id="menu-file">File</button>
+            <div id="menu-file" class="dropdown-content">
                 <button title="New map" class="action-text" onclick="#model.showDialog('file-new-dialog-component')">
                     <div class="button-content">
                         <div class="icon-container">
@@ -267,7 +356,7 @@
                         <div class="button-text">Save as ...</div>
                     </div>
                 </button>
-                <button title="Publish file" class="action-text">
+                <button title="Publish file" class="action-text" disabled>
                     <div class="button-content">
                         <div class="icon-container">
                             <kit-component data-kit-template-path="/resources/icons/file-publish.html" data-kit-model="null"></kit-component>
@@ -278,8 +367,8 @@
             </div>
         </div>
         <div>
-            <button onclick="#model.toggleDropdown('menu-edit')" class="dropbtn top-menu-item action-text" data-dropdown-id="menu-edit">Edit</button>
-            <div id="menu-edit" class="dropdown-content surface-secondary">
+            <button onclick="#model.toggleDropdown('menu-edit')" class="top-menu-item action-text" data-dropdown-id="menu-edit">Edit</button>
+            <div id="menu-edit" class="dropdown-content">
                 <button id="menuEditSelectAllInView" title="Select all in view" class="action-text" onclick="#model.selectAllInView()" data-kit-add-attributes="%{#model.isSelectAllInViewDisabled()}%">
                     <div class="button-content">
                         <div class="icon-container">
@@ -366,8 +455,8 @@
             </div>
         </div>
         <div>
-            <button onclick="#model.toggleDropdown('menu-view')" class="dropbtn top-menu-item action-text" data-dropdown-id="menu-view">View</button>
-            <div id="menu-view" class="dropdown-content surface-secondary">
+            <button onclick="#model.toggleDropdown('menu-view')" class="top-menu-item action-text" data-dropdown-id="menu-view">View</button>
+            <div id="menu-view" class="dropdown-content">
                 <button title="Zoom" class="action-text" onclick="#model.showDialog('zoom-dialog-component')" data-kit-add-attributes="%{#model.isZoomDisabled()}%">
                     <div class="button-content">
                         <div class="icon-container">
@@ -560,12 +649,14 @@
         </div>
     </div>
     <div id="tools-and-map">
-        <div id="tools" class="surface-secondary background">
-            <header id="tools-header" class="surface-secondary">
+        <div id="tools">
+            <header id="tools-header">
                 <div>Tools</div>
                 <div class="spacer"></div>
-                <button title="Edit tool palette" class="action-text" onclick="#model.showDialog('tool-palette-dialog-component')">
-                    <div>...</div>
+                <button id="edit-tool-palettes-button" title="Edit tool palette" class="action-text" onclick="#model.showDialog('tool-palette-dialog-component')">
+                    <div class="icon-container">
+                        <kit-component data-kit-template-path="/resources/icons/tool-palette.html" data-kit-model="null"></kit-component>
+                    </div>
                 </button>
                 <button title="Pin tool palette" class="action-text" onclick="#model.toggleToolsPinned()">
                     <div id="pinned-icon" class="icon-container">
@@ -575,8 +666,8 @@
             </header>
             <section>
                 <kit-if id="tool-palette-content" data-kit-condition="true">
-                    <div class="surface-secondary background tool-types">
-                        <header class="surface-secondary">
+                    <div class="tool-types">
+                        <header>
                             <div>Editing tools</div>
                             <div class="spacer"></div>
                             <button title="Reset tools" class="action-text" onclick="#model.onToolReset()">
@@ -591,7 +682,7 @@
                                     <kit-array class="tool-palette" data-kit-array="#model.getToolPaletteItems('EditingTools', #paletteIndex)" data-kit-item-ref="tool">
                                         <button id="%{#tool.id}%"
                                                 onclick="#model.onToolSelected(#tool.id, #tool.data.ref)"
-                                                class="tool-button action-control editing-tool-button"
+                                                class="tool-button data-editing-tool-button"
                                                 title="%{#tool.data.ref.name}%">
                                             <svg height="25" width="25" viewBox="0 0 100 100">%{#tool.data.thumbnailSrc}%</svg>
                                         </button>
@@ -600,7 +691,7 @@
                             </kit-array>
                         </section>
                     </div>
-                    <div id="drawing-tools" class="surface-secondary background tool-types">
+                    <div id="drawing-tools" class="tool-types">
                         <header class="surface-secondary">
                             <div>Drawing tools</div>
                             <div class="spacer"></div>
@@ -616,7 +707,7 @@
                                     <kit-array class="tool-palette" data-kit-array="#model.getToolPaletteItems('DrawingTools', #paletteIndex)" data-kit-item-ref="tool">
                                         <button id="%{#tool.id}%"
                                                 onclick="#model.onToolSelected(#tool.id, #tool.data.ref)"
-                                                class="tool-button action-control drawing-tool-button"
+                                                class="tool-button data-drawing-tool-button"
                                                 title="%{#tool.data.ref.name}%">
                                             <svg height="25" width="25" viewBox="0 0 100 100">%{#tool.data.thumbnailSrc}%</svg>
                                         </button>
@@ -625,8 +716,8 @@
                             </kit-array>
                         </section>
                     </div>
-                    <div id="map-item-templates" class="surface-secondary background tool-types">
-                        <header class="surface-secondary">
+                    <div id="map-item-templates" class="tool-types">
+                        <header>
                             <div>Map item templates</div>
                             <div class="spacer"></div>
                             <button title="Reset map item templates" class="action-text" onclick="#model.onMapItemTemplateReset()">
@@ -641,11 +732,9 @@
                                     <kit-array class="tool-palette" data-kit-array="#model.getToolPaletteItems('MapItemTemplates', #paletteIndex)" data-kit-item-ref="mapItemTemplate">
                                         <button id="%{#mapItemTemplate.id}%"
                                                 onclick="#model.onMapItemTemplateSelected(#mapItemTemplate.id, #mapItemTemplate.data.ref)"
-                                                class="tool-button action-control map-item-template-button"
+                                                class="tool-button data-map-item-template-button"
                                                 title="%{#mapItemTemplate.data.ref.name}%">
-                                            <div>
-                                                <div class="image-thumbnail" data-map-item-template-thumbnail="%{#mapItemTemplate.id}%">
-                                                </div>
+                                            <div class="image-thumbnail" data-map-item-template-thumbnail="%{#mapItemTemplate.id}%">
                                             </div>
                                         </button>
                                     </kit-array>
@@ -656,12 +745,15 @@
                 </kit-if>
             </section>
         </div>
-        <div id="map-container" class="surface-primary background">
-            <canvas id="map-canvas" width="1200" height="750"></canvas>
+        <div id="map-container">
+            <div>
+                <canvas id="map-canvas" width="1200" height="750"></canvas>
+            </div>
             <div id="no-map">[No map]</div>
-            <div id="map-saved-notification" class="surface-complementary hidden">
+            <div id="map-saved-notification" class="hidden">
                 Saved
             </div>
+            <div class="spacer"></div>
         </div>
     </div>
     <kit-component id="file-new-dialog-component" data-kit-template-path="/components/map-editor/file-new-dialog/file-new-dialog.html"></kit-component>

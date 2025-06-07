@@ -306,7 +306,7 @@ class MapItemTemplateViewModel {
         const fillElements = this.#getElements(".fill-item");
         for (const fillElement of fillElements) {
             const fillElementId = fillElement.id;
-            if (elementId == fillElementId) {
+            if (`path-style-id-${elementId}` == fillElementId) {
                 fillElement.setAttribute("data-selected", "true");
             }
             else {
@@ -315,10 +315,15 @@ class MapItemTemplateViewModel {
         }
         const fill = this.mapItemTemplate.fills.find(f => f.id == elementId);
         await this.#setCurrentFill(fill);
+        this.#getElement("#delete-fill-button").disabled = false;
     }
 
     hasCurrentFill() {
         return this.#currentFill ? true : false;
+    }
+
+    isCurrentFill(fillId) {
+        return fillId == this.#currentFill?.id;
     }
 
     async addFill() {
@@ -356,6 +361,13 @@ class MapItemTemplateViewModel {
             await this.#setCurrentFill(null);
             await this.#updateMap(changes);
         }
+    }
+
+    canDeleteFillAttribute() {
+        if (this.isDisabled()) {
+            return "disabled";
+        }
+        return this.hasCurrentFill() ? "" : "disabled";
     }
 
     async dropFill(evt) {
@@ -416,11 +428,15 @@ class MapItemTemplateViewModel {
         return this.#currentStroke ? true : false;
     }
 
+    isCurrentStroke(strokeId) {
+        return strokeId == this.#currentStroke?.id;
+    }
+
     async selectStroke(elementId) {
         const strokeElements = this.#getElements(".stroke-item");
         for (const strokeElement of strokeElements) {
             const strokeElementId = strokeElement.id;
-            if (elementId == strokeElementId) {
+            if (`path-style-id-${elementId}` == strokeElementId) {
                 strokeElement.setAttribute("data-selected", "true");
             }
             else {
@@ -429,6 +445,7 @@ class MapItemTemplateViewModel {
         }
         const stroke = this.mapItemTemplate.strokes.find(s => s.id == elementId);
         await this.#setCurrentStroke(stroke);
+        this.#getElement("#delete-stroke-button").disabled = false;
     }
 
     async addStroke() {
@@ -447,6 +464,13 @@ class MapItemTemplateViewModel {
         ];
         await this.#setCurrentStroke(pathStyle);
         await this.#updateMap(changes);
+    }
+
+    canDeleteStrokeAttribute() {
+        if (this.isDisabled()) {
+            return "disabled";
+        }
+        return this.hasCurrentStroke() ? "" : "disabled";
     }
 
     async deleteStroke() {

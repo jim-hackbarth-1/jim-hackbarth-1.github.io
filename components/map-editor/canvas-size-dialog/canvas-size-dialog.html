@@ -1,11 +1,26 @@
 ﻿
-<dialog class="canvas-size-dialog-component surface-tertiary background">
+<dialog class="canvas-size-dialog-component">
     <style>
         @scope (.canvas-size-dialog-component) {
             :scope {
                 height: 150px;
                 width: 300px;
-                border: 1px solid var(--theme-color-tertiary-darkest);
+            }
+
+            @media (max-width: 300px), (max-height: 250px) {
+                :scope {
+                    position: absolute;
+                    transform: unset;
+                    top: 0;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    max-height: 100%;
+                    max-width: 100%;
+                    height: 100%;
+                    width: 100%;
+                    padding-bottom: 50px;
+                }
             }
 
             .controls-container {
@@ -21,40 +36,9 @@
             label {
                 display: block;
             }
-
-            input[type="number"] {
-                border: 1px solid var(--theme-color-tertiary-darkest);
-                border-radius: 3px;
-                height: 35px;
-                color: var(--theme-color-tertiary-darkest);
-                background-color: var(--theme-color-tertiary-lighter);
-                padding: 0 5px 0 5px;
-                text-align: center;
-                width: 75px;
-            }
-
-            input[type="number"]:invalid + .invalid::after {
-                content: "✖";
-                background-color: var(--theme-color-complementary-lighter);
-                border: 1px solid var(--theme-color-complementary-darkest);
-                border-radius: 3px;
-                color: var(--theme-color-complementary-darkest);
-                padding-left: 2px;
-                padding-right: 2px;
-                margin-left: -5px;
-            }
-
-            input[type="number"]:focus {
-                background-color: var(--theme-color-tertiary-lightest);
-                border: 1px solid var(--theme-color-tertiary-darkest);
-            }
-
-            input[type="number"]:not([disabled]):hover {
-                box-shadow: var(--theme-color-tertiary-lightest) 1px 1px 3px 0 inset, var(--theme-color-tertiary-lightest) -1px -1px 3px 0 inset;
-            }
         }
     </style>
-    <header class="surface-tertiary">
+    <header>
         <div class="icon-container">
             <kit-component data-kit-template-path="/resources/icons/view-resize-canvas.html" data-kit-model="null"></kit-component>
         </div>
@@ -63,7 +47,7 @@
         </div>
         <div class="spacer"></div>
         <div>
-            <button title="Close" class="action-text" onclick="#model.closeDialog();">
+            <button title="Close" class="dialog-close-button" onclick="#model.closeDialog();">
                 <div class="icon-container">
                     <kit-component data-kit-template-path="/resources/icons/file-close.html" data-kit-model="null"></kit-component>
                 </div>

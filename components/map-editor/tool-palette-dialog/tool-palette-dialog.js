@@ -486,7 +486,8 @@ export class ToolPaletteDialogModel {
             name: t.ref.name,
             toolTypeLabel: t.toolType == ToolType.EditingTool ? "Editing tool" : "Drawing tool",
             referenceTypeLabel: t.ref.isBuiltIn ? "built-in" : t.ref.isFromTemplate ? "from template" : "custom",
-            versionLabel: `version ${t.ref.versionId}`
+            versionLabel: `version ${t.ref.versionId}`,
+            isSelected: EntityReference.areEqual(t.ref, this.#currentTool?.ref)
         }));
     }
 
@@ -499,7 +500,8 @@ export class ToolPaletteDialogModel {
             thumbnailSrc: `<image height="100%" width="100%" href="${mit.thumbnailSrc}" />`,
             name: mit.ref.name,
             referenceTypeLabel: mit.ref.isBuiltIn ? "built-in" : mit.ref.isFromTemplate ? "from template" : "custom",
-            versionLabel: `version ${mit.ref.versionId}`
+            versionLabel: `version ${mit.ref.versionId}`,
+            isSelected: EntityReference.areEqual(mit.ref, this.#currentMapItemTemplate?.ref)
         }));
     }
 
@@ -764,6 +766,10 @@ export class ToolPaletteDialogModel {
         return this.#currentTool;
     }
 
+    canDeleteToolAttribute() {
+        return this.hasCurrentTool() ? "" : "disabled";
+    }
+
     hasCurrentMapItemTemplate() {
         if (this.#currentMapItemTemplate) {
             return true;
@@ -773,6 +779,10 @@ export class ToolPaletteDialogModel {
 
     getCurrentMapItemTemplate() {
         return this.#currentMapItemTemplate;
+    }
+
+    canDeleteMapItemTemplateAttribute() {
+        return this.hasCurrentMapItemTemplate() ? "" : "disabled";
     }
 
     async copyMapItemTemplate(elementId) {
@@ -870,7 +880,7 @@ export class ToolPaletteDialogModel {
             const elementId = `${mapItemTemplate.ref.name}-${mapItemTemplate.ref.versionId}${mapItemTemplate.ref.isFromTemplate ? "-fromtemplate" : ""}`;
             const thumbnailElements = this.#getElements(`[data-map-item-template-thumbnail="${elementId}"]`);
             for (const thumbnailElement of thumbnailElements) {
-                const style = `background-image: url('${mapItemTemplate.thumbnailSrc}');margin-bottom:5px;`;
+                const style = `background-image: url('${mapItemTemplate.thumbnailSrc}');margin:2px;`;
                 thumbnailElement.setAttribute("style", style);
             }
             const titleElements = this.#getElements(`[data-map-item-template-title="${elementId}"]`);
@@ -883,7 +893,7 @@ export class ToolPaletteDialogModel {
             }
             const versionElements = this.#getElements(`[data-map-item-template-version="${elementId}"]`);
             for (const versionElement of versionElements) {
-                versionElement.innerHTML = mapItemTemplate.ref.versionId;
+                versionElement.innerHTML = `version: ${mapItemTemplate.ref.versionId}`;
             }
         }
     }
@@ -929,10 +939,10 @@ export class ToolPaletteDialogModel {
     }
 
     #sortByRefName(item1, item2) {
-        if (item1.ref.name < item2.ref.name) {
+        if (item1.ref.name.toLowerCase() < item2.ref.name.toLowerCase()) {
             return -1;
         }
-        if (item1.ref.name > item2.ref.name) {
+        if (item1.ref.name.toLowerCase() > item2.ref.name.toLowerCase()) {
             return 1;
         }
         return 0;

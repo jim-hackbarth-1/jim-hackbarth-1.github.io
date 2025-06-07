@@ -1,11 +1,26 @@
 ﻿
-<dialog class="presentation-viewer-dialog-component surface-tertiary background">
+<dialog class="presentation-viewer-dialog-component">
     <style>
         @scope (.presentation-viewer-dialog-component) {
             :scope {
                 height: 250px;
                 width: 300px;
-                border: 1px solid var(--theme-color-tertiary-darkest);
+            }
+
+            @media (max-width: 300px), (max-height: 350px) {
+                :scope {
+                    position: absolute;
+                    transform: unset;
+                    top: 0;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    max-height: 100%;
+                    max-width: 100%;
+                    height: 100%;
+                    width: 100%;
+                    padding-bottom: 50px;
+                }
             }
 
             .controls-container {
@@ -18,12 +33,12 @@
                 margin: 5px;
             }
 
-            .form-button {
+            .dialog-button {
                 width: 175px;
             }
         }
     </style>
-    <header class="surface-tertiary">
+    <header>
         <div class="icon-container">
             <kit-component data-kit-template-path="/resources/icons/view-read-only-viewer.html" data-kit-model="null"></kit-component>
         </div>
@@ -41,22 +56,22 @@
     </header>
     <section>
         <div class="controls-container">
-            <button id="button-open-viewer-window" class="action-control form-button" onclick="#model.openViewerWindow()">
+            <button id="button-open-viewer-window" class="button dialog-button" onclick="#model.openViewerWindow()">
                 Open viewer window
             </button>
         </div>
         <div class="controls-container">
-            <button id="button-flip-map" class="action-control form-button" onclick="#model.flipMap()">
+            <button id="button-flip-map" class="button dialog-button" onclick="#model.flipMap()">
                 Flip map
             </button>
         </div>
         <div class="controls-container">
-            <button id="button-toggle-captions" class="action-control form-button" onclick="#model.toggleCaptions()">
+            <button id="button-toggle-captions" class="button dialog-button" onclick="#model.toggleCaptions()">
                 Toggle captions
             </button>
         </div>
         <div class="controls-container">
-            <button id="button-refresh" class="action-control form-button" onclick="#model.refresh()">
+            <button id="button-refresh" class="button dialog-button" onclick="#model.refresh()">
                 Refresh
             </button>
         </div>

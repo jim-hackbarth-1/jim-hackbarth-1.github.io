@@ -1,0 +1,36 @@
+﻿
+:scope {
+    --fall-dark-primary: rgb(230 206 182);
+    --fall-dark-primary-on: rgb(60 46 29);
+    --fall-dark-primary-container: rgb(201 179 156);
+    --fall-dark-primary-container-on: rgb(85 69 51);
+    --fall-dark-secondary: rgb(209 196 185);
+    --fall-dark-secondary-on: rgb(55 47 39);
+    --fall-dark-secondary-container: rgb(80 72 63);
+    --fall-dark-secondary-container-on: rgb(195 182 171);
+    --fall-dark-tertiary: rgb(211 212 187);
+    --fall-dark-tertiary-on: rgb(48 50 32);
+    --fall-dark-tertiary-container: rgb(183 184 160);
+    --fall-dark-tertiary-container-on: rgb(71 73 54);
+    --fall-dark-alert: rgb(255 180 171);
+    --fall-dark-alert-on: rgb(105 0 5);
+    --fall-dark-alert-container: rgb(147 0 10);
+    --fall-dark-alert-container-on: rgb(255 218 214);
+    --fall-dark-surface: rgb(21 19 17);
+    --fall-dark-surface-on: rgb(231 225 222);
+    --fall-dark-surface-container: rgb(33 31 29);
+    --fall-dark-surface-container-on: rgb(231 225 222);
+    --fall-dark-background: rgb(21 19 17);
+    --fall-dark-background-on: rgb(231 225 222);
+    --fall-dark-outline: rgb(153 143 134);
+    --fall-dark-shadow: rgb(0 0 0);
+    --fall-dark-primary-container-on-variant-1: var(--fall-dark-tertiary);
+    --fall-dark-primary-container-on-variant-2: hsl(from var(--fall-dark-primary-container-on) h s 90%);
+    --fall-dark-primary-container-on-disabled: rgb(from var(--fall-dark-primary-container-on) r g b / 25%);
+    --fall-dark-secondary-container-on-variant-1: var(--fall-dark-alert);
+    --fall-dark-secondary-container-on-variant-2: hsl(from var(--fall-dark-secondary-container-on) h s 10%);
+    --fall-dark-secondary-container-on-disabled: rgb(from var(--fall-dark-secondary-container-on) r g b / 25%);
+    --fall-dark-tertiary-container-on-variant-1: var(--fall-dark-primary);
+    --fall-dark-tertiary-container-on-variant-2: hsl(from var(--fall-dark-tertiary-container-on) h s 10%);
+    --fall-dark-tertiary-container-on-disabled: rgb(from var(--fall-dark-tertiary-container-on) r g b / 25%);
+}

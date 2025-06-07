@@ -474,7 +474,7 @@
                         <input id="image-data" type="hidden" value="%{#model.getOption('TileImageSource')}%" />
                     </div>
                     <div>
-                        <button class="action-control" title="browse" onclick="#model.browseImage()">...</button>
+                        <button class="button dialog-button" title="browse" onclick="#model.browseImage()">...</button>
                     </div>
                 </div>
             </div>
@@ -493,7 +493,7 @@
                         <input id="image-data" type="hidden" value="%{#model.getOption('TileImageSource')}%" />
                     </div>
                     <div>
-                        <button class="action-control" title="browse" onclick="#model.browseImage()">...</button>
+                        <button class="button dialog-button" title="browse" onclick="#model.browseImage()">...</button>
                     </div>
                 </div>
             </div>
@@ -521,7 +521,7 @@
                                 <input id="image-data-%{#imageInfo.index}%" type="hidden" value="%{#model.getImageSource(#imageInfo.index)}%" />
                             </div>
                             <div>
-                                <button class="action-control"
+                                <button class="button dialog-button"
                                         style="padding:15px;margin-right:4px;"
                                         title="browse"
                                         onclick="#model.browseImage(#imageInfo.index)">
@@ -530,7 +530,7 @@
                             </div>
                             <div>
                                 <button title="Remove image"
-                                        class="action-control"
+                                        class="button dialog-button"
                                         data-kit-add-attributes="%{#model.isRemoveImageDisabled(#imageInfo.index)}%"
                                         onclick="#model.removeImage(#imageInfo.index);">
                                     <div class="icon-container">
@@ -574,7 +574,7 @@
                                 <input id="image-data-%{#imageInfo.index}%" type="hidden" value="%{#model.getImageSource(#imageInfo.index)}%" />
                             </div>
                             <div>
-                                <button class="action-control"
+                                <button class="button dialog-button"
                                         style="padding:15px;margin-right:4px;"
                                         title="browse"
                                         onclick="#model.browseImage(#imageInfo.index)">
@@ -583,7 +583,7 @@
                             </div>
                             <div>
                                 <button title="Remove image"
-                                        class="action-control"
+                                        class="button dialog-button"
                                         data-kit-add-attributes="%{#model.isRemoveImageDisabled(#imageInfo.index)}%"
                                         onclick="#model.removeImage(#imageInfo.index);">
                                     <div class="icon-container">

@@ -8,7 +8,7 @@ export function createModel() {
 
 class FileSaveAsDialogModel {
 
-    #fileHandle = null;
+    #fileHandle;
 
     async onRenderStart(componentId) {
         this.componentId = componentId;
@@ -35,6 +35,7 @@ class FileSaveAsDialogModel {
         this.#getElement("#as-map-radio").checked = true;
         this.#getElement("#file-name").value = "";
         this.#getElement("#button-ok").disabled = true;
+        this.#fileHandle = null;
     }
 
     #clickHandlerRegistered;

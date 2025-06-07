@@ -8,7 +8,7 @@ export function createModel() {
 
 class FileOpenDialogModel {
 
-    #fileHandle = null;
+    #fileHandle;
 
     async onRenderStart(componentId) {
         this.componentId = componentId;
@@ -20,6 +20,11 @@ class FileOpenDialogModel {
     showDialog() {
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         const dialog = componentElement.querySelector("dialog");
+        const fileNameElement = componentElement.querySelector("#file-name");
+        fileNameElement.value = "";
+        fileNameElement.disabled = true;
+        componentElement.querySelector("#button-ok").disabled = true;
+        this.#fileHandle = null;
         dialog.showModal();
         if (!this.#clickHandlerRegistered) {
             dialog.addEventListener('click', function (event) {

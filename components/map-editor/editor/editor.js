@@ -12,7 +12,8 @@ import {
     MapWorkerInputMessageType,
     MapWorkerOutputMessageType,
     Tool,
-    ToolPalette
+    ToolPalette,
+    ToolType
 } from "../../../domain/references.js";
 import { KitComponent, KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
 import { BuiltInTemplates } from "../file-new-dialog/file-new-dialog.js";
@@ -163,9 +164,19 @@ export class EditorModel {
 
     async saveMap() {
         if (FileManager.fileHandle) {
-            const map = await MapWorkerClient.getMap();
-            const json = EditorModel.#mapToJson(map);
-            await FileManager.saveMap(json);
+            const appDocument = KitDependencyManager.getDocument();
+            const startCursor = appDocument.body.style.cursor;
+            try {
+                appDocument.body.style.cursor = "wait";
+                const map = await MapWorkerClient.getMap();
+                const json = EditorModel.#mapToJson(map);
+                await FileManager.saveMap(json);
+                this.#showSavedNotification();
+            }
+            finally {
+                appDocument.body.style.cursor = startCursor;
+            }
+            
         }
         else {
             await this.showDialog("file-save-dialog-component");
@@ -507,7 +518,7 @@ export class EditorModel {
     }
 
     async onToolReset() {
-        let buttons = this.#componentElement.querySelectorAll(".editing-tool-button, .drawing-tool-button");
+        let buttons = this.#componentElement.querySelectorAll(".data-editing-tool-button, .data-drawing-tool-button");
         for (const button of buttons) {
             button.classList.remove("active");
         }
@@ -517,13 +528,16 @@ export class EditorModel {
     }
 
     async onToolSelected(id, ref) {
-        let buttons = this.#componentElement.querySelectorAll(".editing-tool-button, .drawing-tool-button");
+        let buttons = this.#componentElement.querySelectorAll(".data-editing-tool-button, .data-drawing-tool-button");
         for (const button of buttons) {
             button.classList.remove("active");
         }
         this.#componentElement.querySelector(`#${id}`).classList.add("active");
         const map = await MapWorkerClient.getMap();
         const tool = map.tools.find(t => EntityReference.areEqual(t.ref, ref));
+        if (tool?.toolType == ToolType.EditingTool) {
+            await this.onMapItemTemplateReset();
+        }
         let cursorSrc = `<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100">${tool.cursorSrc}</svg>`;
         cursorSrc = `data:image/svg+xml;base64,${btoa(cursorSrc)}`;
         this.#toolCursor = `url(${cursorSrc}) ${tool.cursorHotspot.x} ${tool.cursorHotspot.y}, crosshair`;
@@ -533,7 +547,7 @@ export class EditorModel {
     }
 
     async onMapItemTemplateReset() {
-        let buttons = this.#componentElement.querySelectorAll(".map-item-template-button");
+        let buttons = this.#componentElement.querySelectorAll(".data-map-item-template-button");
         for (const button of buttons) {
             button.classList.remove("active");
         }
@@ -541,7 +555,7 @@ export class EditorModel {
     }
 
     async onMapItemTemplateSelected(id, ref) {
-        let buttons = this.#componentElement.querySelectorAll(".map-item-template-button");
+        let buttons = this.#componentElement.querySelectorAll(".data-map-item-template-button");
         for (const button of buttons) {
             button.classList.remove("active");
         }
@@ -601,7 +615,7 @@ export class EditorModel {
             const json = EditorModel.#mapToJson(map);
             FileManager.fileHandle = message.fileHandle;
             await FileManager.saveMap(json);
-            this.#showSavedNotification()
+            this.#showSavedNotification();
         }
         finally {
             appDocument.body.style.cursor = startCursor;
@@ -691,8 +705,8 @@ export class EditorModel {
         for (i = 0; i < dropdowns.length; i++) {
             if (dropdowns[i].id != dropDownId) {
                 var openDropdown = dropdowns[i];
-                if (openDropdown.classList.contains('show')) {
-                    openDropdown.classList.remove('show');
+                if (openDropdown.classList.contains("show")) {
+                    openDropdown.classList.remove("show");
                 }
             }
         }
@@ -797,7 +811,7 @@ export class EditorModel {
     #slideTools = (slideOpen) => {
         let toolsLeft = "0px";
         if (!this.#toolsPinned && !slideOpen) {
-            toolsLeft = "-170px";
+            toolsLeft = "-180px";
         }
         const appDocument = KitDependencyManager.getDocument();
         const documentElement = appDocument.documentElement;

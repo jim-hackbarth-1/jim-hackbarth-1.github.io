@@ -1,0 +1,314 @@
+﻿
+@import "spring.css";
+@import "spring-dark.css";
+@import "summer.css";
+@import "summer-dark.css";
+@import "fall.css";
+@import "fall-dark.css";
+@import "winter.css";
+@import "winter-dark.css";
+
+/* font */
+@font-face {
+    font-family: "Ubuntu Sans Mono";
+    src: url("/resources/fonts/UbuntuSansMono-VariableFont_wght.ttf");
+}
+:scope {
+    --font-family: "Ubuntu Sans Mono", Arial, sans-serif;
+}
+
+/* spring theme colors (pink, default) */
+:scope {
+    --color-primary: var(--spring-primary);
+    --color-primary-on: var(--spring-primary-on);
+    --color-primary-container: var(--spring-primary-container);
+    --color-primary-container-on: var(--spring-primary-container-on);
+    --color-primary-container-on-variant-1: var(--spring-primary-container-on-variant-1);
+    --color-primary-container-on-variant-2: var(--spring-primary-container-on-variant-2);
+    --color-primary-container-on-disabled: var(--spring-primary-container-on-disabled);
+    --color-secondary: var(--spring-secondary);
+    --color-secondary-on: var(--spring-secondary-on);
+    --color-secondary-container: var(--spring-secondary-container);
+    --color-secondary-container-on: var(--spring-secondary-container-on);
+    --color-secondary-container-on-variant-1: var(--spring-secondary-container-on-variant-1);
+    --color-secondary-container-on-variant-2: var(--spring-secondary-container-on-variant-2);
+    --color-secondary-container-on-disabled: var(--spring-secondary-container-on-disabled);
+    --color-tertiary: var(--spring-tertiary);
+    --color-tertiary-on: var(--spring-tertiary-on);
+    --color-tertiary-container-on-variant-1: var(--spring-tertiary-container-on-variant-1);
+    --color-tertiary-container-on-variant-2: var(--spring-tertiary-container-on-variant-2);
+    --color-tertiary-container-on-disabled: var(--spring-tertiary-container-on-disabled);
+    --color-tertiary-container: var(--spring-tertiary-container);
+    --color-tertiary-container-on: var(--spring-tertiary-container-on);
+    --color-alert: var(--spring-alert);
+    --color-alert-on: var(--spring-alert-on);
+    --color-alert-container: var(--spring-alert-container);
+    --color-alert-container-on: var(--spring-alert-container-on);
+    --color-surface: var(--spring-surface);
+    --color-surface-on: var(--spring-surface-on);
+    --color-surface-container: var(--spring-surface-container);
+    --color-surface-container-on: var(--spring-surface-container-on);
+    --color-background: var(--spring-background);
+    --color-background-on: var(--spring-background-on);
+    --color-outline: var(--spring-outline);
+    --color-shadow: var(--spring-shadow);
+}
+
+/* spring theme colors (dark) */
+:scope[data-app-theme="spring-dark"] {
+    --color-primary: var(--spring-dark-primary);
+    --color-primary-on: var(--spring-dark-primary-on);
+    --color-primary-container: var(--spring-dark-primary-container);
+    --color-primary-container-on: var(--spring-dark-primary-container-on);
+    --color-primary-container-on-variant-1: var(--spring-dark-primary-container-on-variant-1);
+    --color-primary-container-on-variant-2: var(--spring-dark-primary-container-on-variant-2);
+    --color-primary-container-on-disabled: var(--spring-dark-primary-container-on-disabled);
+    --color-secondary: var(--spring-dark-secondary);
+    --color-secondary-on: var(--spring-dark-secondary-on);
+    --color-secondary-container: var(--spring-dark-secondary-container);
+    --color-secondary-container-on: var(--spring-dark-secondary-container-on);
+    --color-secondary-container-on-variant-1: var(--spring-dark-secondary-container-on-variant-1);
+    --color-secondary-container-on-variant-2: var(--spring-dark-secondary-container-on-variant-2);
+    --color-secondary-container-on-disabled: var(--spring-dark-secondary-container-on-disabled);
+    --color-tertiary: var(--spring-dark-tertiary);
+    --color-tertiary-on: var(--spring-dark-tertiary-on);
+    --color-tertiary-container-on-variant-1: var(--spring-dark-tertiary-container-on-variant-1);
+    --color-tertiary-container-on-variant-2: var(--spring-dark-tertiary-container-on-variant-2);
+    --color-tertiary-container-on-disabled: var(--spring-dark-tertiary-container-on-disabled);
+    --color-tertiary-container: var(--spring-dark-tertiary-container);
+    --color-tertiary-container-on: var(--spring-dark-tertiary-container-on);
+    --color-alert: var(--spring-dark-alert);
+    --color-alert-on: var(--spring-dark-alert-on);
+    --color-alert-container: var(--spring-dark-alert-container);
+    --color-alert-container-on: var(--spring-dark-alert-container-on);
+    --color-surface: var(--spring-dark-surface);
+    --color-surface-on: var(--spring-dark-surface-on);
+    --color-surface-container: var(--spring-dark-surface-container);
+    --color-surface-container-on: var(--spring-dark-surface-container-on);
+    --color-background: var(--spring-dark-background);
+    --color-background-on: var(--spring-dark-background-on);
+    --color-outline: var(--spring-dark-outline);
+    --color-shadow: var(--spring-dark-shadow);
+}
+
+/* summer theme colors (green) */
+:scope[data-app-theme="summer"] {
+    --color-primary: var(--summer-primary);
+    --color-primary-on: var(--summer-primary-on);
+    --color-primary-container: var(--summer-primary-container);
+    --color-primary-container-on: var(--summer-primary-container-on);
+    --color-primary-container-on-variant-1: var(--summer-primary-container-on-variant-1);
+    --color-primary-container-on-variant-2: var(--summer-primary-container-on-variant-2);
+    --color-primary-container-on-disabled: var(--summer-primary-container-on-disabled);
+    --color-secondary: var(--summer-secondary);
+    --color-secondary-on: var(--summer-secondary-on);
+    --color-secondary-container: var(--summer-secondary-container);
+    --color-secondary-container-on: var(--summer-secondary-container-on);
+    --color-secondary-container-on-variant-1: var(--summer-secondary-container-on-variant-1);
+    --color-secondary-container-on-variant-2: var(--summer-secondary-container-on-variant-2);
+    --color-secondary-container-on-disabled: var(--summer-secondary-container-on-disabled);
+    --color-tertiary: var(--summer-tertiary);
+    --color-tertiary-on: var(--summer-tertiary-on);
+    --color-tertiary-container-on-variant-1: var(--summer-tertiary-container-on-variant-1);
+    --color-tertiary-container-on-variant-2: var(--summer-tertiary-container-on-variant-2);
+    --color-tertiary-container-on-disabled: var(--summer-tertiary-container-on-disabled);
+    --color-tertiary-container: var(--summer-tertiary-container);
+    --color-tertiary-container-on: var(--summer-tertiary-container-on);
+    --color-alert: var(--summer-alert);
+    --color-alert-on: var(--summer-alert-on);
+    --color-alert-container: var(--summer-alert-container);
+    --color-alert-container-on: var(--summer-alert-container-on);
+    --color-surface: var(--summer-surface);
+    --color-surface-on: var(--summer-surface-on);
+    --color-surface-container: var(--summer-surface-container);
+    --color-surface-container-on: var(--summer-surface-container-on);
+    --color-background: var(--summer-background);
+    --color-background-on: var(--summer-background-on);
+    --color-outline: var(--summer-outline);
+    --color-shadow: var(--summer-shadow);
+}
+
+/* summer theme colors (dark) */
+:scope[data-app-theme="summer-dark"] {
+    --color-primary: var(--summer-dark-primary);
+    --color-primary-on: var(--summer-dark-primary-on);
+    --color-primary-container: var(--summer-dark-primary-container);
+    --color-primary-container-on: var(--summer-dark-primary-container-on);
+    --color-primary-container-on-variant-1: var(--summer-dark-primary-container-on-variant-1);
+    --color-primary-container-on-variant-2: var(--summer-dark-primary-container-on-variant-2);
+    --color-primary-container-on-disabled: var(--summer-dark-primary-container-on-disabled);
+    --color-secondary: var(--summer-dark-secondary);
+    --color-secondary-on: var(--summer-dark-secondary-on);
+    --color-secondary-container: var(--summer-dark-secondary-container);
+    --color-secondary-container-on: var(--summer-dark-secondary-container-on);
+    --color-secondary-container-on-variant-1: var(--summer-dark-secondary-container-on-variant-1);
+    --color-secondary-container-on-variant-2: var(--summer-dark-secondary-container-on-variant-2);
+    --color-secondary-container-on-disabled: var(--summer-dark-secondary-container-on-disabled);
+    --color-tertiary: var(--summer-dark-tertiary);
+    --color-tertiary-on: var(--summer-dark-tertiary-on);
+    --color-tertiary-container-on-variant-1: var(--summer-dark-tertiary-container-on-variant-1);
+    --color-tertiary-container-on-variant-2: var(--summer-dark-tertiary-container-on-variant-2);
+    --color-tertiary-container-on-disabled: var(--summer-dark-tertiary-container-on-disabled);
+    --color-tertiary-container: var(--summer-dark-tertiary-container);
+    --color-tertiary-container-on: var(--summer-dark-tertiary-container-on);
+    --color-alert: var(--summer-dark-alert);
+    --color-alert-on: var(--summer-dark-alert-on);
+    --color-alert-container: var(--summer-dark-alert-container);
+    --color-alert-container-on: var(--summer-dark-alert-container-on);
+    --color-surface: var(--summer-dark-surface);
+    --color-surface-on: var(--summer-dark-surface-on);
+    --color-surface-container: var(--summer-dark-surface-container);
+    --color-surface-container-on: var(--summer-dark-surface-container-on);
+    --color-background: var(--summer-dark-background);
+    --color-background-on: var(--summer-dark-background-on);
+    --color-outline: var(--summer-dark-outline);
+    --color-shadow: var(--summer-dark-shadow);
+}
+
+/* fall theme colors (orange) */
+:scope[data-app-theme="fall"] {
+    --color-primary: var(--fall-primary);
+    --color-primary-on: var(--fall-primary-on);
+    --color-primary-container: var(--fall-primary-container);
+    --color-primary-container-on: var(--fall-primary-container-on);
+    --color-primary-container-on-variant-1: var(--fall-primary-container-on-variant-1);
+    --color-primary-container-on-variant-2: var(--fall-primary-container-on-variant-2);
+    --color-primary-container-on-disabled: var(--fall-primary-container-on-disabled);
+    --color-secondary: var(--fall-secondary);
+    --color-secondary-on: var(--fall-secondary-on);
+    --color-secondary-container: var(--fall-secondary-container);
+    --color-secondary-container-on: var(--fall-secondary-container-on);
+    --color-secondary-container-on-variant-1: var(--fall-secondary-container-on-variant-1);
+    --color-secondary-container-on-variant-2: var(--fall-secondary-container-on-variant-2);
+    --color-secondary-container-on-disabled: var(--fall-secondary-container-on-disabled);
+    --color-tertiary: var(--fall-tertiary);
+    --color-tertiary-on: var(--fall-tertiary-on);
+    --color-tertiary-container-on-variant-1: var(--fall-tertiary-container-on-variant-1);
+    --color-tertiary-container-on-variant-2: var(--fall-tertiary-container-on-variant-2);
+    --color-tertiary-container-on-disabled: var(--fall-tertiary-container-on-disabled);
+    --color-tertiary-container: var(--fall-tertiary-container);
+    --color-tertiary-container-on: var(--fall-tertiary-container-on);
+    --color-alert: var(--fall-alert);
+    --color-alert-on: var(--fall-alert-on);
+    --color-alert-container: var(--fall-alert-container);
+    --color-alert-container-on: var(--fall-alert-container-on);
+    --color-surface: var(--fall-surface);
+    --color-surface-on: var(--fall-surface-on);
+    --color-surface-container: var(--fall-surface-container);
+    --color-surface-container-on: var(--fall-surface-container-on);
+    --color-background: var(--fall-background);
+    --color-background-on: var(--fall-background-on);
+    --color-outline: var(--fall-outline);
+    --color-shadow: var(--fall-shadow);
+}
+
+/* fall theme colors (dark) */
+:scope[data-app-theme="fall-dark"] {
+    --color-primary: var(--fall-dark-primary);
+    --color-primary-on: var(--fall-dark-primary-on);
+    --color-primary-container: var(--fall-dark-primary-container);
+    --color-primary-container-on: var(--fall-dark-primary-container-on);
+    --color-primary-container-on-variant-1: var(--fall-dark-primary-container-on-variant-1);
+    --color-primary-container-on-variant-2: var(--fall-dark-primary-container-on-variant-2);
+    --color-primary-container-on-disabled: var(--fall-dark-primary-container-on-disabled);
+    --color-secondary: var(--fall-dark-secondary);
+    --color-secondary-on: var(--fall-dark-secondary-on);
+    --color-secondary-container: var(--fall-dark-secondary-container);
+    --color-secondary-container-on: var(--fall-dark-secondary-container-on);
+    --color-secondary-container-on-variant-1: var(--fall-dark-secondary-container-on-variant-1);
+    --color-secondary-container-on-variant-2: var(--fall-dark-secondary-container-on-variant-2);
+    --color-secondary-container-on-disabled: var(--fall-dark-secondary-container-on-disabled);
+    --color-tertiary: var(--fall-dark-tertiary);
+    --color-tertiary-on: var(--fall-dark-tertiary-on);
+    --color-tertiary-container-on-variant-1: var(--fall-dark-tertiary-container-on-variant-1);
+    --color-tertiary-container-on-variant-2: var(--fall-dark-tertiary-container-on-variant-2);
+    --color-tertiary-container-on-disabled: var(--fall-dark-tertiary-container-on-disabled);
+    --color-tertiary-container: var(--fall-dark-tertiary-container);
+    --color-tertiary-container-on: var(--fall-dark-tertiary-container-on);
+    --color-alert: var(--fall-dark-alert);
+    --color-alert-on: var(--fall-dark-alert-on);
+    --color-alert-container: var(--fall-dark-alert-container);
+    --color-alert-container-on: var(--fall-dark-alert-container-on);
+    --color-surface: var(--fall-dark-surface);
+    --color-surface-on: var(--fall-dark-surface-on);
+    --color-surface-container: var(--fall-dark-surface-container);
+    --color-surface-container-on: var(--fall-dark-surface-container-on);
+    --color-background: var(--fall-dark-background);
+    --color-background-on: var(--fall-dark-background-on);
+    --color-outline: var(--fall-dark-outline);
+    --color-shadow: var(--fall-dark-shadow);
+}
+
+/* winter theme colors (blue) */
+:scope[data-app-theme="winter"] {
+    --color-primary: var(--winter-primary);
+    --color-primary-on: var(--winter-primary-on);
+    --color-primary-container: var(--winter-primary-container);
+    --color-primary-container-on: var(--winter-primary-container-on);
+    --color-primary-container-on-variant-1: var(--winter-primary-container-on-variant-1);
+    --color-primary-container-on-variant-2: var(--winter-primary-container-on-variant-2);
+    --color-primary-container-on-disabled: var(--winter-primary-container-on-disabled);
+    --color-secondary: var(--winter-secondary);
+    --color-secondary-on: var(--winter-secondary-on);
+    --color-secondary-container: var(--winter-secondary-container);
+    --color-secondary-container-on: var(--winter-secondary-container-on);
+    --color-secondary-container-on-variant-1: var(--winter-secondary-container-on-variant-1);
+    --color-secondary-container-on-variant-2: var(--winter-secondary-container-on-variant-2);
+    --color-secondary-container-on-disabled: var(--winter-secondary-container-on-disabled);
+    --color-tertiary: var(--winter-tertiary);
+    --color-tertiary-on: var(--winter-tertiary-on);
+    --color-tertiary-container-on-variant-1: var(--winter-tertiary-container-on-variant-1);
+    --color-tertiary-container-on-variant-2: var(--winter-tertiary-container-on-variant-2);
+    --color-tertiary-container-on-disabled: var(--winter-tertiary-container-on-disabled);
+    --color-tertiary-container: var(--winter-tertiary-container);
+    --color-tertiary-container-on: var(--winter-tertiary-container-on);
+    --color-alert: var(--winter-alert);
+    --color-alert-on: var(--winter-alert-on);
+    --color-alert-container: var(--winter-alert-container);
+    --color-alert-container-on: var(--winter-alert-container-on);
+    --color-surface: var(--winter-surface);
+    --color-surface-on: var(--winter-surface-on);
+    --color-surface-container: var(--winter-surface-container);
+    --color-surface-container-on: var(--winter-surface-container-on);
+    --color-background: var(--winter-background);
+    --color-background-on: var(--winter-background-on);
+    --color-outline: var(--winter-outline);
+    --color-shadow: var(--winter-shadow);
+}
+
+/* winter theme colors (dark) */
+:scope[data-app-theme="winter-dark"] {
+    --color-primary: var(--winter-dark-primary);
+    --color-primary-on: var(--winter-dark-primary-on);
+    --color-primary-container: var(--winter-dark-primary-container);
+    --color-primary-container-on: var(--winter-dark-primary-container-on);
+    --color-primary-container-on-variant-1: var(--winter-dark-primary-container-on-variant-1);
+    --color-primary-container-on-variant-2: var(--winter-dark-primary-container-on-variant-2);
+    --color-primary-container-on-disabled: var(--winter-dark-primary-container-on-disabled);
+    --color-secondary: var(--winter-dark-secondary);
+    --color-secondary-on: var(--winter-dark-secondary-on);
+    --color-secondary-container: var(--winter-dark-secondary-container);
+    --color-secondary-container-on: var(--winter-dark-secondary-container-on);
+    --color-secondary-container-on-variant-1: var(--winter-dark-secondary-container-on-variant-1);
+    --color-secondary-container-on-variant-2: var(--winter-dark-secondary-container-on-variant-2);
+    --color-secondary-container-on-disabled: var(--winter-dark-secondary-container-on-disabled);
+    --color-tertiary: var(--winter-dark-tertiary);
+    --color-tertiary-on: var(--winter-dark-tertiary-on);
+    --color-tertiary-container-on-variant-1: var(--winter-dark-tertiary-container-on-variant-1);
+    --color-tertiary-container-on-variant-2: var(--winter-dark-tertiary-container-on-variant-2);
+    --color-tertiary-container-on-disabled: var(--winter-dark-tertiary-container-on-disabled);
+    --color-tertiary-container: var(--winter-dark-tertiary-container);
+    --color-tertiary-container-on: var(--winter-dark-tertiary-container-on);
+    --color-alert: var(--winter-dark-alert);
+    --color-alert-on: var(--winter-dark-alert-on);
+    --color-alert-container: var(--winter-dark-alert-container);
+    --color-alert-container-on: var(--winter-dark-alert-container-on);
+    --color-surface: var(--winter-dark-surface);
+    --color-surface-on: var(--winter-dark-surface-on);
+    --color-surface-container: var(--winter-dark-surface-container);
+    --color-surface-container-on: var(--winter-dark-surface-container-on);
+    --color-background: var(--winter-dark-background);
+    --color-background-on: var(--winter-dark-background-on);
+    --color-outline: var(--winter-dark-outline);
+    --color-shadow: var(--winter-dark-shadow);
+}

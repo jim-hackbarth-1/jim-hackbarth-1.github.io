@@ -280,7 +280,7 @@ export class MapWorker {
         return null;
     }
 
-    printMessage(message, start) {
+    printMessage(message, start, fillStyle) {
         const scale = 1 / this.map.zoom;
         const translation = { x: -this.map.pan.x, y: -this.map.pan.y };
         const fontSize = 12 * scale;
@@ -296,7 +296,10 @@ export class MapWorker {
         const rectStart = this.geometryUtilities.transformPoint(start, scale, translation);
         const rect = new Path2D(`M ${rectStart.x},${rectStart.y} l ${width},0 0,${height} ${-(width)},0 z`);
         this.renderingContext.lineWidth = 2 * scale;
-        this.renderingContext.fillStyle = "white";
+        if (!fillStyle) {
+            fillStyle = "white";
+        }
+        this.renderingContext.fillStyle = fillStyle;
         this.renderingContext.globalAlpha = 1;
         this.renderingContext.fill(rect);
         this.renderingContext.strokeStyle = "dimgray";
@@ -540,7 +543,7 @@ export class MapWorker {
                     this.printMessage(`x: ${point.x}, y: ${point.y}`, { x: 5 * scale, y: 5 * scale });
                 }
                 if (eventType == "pointerdown" && this.activeTool?.toolType == ToolType.DrawingTool && !this.activeMapItemTemplate) {
-                    this.printMessage("Map item template selection required.", { x: 5 * scale, y: 36 * scale });
+                    this.printMessage("Map item template selection required.", { x: 5 * scale, y: 36 * scale }, "gold");
                 }
                 await this.activeToolModel.handleClientEvent({
                     eventType: eventType,

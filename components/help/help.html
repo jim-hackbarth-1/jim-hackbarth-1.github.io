@@ -5,10 +5,30 @@
                 padding: 10px;
             }
 
+            fieldset {
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+            }
+
+            legend {
+                font-size: larger;
+                margin-left: 10px;
+                padding: 5px;
+            }
+
+            .field-container {
+                padding: 5px 15px 5px 15px;
+            }
+
+            label {
+                display: block;
+                margin-bottom: 2px;
+            }
+
             #debug-console {
                 border: 1px solid var(--color-outline);
                 border-radius: 3px;
-                padding-bottom: 5px;
+                margin: 5px 15px 5px 15px;
             }
 
             .debug-console-item {
@@ -17,21 +37,53 @@
             }
         }
     </style>
-    <h1>Debug console</h1>
-    <div id="debug-console">
-        <kit-array data-kit-array="#model.getDebugConsoleItems()" data-kit-item-ref="item">
-            <div class="debug-console-item">
-                <kit-if data-kit-condition="#item.itemType === 'info'">
-                    <span>&#9432;</span>
-                </kit-if>
-                <kit-if data-kit-condition="#item.itemType === 'warning'">
-                    <span>&#9888;</span>
-                </kit-if>
-                <kit-if data-kit-condition="#item.itemType === 'error'">
-                    <span>&#10539;</span>
-                </kit-if>
-                <pre>%{#item.data}%</pre>
+    <fieldset>
+        <legend>Preferences</legend>
+        <div class="field-container">
+            <div>
+                <label>Theme:</label>
             </div>
-        </kit-array>
-    </div>
+            <div>
+                <select id="select-theme" onchange="#model.setTheme()">
+                    <option value="northern-seasons">Change with seasons</option>
+                    <option value="southern-seasons">Change with seasons, southern hemisphere</option>
+                    <option value="spring">Spring</option>
+                    <option value="summer">Summer</option>
+                    <option value="fall">Fall</option>
+                    <option value="winter">Winter</option>
+                </select>
+            </div>
+        </div>
+        <div class="field-container">
+            <div>
+                <label>Dark mode:</label>
+            </div>
+            <div>
+                <select id="select-dark-mode" onchange="#model.setTheme()">
+                    <option value="time-of-day">Change with time of day (dark mode 7pm - 5am)</option>
+                    <option value="dark">Dark mode</option>
+                    <option value="light">Light mode</option>
+                </select>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset>
+        <legend>Debug console</legend>
+        <div id="debug-console">
+            <kit-array data-kit-array="#model.getDebugConsoleItems()" data-kit-item-ref="item">
+                <div class="debug-console-item">
+                    <kit-if data-kit-condition="#item.itemType === 'info'">
+                        <span>&#9432;</span>
+                    </kit-if>
+                    <kit-if data-kit-condition="#item.itemType === 'warning'">
+                        <span>&#9888;</span>
+                    </kit-if>
+                    <kit-if data-kit-condition="#item.itemType === 'error'">
+                        <span>&#10539;</span>
+                    </kit-if>
+                    <pre>%{#item.data}%</pre>
+                </div>
+            </kit-array>
+        </div>
+    </fieldset>
 </section>

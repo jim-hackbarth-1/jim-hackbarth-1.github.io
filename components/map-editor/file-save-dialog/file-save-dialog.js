@@ -1,5 +1,5 @@
 ﻿
-import { KitMessenger, KitRenderer } from "../../../ui-kit.js";
+import { KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
 import { EditorModel } from "../editor/editor.js";
 
 export function createModel() {
@@ -43,6 +43,13 @@ class FileSaveDialogModel {
         componentElement.querySelector("dialog").close();
     }
 
+    hasFileSystemAccess() {
+        if ('showSaveFilePicker' in KitDependencyManager.getWindow()) {
+            return true;
+        }
+        return false;
+    }
+
     async browse() {
         try {
             this.#fileHandle = await window.showSaveFilePicker({
@@ -63,9 +70,31 @@ class FileSaveDialogModel {
         componentElement.querySelector("#button-ok").disabled = false;
     }
 
+    onFileNameChanged() {
+        const element = this.#getElement("#file-name");
+        let disabled = true;
+        if (element.value && element.value.trim().length > 0) {
+            disabled = false;
+        }
+        this.#getElement("#button-ok").disabled = disabled;
+    }
+
     async buttonOkClicked() {
         this.closeDialog();
-        await KitMessenger.publish(EditorModel.SaveFileRequestTopic, { fileHandle: this.#fileHandle });
-        
+        if (this.hasFileSystemAccess()) {
+            await KitMessenger.publish(EditorModel.SaveFileRequestTopic, { fileHandle: this.#fileHandle });
+        }
+        else {
+            const fileName = this.#getElement("#file-name").value.trim();
+            await KitMessenger.publish(EditorModel.SaveFileRequestTopic, { fileName: fileName });
+        }  
+    }
+
+    #componentElement;
+    #getElement(selector) {
+        if (!this.#componentElement) {
+            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
+        }
+        return this.#componentElement.querySelector(selector);
     }
 }

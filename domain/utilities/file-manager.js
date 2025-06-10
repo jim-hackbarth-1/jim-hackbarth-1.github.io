@@ -21,7 +21,7 @@ export class FileManager {
         }
     }
 
-    static async saveMapAs(data, fileName, anchor) {
+    static async download(data, fileName, anchor) {
         anchor.href = URL.createObjectURL(data);
         anchor.download = fileName;
         anchor.click();

@@ -145,7 +145,7 @@ export class EditorModel {
 
     async isSaveDisabled() {
         const map = await MapWorkerClient.getMap();
-        if (map && 'showSaveFilePicker' in KitDependencyManager.getWindow()) {
+        if (map) {
             return null;
         }
         else {
@@ -154,12 +154,7 @@ export class EditorModel {
     }
 
     isOpenDisabled() {
-        if ('showOpenFilePicker' in KitDependencyManager.getWindow()) {
-            return null;
-        }
-        else {
-            return "disabled";
-        }
+        return null;
     }
 
     async saveMap() {
@@ -175,8 +170,7 @@ export class EditorModel {
             }
             finally {
                 appDocument.body.style.cursor = startCursor;
-            }
-            
+            }  
         }
         else {
             await this.showDialog("file-save-dialog-component");
@@ -594,8 +588,14 @@ export class EditorModel {
     }
 
     async onOpenFileRequested(message) {
-        FileManager.fileHandle = message.fileHandle;
-        const json = await FileManager.openMap(message.fileHandle);
+        let json = null;
+        if (message.fileHandle) {
+            FileManager.fileHandle = message.fileHandle;
+            json = await FileManager.openMap(message.fileHandle);
+        }
+        if (message.fileContents) {
+            json = message.fileContents;
+        }
         const mapData = JSON.parse(json);
         let template = null;
         if (mapData.templateRef) {
@@ -613,9 +613,19 @@ export class EditorModel {
             appDocument.body.style.cursor = "wait";
             const map = await MapWorkerClient.getMap();
             const json = EditorModel.#mapToJson(map);
-            FileManager.fileHandle = message.fileHandle;
-            await FileManager.saveMap(json);
-            this.#showSavedNotification();
+            if (message.fileHandle) {
+                FileManager.fileHandle = message.fileHandle;
+                await FileManager.saveMap(json);
+                this.#showSavedNotification();
+                return;
+            }
+            if (message.fileName) {
+                const blob = new Blob([json], { type: "text/plain" });
+                const anchor = appDocument.createElement("a");
+                await FileManager.download(blob, message.fileName, anchor);
+                this.#showSavedNotification()
+                return;
+            }
         }
         finally {
             appDocument.body.style.cursor = startCursor;
@@ -630,7 +640,7 @@ export class EditorModel {
             try {
                 const blob = await MapWorkerClient.getMapAsImage();
                 const anchor = appDocument.createElement("a");
-                await FileManager.saveMapAs(blob, message.fileName, anchor);
+                await FileManager.download(blob, message.fileName, anchor);
                 this.#showSavedNotification()
             }
             finally {

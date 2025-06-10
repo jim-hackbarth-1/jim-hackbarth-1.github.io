@@ -1,5 +1,5 @@
 ﻿
-import { KitMessenger, KitRenderer } from "../../../ui-kit.js";
+import { KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
 import { EditorModel } from "../editor/editor.js";
 
 export function createModel() {
@@ -9,6 +9,7 @@ export function createModel() {
 class FileOpenDialogModel {
 
     #fileHandle;
+    #fileContents;
 
     async onRenderStart(componentId) {
         this.componentId = componentId;
@@ -18,13 +19,13 @@ class FileOpenDialogModel {
     }
 
     showDialog() {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const dialog = componentElement.querySelector("dialog");
-        const fileNameElement = componentElement.querySelector("#file-name");
+        const dialog = this.#getElement("dialog");
+        const fileNameElement = this.#getElement("#file-name");
         fileNameElement.value = "";
         fileNameElement.disabled = true;
-        componentElement.querySelector("#button-ok").disabled = true;
+        this.#getElement("#button-ok").disabled = true;
         this.#fileHandle = null;
+        this.#fileContents = null;
         dialog.showModal();
         if (!this.#clickHandlerRegistered) {
             dialog.addEventListener('click', function (event) {
@@ -41,37 +42,84 @@ class FileOpenDialogModel {
     #clickHandlerRegistered;
 
     closeDialog() {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        componentElement.querySelector("dialog").close();
+        this.#getElement("dialog").close();
     }
 
-    async browse() {
-        let fileHandles = null;
-        try {
-            fileHandles = await window.showOpenFilePicker({
-                types: [
-                    {
-                        description: 'Json Files',
-                        accept: {
-                            'text/plain': ['.json'],
+    async browse(event) {
+        if (this.#hasFileSystemAccess()) {
+            let fileHandles = null;
+            try {
+                fileHandles = await window.showOpenFilePicker({
+                    types: [
+                        {
+                            description: 'Json Files',
+                            accept: {
+                                'text/plain': ['.json'],
+                            },
                         },
-                    },
-                ],
+                    ],
+                });
+            }
+            catch {
+                return;
+            }
+            this.#fileHandle = fileHandles[0];
+            this.#getElement("#file-name").value = this.#fileHandle.name;
+            this.#getElement("#button-ok").disabled = false;
+        }
+        else {
+            const clickEvent = new MouseEvent('click', {
+                clientX: event.clientX,
+                clientY: event.clientY
             });
+            this.#getElement("#file-input").dispatchEvent(clickEvent);
         }
-        catch {
-            return;
+        
+    }
+
+    onFileSelected() {
+        const appDocument = KitDependencyManager.getDocument();
+        const startCursor = appDocument.body.style.cursor;
+        const file = this.#getElement("#file-input").files[0];
+        if (file) {
+            try {
+                appDocument.body.style.cursor = "wait";
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.#fileContents = e.target.result;
+                    this.#getElement("#file-name").value = file.name;
+                    this.#getElement("#button-ok").disabled = false;
+                };
+                reader.readAsText(file);
+            }
+            finally {
+                appDocument.body.style.cursor = startCursor;
+            }  
         }
-        this.#fileHandle = fileHandles[0];
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const fileNameElement = componentElement.querySelector("#file-name");
-        fileNameElement.value = this.#fileHandle.name;
-        componentElement.querySelector("#button-ok").disabled = false;
     }
 
     async buttonOkClicked() {
         this.closeDialog();
-        await KitMessenger.publish(EditorModel.OpenFileRequestTopic, { fileHandle: this.#fileHandle });
-        
+        if (this.#hasFileSystemAccess()) {
+            await KitMessenger.publish(EditorModel.OpenFileRequestTopic, { fileHandle: this.#fileHandle });
+        }
+        else {
+            await KitMessenger.publish(EditorModel.OpenFileRequestTopic, { fileContents: this.#fileContents });
+        }
+    }
+
+    #componentElement;
+    #getElement(selector) {
+        if (!this.#componentElement) {
+            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
+        }
+        return this.#componentElement.querySelector(selector);
+    }
+
+    #hasFileSystemAccess() {
+        if ('showSaveFilePicker' in KitDependencyManager.getWindow()) {
+            return true;
+        }
+        return false;
     }
 }

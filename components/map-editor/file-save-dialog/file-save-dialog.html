@@ -53,13 +53,23 @@
         </div>
     </header>
     <section>
-        <div>
-            <label>Choose file path:</label>
-        </div>
-        <div id="file-container">
-            <input id="file-name" type="text" placeholder="file name" disabled />
-            <button id="browse" class="button dialog-button" title="browse" onclick="#model.browse()">...</button>
-        </div>
+        <kit-if data-kit-condition="#model.hasFileSystemAccess()">
+            <div>
+                <label>Choose file path:</label>
+            </div>
+            <div id="file-container">
+                <input id="file-name" type="text" placeholder="file name" disabled />
+                <button id="browse" class="button dialog-button" title="browse" onclick="#model.browse()">...</button>
+            </div>
+        </kit-if>
+        <kit-if data-kit-condition="!#model.hasFileSystemAccess()">
+            <div>
+                <label>Choose file name:</label>
+            </div>
+            <div id="file-container">
+                <input id="file-name" type="text" placeholder="file name" onchange="#model.onFileNameChanged()" />
+            </div>
+        </kit-if>
         <div>
             <button id="button-ok" class="button dialog-button" title="OK" onclick="#model.buttonOkClicked();" disabled>OK</button>
         </div>

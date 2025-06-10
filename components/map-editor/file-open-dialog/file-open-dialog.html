@@ -58,7 +58,8 @@
         </div>
         <div id="file-container">
             <input id="file-name" type="text" placeholder="file name" disabled />
-            <button id="browse" class="button dialog-button" title="browse" onclick="#model.browse()">...</button>
+            <input id="file-input" type="file" accept=".json" onchange="#model.onFileSelected()" />
+            <button id="browse" class="button dialog-button" title="browse" onclick="#model.browse(event)">...</button>
         </div>
         <div>
             <button id="button-ok" class="button dialog-button" title="OK" onclick="#model.buttonOkClicked();" disabled>OK</button>

@@ -33,20 +33,6 @@
                     background-color: var(--color-surface-container);
                 }
 
-                .tool-option {
-                    margin: 2px;
-                    border-radius: 3px;
-                    border: 1px solid;
-                    background-color: var(--color-surface-container);
-                    color: var(--color-surface-container-on);
-                    border-color: var(--color-outline);
-                    padding: 5px;
-                }
-
-                .tool-option:hover {
-                    box-shadow: var(--color-tertiary-container) 1px 1px 3px 0 inset, var(--color-tertiary-container) -1px -1px 3px 0 inset;
-                }
-
                 .radio-button, .checkbox, .command {
                     margin: 10px;
                     font-weight: normal;
@@ -82,7 +68,7 @@
             <div id="tool-option-list">
                 <kit-array data-kit-array="#model.getToolOptions()" data-kit-item-ref="toolOption">
                     <kit-if data-kit-condition="#toolOption.typeName == 'StatesToolOption'">
-                        <div class="tool-option" title="%{#toolOption.description ?? #toolOption.label}%">
+                        <div class="tool-button" title="%{#toolOption.description ?? #toolOption.label}%">
                             <label>%{#toolOption.label}%</label>
                             <kit-array data-kit-array="#toolOption.states" data-kit-item-ref="toolOptionState">
                                 <label class="radio-button" title="%{#toolOptionState.description}%">
@@ -103,7 +89,7 @@
                         </div>
                     </kit-if>
                     <kit-if data-kit-condition="#toolOption.typeName == 'BooleanToolOption'">
-                        <div class="tool-option" title="%{#toolOption.description ?? #toolOption.label}%">
+                        <div class="tool-button" title="%{#toolOption.description ?? #toolOption.label}%">
                             <label>%{#toolOption.label}%</label>
                             <label class="checkbox">
                                 <input type="checkbox"
@@ -119,7 +105,7 @@
                     </kit-if>
                     <kit-if data-kit-condition="#toolOption.typeName == 'ToolOption'">
                         <div 
-                             class="tool-option" 
+                             class="tool-button" 
                              title="%{#toolOption.description ?? #toolOption.label}%"
                              onclick="#model.applyToolOption(#toolOption.name)">
                             <label class="command">

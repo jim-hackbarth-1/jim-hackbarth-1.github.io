@@ -52,11 +52,11 @@ dialog header {
     z-index: 10;
 }
 
-dialog .icon-container .icon {
+dialog header .icon-container .icon {
     stroke: var(--color-tertiary-container-on);
 }
 
-dialog .icon-container .icon-text {
+dialog header .icon-container .icon-text {
     stroke: var(--color-tertiary-container-on);
     fill: var(--color-tertiary-container-on);
 }

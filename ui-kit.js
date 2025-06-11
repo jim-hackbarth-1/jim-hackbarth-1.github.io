@@ -564,7 +564,7 @@ export class KitComponent {
     /**
      * Removes a listener for events raised by this component
      * @param {any} eventName - The name of the event
-     * @param {any} listener - The callback method to be called when the event is raised
+     * @param {any} listener - The listener to be removed
      */
     removeEventListener(eventName, listener) {
         const index = this.#getListeners(eventName).findIndex(l => l === listener);

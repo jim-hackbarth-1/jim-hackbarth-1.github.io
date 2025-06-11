@@ -15,6 +15,7 @@ import {
 } from "../../../../domain/references.js";
 import { EditorModel } from "../../editor/editor.js";
 import { ToolPaletteDialogModel } from "../tool-palette-dialog.js";
+import { DomHelper } from "../../../shared/dom-helper.js";
 
 export function createModel() {
     return new MapItemTemplateViewModel();
@@ -30,6 +31,13 @@ class MapItemTemplateViewModel {
 
     async onRenderComplete() {
         KitMessenger.subscribe(EditorModel.MapUpdatedNotificationTopic, this.componentId, this.onMapUpdated.name);
+        const ifMapItemTemplateVisibleComponent = DomHelper.findComponentByElementId(this.#componentElement, "if-map-item-template-visible");
+        ifMapItemTemplateVisibleComponent.addEventListener(
+            KitComponent.OnRenderCompleteEvent, this.onIfMapItemTemplateVisibleRenderComplete);
+        this.#completeRender();
+    }
+
+    onIfMapItemTemplateVisibleRenderComplete = async () => {
         this.#completeRender();
     }
 
@@ -38,20 +46,14 @@ class MapItemTemplateViewModel {
         if (this.mapItemTemplate) {
             this.mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(this.mapItemTemplate.ref, mit.ref));
             let reRender = false;
-            if (message?.data?.changeSet?.changes) {    
+            if (message?.data?.changeSet?.changes) {   
                 const mapItemTemplateChange = message.data.changeSet.changes.some(c =>
-                    c.changeObjectType == MapItemTemplate.name
-                    && EntityReference.areEqual(this.mapItemTemplate.ref, c.mapItemTemplateRef));
+                    EntityReference.areEqual(this.mapItemTemplate.ref, c.mapItemTemplateRef));
                 reRender = mapItemTemplateChange;
             }
-            setTimeout(async () => {
-                if (reRender) {
-                    await this.#reRenderElement("if-map-item-template-visible");
-                }
-            }, 20);
-            setTimeout(() => {
-                this.#completeRender();
-            }, 60);
+            if (reRender) {
+                await DomHelper.reRenderElement(this.#componentElement, "if-map-item-template-visible");
+            }
         }
     }
 
@@ -66,10 +68,7 @@ class MapItemTemplateViewModel {
             stateItem.isOpen = event.target.open;
         }
         else {
-            stateItem = {
-                id: event.target.id,
-                isOpen: event.target.open
-            };
+            stateItem = { id: event.target.id, isOpen: event.target.open };
             detailsState.push(stateItem);
         }
         this.#detailsState = detailsState;
@@ -78,15 +77,8 @@ class MapItemTemplateViewModel {
     }
 
     // methods
-    get isVisibleDebug() {
-        return true;
-    }
-
     isVisible() {
-        if (this.mapItemTemplate) {
-            return true;
-        }
-        return false;
+        return this.mapItemTemplate ? true : false;
     }
 
     isDisabled() {
@@ -144,12 +136,10 @@ class MapItemTemplateViewModel {
             fileHandles = await window.showOpenFilePicker({
                 types: [
                     {
-                        description: 'Image files',
-                        accept: {
-                            "image/*": [".png", ".gif", ".jpeg", ".jpg"],
-                        },
-                    },
-                ],
+                        description: "Image files",
+                        accept: { "image/*": [".png", ".gif", ".jpeg", ".jpg"] }
+                    }
+                ]
             });
         }
         catch {
@@ -157,7 +147,7 @@ class MapItemTemplateViewModel {
         }
         const fileHandle = fileHandles[0];
         const imageSource = await FileManager.getImageSource(fileHandle);
-        const dataElement = this.#getElement("#thumbnail-data");
+        const dataElement = DomHelper.getElement(this.#componentElement, "#thumbnail-data");
         dataElement.value = imageSource;
         await this.update("thumbnailSrc");
     }
@@ -165,7 +155,7 @@ class MapItemTemplateViewModel {
     async generateThumbnail() {
         let thumbnailSrc = this.#getThumbnailSrcFromPathStyles();
         if (!thumbnailSrc) {
-            const defaultShape = this.#getElement("#thumbnail-shape-select").value;
+            const defaultShape = DomHelper.getElement(this.#componentElement, "#thumbnail-shape-select").value;
             const thumbnailPathData = this.#getThumbnailPathData(defaultShape);
             let path2D = new Path2D(thumbnailPathData);
             const offscreenCanvas = new OffscreenCanvas(30, 30);
@@ -220,78 +210,10 @@ class MapItemTemplateViewModel {
             thumbnailSrc = await MapItemTemplateViewModel.#getDataUrl(blob);
         }
         if (thumbnailSrc) {
-            const dataElement = this.#getElement("#thumbnail-data");
+            const dataElement = DomHelper.getElement(this.#componentElement, "#thumbnail-data");
             dataElement.value = thumbnailSrc;
             await this.update("thumbnailSrc");
         }
-    }
-
-    static async #getDataUrl(blob) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                resolve(reader.result);
-            };
-            reader.onerror = (error) => {
-                reject(error);
-            };
-            reader.readAsDataURL(blob);
-        });
-    }
-
-    #getWidestStroke() {
-        let widestStroke = null;
-        let maxWidth = 0;
-        const strokes = this.getStrokes();
-        for (const stroke of strokes) {
-            let width = stroke.getStyleOptionValue("Width");
-            if (width > maxWidth) {
-                widestStroke = stroke;
-                maxWidth = width;
-            }
-        }
-        return widestStroke;
-    }
-
-    #getThumbnailSrcFromPathStyles() {
-        if (!this.mapItemTemplate) {
-            return null;
-        }
-        for (const pathStyle of this.mapItemTemplate.fills) {
-            const styleType = pathStyle.getStyleOptionValue(PathStyleOption.PathStyleType);
-            if (styleType == PathStyleType.TileFill || styleType == PathStyleType.ImageArrayFill) {
-                return this.#getImageThumbnailSrc(pathStyle)
-            }
-        }
-        return null;
-    }
-
-    #getThumbnailPathData(defaultShape) {
-        let pathData = "M 5,5 l 20,0 0,20 -20,0 0,-20";
-        if (defaultShape == "circle") {
-            pathData = "M 15,5 a 10 10 0 0 0 0 20 a 10 10 0 0 0 0 -20";
-        }
-        const hasFills = this.hasFills();
-        if (defaultShape == "lines") {
-            if (hasFills) {
-                pathData = "M 15,5 l 10,0 0,20 -20,0 0,-10 10,0 0,-15";
-            }
-            else {
-                pathData = "M 5,25 l 10,-15 10,0";
-            }
-        }
-        if (defaultShape == "path") {
-            if (hasFills) {
-                pathData = "M 8,0 M 10.5,8.25 Q 3.75 1, 2.5 3.75 T 6 12  T 6 17  T 6 22  T 13.5 23.25 T 21 22 T 23.5 13.25 T 14.75 7";
-            }
-            else {
-                pathData = "M 5,15 Q10,5 15,15 T25,15";
-            }
-        }
-        if (hasFills) {
-            pathData += " z";
-        }
-        return pathData;
     }
 
     hasFills() {
@@ -303,7 +225,7 @@ class MapItemTemplateViewModel {
     }
 
     async selectFill(elementId) {
-        const fillElements = this.#getElements(".fill-item");
+        const fillElements = DomHelper.getElements(this.#componentElement, ".fill-item");
         for (const fillElement of fillElements) {
             const fillElementId = fillElement.id;
             if (`path-style-id-${elementId}` == fillElementId) {
@@ -315,7 +237,7 @@ class MapItemTemplateViewModel {
         }
         const fill = this.mapItemTemplate.fills.find(f => f.id == elementId);
         await this.#setCurrentFill(fill);
-        this.#getElement("#delete-fill-button").disabled = false;
+        DomHelper.getElement(this.#componentElement, "#delete-fill-button").disabled = false;
     }
 
     hasCurrentFill() {
@@ -373,7 +295,7 @@ class MapItemTemplateViewModel {
     async dropFill(evt) {
         const fillElementId = evt.dataTransfer.getData("text");
         const fillId = fillElementId.replace("path-style-id-", "");
-        const fillListElement = this.#getElement("#fill-list");
+        const fillListElement = DomHelper.getElement(this.#componentElement, "#fill-list");
         const fillItems = fillListElement.querySelectorAll(".fill-item");
         const mouseY = evt.clientY;
         let newIndex = 0;
@@ -433,7 +355,7 @@ class MapItemTemplateViewModel {
     }
 
     async selectStroke(elementId) {
-        const strokeElements = this.#getElements(".stroke-item");
+        const strokeElements = DomHelper.getElements(this.#componentElement, ".stroke-item");
         for (const strokeElement of strokeElements) {
             const strokeElementId = strokeElement.id;
             if (`path-style-id-${elementId}` == strokeElementId) {
@@ -445,7 +367,7 @@ class MapItemTemplateViewModel {
         }
         const stroke = this.mapItemTemplate.strokes.find(s => s.id == elementId);
         await this.#setCurrentStroke(stroke);
-        this.#getElement("#delete-stroke-button").disabled = false;
+        DomHelper.getElement(this.#componentElement, "#delete-stroke-button").disabled = false;
     }
 
     async addStroke() {
@@ -495,7 +417,7 @@ class MapItemTemplateViewModel {
     async dropStroke(evt) {
         const strokeElementId = evt.dataTransfer.getData("text");
         const strokeId = strokeElementId.replace("path-style-id-", "");
-        const strokeListElement = this.#getElement("#stroke-list")
+        const strokeListElement = DomHelper.getElement(this.#componentElement, "#stroke-list")
         const strokeItems = strokeListElement.querySelectorAll(".stroke-item");
         const mouseY = evt.clientY;
         let newIndex = 0;
@@ -538,31 +460,20 @@ class MapItemTemplateViewModel {
         await this.#updateMap(changes);
     }
 
-    allowDrop(evt) {
-        evt.preventDefault();
-    }
-
     isDraggable() {
         return !this.isDisabled();
     }
 
-    dragItem(evt) {
-        evt.dataTransfer.setData("text", evt.srcElement.id);
+    async dragStartItem(evt, elementId) {
+        DomHelper.dragStartItem(this.#componentElement, evt, elementId);
     }
 
-    async dragStartItem(evt, elementId) {
-        if (!evt?.dataTransfer) {
-            return;
-        }
-        evt.dataTransfer.setData("text", elementId);
-        const dragStartEvent = new DragEvent("dragstart", {
-            bubbles: true,
-            cancelable: true,
-            clientX: evt.clientX,
-            clientY: evt.clientY,
-        });
-        const element = this.#getElement(`#${elementId}`)
-        element.dispatchEvent(dragStartEvent);
+    dragItem(evt) {
+        DomHelper.dragItem(evt);
+    }
+
+    allowDrop(evt) {
+        DomHelper.allowDrop(evt);
     }
 
     async updateRef() {
@@ -674,24 +585,24 @@ class MapItemTemplateViewModel {
         const map = await MapWorkerClient.getMap();       
 
         // validate name
-        const name = this.#getElement("#name")?.value;
+        const name = DomHelper.getElement(this.#componentElement, "#name")?.value;
         if (!name || name.length == 0) {
-            this.#getElement("#validation-name").innerHTML = "Name is required.";
+            DomHelper.getElement(this.#componentElement, "#validation-name").innerHTML = "Name is required.";
             isValid = false;
         }
         if (!name.match(/^[a-zA-Z0-9\s()]*$/)) {
-            this.#getElement("#validation-name").innerHTML = "Invalid character(s). Alpha-numeric only.";
+            DomHelper.getElement(this.#componentElement, "#validation-name").innerHTML = "Invalid character(s). Alpha-numeric only.";
             isValid = false;
         }
 
         // validate version
-        const versionId = parseInt(this.#getElement("#version")?.value);
+        const versionId = parseInt(DomHelper.getElement(this.#componentElement, "#version")?.value);
         if (isNaN(versionId)) {
-            this.#getElement("#validation-version").innerHTML = "Version is required.";
+            DomHelper.getElement(this.#componentElement, "#validation-version").innerHTML = "Version is required.";
             isValid = false;
         }
         if (versionId < 1 || versionId > 1000) {
-            this.#getElement("#validation-version").innerHTML = "Version must be an integer between 1 and 1000.";
+            DomHelper.getElement(this.#componentElement, "#validation-version").innerHTML = "Version must be an integer between 1 and 1000.";
         }
         const newRef = {
             versionId: versionId,
@@ -701,38 +612,39 @@ class MapItemTemplateViewModel {
         }
         const isStartingRef = EntityReference.areEqual(this.mapItemTemplate.ref, newRef);
         if (!isStartingRef && map.mapItemTemplateRefs.some(mitr => EntityReference.areEqual(mitr, newRef))) {
-            this.#getElement("#validation-name").innerHTML = "The combination of name and version must be unique.";
-            this.#getElement("#validation-version").innerHTML = "The combination of name and version must be unique.";
+            DomHelper.getElement(this.#componentElement, "#validation-name").innerHTML = "The combination of name and version must be unique.";
+            DomHelper.getElement(this.#componentElement, "#validation-version").innerHTML = "The combination of name and version must be unique.";
             isValid = false;
         }
 
         // validate thumbnail
-        const thumbnailSrc = this.#getElement("#thumbnail-data")?.value;
+        const thumbnailSrc = DomHelper.getElement(this.#componentElement, "#thumbnail-data")?.value;
         if (!thumbnailSrc || thumbnailSrc.length == 0) {
-            this.#getElement("#validation-thumbnail").innerHTML = "Thumbnail is required.";
+            DomHelper.getElement(this.#componentElement, "#validation-thumbnail").innerHTML = "Thumbnail is required.";
             isValid = false;
         }
 
         // validate tags
-        const tags = this.#getElement("#tags")?.value;
+        const tags = DomHelper.getElement(this.#componentElement, "#tags")?.value;
         if (tags && !tags.match(/^[a-zA-Z0-9\s()]*$/)) {
-            this.#getElement("#validation-tags").innerHTML = "Invalid character(s). Alpha-numeric only.";
+            DomHelper.getElement(this.#componentElement, "#validation-tags").innerHTML = "Invalid character(s). Alpha-numeric only.";
             isValid = false;
         }
 
         // validate default z group
-        const defaultZGroup = parseInt(this.#getElement("#default-z-group")?.value);
+        const defaultZGroup = parseInt(DomHelper.getElement(this.#componentElement, "#default-z-group")?.value);
         if (isNaN(defaultZGroup)) {
-            this.#getElement("#validation-default-z-group").innerHTML = "Default z-order rendering group is required.";
+            DomHelper.getElement(this.#componentElement, "#validation-default-z-group").innerHTML = "Default z-order rendering group is required.";
             isValid = false;
         }
         if (defaultZGroup < -10 || defaultZGroup > 10) {
-            this.#getElement("#validation-default-z-group").innerHTML = "Default z-order rendering group must be an integer between -10 and 10.";
+            DomHelper.getElement(this.#componentElement, "#validation-default-z-group").innerHTML = "Default z-order rendering group must be an integer between -10 and 10.";
             isValid = false;
         }
 
         // validate shadow
-        const shadowModel = this.#getModelFromComponentElement("shadow");
+        const shadowComponent = DomHelper.findComponentByElementId(this.#componentElement, "shadow");
+        const shadowModel = shadowComponent?.model;
         const shadowValidationResult = shadowModel.validate();
         isValid = isValid && shadowValidationResult.isValid;
         const shadow = {
@@ -760,29 +672,80 @@ class MapItemTemplateViewModel {
     }
 
     // helpers
-    #componentElement;
-    #getElement(selector) {
-        if (!this.#componentElement) {
-            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
+    #componentElementInternal;
+    get #componentElement() {
+        if (!this.#componentElementInternal) {
+            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
         }
-        return this.#componentElement.querySelector(selector);
+        return this.#componentElementInternal
     }
 
-    #getElements(selector) {
-        if (!this.#componentElement) {
-            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
-        }
-        return this.#componentElement.querySelectorAll(selector);
+    static async #getDataUrl(blob) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                resolve(reader.result);
+            };
+            reader.onerror = (error) => {
+                reject(error);
+            };
+            reader.readAsDataURL(blob);
+        });
     }
 
-    async #reRenderElement(elementId) {
-        const element = this.#getElement(`#${elementId}`);
-        if (element) {
-            const componentId = element.getAttribute("data-kit-component-id");
-            if (KitComponent.find(componentId)) {
-                await KitRenderer.renderComponent(componentId);
+    #getWidestStroke() {
+        let widestStroke = null;
+        let maxWidth = 0;
+        const strokes = this.getStrokes();
+        for (const stroke of strokes) {
+            let width = stroke.getStyleOptionValue("Width");
+            if (width > maxWidth) {
+                widestStroke = stroke;
+                maxWidth = width;
             }
         }
+        return widestStroke;
+    }
+
+    #getThumbnailSrcFromPathStyles() {
+        if (!this.mapItemTemplate) {
+            return null;
+        }
+        for (const pathStyle of this.mapItemTemplate.fills) {
+            const styleType = pathStyle.getStyleOptionValue(PathStyleOption.PathStyleType);
+            if (styleType == PathStyleType.TileFill || styleType == PathStyleType.ImageArrayFill) {
+                return this.#getImageThumbnailSrc(pathStyle)
+            }
+        }
+        return null;
+    }
+
+    #getThumbnailPathData(defaultShape) {
+        let pathData = "M 5,5 l 20,0 0,20 -20,0 0,-20";
+        if (defaultShape == "circle") {
+            pathData = "M 15,5 a 10 10 0 0 0 0 20 a 10 10 0 0 0 0 -20";
+        }
+        const hasFills = this.hasFills();
+        if (defaultShape == "lines") {
+            if (hasFills) {
+                pathData = "M 15,5 l 10,0 0,20 -20,0 0,-10 10,0 0,-15";
+            }
+            else {
+                pathData = "M 5,25 l 10,-15 10,0";
+            }
+        }
+        if (defaultShape == "path") {
+            if (hasFills) {
+                pathData = "M 8,0 M 10.5,8.25 Q 3.75 1, 2.5 3.75 T 6 12  T 6 17  T 6 22  T 13.5 23.25 T 21 22 T 23.5 13.25 T 14.75 7";
+            }
+            else {
+                pathData = "M 5,15 Q10,5 15,15 T25,15";
+            }
+        }
+        if (hasFills) {
+            pathData += " z";
+        }
+        return pathData;
     }
 
     #completeRender() {
@@ -806,7 +769,7 @@ class MapItemTemplateViewModel {
         const styleType = pathStyle.getStyleOptionValue(PathStyleOption.PathStyleType);
         const isColorSwatchVisible = this.#isColorSwatchVisible(styleType);
         const isImageThumbnailVisible = this.#isImageThumbnailVisible(styleType);
-        const pathStyleLabelContainerElement = this.#getElement(`#path-style-id-${pathStyle.id}`);
+        const pathStyleLabelContainerElement = DomHelper.getElement(this.#componentElement, `#path-style-id-${pathStyle.id}`);
         if (pathStyleLabelContainerElement) {
             if (isColorSwatchVisible) {
                 const colorSwatch = pathStyleLabelContainerElement.querySelector(".color-swatch");
@@ -924,7 +887,7 @@ class MapItemTemplateViewModel {
     #loadThumbnail() {
         if (this.mapItemTemplate) {
             let src = this.mapItemTemplate.thumbnailSrc ?? MapItemTemplate.defaultThumbnailSrc;
-            const imageElement = this.#getElement("#thumbnail-preview");
+            const imageElement = DomHelper.getElement(this.#componentElement, "#thumbnail-preview");
             if (imageElement) {
                 const style = `background-image: url('${src}');`;
                 imageElement.setAttribute("style", style);
@@ -936,7 +899,7 @@ class MapItemTemplateViewModel {
     #getDetailsState() {
         if (!this.#detailsState) {
             const detailsState = [];
-            const detailsElements = this.#getElements("details");
+            const detailsElements = DomHelper.getElements(this.#componentElement, "details");
             if (detailsElements) {
                 for (const detailsElement of detailsElements) {
                     detailsState.push({
@@ -951,7 +914,7 @@ class MapItemTemplateViewModel {
     }
 
     #applyDetailsState() {
-        const detailsElements = this.#getElements("details");
+        const detailsElements = DomHelper.getElements(this.#componentElement, "details");
         if (detailsElements) {
             const detailsState = this.#getDetailsState();
             for (const detailsElement of detailsElements) {
@@ -964,24 +927,17 @@ class MapItemTemplateViewModel {
     #currentFill;
     async #setCurrentFill(fill) {
         this.#currentFill = fill;
-        await this.#reRenderElement("currentFillForm");
+        await DomHelper.reRenderElement(this.#componentElement, "currentFillForm");
     }
 
     #currentStroke;
     async #setCurrentStroke(stroke) {
         this.#currentStroke = stroke;
-        await this.#reRenderElement("currentStrokeForm");
+        await DomHelper.reRenderElement(this.#componentElement, "currentStrokeForm");
     }
 
     async #updateMap(changes) {
-
-        // update local copy
-        //const map = await MapWorkerClient.getMap();
-        //map.applyChangeSet(new ChangeSet({ changes: changes }));
-
-        ToolPaletteDialogModel.restoreScrollPosition();
-
-        // update map worker
+        ToolPaletteDialogModel.saveScrollPosition();
         MapWorkerClient.postWorkerMessage({
             messageType: MapWorkerInputMessageType.UpdateMap,
             changeSet: { changes: changes }
@@ -1032,12 +988,5 @@ class MapItemTemplateViewModel {
             }
         }
         return mapItems;
-    }
-
-    #getModelFromComponentElement(elementId) {
-        const element = this.#getElement(`#${elementId}`);
-        const componentId = element.getAttribute("data-kit-component-id");
-        const component = KitComponent.find(componentId);
-        return component?.model;
     }
 }

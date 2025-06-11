@@ -1,5 +1,6 @@
 ﻿
 import { KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
+import { DomHelper } from "../../shared/dom-helper.js";
 import { EditorModel } from "../editor/editor.js";
 
 export function createModel() {
@@ -71,16 +72,13 @@ class PresentationViewerDialogModel {
     #clickHandlerRegistered;
     #presentationWindow;
     #messageHandlerRegistered;
-    #componentElement;
 
-    #getElement(selector) {
-        if (!this.#componentElement) {
-            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
+    #componentElementInternal;
+    get #componentElement() {
+        if (!this.#componentElementInternal) {
+            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
         }
-        if (!this.#componentElement) {
-            return null;
-        }
-        return this.#componentElement.querySelector(selector);
+        return this.#componentElementInternal
     }
 
     #updateButtonAvailability() {
@@ -88,15 +86,15 @@ class PresentationViewerDialogModel {
         if (this.#presentationWindow) {
             disabled = false;
         }
-        let element = this.#getElement("#button-flip-map");
+        let element = DomHelper.getElement(this.#componentElement, "#button-flip-map");
         if (element) {
             element.disabled = disabled;
         }
-        element = this.#getElement("#button-toggle-captions");
+        element = DomHelper.getElement(this.#componentElement, "#button-toggle-captions");
         if (element) {
             element.disabled = disabled;
         }
-        element = this.#getElement("#button-refresh");
+        element = DomHelper.getElement(this.#componentElement, "#button-refresh");
         if (element) {
             element.disabled = disabled;
         }

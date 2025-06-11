@@ -1,5 +1,6 @@
 ﻿
 import { KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
+import { DomHelper } from "../../shared/dom-helper.js";
 import { EditorModel } from "../editor/editor.js";
 
 export function createModel() {
@@ -8,8 +9,7 @@ export function createModel() {
 
 class FileSaveDialogModel {
 
-    #fileHandle;
-
+    // event handlers
     async onRenderStart(componentId) {
         this.componentId = componentId;
     }
@@ -17,6 +17,8 @@ class FileSaveDialogModel {
     async onRenderComplete() {
     }
 
+    // methods
+    #clickHandlerRegistered;
     showDialog() {
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         const dialog = componentElement.querySelector("dialog");
@@ -35,8 +37,6 @@ class FileSaveDialogModel {
         componentElement.querySelector("#button-ok").disable = true;
         this.#fileHandle = null;
     }
-
-    #clickHandlerRegistered;
 
     closeDialog() {
         const componentElement = KitRenderer.getComponentElement(this.componentId);
@@ -71,12 +71,12 @@ class FileSaveDialogModel {
     }
 
     onFileNameChanged() {
-        const element = this.#getElement("#file-name");
+        const element = DomHelper.getElement(this.#componentElement, "#file-name");
         let disabled = true;
         if (element.value && element.value.trim().length > 0) {
             disabled = false;
         }
-        this.#getElement("#button-ok").disabled = disabled;
+        DomHelper.getElement(this.#componentElement, "#button-ok").disabled = disabled;
     }
 
     async buttonOkClicked() {
@@ -85,16 +85,19 @@ class FileSaveDialogModel {
             await KitMessenger.publish(EditorModel.SaveFileRequestTopic, { fileHandle: this.#fileHandle });
         }
         else {
-            const fileName = this.#getElement("#file-name").value.trim();
+            const fileName = DomHelper.getElement(this.#componentElement, "#file-name").value.trim();
             await KitMessenger.publish(EditorModel.SaveFileRequestTopic, { fileName: fileName });
         }  
     }
 
-    #componentElement;
-    #getElement(selector) {
-        if (!this.#componentElement) {
-            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
+    // helpers
+    #fileHandle;
+
+    #componentElementInternal;
+    get #componentElement() {
+        if (!this.#componentElementInternal) {
+            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
         }
-        return this.#componentElement.querySelector(selector);
+        return this.#componentElementInternal
     }
 }

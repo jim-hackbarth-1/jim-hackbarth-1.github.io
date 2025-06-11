@@ -11,6 +11,7 @@ import {
     ToolType
 } from "../../../../domain/references.js";
 import { EditorModel } from "../../editor/editor.js";
+import { DomHelper } from "../../../shared/dom-helper.js";
 
 export function createModel() {
     return new ToolViewModel();
@@ -38,7 +39,7 @@ class ToolViewModel {
                 reRender = toolChange;
             }
             if (reRender) {
-                await this.#reRenderElement("if-tool-visible");
+                await DomHelper.reRenderElement(this.#componentElement, "if-tool-visible");
             }
         }
     }
@@ -238,24 +239,24 @@ class ToolViewModel {
         const map = await MapWorkerClient.getMap();
 
         // validate name
-        const name = this.#getElement("#name")?.value;
+        const name = DomHelper.getElement(this.#componentElement, "#name")?.value;
         if (name.length == 0) {
-            this.#getElement("#validation-name").innerHTML = "Name is required.";
+            DomHelper.getElement(this.#componentElement, "#validation-name").innerHTML = "Name is required.";
             isValid = false;
         }
         if (!name.match(/^[a-zA-Z0-9\s()]*$/)) {
-            this.#getElement("#validation-name").innerHTML = "Invalid character(s). Alpha-numeric only.";
+            DomHelper.getElement(this.#componentElement, "#validation-name").innerHTML = "Invalid character(s). Alpha-numeric only.";
             isValid = false;
         }
 
         // validate version
-        const versionId = parseInt(this.#getElement("#version")?.value);
+        const versionId = parseInt(DomHelper.getElement(this.#componentElement, "#version")?.value);
         if (isNaN(versionId)) {
-            this.#getElement("#validation-version").innerHTML = "Version is required.";
+            DomHelper.getElement(this.#componentElement, "#validation-version").innerHTML = "Version is required.";
             isValid = false;
         }
         if (versionId < 1 || versionId > 1000) {
-            this.#getElement("#validation-version").innerHTML = "Version must be an integer between 1 and 1000.";
+            DomHelper.getElement(this.#componentElement, "#validation-version").innerHTML = "Version must be an integer between 1 and 1000.";
             isValid = false;
         }
         const newRef = {
@@ -266,54 +267,54 @@ class ToolViewModel {
         }
         const isStartingRef = EntityReference.areEqual(this.tool.ref, newRef);
         if (!isStartingRef && map.toolRefs.some(tr => EntityReference.areEqual(tr, newRef))) {
-            this.#getElement("#validation-name").innerHTML = "The combination of name and version must be unique.";
-            this.#getElement("#validation-version").innerHTML = "The combination of name and version must be unique.";
+            DomHelper.getElement(this.#componentElement, "#validation-name").innerHTML = "The combination of name and version must be unique.";
+            DomHelper.getElement(this.#componentElement, "#validation-version").innerHTML = "The combination of name and version must be unique.";
             isValid = false;
         }
 
         // validate module source
-        let moduleSrc = this.#getElement("#source")?.value;
+        let moduleSrc = DomHelper.getElement(this.#componentElement, "#source")?.value;
         if (!moduleSrc || moduleSrc.length == 0) {
-            this.#getElement("#validation-source").innerHTML = "Source is required.";
+            DomHelper.getElement(this.#componentElement, "#validation-source").innerHTML = "Source is required.";
             isValid = false;
         }
         if (moduleSrc && !moduleSrc.includes("export function createToolModel()")) {
-            this.#getElement("#validation-source").innerHTML = "Source must export a function named 'createToolModel'";
+            DomHelper.getElement(this.#componentElement, "#validation-source").innerHTML = "Source must export a function named 'createToolModel'";
             isValid = false;
         }
         moduleSrc = `data-${btoa(moduleSrc.trim())}`
 
         // validate thumbnail
-        const thumbnailSrc = this.#getElement("#thumbnail")?.value;
+        const thumbnailSrc = DomHelper.getElement(this.#componentElement, "#thumbnail")?.value;
         if (!thumbnailSrc || thumbnailSrc.length == 0) {
-            this.#getElement("#validation-thumbnail").innerHTML = "Thumbnail is required.";
+            DomHelper.getElement(this.#componentElement, "#validation-thumbnail").innerHTML = "Thumbnail is required.";
             isValid = false;
         }
 
         // validate cursor
-        const cursorSrc = this.#getElement("#cursor")?.value;
+        const cursorSrc = DomHelper.getElement(this.#componentElement, "#cursor")?.value;
         if (!cursorSrc || cursorSrc.length == 0) {
-            this.#getElement("#validation-cursor").innerHTML = "Cursor is required.";
+            DomHelper.getElement(this.#componentElement, "#validation-cursor").innerHTML = "Cursor is required.";
             isValid = false;
         }
 
         // validate cursor hot spot
-        const cursorHotspotX = parseInt(this.#getElement("#cursor-hot-spot-x")?.value);
-        const cursorHotspotY = parseInt(this.#getElement("#cursor-hot-spot-y")?.value);
+        const cursorHotspotX = parseInt(DomHelper.getElement(this.#componentElement, "#cursor-hot-spot-x")?.value);
+        const cursorHotspotY = parseInt(DomHelper.getElement(this.#componentElement, "#cursor-hot-spot-y")?.value);
         if (isNaN(cursorHotspotX) || isNaN(cursorHotspotY)) {
-            this.#getElement("#validation-cursor-hot-spot").innerHTML = "Cursor hotspot x and y coordinates are required.";
+            DomHelper.getElement(this.#componentElement, "#validation-cursor-hot-spot").innerHTML = "Cursor hotspot x and y coordinates are required.";
             isValid = false;
         }
         if (cursorHotspotX < 0 || cursorHotspotX > 100 || cursorHotspotY < 0 || cursorHotspotY > 100) {
-            this.#getElement("#validation-cursor-hot-spot").innerHTML = "Cursor hotspot coordinates must be an integer between 0 and 100.";
+            DomHelper.getElement(this.#componentElement, "#validation-cursor-hot-spot").innerHTML = "Cursor hotspot coordinates must be an integer between 0 and 100.";
             isValid = false;
         }
 
         // validate tool type
-        const isDrawingTool = this.#getElement("#tool-type-drawing")?.checked;
-        const isEditingTool = this.#getElement("#tool-type-editing")?.checked;
+        const isDrawingTool = DomHelper.getElement(this.#componentElement, "#tool-type-drawing")?.checked;
+        const isEditingTool = DomHelper.getElement(this.#componentElement, "#tool-type-editing")?.checked;
         if (!isDrawingTool && !isEditingTool) {
-            this.#getElement("#validation-tool-type").innerHTML = "Tool type is required.";
+            DomHelper.getElement(this.#componentElement, "#validation-tool-type").innerHTML = "Tool type is required.";
             isValid = false;
         }
         const toolType = isDrawingTool ? ToolType.DrawingTool : ToolType.EditingTool;
@@ -335,22 +336,12 @@ class ToolViewModel {
     }
 
     // helpers
-    #componentElement;
-    #getElement(selector) {
-        if (!this.#componentElement) {
-            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
+    #componentElementInternal;
+    get #componentElement() {
+        if (!this.#componentElementInternal) {
+            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
         }
-        return this.#componentElement.querySelector(selector);
-    }
-
-    async #reRenderElement(elementId) {
-        const element = this.#getElement(`#${elementId}`);
-        if (element) {
-            const componentId = element.getAttribute("data-kit-component-id");
-            if (KitComponent.find(componentId) && KitComponent.find(this.componentId)) {
-                await KitRenderer.renderComponent(componentId);
-            }
-        }
+        return this.#componentElementInternal
     }
 
     #isToolInPalettes(palettes, toolRef) {
@@ -396,12 +387,6 @@ class ToolViewModel {
     }
 
     async #updateMap(changes) {
-
-        // update local copy
-        //const map = await MapWorkerClient.getMap();
-        //map.applyChangeSet(new ChangeSet({ changes: changes }));
-
-        // update map worker
         MapWorkerClient.postWorkerMessage({
             messageType: MapWorkerInputMessageType.UpdateMap,
             changeSet: { changes: changes }

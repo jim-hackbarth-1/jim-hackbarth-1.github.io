@@ -15,6 +15,7 @@ import {
     ToolType
 } from "../../../domain/references.js";
 import { EditorModel } from "../editor/editor.js";
+import { DomHelper } from "../../shared/dom-helper.js";
 
 export function createModel() {
     return new ToolPaletteDialogModel();
@@ -29,6 +30,14 @@ export class ToolPaletteDialogModel {
 
     async onRenderComplete() {
         KitMessenger.subscribe(EditorModel.MapUpdatedNotificationTopic, this.componentId, this.onMapUpdated.name);
+        const kitIfVisibleComponent = DomHelper.findComponentByElementId(this.#componentElement, "kitIfVisible");
+        kitIfVisibleComponent.addEventListener(KitComponent.OnRenderCompleteEvent, this.onKitIfVisibleRenderComplete);
+    }
+
+    onKitIfVisibleRenderComplete = async () => {
+        const map = await MapWorkerClient.getMap();
+        this.#applyDetailsState();
+        this.#updateMapItemTemplateListItemLabels(map);
     }
 
     async onMapUpdated(message) {
@@ -78,15 +87,9 @@ export class ToolPaletteDialogModel {
                 reRender = toolPaletteChange || toolInsert || toolDelete || mapItemTemplateInsert || mapItemTemplateDelete || toolChangeType;
             }
             if (reRender) {
-                setTimeout(async () => {
-                    await this.#reRenderElement("kitIfVisible");
-                }, 20);
-                setTimeout(() => {
-                    this.#applyDetailsState();
-                    this.#updateMapItemTemplateListItemLabels(map);
-                }, 40);
-
+                await DomHelper.reRenderElement(this.#componentElement, "kitIfVisible");
             } 
+            ToolPaletteDialogModel.restoreScrollPosition();
         }      
     }
 
@@ -97,44 +100,38 @@ export class ToolPaletteDialogModel {
             stateItem.isOpen = event.target.open;
         }
         else {
-            stateItem = {
-                id: event.target.id,
-                isOpen: event.target.open
-            };
+            stateItem = { id: event.target.id, isOpen: event.target.open };
             detailsState.push(stateItem);
         }
         this.#detailsState = detailsState;
     }
 
-    // properties
+    // methods
+    static #scrollPosition = 0;
+    static saveScrollPosition() {
+        const appDocument = KitDependencyManager.getDocument();
+        let container = appDocument.querySelector("#top-details-list");
+        ToolPaletteDialogModel.#scrollPosition = container.scrollTop;
+    }
+
+    static restoreScrollPosition() {
+        const appDocument = KitDependencyManager.getDocument();
+        const container = appDocument.querySelector("#top-details-list");
+        container.scrollTo({
+            top: ToolPaletteDialogModel.#scrollPosition,
+            left: 0,
+            behavior: "smooth",
+        });
+    }
+
     #isVisible;
     isVisible() {
         return this.#isVisible;
     }
 
-    // methods
-    static restoreScrollPosition() {
-        const appDocument = KitDependencyManager.getDocument();
-        const topDetailsList = appDocument.querySelector("#top-details-list");
-        const scrollPosition = topDetailsList.scrollTop;
-        setTimeout(() => {
-            topDetailsList.scrollTo({
-                top: scrollPosition,
-                left: 0,
-                behavior: "smooth",
-            });
-        }, 100);
-    }
-
     async showDialog() {
         this.#isVisible = true;
-        await this.#reRenderElement("kitIfVisible");
-
-        setTimeout(async () => {
-            const map = await MapWorkerClient.getMap();
-            this.#updateMapItemTemplateListItemLabels(map);
-        }, 40);
-
+        await DomHelper.reRenderElement(this.#componentElement, "kitIfVisible");
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         const dialog = componentElement.querySelector("dialog");
         dialog.showModal();
@@ -271,27 +268,15 @@ export class ToolPaletteDialogModel {
     }
 
     async dragStartItem(evt, elementId) {
-        if (!evt?.dataTransfer) {
-            return;
-        }
-        evt.dataTransfer.setData("text", elementId);
-        const dragStartEvent = new DragEvent("dragstart", {
-            bubbles: true,
-            cancelable: true,
-            clientX: evt.clientX,
-            clientY: evt.clientY,
-        });
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const element = componentElement.querySelector(`#${elementId}`);
-        element.dispatchEvent(dragStartEvent);
+        DomHelper.dragStartItem(this.#componentElement, evt, elementId);
     }
 
     dragItem(evt) {
-        evt.dataTransfer.setData("text", evt.srcElement.id);
+        DomHelper.dragItem(evt);
     }
 
     allowDrop(evt) {
-        evt.preventDefault();
+        DomHelper.allowDrop(evt);
     }
 
     async dropAvailableItem(evt, paletteType) {
@@ -694,72 +679,15 @@ export class ToolPaletteDialogModel {
     }
 
     async selectTool(elementId) {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const toolElements = componentElement.querySelectorAll(".tool-item");
-        for (const toolElement of toolElements) {
-            const toolElementId = toolElement.id;
-            if (elementId == toolElementId) {
-                toolElement.setAttribute("data-selected", "true");
-            }
-            else {
-                toolElement.setAttribute("data-selected", "false");
-            }
-        }
-        const operationInfo = elementId.split("-");
-        const name = operationInfo[0];
-        const version = parseInt(operationInfo[1]);
-        const isFromTemplate = operationInfo[2] == "fromtemplate";
-        const isBuiltIn = operationInfo[2] == "builtin";
-        const canDelete = !isFromTemplate && !isBuiltIn;
-        const deleteButton = componentElement.querySelector("#delete-tool-button");
-        deleteButton.disabled = !canDelete;
-        const ref = new EntityReference({
-            name: name,
-            versionId: version,
-            isBuiltIn: isBuiltIn,
-            isFromTemplate: isFromTemplate
-        });
-        const map = await MapWorkerClient.getMap();
-        const tool = map.tools.find(t => EntityReference.areEqual(t.ref, ref));
-        await this.#setCurrentTool(tool);
+        await this.#selectToolPaletteItem(elementId, true);
     }
 
     async selectMapItemTemplate(elementId) {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const mapItemTemplateElements = componentElement.querySelectorAll(".map-item-template-item");
-        for (const mapItemTemplateElement of mapItemTemplateElements) {
-            const mapItemTemplateElementId = mapItemTemplateElement.id;
-            if (elementId == mapItemTemplateElementId) {
-                mapItemTemplateElement.setAttribute("data-selected", "true");
-            }
-            else {
-                mapItemTemplateElement.setAttribute("data-selected", "false");
-            }
-        }
-        const operationInfo = elementId.split("-");
-        const name = operationInfo[0];
-        const version = parseInt(operationInfo[1]);
-        const isFromTemplate = operationInfo[2] == "fromtemplate";
-        const isBuiltIn = operationInfo[2] == "builtin";
-        const canDelete = !isFromTemplate && !isBuiltIn;
-        const deleteButton = componentElement.querySelector("#delete-map-item-template-button");
-        deleteButton.disabled = !canDelete;
-        const ref = new EntityReference({
-            name: name,
-            versionId: version,
-            isBuiltIn: isBuiltIn,
-            isFromTemplate: isFromTemplate
-        });
-        const map = await MapWorkerClient.getMap();
-        const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, ref));
-        await this.#setCurrentMapItemTemplate(mapItemTemplate);
+        await this.#selectToolPaletteItem(elementId, false);
     }
 
     hasCurrentTool() {
-        if (this.#currentTool) {
-            return true;
-        }
-        return false;
+        return this.#currentTool ? true : false;
     }
 
     getCurrentTool() {
@@ -771,10 +699,7 @@ export class ToolPaletteDialogModel {
     }
 
     hasCurrentMapItemTemplate() {
-        if (this.#currentMapItemTemplate) {
-            return true;
-        }
-        return false;
+        return this.#currentMapItemTemplate ? true : false;
     }
 
     getCurrentMapItemTemplate() {
@@ -834,41 +759,34 @@ export class ToolPaletteDialogModel {
     #currentTool;
     #currentMapItemTemplate;
 
-    #componentElement;
-    #getElement(selector) {
-        if (!this.#componentElement) {
-            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
+    #componentElementInternal;
+    get #componentElement() {
+        if (!this.#componentElementInternal) {
+            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
         }
-        return this.#componentElement.querySelector(selector);
-    }
-
-    #getElements(selector) {
-        if (!this.#componentElement) {
-            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
-        }
-        return this.#componentElement.querySelectorAll(selector);
+        return this.#componentElementInternal
     }
 
     #updateToolListItemLabels(map) {
         for (const tool of map.tools) {
             const elementId = `${tool.ref.name}-${tool.ref.versionId}${tool.ref.isBuiltIn ? "-builtin" : ""}${tool.ref.isFromTemplate ? "-fromtemplate" : ""}`;
-            const thumbnailElements = this.#getElements(`[data-tool-thumbnail="${elementId}"]`);
+            const thumbnailElements = DomHelper.getElements(this.#componentElement, `[data-tool-thumbnail="${elementId}"]`);
             for (const thumbnailElement of thumbnailElements) {
                 thumbnailElement.innerHTML = tool.thumbnailSrc;
             }
-            const titleElements = this.#getElements(`[data-tool-title="${elementId}"]`);
+            const titleElements = DomHelper.getElements(this.#componentElement, `[data-tool-title="${elementId}"]`);
             for (const titleElement of titleElements) {
                 titleElement.setAttribute("title", tool.ref.name);
             }
-            const nameElements = this.#getElements(`[data-tool-name="${elementId}"]`);
+            const nameElements = DomHelper.getElements(this.#componentElement, `[data-tool-name="${elementId}"]`);
             for (const nameElement of nameElements) {
                 nameElement.innerHTML = tool.ref.name;
             }
-            const versionElements = this.#getElements(`[data-tool-version="${elementId}"]`);
+            const versionElements = DomHelper.getElements(this.#componentElement, `[data-tool-version="${elementId}"]`);
             for (const versionElement of versionElements) {
                 versionElement.innerHTML = tool.ref.versionId;
             }
-            const toolTypeElements = this.#getElements(`[data-tool-type="${elementId}"]`);
+            const toolTypeElements = DomHelper.getElements(this.#componentElement, `[data-tool-type="${elementId}"]`);
             for (const toolTypeElement of toolTypeElements) {
                 toolTypeElement.innerHTML = (tool.toolType == ToolType.DrawingTool) ? "Drawing tool" : "Editing tool";
             }
@@ -878,20 +796,20 @@ export class ToolPaletteDialogModel {
     #updateMapItemTemplateListItemLabels(map) {
         for (const mapItemTemplate of map.mapItemTemplates) {
             const elementId = `${mapItemTemplate.ref.name}-${mapItemTemplate.ref.versionId}${mapItemTemplate.ref.isFromTemplate ? "-fromtemplate" : ""}`;
-            const thumbnailElements = this.#getElements(`[data-map-item-template-thumbnail="${elementId}"]`);
+            const thumbnailElements = DomHelper.getElements(this.#componentElement, `[data-map-item-template-thumbnail="${elementId}"]`);
             for (const thumbnailElement of thumbnailElements) {
                 const style = `background-image: url('${mapItemTemplate.thumbnailSrc}');margin:2px;`;
                 thumbnailElement.setAttribute("style", style);
             }
-            const titleElements = this.#getElements(`[data-map-item-template-title="${elementId}"]`);
+            const titleElements = DomHelper.getElements(this.#componentElement, `[data-map-item-template-title="${elementId}"]`);
             for (const titleElement of titleElements) {
                 titleElement.setAttribute("title", mapItemTemplate.ref.name);
             }
-            const nameElements = this.#getElements(`[data-map-item-template-name="${elementId}"]`);
+            const nameElements = DomHelper.getElements(this.#componentElement, `[data-map-item-template-name="${elementId}"]`);
             for (const nameElement of nameElements) {
                 nameElement.innerHTML = mapItemTemplate.ref.name;
             }
-            const versionElements = this.#getElements(`[data-map-item-template-version="${elementId}"]`);
+            const versionElements = DomHelper.getElements(this.#componentElement, `[data-map-item-template-version="${elementId}"]`);
             for (const versionElement of versionElements) {
                 versionElement.innerHTML = `version: ${mapItemTemplate.ref.versionId}`;
             }
@@ -902,7 +820,7 @@ export class ToolPaletteDialogModel {
     #getDetailsState() {
         if (!this.#detailsState) {
             const detailsState = [];
-            const detailsElements = this.#getElements("details");
+            const detailsElements = DomHelper.getElements(this.#componentElement, "details");
             for (const detailsElement of detailsElements) {
                 detailsState.push({
                     id: detailsElement.id,
@@ -915,7 +833,7 @@ export class ToolPaletteDialogModel {
     }
 
     #applyDetailsState() {
-        const detailsElements = this.#getElements("details");
+        const detailsElements = DomHelper.getElements(this.#componentElement, "details");
         const detailsState = this.#getDetailsState();
         for (const detailsElement of detailsElements) {
             const isOpen = detailsState.find(x => x.id == detailsElement.id)?.isOpen;
@@ -949,38 +867,58 @@ export class ToolPaletteDialogModel {
     }
 
     async #updateMap(changes) {
-
-        // update local copy
-        //const map = await MapWorkerClient.getMap();
-        //map.applyChangeSet(new ChangeSet({ changes: changes }));
-
-        ToolPaletteDialogModel.restoreScrollPosition();
-
-        // update map worker
+        ToolPaletteDialogModel.saveScrollPosition();
         MapWorkerClient.postWorkerMessage({
             messageType: MapWorkerInputMessageType.UpdateMap,
             changeSet: { changes: changes }
         });
     }
 
-    async #reRenderElement(elementId) {
-        const element = this.#getElement(`#${elementId}`);
-        if (element) {
-            const componentId = element.getAttribute("data-kit-component-id");
-            if (KitComponent.find(componentId) && KitComponent.find(this.componentId)) {
-                await KitRenderer.renderComponent(componentId);
-            }
+    async #selectToolPaletteItem(elementId, isTool) {
+        let className = "map-item-template-item";
+        let deleteButtonId = "delete-map-item-template-button";
+        if (isTool) {
+            className = "tool-item";
+            deleteButtonId = "delete-tool-button";
+        }
+        const componentElement = KitRenderer.getComponentElement(this.componentId);
+        const elements = componentElement.querySelectorAll(`.${className}`);
+        for (const element of elements) {
+            element.setAttribute("data-selected", element.id == elementId ? "true" : "false");
+        }
+        const operationInfo = elementId.split("-");
+        const name = operationInfo[0];
+        const version = parseInt(operationInfo[1]);
+        const isFromTemplate = operationInfo[2] == "fromtemplate";
+        const isBuiltIn = operationInfo[2] == "builtin";
+        const canDelete = !isFromTemplate && !isBuiltIn;
+        const deleteButton = componentElement.querySelector(`#${deleteButtonId}`);
+        deleteButton.disabled = !canDelete;
+        const ref = new EntityReference({
+            name: name,
+            versionId: version,
+            isBuiltIn: isBuiltIn,
+            isFromTemplate: isFromTemplate
+        });
+        const map = await MapWorkerClient.getMap();
+        if (isTool) {
+            const tool = map.tools.find(t => EntityReference.areEqual(t.ref, ref));
+            await this.#setCurrentTool(tool);
+        }
+        else {
+            const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, ref));
+            await this.#setCurrentMapItemTemplate(mapItemTemplate);
         }
     }
 
     async #setCurrentTool(tool) {
         this.#currentTool = tool;
-        await this.#reRenderElement("currentToolForm");
+        await DomHelper.reRenderElement(this.#componentElement, "currentToolForm");
     }
 
     async #setCurrentMapItemTemplate(mapItemTemplate) {
         this.#currentMapItemTemplate = mapItemTemplate;
-        await this.#reRenderElement("currentMapItemTemplateForm");
+        await DomHelper.reRenderElement(this.#componentElement, "currentMapItemTemplateForm");
     }
 
     #getNewRefName(candidate, refs) {

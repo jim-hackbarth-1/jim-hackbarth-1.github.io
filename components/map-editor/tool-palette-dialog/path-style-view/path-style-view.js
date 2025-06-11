@@ -14,6 +14,7 @@ import {
 } from "../../../../domain/references.js";
 import { EditorModel } from "../../editor/editor.js";
 import { ToolPaletteDialogModel } from "../tool-palette-dialog.js";
+import { DomHelper } from "../../../shared/dom-helper.js";
 
 export function createModel() {
     return new PathStyleViewModel();
@@ -30,6 +31,12 @@ export class PathStyleViewModel {
 
     async onRenderComplete() {
         KitMessenger.subscribe(EditorModel.MapUpdatedNotificationTopic, this.componentId, this.onMapUpdated.name);
+        const ifPathStyleVisibleComponent = DomHelper.findComponentByElementId(this.#componentElement, "if-path-style-visible");
+        ifPathStyleVisibleComponent.addEventListener(KitComponent.OnRenderCompleteEvent, this.onIfPathStyleVisibleRenderComplete);
+        this.#completeRender();
+    }
+
+    onIfPathStyleVisibleRenderComplete = async () => {
         this.#completeRender();
     }
 
@@ -42,14 +49,9 @@ export class PathStyleViewModel {
                     c => c.changeObjectType == PathStyle.name && c.pathStyleId == this.pathStyle.id);
                 reRender = pathStyleChange;
             }   
-            setTimeout(async () => {
-                if (reRender) {
-                    await this.#reRenderElement("if-path-style-visible");
-                }
-            }, 20);
-            setTimeout(() => {
-                this.#completeRender();
-            }, 40);
+            if (reRender) {
+                await DomHelper.reRenderElement(this.#componentElement, "if-path-style-visible");
+            }
         }
     }
 
@@ -98,7 +100,7 @@ export class PathStyleViewModel {
     }
 
     async updateStyleType() {
-        const newStyleType = this.#getElement("#select-style-type").value;        
+        const newStyleType = DomHelper.getElement(this.#componentElement, "#select-style-type").value;        
         if (newStyleType == "" && this.pathStyleInfo.isCaptionBackgroundFill) {
             await this.#clearCaptionBackgroundFill();
             return;
@@ -176,7 +178,7 @@ export class PathStyleViewModel {
         if (imageIndex) {
             elementId = `image-data-${imageIndex}`;
         }
-        const dataElement = this.#getElement(`#${elementId}`);
+        const dataElement = DomHelper.getElement(this.#componentElement, `#${elementId}`);
         dataElement.value = imageSource;
         await this.update();
     }
@@ -197,7 +199,7 @@ export class PathStyleViewModel {
     }
 
     async removeImage(imageIndex) {
-        const dataElement = this.#getElement(`#image-data-${imageIndex}`);
+        const dataElement = DomHelper.getElement(this.#componentElement, `#image-data-${imageIndex}`);
         dataElement.value = null;
         await this.update();
     }
@@ -334,11 +336,19 @@ export class PathStyleViewModel {
     }
 
     // helpers
+    #componentElementInternal;
+    get #componentElement() {
+        if (!this.#componentElementInternal) {
+            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
+        }
+        return this.#componentElementInternal
+    }
+
     #validateColor() {
         let isValid = true;
-        const color = this.#getElement("#color")?.value;
+        const color = DomHelper.getElement(this.#componentElement, "#color")?.value;
         if (!color || !color.match(/^#[0-9a-f]{6}/i)) {
-            this.#getElement("#validation-color").innerHTML = "Valid hex color value (e.g. '#c0c0c0') required.";
+            DomHelper.getElement(this.#componentElement, "#validation-color").innerHTML = "Valid hex color value (e.g. '#c0c0c0') required.";
             isValid = false;
         }
         return {
@@ -349,9 +359,9 @@ export class PathStyleViewModel {
 
     #validateOpacity() {
         let isValid = true;
-        const opacity = parseInt(this.#getElement("#opacity")?.value);
+        const opacity = parseInt(DomHelper.getElement(this.#componentElement, "#opacity")?.value);
         if (isNaN(opacity) || opacity < 0 || opacity > 100) {
-            this.#getElement("#validation-opacity").innerHTML = "Valid number between 0 and 100 required";
+            DomHelper.getElement(this.#componentElement, "#validation-opacity").innerHTML = "Valid number between 0 and 100 required";
             isValid = false;
         }
         return {
@@ -362,10 +372,10 @@ export class PathStyleViewModel {
 
     #validatePresentationMode() {
         let isValid = true;
-        const presentationMode = this.#getElement("#presentation-mode")?.value ?? "";
+        const presentationMode = DomHelper.getElement(this.#componentElement, "#presentation-mode")?.value ?? "";
         const presentationModes = [PresentationMode.Normal, PresentationMode.EditViewOnly, PresentationMode.PresentationViewOnly];
         if (!presentationModes.includes(presentationMode)) {
-            this.#getElement("#validation-presentation-mode").innerHTML = "Valid presentation mode selection required.";
+            DomHelper.getElement(this.#componentElement, "#validation-presentation-mode").innerHTML = "Valid presentation mode selection required.";
             isValid = false;
         }
         return {
@@ -375,7 +385,8 @@ export class PathStyleViewModel {
     }
 
     #validateColorStop(colorStopIndex) {
-        const model = this.#getModelFromComponentElement(`color-stop-${colorStopIndex}`);
+        const component = DomHelper.findComponentByElementId(this.#componentElement, `color-stop-${colorStopIndex}`);
+        const model = component?.model;
         const validationResult = model.validate();
         return {
             isValid: validationResult.isValid,
@@ -388,9 +399,9 @@ export class PathStyleViewModel {
 
     #validateTileImageSource() {
         let isValid = true;
-        const tileImageSource = this.#getElement("#image-data")?.value;
+        const tileImageSource = DomHelper.getElement(this.#componentElement, "#image-data")?.value;
         if (!tileImageSource || !tileImageSource.startsWith("data:")) {
-            this.#getElement("#validation-image").innerHTML = "Valid tile image source required (e.g. 'data:image/png;base64,iVBOR ...').";
+            DomHelper.getElement(this.#componentElement, "#validation-image").innerHTML = "Valid tile image source required (e.g. 'data:image/png;base64,iVBOR ...').";
             isValid = false;
         }
         return {
@@ -401,7 +412,7 @@ export class PathStyleViewModel {
 
     #validateImageArrayOffsets() {
         let isValid = true;
-        let imageArrayOffsets = this.#getElement("#offsets")?.value;
+        let imageArrayOffsets = DomHelper.getElement(this.#componentElement, "#offsets")?.value;
         if (imageArrayOffsets) {
             imageArrayOffsets = imageArrayOffsets.replaceAll(' ', '').split(',').map(o => parseInt(o));
         }
@@ -409,11 +420,11 @@ export class PathStyleViewModel {
             imageArrayOffsets = [];
         }
         if (imageArrayOffsets.some(o => isNaN(o))) {
-            this.#getElement("#validation-offsets").innerHTML = "Invalid offsets string format. Comma-delimited list of integers expected.";
+            DomHelper.getElement(this.#componentElement, "#validation-offsets").innerHTML = "Invalid offsets string format. Comma-delimited list of integers expected.";
             isValid = false;
         }
         if (imageArrayOffsets.some(o => o < 1 || o > 10)) {
-            this.#getElement("#validation-offsets").innerHTML = "Invalid offsets value. Offset values must be integers between 1 and 10.";
+            DomHelper.getElement(this.#componentElement, "#validation-offsets").innerHTML = "Invalid offsets value. Offset values must be integers between 1 and 10.";
             isValid = false;
         }
         return {
@@ -424,13 +435,13 @@ export class PathStyleViewModel {
 
     #validateImageArraySource(imageIndex) {
         let isValid = true;
-        let imageSource = this.#getElement(`#image-data-${imageIndex}`)?.value;
+        let imageSource = DomHelper.getElement(this.#componentElement, `#image-data-${imageIndex}`)?.value;
         if (imageSource) {
             imageSource = imageSource.replace("undefined", "");
         }
         if (imageSource && imageSource.length > 0) {
             if (!imageSource.startsWith("data:")) {
-                this.#getElement(`#validation-image-${imageIndex}`).innerHTML = "Valid image source required (e.g. 'data:image/png;base64,iVBOR ...').";
+                DomHelper.getElement(this.#componentElement, `#validation-image-${imageIndex}`).innerHTML = "Valid image source required (e.g. 'data:image/png;base64,iVBOR ...').";
                 isValid = false;
             }
         }
@@ -441,20 +452,21 @@ export class PathStyleViewModel {
     }
 
     #validateStrokeStyles() {
-        const model = this.#getModelFromComponentElement("stroke-styles");
+        const component = DomHelper.findComponentByElementId(this.#componentElement, "stroke-styles");
+        const model = component?.model;
         return model.validate();
     }
 
     #validateGradientStart() {
         let isValid = true;
-        const startX = parseInt(this.#getElement("#start-x")?.value);
+        const startX = parseInt(DomHelper.getElement(this.#componentElement, "#start-x")?.value);
         if (isNaN(startX) || startX < 0 || startX > 100) {
-            this.#getElement("#validation-start-x").innerHTML = "Valid number between 0 and 100 required";
+            DomHelper.getElement(this.#componentElement, "#validation-start-x").innerHTML = "Valid number between 0 and 100 required";
             isValid = false;
         }
-        const startY = parseInt(this.#getElement("#start-y")?.value);
+        const startY = parseInt(DomHelper.getElement(this.#componentElement, "#start-y")?.value);
         if (isNaN(startY) || startY < 0 || startY > 100) {
-            this.#getElement("#validation-start-y").innerHTML = "Valid number between 0 and 100 required";
+            DomHelper.getElement(this.#componentElement, "#validation-start-y").innerHTML = "Valid number between 0 and 100 required";
             isValid = false;
         }
         return {
@@ -465,14 +477,14 @@ export class PathStyleViewModel {
 
     #validateGradientEnd() {
         let isValid = true;
-        const endX = parseInt(this.#getElement("#end-x")?.value);
+        const endX = parseInt(DomHelper.getElement(this.#componentElement, "#end-x")?.value);
         if (isNaN(endX) || endX < 0 || endX > 100) {
-            this.#getElement("#validation-end-x").innerHTML = "Valid number between 0 and 100 required";
+            DomHelper.getElement(this.#componentElement, "#validation-end-x").innerHTML = "Valid number between 0 and 100 required";
             isValid = false;
         }
-        const endY = parseInt(this.#getElement("#end-y")?.value);
+        const endY = parseInt(DomHelper.getElement(this.#componentElement, "#end-y")?.value);
         if (isNaN(endY) || endY < 0 || endY > 100) {
-            this.#getElement("#validation-end-y").innerHTML = "Valid number between 0 and 100 required";
+            DomHelper.getElement(this.#componentElement, "#validation-end-y").innerHTML = "Valid number between 0 and 100 required";
             isValid = false;
         }
         return {
@@ -483,9 +495,9 @@ export class PathStyleViewModel {
 
     #validateGradientStartRadius() {
         let isValid = true;
-        const startRadius = parseInt(this.#getElement("#start-radius")?.value);
+        const startRadius = parseInt(DomHelper.getElement(this.#componentElement, "#start-radius")?.value);
         if (isNaN(startRadius) || startRadius < 0 || startRadius > 100) {
-            this.#getElement("#validation-start-radius").innerHTML = "Valid number between 0 and 100 required";
+            DomHelper.getElement(this.#componentElement, "#validation-start-radius").innerHTML = "Valid number between 0 and 100 required";
             isValid = false;
         }
         return {
@@ -496,9 +508,9 @@ export class PathStyleViewModel {
 
     #validateGradientEndRadius() {
         let isValid = true;
-        const endRadius = parseInt(this.#getElement("#end-radius")?.value);
+        const endRadius = parseInt(DomHelper.getElement(this.#componentElement, "#end-radius")?.value);
         if (isNaN(endRadius) || endRadius < 0 || endRadius > 100) {
-            this.#getElement("#validation-end-radius").innerHTML = "Valid number between 0 and 100 required";
+            DomHelper.getElement(this.#componentElement, "#validation-end-radius").innerHTML = "Valid number between 0 and 100 required";
             isValid = false;
         }
         return {
@@ -509,9 +521,9 @@ export class PathStyleViewModel {
 
     #validateGradientStartAngle() {
         let isValid = true;
-        const startAngle = parseInt(this.#getElement("#start-angle")?.value);
+        const startAngle = parseInt(DomHelper.getElement(this.#componentElement, "#start-angle")?.value);
         if (isNaN(startAngle) || startAngle < 0 || startAngle > 100) {
-            this.#getElement("#validation-start-angle").innerHTML = "Valid number between 0 and 360 required";
+            DomHelper.getElement(this.#componentElement, "#validation-start-angle").innerHTML = "Valid number between 0 and 360 required";
             isValid = false;
         }
         return {
@@ -543,7 +555,7 @@ export class PathStyleViewModel {
     #completeRender() {
         this.#loadStyleTypes();
         this.#loadImageSources();
-        let select = this.#getElement("#select-style-type");
+        let select = DomHelper.getElement(this.#componentElement, "#select-style-type");
         if (select) {
             select.scrollIntoView();
         }
@@ -588,7 +600,7 @@ export class PathStyleViewModel {
                 { value: PathStyleType.TileStroke, label: "Tile stroke" }
             ];
         }
-        const selectElement = this.#getElement("#select-style-type");
+        const selectElement = DomHelper.getElement(this.#componentElement, "#select-style-type");
         if (selectElement) {
             const appDocument = KitDependencyManager.getDocument();
             const styleType = this.pathStyle.getStyleOptionValue(PathStyleOption.PathStyleType);
@@ -604,12 +616,12 @@ export class PathStyleViewModel {
     }
 
     #loadImageSources() {
-        let imgElement = this.#getElement("#image-preview")
+        let imgElement = DomHelper.getElement(this.#componentElement, "#image-preview")
         if (imgElement) {
             imgElement.setAttribute("src", this.getOption(PathStyleOption.TileImageSource));
         }
         for (let i = 1; i <= 10; i++) {
-            imgElement = this.#getElement(`#image-preview-${i}`)
+            imgElement = DomHelper.getElement(this.#componentElement, `#image-preview-${i}`)
             if (imgElement) {
                 const debug = this.getOption(`ImageArraySource${i}`);
                 imgElement.setAttribute("src", this.getOption(`ImageArraySource${i}`));
@@ -655,41 +667,8 @@ export class PathStyleViewModel {
         await this.#updateMap(changes);
     }
 
-    #componentElement;
-    #getElement(selector) {
-        if (!this.#componentElement) {
-            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
-        }
-        return this.#componentElement.querySelector(selector);
-    }
-
-    #getModelFromComponentElement(elementId) {
-        const element = this.#getElement(`#${elementId}`);
-        const componentId = element.getAttribute("data-kit-component-id");
-        const component = KitComponent.find(componentId);
-        return component?.model;
-    }
-
-    async #reRenderElement(elementId) {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        if (componentElement) {
-            const element = componentElement.querySelector(`#${elementId}`);
-            const componentId = element.getAttribute("data-kit-component-id");
-            if (KitComponent.find(componentId) && KitComponent.find(this.componentId)) {
-                await KitRenderer.renderComponent(componentId);
-            }
-        }
-    }
-
     async #updateMap(changes) {
-
-        // update local copy
-        //const map = await MapWorkerClient.getMap();
-        //map.applyChangeSet(new ChangeSet({ changes: changes }));
-
-        ToolPaletteDialogModel.restoreScrollPosition();
-
-        // update map worker
+        ToolPaletteDialogModel.saveScrollPosition();
         MapWorkerClient.postWorkerMessage({
             messageType: MapWorkerInputMessageType.UpdateMap,
             changeSet: { changes: changes }

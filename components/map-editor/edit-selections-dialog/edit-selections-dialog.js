@@ -1,5 +1,5 @@
 ﻿
-import { KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
+import { KitComponent, KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
 import {
     EntityReference,
     Layer,
@@ -11,6 +11,7 @@ import {
     SelectionStatusType
 } from "../../../domain/references.js";
 import { EditorModel } from "../editor/editor.js";
+import { DomHelper } from "../../shared/dom-helper.js";
 
 export function createModel() {
     return new EditSelectionsDialogModel();
@@ -25,7 +26,13 @@ class EditSelectionsDialogModel {
 
     async onRenderComplete() {
         KitMessenger.subscribe(EditorModel.MapUpdatedNotificationTopic, this.componentId, this.onMapUpdated.name);
-        
+        const kitIfComponent = DomHelper.findComponentByElementId(this.#componentElement, "kitIfVisible");
+        kitIfComponent.addEventListener(KitComponent.OnRenderCompleteEvent, this.onKitIfRenderComplete);
+    }
+
+    onKitIfRenderComplete = async () => {
+        await this.#onRenderComplete();
+        this.#restoreScrollPosition();
     }
 
     async onMapUpdated(message) {
@@ -37,10 +44,7 @@ class EditSelectionsDialogModel {
         }
         await this.#updateInitialSelections();
         this.#disabledAttribute = null;
-        await this.#reRenderElement("kitIfVisible");
-        setTimeout(async () => {
-            await this.#onRenderComplete();
-        }, 20);
+        await DomHelper.reRenderElement(this.#componentElement, "kitIfVisible");
     }
 
     onKeyDown(event) {
@@ -48,28 +52,11 @@ class EditSelectionsDialogModel {
     }
 
     // methods
-    static restoreScrollPosition() {
-        const appDocument = KitDependencyManager.getDocument();
-        let container = appDocument.querySelector("#edit-selection-properties-container");
-        const scrollPosition = container.scrollTop;
-        setTimeout(() => {
-            container = appDocument.querySelector("#edit-selection-properties-container");
-            container.scrollTo({
-                top: scrollPosition,
-                left: 0,
-                behavior: "smooth",
-            });
-        }, 100);
-    }
-
     #clickHandlerRegistered;
     async showDialog() {
         this.#initialSelections = await this.#getSelections();
         this.#isVisible = true;
-        await this.#reRenderElement("kitIfVisible");
-        setTimeout(async () => {
-            await this.#onRenderComplete();
-        }, 20);
+        await DomHelper.reRenderElement(this.#componentElement, "kitIfVisible");
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         const dialog = componentElement.querySelector("dialog");
         dialog.showModal();
@@ -122,8 +109,8 @@ class EditSelectionsDialogModel {
     }
 
     async toggleSelections() {
-        const isChecked = this.#getElement("#toggle-selection-checkbox").checked;
-        const checkboxes = this.#getElements(".data-list-item-checkbox");
+        const isChecked = DomHelper.getElement(this.#componentElement, "#toggle-selection-checkbox").checked;
+        const checkboxes = DomHelper.getElements(this.#componentElement, ".data-list-item-checkbox");
         for (const checkbox of checkboxes) {
             checkbox.checked = isChecked;
         }
@@ -133,14 +120,14 @@ class EditSelectionsDialogModel {
     async toggleSelection(mapItemId) {
         const clickedSelection = this.#initialSelections.find(s => s.mapItem.id == mapItemId);
         const clickedCheckboxId = `#map-item-checkbox-${clickedSelection.mapItem.id}`;
-        const clickedCheckbox = this.#getElement(clickedCheckboxId);
+        const clickedCheckbox = DomHelper.getElement(this.#componentElement, clickedCheckboxId);
         const checked = clickedCheckbox.checked;
         let primarySelectionMapItemGroupId = null;
         if (clickedSelection) {
             const selections = this.#initialSelections.filter(s => s.mapItemGroupId == clickedSelection.mapItemGroupId);
             for (const selection of selections) {
                 let checkboxId = `#map-item-checkbox-${selection.mapItem.id}`;
-                let checkbox = this.#getElement(checkboxId);
+                let checkbox = DomHelper.getElement(this.#componentElement, checkboxId);
                 if (checkbox) {
                     checkbox.checked = checked;
                 }
@@ -153,7 +140,7 @@ class EditSelectionsDialogModel {
     }
 
     toggleDetails(mapItemId) {
-        const detailsRowElement = this.#getElement(`#map-item-details-row-${mapItemId}`);
+        const detailsRowElement = DomHelper.getElement(this.#componentElement, `#map-item-details-row-${mapItemId}`);
         detailsRowElement.classList.toggle("hidden-details");
     }
 
@@ -175,7 +162,7 @@ class EditSelectionsDialogModel {
     }
 
     async updateCaptionText() {
-        const captionTextElement = this.#getElement("#caption-text");
+        const captionTextElement = DomHelper.getElement(this.#componentElement, "#caption-text");
         const captionText = (captionTextElement.value ?? "").trim();
         await this.#setCaptionText(captionText);
     }
@@ -205,7 +192,7 @@ class EditSelectionsDialogModel {
     }
 
     async updateZGroup() {
-        const zGroupElement = this.#getElement("#z-group");
+        const zGroupElement = DomHelper.getElement(this.#componentElement, "#z-group");
         const zGroup = zGroupElement.value ?? 0;
         const map = await MapWorkerClient.getMap();
         const layer = map.getActiveLayer();
@@ -418,7 +405,7 @@ class EditSelectionsDialogModel {
     }
 
     async updateMapItemTemplate() {
-        const select = this.#getElement("#select-map-item-template");
+        const select = DomHelper.getElement(this.#componentElement, "#select-map-item-template");
         let parts = select.value.replace("ref-", "").split("-");
         var ref = {
             name: parts[0],
@@ -452,26 +439,12 @@ class EditSelectionsDialogModel {
     // helpers
     #initialSelections = [];
 
-    #componentElement;
-    #getElement(selector) {
-        if (!this.#componentElement) {
-            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
+    #componentElementInternal;
+    get #componentElement() {
+        if (!this.#componentElementInternal) {
+            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
         }
-        return this.#componentElement.querySelector(selector);
-    }
-
-    #getElements(selector) {
-        if (!this.#componentElement) {
-            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
-        }
-        return this.#componentElement.querySelectorAll(selector);
-    }
-
-    async #reRenderElement(elementId) {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const element = componentElement.querySelector(`#${elementId}`);
-        const componentId = element.getAttribute("data-kit-component-id");
-        await KitRenderer.renderComponent(componentId);
+        return this.#componentElementInternal
     }
 
     async #getSelections() {
@@ -498,7 +471,7 @@ class EditSelectionsDialogModel {
         const map = await MapWorkerClient.getMap();
         const layer = map.getActiveLayer();
         const mapItemGroups = [];
-        const checkboxes = this.#getElements(".data-list-item-checkbox");
+        const checkboxes = DomHelper.getElements(this.#componentElement, ".data-list-item-checkbox");
         let hasPrimary = false;
         for (const checkbox of checkboxes) {
             let checkboxId = checkbox.id;
@@ -555,13 +528,13 @@ class EditSelectionsDialogModel {
         await this.#loadThumbnails();
         const count = await this.getCurrentSelectionCount();
         const hasSelection = (count > 0);
-        this.#getElement("#toggle-selection-checkbox").checked = hasSelection;
+        DomHelper.getElement(this.#componentElement, "#toggle-selection-checkbox").checked = hasSelection;
         await this.#loadMapItemTemplates();
     }
 
     async #loadThumbnails() {
         const map = await MapWorkerClient.getMap();
-        const thumbnails = this.#getElements(".thumbnail");
+        const thumbnails = DomHelper.getElements(this.#componentElement, ".thumbnail");
         for (const thumbnail of thumbnails) {
             let thumbnailSrc = MapItemTemplate.defaultThumbnailSrc;
             let elementId = thumbnail.id;
@@ -578,7 +551,7 @@ class EditSelectionsDialogModel {
     }
 
     #updateMap(changes) {
-        EditSelectionsDialogModel.restoreScrollPosition();
+        this.#saveScrollPosition();
         MapWorkerClient.postWorkerMessage({
             messageType: MapWorkerInputMessageType.UpdateMap,
             changeSet: { changes: changes }
@@ -766,7 +739,7 @@ class EditSelectionsDialogModel {
     async #loadMapItemTemplates() {
         const appDocument = KitDependencyManager.getDocument();
         const map = await MapWorkerClient.getMap();
-        const select = this.#getElement("#select-map-item-template");
+        const select = DomHelper.getElement(this.#componentElement, "#select-map-item-template");
         let option = appDocument.createElement("option");
         option.value = `ref-none-1-true-false`;
         option.innerHTML = "[None]";
@@ -782,5 +755,22 @@ class EditSelectionsDialogModel {
             option.innerHTML = displayName;
             select.appendChild(option);
         }
+    }
+
+    #scrollPosition = 0;
+    #saveScrollPosition() {
+        const appDocument = KitDependencyManager.getDocument();
+        let container = appDocument.querySelector("#edit-selection-properties-container");
+        this.#scrollPosition = container.scrollTop;
+    }
+
+    #restoreScrollPosition() {
+        const appDocument = KitDependencyManager.getDocument();
+        const container = appDocument.querySelector("#edit-selection-properties-container");
+        container.scrollTo({
+            top: this.#scrollPosition,
+            left: 0,
+            behavior: "smooth",
+        });
     }
 }

@@ -1,6 +1,7 @@
 ﻿
-import { ChangeSet, ChangeType, InputUtilities, Layer, Map, MapWorkerClient, MapWorkerInputMessageType } from "../../../domain/references.js";
+import { ChangeType, InputUtilities, Layer, Map, MapWorkerClient, MapWorkerInputMessageType } from "../../../domain/references.js";
 import { KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
+import { DomHelper } from "../../shared/dom-helper.js";
 import { EditorModel } from "../editor/editor.js";
 
 export function createModel() {
@@ -9,6 +10,7 @@ export function createModel() {
 
 class LayersDialogModel {
 
+    // event handlers
     async onRenderStart(componentId) {
         this.componentId = componentId;
     }
@@ -17,6 +19,14 @@ class LayersDialogModel {
         KitMessenger.subscribe(EditorModel.MapUpdatedNotificationTopic, this.componentId, this.onMapUpdated.name);
     }
 
+    async onMapUpdated(message) {
+        if (this.#isVisible) {
+            await this.#reRenderDialog();
+        }
+    }
+
+    // methods
+    #clickHandlerRegistered;
     async showDialog() {
         this.#isVisible = true;
         await this.#reRenderDialog();
@@ -36,8 +46,6 @@ class LayersDialogModel {
             });
         }
     }
-
-    #clickHandlerRegistered;
 
     #isVisible;
     isVisible() {
@@ -334,9 +342,8 @@ class LayersDialogModel {
             clientX: evt.clientX,
             clientY: evt.clientY,
         });
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const layerItemComponent = componentElement.querySelector(`[data-layer-name="${layerName}"]`);
-        layerItemComponent.dispatchEvent(dragStartEvent);
+        const layerItemElement = DomHelper.getElement(this.#componentElement, `[data-layer-name="${layerName}"]`);
+        layerItemElement.dispatchEvent(dragStartEvent);
     }
 
     layerDrag(evt) {
@@ -403,12 +410,6 @@ class LayersDialogModel {
         await this.#reRenderDialog();
     }
 
-    async onMapUpdated(message) {
-        if (this.#isVisible) {
-            await this.#reRenderDialog();
-        }
-    }
-
     closeDialog() {
         this.#isVisible = false;
         const componentElement = KitRenderer.getComponentElement(this.componentId);
@@ -416,16 +417,17 @@ class LayersDialogModel {
     }
 
     // helpers
-    async #reRenderDialog() {
-        await this.#reRenderElement("kitIfVisible");
-        await this.#loadActiveLayerList();
+    #componentElementInternal;
+    get #componentElement() {
+        if (!this.#componentElementInternal) {
+            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
+        }
+        return this.#componentElementInternal
     }
 
-    async #reRenderElement(elementId) {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const element = componentElement.querySelector(`#${elementId}`);
-        const componentId = element.getAttribute("data-kit-component-id");
-        await KitRenderer.renderComponent(componentId);
+    async #reRenderDialog() {
+        await DomHelper.reRenderElement(this.#componentElement, "kitIfVisible");
+        await this.#loadActiveLayerList();
     }
 
     async #loadActiveLayerList() {
@@ -448,12 +450,6 @@ class LayersDialogModel {
     }
 
     async #updateMap(changes) {
-
-        // update local copy
-        //const map = await this.getMap();
-        //map.applyChangeSet(new ChangeSet({ changes: changes }));
-
-        // update map worker
         MapWorkerClient.postWorkerMessage({
             messageType: MapWorkerInputMessageType.UpdateMap,
             changeSet: { changes: changes }

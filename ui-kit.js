@@ -399,7 +399,11 @@ export class KitComponent {
         this.index = options.index;
         this.rendered = false;
         this.children = [];
+        this.#eventListeners = {};
     }
+
+    /** @type {string}  */
+    static OnRenderCompleteEvent = "OnRenderCompleteEvent";
 
     onRenderStart() {
         this.rendered = false;
@@ -431,6 +435,19 @@ export class KitComponent {
                     throw new Error(msg);
                 }
                 this.model.onRenderComplete();
+            }
+            const listeners = this.#getListeners(KitComponent.OnRenderCompleteEvent);
+            for (const listener of listeners) {
+                if (!listener) {
+                    throw new Error(`Required listener function not provided.  Event: ${KitComponent.OnRenderCompleteEvent}`);
+                }
+                if (typeof listener != "function") {
+                    throw new Error(`Listener must be a function.  Event: ${KitComponent.OnRenderCompleteEvent}`);
+                }
+                if (listener.constructor.name !== "AsyncFunction") {
+                    throw new Error(`Listener "${listener.name}" must be an async function`);
+                }
+                listener();
             }
             if (this.parent) {
                 this.parent.onChildRenderComplete();
@@ -530,6 +547,38 @@ export class KitComponent {
             }
         }
         return false;
+    }
+
+    /**
+     * Adds a listener for events raised by this component
+     * @param {string} eventName - The name of the event
+     * @param {any} listener - The callback method to be called when the event is raised
+     */
+    addEventListener(eventName, listener) {
+        const index = this.#getListeners(eventName).findIndex(l => l === listener);
+        if (index < 0) {
+            this.#eventListeners[eventName].push(listener);
+        }
+    }
+
+    /**
+     * Removes a listener for events raised by this component
+     * @param {any} eventName - The name of the event
+     * @param {any} listener - The callback method to be called when the event is raised
+     */
+    removeEventListener(eventName, listener) {
+        const index = this.#getListeners(eventName).findIndex(l => l === listener);
+        if (index > -1) {
+            this.#eventListeners[eventName].splice(index, 1);
+        }
+    }
+
+    #eventListeners;
+    #getListeners(eventName) {
+        if (!this.#eventListeners[eventName]) {
+            this.#eventListeners[eventName] = [];
+        }
+        return this.#eventListeners[eventName];
     }
 }
 

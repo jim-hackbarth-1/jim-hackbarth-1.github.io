@@ -9,6 +9,7 @@ export function createModel() {
 
 class CanvasSizeDialogModel {
 
+    // event handlers
     async onRenderStart(componentId) {
         this.componentId = componentId;
     }
@@ -16,6 +17,8 @@ class CanvasSizeDialogModel {
     async onRenderComplete() {
     }
 
+    // methods
+    #clickHandlerRegistered;
     async showDialog() {
         const currentCanvasSize = MapWorkerClient.getCurrentCanvasSize();
         const componentElement = KitRenderer.getComponentElement(this.componentId);
@@ -36,8 +39,6 @@ class CanvasSizeDialogModel {
         }
     }
 
-    #clickHandlerRegistered;
-
     async onSizeChange() {
         await this.#updateCanvasSize();
     }
@@ -47,6 +48,7 @@ class CanvasSizeDialogModel {
         componentElement.querySelector("dialog").close();
     }
 
+    // helpers
     async #updateCanvasSize() {
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         const height = Number(componentElement.querySelector("#inputHeight").value);

@@ -10,6 +10,7 @@ import {
     PathStyleType
 } from "../../../../domain/references.js";
 import { ToolPaletteDialogModel } from "../tool-palette-dialog.js";
+import { DomHelper } from "../../../shared/dom-helper.js";
 
 export function createModel() {
     return new CaptionViewModel();
@@ -175,21 +176,22 @@ export class CaptionViewModel {
     validate() {
         let isValid = true;
 
-        const defaultText = this.#getElement("#caption-default-text")?.value
+        const defaultText = DomHelper.getElement(this.#componentElement, "#caption-default-text")?.value
 
-        const fontColor = this.#getElement("#caption-font-color")?.value;
+        const fontColor = DomHelper.getElement(this.#componentElement, "#caption-font-color")?.value;
         if (!fontColor || !fontColor.match(/^#[0-9a-f]{6}/i)) {
-            this.#getElement("#validation-caption-font-color").innerHTML = "Valid hex color value (e.g. '#c0c0c0') required.";
+            DomHelper.getElement(this.#componentElement, "#validation-caption-font-color").innerHTML = "Valid hex color value (e.g. '#c0c0c0') required.";
             isValid = false;
         }
 
-        const fontOutlineColor = this.#getElement("#caption-font-outline-color")?.value;
+        const fontOutlineColor = DomHelper.getElement(this.#componentElement, "#caption-font-outline-color")?.value;
         if (!fontOutlineColor || !fontOutlineColor.match(/^#[0-9a-f]{6}/i)) {
-            this.#getElement("#validation-caption-font-outline-color").innerHTML = "Valid hex color value (e.g. '#c0c0c0') required.";
+            DomHelper.getElement(this.#componentElement, "#validation-caption-font-outline-color").innerHTML = "Valid hex color value (e.g. '#c0c0c0') required.";
             isValid = false;
         }
 
-        const textShadowModel = this.#getModelFromComponentElement("caption-text-shadow");
+        const textShadowComponent = DomHelper.findComponentByElementId(this.#componentElement, "caption-text-shadow");
+        const textShadowModel = textShadowComponent.model;
         const textShadowValidationResult = textShadowModel.validate();
         isValid = isValid && textShadowValidationResult.isValid;
         const textShadow = {
@@ -199,26 +201,27 @@ export class CaptionViewModel {
             offsetY: textShadowValidationResult.offsetY,
         }
 
-        let opacity = parseInt(this.#getElement("#caption-font-opacity")?.value);
+        let opacity = parseInt(DomHelper.getElement(this.#componentElement, "#caption-font-opacity")?.value);
         if (isNaN(opacity) || opacity < 0 || opacity > 100) {
-            this.#getElement("#validation-caption-font-opacity").innerHTML = "Valid number between 0 and 100 required.";
+            DomHelper.getElement(this.#componentElement, "#validation-caption-font-opacity").innerHTML = "Valid number between 0 and 100 required.";
             isValid = false;
         }
         opacity = opacity / 100;
 
-        const font = this.#getElement("#caption-font")?.value
+        const font = DomHelper.getElement(this.#componentElement, "#caption-font")?.value
         if (!font || font.length == 0) {
-            this.#getElement("#validation-caption-font").innerHTML = "Valid font string required.";
+            DomHelper.getElement(this.#componentElement, "#validation-caption-font").innerHTML = "Valid font string required.";
             isValid = false;
         }
 
-        const caps = this.#getElement("#caption-font-caps")?.value
+        const caps = DomHelper.getElement(this.#componentElement, "#caption-font-caps")?.value
         if (!caps || caps.length == 0) {
-            this.#getElement("#validation-caption-font-caps").innerHTML = "Valid font caps selection required.";
+            DomHelper.getElement(this.#componentElement, "#validation-caption-font-caps").innerHTML = "Valid font caps selection required.";
             isValid = false;
         }
 
-        const backgroundFillModel = this.#getModelFromComponentElement("caption-background-fill");
+        const backgroundFillComponent = DomHelper.findComponentByElementId(this.#componentElement, "caption-background-fill");
+        const backgroundFillModel = backgroundFillComponent.model;
         const backgroundFillValidationResult = backgroundFillModel.validate();
         isValid = isValid && backgroundFillValidationResult.isValid;
         let backgroundFill = null;
@@ -228,7 +231,8 @@ export class CaptionViewModel {
             };
         }
 
-        const borderStrokeModel = this.#getModelFromComponentElement("caption-border-stroke");
+        const borderStrokeComponent = DomHelper.findComponentByElementId(this.#componentElement, "caption-border-stroke");
+        const borderStrokeModel = borderStrokeComponent.model;
         const borderStrokeValidationResult = borderStrokeModel.validate();
         isValid = isValid && borderStrokeValidationResult.isValid;
         let borderStroke = null;
@@ -238,7 +242,8 @@ export class CaptionViewModel {
             };
         }
 
-        const captionShadowModel = this.#getModelFromComponentElement("caption-shadow");
+        const captionShadowComponent = DomHelper.findComponentByElementId(this.#componentElement, "caption-shadow");
+        const captionShadowModel = captionShadowComponent.model;
         const captionShadowValidationResult = captionShadowModel.validate();
         isValid = isValid && captionShadowValidationResult.isValid;
         const captionShadow = {
@@ -265,22 +270,15 @@ export class CaptionViewModel {
         };
     }
 
-    #componentElement;
-    #getElement(selector) {
-        if (!this.#componentElement) {
-            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
-        }
-        return this.#componentElement.querySelector(selector);
-    }
-
-    #getModelFromComponentElement(elementId) {
-        const element = this.#getElement(`#${elementId}`);
-        const componentId = element.getAttribute("data-kit-component-id");
-        const component = KitComponent.find(componentId);
-        return component?.model;
-    }
-
     // helpers
+    #componentElementInternal;
+    get #componentElement() {
+        if (!this.#componentElementInternal) {
+            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
+        }
+        return this.#componentElementInternal
+    }
+
     #loadLists() {      
         const capsList = [
             { value: FontVariantCap.Normal, label: "Normal" },
@@ -292,7 +290,7 @@ export class CaptionViewModel {
             { value: FontVariantCap.TitlingCaps, label: "Titling caps" },
         ];
         const selectedCap = this.getFontVariantCaps();
-        const selectElement = this.#getElement("#caption-font-caps");
+        const selectElement = DomHelper.getElement(this.#componentElement, "#caption-font-caps");
         if (selectElement) {
             const appDocument = KitDependencyManager.getDocument();
             for (const cap of capsList) {
@@ -307,14 +305,7 @@ export class CaptionViewModel {
     }
 
     async #updateMap(changes) {
-
-        // update local copy
-        //const map = await MapWorkerClient.getMap();
-        //map.applyChangeSet(new ChangeSet({ changes: changes }));
-
-        ToolPaletteDialogModel.restoreScrollPosition();
-
-        // update map worker
+        ToolPaletteDialogModel.saveScrollPosition();
         MapWorkerClient.postWorkerMessage({
             messageType: MapWorkerInputMessageType.UpdateMap,
             changeSet: { changes: changes }

@@ -8,8 +8,7 @@ export function createModel() {
 
 class ToolOptionsDialogModel {
 
-    #toolOptions = [];
-
+    // event handlers
     async onRenderStart(componentId) {
         this.componentId = componentId;
     }
@@ -18,6 +17,8 @@ class ToolOptionsDialogModel {
         this.#initializeKeyEvents();
     }
 
+    // methods
+    #clickHandlerRegistered;
     async showDialog() {
         this.#isVisible = true;
         const toolOptions = MapWorkerClient.getToolOptions() ?? [];
@@ -39,8 +40,6 @@ class ToolOptionsDialogModel {
             });
         }
     }
-
-    #clickHandlerRegistered;
 
     #isVisible;
     isVisible() {
@@ -78,6 +77,9 @@ class ToolOptionsDialogModel {
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         componentElement.querySelector("dialog").close();
     }
+
+    // helpers
+    #toolOptions = [];
 
     static #keyDownHandlerRegistered;
     #initializeKeyEvents() {

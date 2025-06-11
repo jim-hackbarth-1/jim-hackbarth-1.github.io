@@ -1,5 +1,6 @@
 ﻿
 import { KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
+import { DomHelper } from "../../shared/dom-helper.js";
 import { EditorModel } from "../editor/editor.js";
 
 export function createModel() {
@@ -8,9 +9,7 @@ export function createModel() {
 
 class FileOpenDialogModel {
 
-    #fileHandle;
-    #fileContents;
-
+    // event handlers
     async onRenderStart(componentId) {
         this.componentId = componentId;
     }
@@ -18,12 +17,14 @@ class FileOpenDialogModel {
     async onRenderComplete() {
     }
 
+    // methods
+    #clickHandlerRegistered;
     showDialog() {
-        const dialog = this.#getElement("dialog");
-        const fileNameElement = this.#getElement("#file-name");
+        const dialog = DomHelper.getElement(this.#componentElement, "dialog");
+        const fileNameElement = DomHelper.getElement(this.#componentElement, "#file-name");
         fileNameElement.value = "";
         fileNameElement.disabled = true;
-        this.#getElement("#button-ok").disabled = true;
+        DomHelper.getElement(this.#componentElement, "#button-ok").disabled = true;
         this.#fileHandle = null;
         this.#fileContents = null;
         dialog.showModal();
@@ -39,10 +40,8 @@ class FileOpenDialogModel {
         }
     }
 
-    #clickHandlerRegistered;
-
     closeDialog() {
-        this.#getElement("dialog").close();
+        DomHelper.getElement(this.#componentElement, "dialog").close();
     }
 
     async browse(event) {
@@ -64,15 +63,15 @@ class FileOpenDialogModel {
                 return;
             }
             this.#fileHandle = fileHandles[0];
-            this.#getElement("#file-name").value = this.#fileHandle.name;
-            this.#getElement("#button-ok").disabled = false;
+            DomHelper.getElement(this.#componentElement, "#file-name").value = this.#fileHandle.name;
+            DomHelper.getElement(this.#componentElement, "#button-ok").disabled = false;
         }
         else {
             const clickEvent = new MouseEvent('click', {
                 clientX: event.clientX,
                 clientY: event.clientY
             });
-            this.#getElement("#file-input").dispatchEvent(clickEvent);
+            DomHelper.getElement(this.#componentElement, "#file-input").dispatchEvent(clickEvent);
         }
         
     }
@@ -80,15 +79,15 @@ class FileOpenDialogModel {
     onFileSelected() {
         const appDocument = KitDependencyManager.getDocument();
         const startCursor = appDocument.body.style.cursor;
-        const file = this.#getElement("#file-input").files[0];
+        const file = DomHelper.getElement(this.#componentElement, "#file-input").files[0];
         if (file) {
             try {
                 appDocument.body.style.cursor = "wait";
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     this.#fileContents = e.target.result;
-                    this.#getElement("#file-name").value = file.name;
-                    this.#getElement("#button-ok").disabled = false;
+                    DomHelper.getElement(this.#componentElement, "#file-name").value = file.name;
+                    DomHelper.getElement(this.#componentElement, "#button-ok").disabled = false;
                 };
                 reader.readAsText(file);
             }
@@ -108,12 +107,16 @@ class FileOpenDialogModel {
         }
     }
 
-    #componentElement;
-    #getElement(selector) {
-        if (!this.#componentElement) {
-            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
+    // helpers
+    #fileHandle;
+    #fileContents;
+
+    #componentElementInternal;
+    get #componentElement() {
+        if (!this.#componentElementInternal) {
+            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
         }
-        return this.#componentElement.querySelector(selector);
+        return this.#componentElementInternal
     }
 
     #hasFileSystemAccess() {

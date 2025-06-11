@@ -1,5 +1,6 @@
 ﻿
 import { KitRenderer } from "../../../../ui-kit.js";
+import { DomHelper } from "../../../shared/dom-helper.js";
 
 export function createModel() {
     return new ColorStopViewModel();
@@ -42,15 +43,15 @@ export class ColorStopViewModel {
     validate() {
         let isValid = true;
 
-        const offset = parseInt(this.#getElement("#colorstop-offset")?.value);
+        const offset = parseInt(DomHelper.getElement(this.#componentElement, "#colorstop-offset")?.value);
         if (isNaN(offset) || offset < 0 || offset > 100) {
-            this.#getElement("#validation-colorstop-offset").innerHTML = "Valid number between 0 and 100 required.";
+            DomHelper.getElement(this.#componentElement, "#validation-colorstop-offset").innerHTML = "Valid number between 0 and 100 required.";
             isValid = false;
         }
 
-        const color = this.#getElement("#colorstop-color")?.value;
+        const color = DomHelper.getElement(this.#componentElement, "#colorstop-color")?.value;
         if (!color || !color.match(/^#[0-9a-f]{6}/i)) {
-            this.#getElement("#validation-colorstop-color").innerHTML = "Valid hex color value (e.g. '#c0c0c0') required.";
+            DomHelper.getElement(this.#componentElement, "#validation-colorstop-color").innerHTML = "Valid hex color value (e.g. '#c0c0c0') required.";
             isValid = false;
         }
 
@@ -62,11 +63,11 @@ export class ColorStopViewModel {
     }
 
     // helpers
-    #componentElement;
-    #getElement(selector) {
-        if (!this.#componentElement) {
-            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
+    #componentElementInternal;
+    get #componentElement() {
+        if (!this.#componentElementInternal) {
+            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
         }
-        return this.#componentElement.querySelector(selector);
+        return this.#componentElementInternal
     }
 }

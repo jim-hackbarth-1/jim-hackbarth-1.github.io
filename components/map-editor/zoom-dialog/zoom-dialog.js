@@ -1,6 +1,7 @@
 ﻿
 import { ChangeType, Map, MapWorkerClient, MapWorkerInputMessageType } from "../../../domain/references.js";
 import { KitMessenger, KitRenderer } from "../../../ui-kit.js";
+import { DomHelper } from "../../shared/dom-helper.js";
 import { EditorModel } from "../editor/editor.js";
 
 export function createModel() {
@@ -9,8 +10,7 @@ export function createModel() {
 
 class ZoomDialogModel {
 
-    #zoomPercent = 100;
-
+    // event handlers
     async onRenderStart(componentId) {
         this.componentId = componentId;
     }
@@ -19,9 +19,19 @@ class ZoomDialogModel {
         KitMessenger.subscribe(EditorModel.MapUpdatedNotificationTopic, this.componentId, this.onMapUpdated.name);
     }
 
+    async onMapUpdated(message) {
+        const map = await MapWorkerClient.getMap();
+        if (map && this.#isVisible) {
+            this.#zoomPercent = map.zoom * 100;
+            this.#displayCurrentZoom();
+        }
+    }
+
+    // methods
+    #clickHandlerRegistered;
     async showDialog() {
         this.#isVisible = true;
-        await this.#reRenderElement("kitIfVisible");
+        await DomHelper.reRenderElement(this.#componentElement, "kitIfVisible");
         this.#zoomPercent = 100;
         const map = await MapWorkerClient.getMap();
         if (map) {
@@ -44,8 +54,6 @@ class ZoomDialogModel {
             });
         }
     }
-
-    #clickHandlerRegistered;
 
     #isVisible;
     isVisible() {
@@ -200,18 +208,21 @@ class ZoomDialogModel {
         this.#displayCurrentZoom();
     }
 
-    async onMapUpdated(message) {
-        const map = await MapWorkerClient.getMap();
-        if (map && this.#isVisible) {
-            this.#zoomPercent = map.zoom * 100;
-            this.#displayCurrentZoom();
-        }
-    }
-
     closeDialog() {
         this.#isVisible = false;
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         componentElement.querySelector("dialog").close();
+    }
+
+    // helpers
+    #zoomPercent = 100;
+
+    #componentElementInternal;
+    get #componentElement() {
+        if (!this.#componentElementInternal) {
+            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
+        }
+        return this.#componentElementInternal
     }
 
     #displayCurrentZoom() {
@@ -242,12 +253,5 @@ class ZoomDialogModel {
             }
         }
         return { x: xMin - 5, y: yMin - 5, width: xMax - xMin + 10, height: yMax - yMin + 10 };
-    }
-
-    async #reRenderElement(elementId) {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const element = componentElement.querySelector(`#${elementId}`);
-        const componentId = element.getAttribute("data-kit-component-id");
-        await KitRenderer.renderComponent(componentId);
     }
 }

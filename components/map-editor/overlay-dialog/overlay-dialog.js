@@ -1,6 +1,7 @@
 ﻿
 import { ChangeType, Map, MapWorkerClient, MapWorkerInputMessageType } from "../../../domain/references.js";
 import { KitMessenger, KitRenderer } from "../../../ui-kit.js";
+import { DomHelper } from "../../shared/dom-helper.js";
 import { EditorModel } from "../editor/editor.js";
 
 export function createModel() {
@@ -9,6 +10,7 @@ export function createModel() {
 
 class OverlayDialogModel {
 
+    // event handlers
     async onRenderStart(componentId) {
         this.componentId = componentId;
     }
@@ -17,9 +19,22 @@ class OverlayDialogModel {
         KitMessenger.subscribe(EditorModel.MapUpdatedNotificationTopic, this.componentId, this.onMapUpdated.name);
     }
 
+    async onMapUpdated(message) {
+        const map = await MapWorkerClient.getMap();
+        if (map && this.#isVisible) {
+            const componentElement = KitRenderer.getComponentElement(this.componentId);
+            componentElement.querySelector("#inputPattern").value = map.overlay.pattern;
+            componentElement.querySelector("#inputSize").value = map.overlay.size;
+            componentElement.querySelector("#inputColor").value = map.overlay.color;
+            componentElement.querySelector("#inputOpacity").value = map.overlay.opacity * 100;
+        }
+    }
+
+    // methods
+    #clickHandlerRegistered;
     async showDialog() {
         this.#isVisible = true;
-        await this.#reRenderElement("kitIfVisible");
+        await DomHelper.reRenderElement(this.#componentElement, "kitIfVisible");
         const map = await MapWorkerClient.getMap();
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         componentElement.querySelector("#inputPattern").value = map.overlay.pattern;
@@ -41,8 +56,6 @@ class OverlayDialogModel {
             });
         }
     }
-
-    #clickHandlerRegistered;
 
     #isVisible;
     isVisible() {
@@ -72,27 +85,18 @@ class OverlayDialogModel {
         });
     }
 
-    async onMapUpdated(message) {
-        const map = await MapWorkerClient.getMap();
-        if (map && this.#isVisible) {
-            const componentElement = KitRenderer.getComponentElement(this.componentId);
-            componentElement.querySelector("#inputPattern").value = map.overlay.pattern;
-            componentElement.querySelector("#inputSize").value = map.overlay.size;
-            componentElement.querySelector("#inputColor").value = map.overlay.color;
-            componentElement.querySelector("#inputOpacity").value = map.overlay.opacity * 100;
-        }
-    }
-
     closeDialog() {
         this.#isVisible = false;
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         componentElement.querySelector("dialog").close();
     }
 
-    async #reRenderElement(elementId) {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const element = componentElement.querySelector(`#${elementId}`);
-        const componentId = element.getAttribute("data-kit-component-id");
-        await KitRenderer.renderComponent(componentId);
+    // helpers
+    #componentElementInternal;
+    get #componentElement() {
+        if (!this.#componentElementInternal) {
+            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
+        }
+        return this.#componentElementInternal
     }
 }

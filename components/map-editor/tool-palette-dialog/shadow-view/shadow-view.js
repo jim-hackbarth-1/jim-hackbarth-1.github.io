@@ -1,6 +1,7 @@
 ﻿
 import { KitDependencyManager, KitRenderer } from "../../../../ui-kit.js";
 import { RenderingOrder } from "../../../../domain/references.js";
+import { DomHelper } from "../../../shared/dom-helper.js";
 
 export function createModel() {
     return new ShadowViewModel();
@@ -65,31 +66,31 @@ export class ShadowViewModel {
     validate() {
         let isValid = true;
 
-        const color = this.#getElement("#shadow-color")?.value;
+        const color = DomHelper.getElement(this.#componentElement, "#shadow-color")?.value;
         if (!color || !color.match(/^#[0-9a-f]{6}/i)) {
-            this.#getElement("#validation-shadow-color").innerHTML = "Valid hex color value (e.g. '#c0c0c0') required.";
+            DomHelper.getElement(this.#componentElement, "#validation-shadow-color").innerHTML = "Valid hex color value (e.g. '#c0c0c0') required.";
             isValid = false;
         }
 
-        const blur = parseInt(this.#getElement("#shadow-blur")?.value);
+        const blur = parseInt(DomHelper.getElement(this.#componentElement, "#shadow-blur")?.value);
         if (isNaN(blur) || blur < 0 || blur > 100) {
-            this.#getElement("#validation-shadow-blur").innerHTML = "Valid number between 0 and 100 required.";
+            DomHelper.getElement(this.#componentElement, "#validation-shadow-blur").innerHTML = "Valid number between 0 and 100 required.";
             isValid = false;
         }
 
-        const offsetX = parseInt(this.#getElement("#shadow-offset-x")?.value);
+        const offsetX = parseInt(DomHelper.getElement(this.#componentElement, "#shadow-offset-x")?.value);
         if (isNaN(offsetX) || offsetX < -100 || offsetX > 100) {
-            this.#getElement("#validation-shadow-offset-x").innerHTML = "Valid number between -100 and 100 required.";
+            DomHelper.getElement(this.#componentElement, "#validation-shadow-offset-x").innerHTML = "Valid number between -100 and 100 required.";
             isValid = false;
         }
 
-        const offsetY = parseInt(this.#getElement("#shadow-offset-y")?.value);
+        const offsetY = parseInt(DomHelper.getElement(this.#componentElement, "#shadow-offset-y")?.value);
         if (isNaN(offsetY) || offsetY < -100 || offsetY > 100) {
-            this.#getElement("#validation-shadow-offset-y").innerHTML = "Valid number between -100 and 100 required.";
+            DomHelper.getElement(this.#componentElement, "#validation-shadow-offset-y").innerHTML = "Valid number between -100 and 100 required.";
             isValid = false;
         }
 
-        const renderingOrder = this.#getElement("#shadow-rendering-order")?.value ?? RenderingOrder.BelowStrokes;
+        const renderingOrder = DomHelper.getElement(this.#componentElement, "#shadow-rendering-order")?.value ?? RenderingOrder.BelowStrokes;
 
         return {
             isValid: isValid,
@@ -102,12 +103,12 @@ export class ShadowViewModel {
     }
 
     // helpers
-    #componentElement;
-    #getElement(selector) {
-        if (!this.#componentElement) {
-            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
+    #componentElementInternal;
+    get #componentElement() {
+        if (!this.#componentElementInternal) {
+            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
         }
-        return this.#componentElement.querySelector(selector);
+        return this.#componentElementInternal
     }
 
     #getShadow() {
@@ -128,7 +129,7 @@ export class ShadowViewModel {
         ];
         const shadow = this.#getShadow();
         const selectedRenderingOrder = shadow?.renderingOrder ?? RenderingOrder.BelowStrokes;
-        const selectElement = this.#getElement("#shadow-rendering-order");
+        const selectElement = DomHelper.getElement(this.#componentElement, "#shadow-rendering-order");
         if (selectElement) {
             const appDocument = KitDependencyManager.getDocument();
             for (const renderingOrder of renderingOrderList) {

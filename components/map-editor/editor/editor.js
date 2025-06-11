@@ -16,6 +16,7 @@ import {
     ToolType
 } from "../../../domain/references.js";
 import { KitComponent, KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
+import { DomHelper } from "../../shared/dom-helper.js";
 import { BuiltInTemplates } from "../file-new-dialog/file-new-dialog.js";
 
 export function createModel() {
@@ -39,18 +40,24 @@ export class EditorModel {
     #toolsPinned;
     #toolCursor;
 
-    // methods
+    // event handlers
     async onRenderStart(componentId) {
         this.#componentId = componentId;
     }
 
     async onRenderComplete() {
         this.#componentElement = KitRenderer.getComponentElement(this.#componentId);
+        const toolPaletteContentComponent = DomHelper.findComponentByElementId(this.#componentElement, "tool-palette-content");
+        toolPaletteContentComponent.addEventListener(KitComponent.OnRenderCompleteEvent, this.onToolPaletteContentRenderComplete);
         this.#initializeMenu();
         this.#initializeKeyEvents();
         this.#subscribeToTopics();
         await this.#initializeToolsAndCanvas();
         this.#initializeMapWorker();
+        await this.#updateMapItemTemplateThumbnails();
+    }
+
+    onToolPaletteContentRenderComplete = async () => {
         await this.#updateMapItemTemplateThumbnails();
     }
 
@@ -103,12 +110,7 @@ export class EditorModel {
                     if (change.changeObjectType == ToolPalette.name
                         || change.changeObjectType == Tool.name
                         || change.changeObjectType == MapItemTemplate.name) {
-                        setTimeout(async () => {
-                            await this.#reRenderElement("tool-palette-content");
-                        }, 20);
-                        setTimeout(async () => {
-                            await this.#updateMapItemTemplateThumbnails();
-                        }, 40);
+                        await DomHelper.reRenderElement(this.#componentElement, "tool-palette-content");
                     }
                 }
             }
@@ -116,22 +118,7 @@ export class EditorModel {
         }
     }
 
-    async #updateMapItemTemplateThumbnails() {
-        const palettes = await this.getToolPalettes("MapItemTemplates");
-        const palettesLength = palettes.length;
-        for (let i = 0; i < palettesLength; i++) {
-            const paletteItems = await this.getToolPaletteItems("MapItemTemplates", i);
-            for (let j = 0; j < paletteItems.length; j++) {
-                const thumbnailSrc = paletteItems[j].data.thumbnailSrc;
-                const elementId = `MapItemTemplates-${i}-${j}`;
-                const query = `[data-map-item-template-thumbnail="${elementId}"]`;
-                const thumbnailElement = this.#componentElement.querySelector(query);
-                const style = `background-image: url('${thumbnailSrc}');`;
-                thumbnailElement.setAttribute("style", style);
-            }
-        }
-    }
-
+    // methods
     toggleDropdown(dropdownId) {
         const appDocument = KitDependencyManager.getDocument();
         appDocument.getElementById(dropdownId).classList.toggle("show");
@@ -144,13 +131,7 @@ export class EditorModel {
     }
 
     async isSaveDisabled() {
-        const map = await MapWorkerClient.getMap();
-        if (map) {
-            return null;
-        }
-        else {
-            return "disabled";
-        }
+        return this.#disabledWhenNoMap();
     }
 
     isOpenDisabled() {
@@ -182,13 +163,7 @@ export class EditorModel {
     }
 
     async isCloseDisabled() {
-        const map = await MapWorkerClient.getMap();
-        if (map) {
-            return null;
-        }
-        else {
-            return "disabled";
-        }
+        return await this.#disabledWhenNoMap();
     }
 
     async closeMap() {
@@ -223,10 +198,7 @@ export class EditorModel {
 
     async isUndoDisabled() {
         const map = await MapWorkerClient.getMap();
-        if (map?.canUndo()) {
-            return null;
-        }
-        return "disabled";
+        return (map?.canUndo()) ? null : "disabled";
     }
 
     async undo() {
@@ -235,10 +207,7 @@ export class EditorModel {
 
     async isRedoDisabled() {
         const map = await MapWorkerClient.getMap();
-        if (map?.canRedo()) {
-            return null;
-        }
-        return "disabled";
+        return (map?.canRedo()) ? null : "disabled";
     }
 
     async redo() {
@@ -247,10 +216,7 @@ export class EditorModel {
 
     async isToolOptionsDisabled() {
         const map = await MapWorkerClient.getMap();
-        if (map && this.#hasVisibleToolOption()) {
-            return null;
-        }
-        return "disabled";
+        return (map && this.#hasVisibleToolOption()) ? null : "disabled";
     }
 
     async isEditSelectionDisabled() {
@@ -267,12 +233,6 @@ export class EditorModel {
             }
         }
         return "disabled";
-    }
-
-    #doesCopyPasteHaveData() {
-        const appWindow = KitDependencyManager.getWindow();
-        let text = appWindow.sessionStorage.getItem("copy-paste-has-data");
-        return (text === true.toString());
     }
 
     #pastesSinceLastCopy = 0;
@@ -384,51 +344,24 @@ export class EditorModel {
         }
     } 
 
-    #updateMapItemTemplateDataToPaste(map, data) {
-        const templatesOut = [];
-        for (const mapItemTemplate of data.mapItemTemplates) {
-            if (!map.mapItemTemplateRefs.some(ref => EntityReference.areEqual(ref, mapItemTemplate.ref))) {
-                const templateOut = mapItemTemplate;
-                const notFromTemplateRef = { ...mapItemTemplate.ref };
-                notFromTemplateRef.isFromTemplate = false;
-                if (map.mapItemTemplateRefs.some(ref => EntityReference.areEqual(ref, notFromTemplateRef))) {
-                    for (const mapItemGroup of data.mapItemGroups) {
-                        for (const mapItem of mapItemGroup.mapItems) {
-                            if (EntityReference.areEqual(mapItemTemplate.ref, mapItem.mapItemTemplateRef)) {
-                                mapItem.mapItemTemplateRef.isFromTemplate = false;
-                            }
-                        }
-                    }
-                    templateOut.ref.isFromTemplate = false;
-                }
-                templatesOut.push(templateOut);
-            }  
-        }
-        data.mapItemTemplates = templatesOut;
-    }
-
     async delete() {
         MapWorkerClient.postWorkerMessage({ messageType: MapWorkerInputMessageType.DeleteSelected });
     }
 
     async isZoomDisabled() {
-        const map = await MapWorkerClient.getMap();
-        return map ? null : "disabled";
+        return await this.#disabledWhenNoMap();
     }
 
     async isResizeCanvasDisabled() {
-        const map = await MapWorkerClient.getMap();
-        return map ? null : "disabled";
+        return await this.#disabledWhenNoMap();
     }
 
     async isOverlayDisabled() {
-        const map = await MapWorkerClient.getMap();
-        return map ? null : "disabled";
+        return await this.#disabledWhenNoMap();
     }
 
     async isLayersDisabled() {
-        const map = await MapWorkerClient.getMap();
-        return map ? null : "disabled";
+        return await this.#disabledWhenNoMap();
     }
 
     async getActiveLayerName() {
@@ -675,19 +608,12 @@ export class EditorModel {
     }
 
     async getZoom() {      
-        let zoom = "";
         const map = await MapWorkerClient.getMap();
-        if (map) {
-            zoom = parseFloat(map.zoom * 100).toFixed(0) + "%"
-        }
-        return zoom;
+        return map ? parseFloat(map.zoom * 100).toFixed(0) + "%" : "";
     }
 
     async isRefreshPresentationViewerDisabled() {
-        if (this.#presentationWindow) {
-            return "";
-        }
-        return "disabled";
+        return this.#presentationWindow ? "" : "disabled";
     }
 
     async refreshPresentationViewer() {
@@ -718,6 +644,51 @@ export class EditorModel {
                 if (openDropdown.classList.contains("show")) {
                     openDropdown.classList.remove("show");
                 }
+            }
+        }
+    }
+
+    #doesCopyPasteHaveData() {
+        const appWindow = KitDependencyManager.getWindow();
+        let text = appWindow.sessionStorage.getItem("copy-paste-has-data");
+        return (text === true.toString());
+    }
+
+    #updateMapItemTemplateDataToPaste(map, data) {
+        const templatesOut = [];
+        for (const mapItemTemplate of data.mapItemTemplates) {
+            if (!map.mapItemTemplateRefs.some(ref => EntityReference.areEqual(ref, mapItemTemplate.ref))) {
+                const templateOut = mapItemTemplate;
+                const notFromTemplateRef = { ...mapItemTemplate.ref };
+                notFromTemplateRef.isFromTemplate = false;
+                if (map.mapItemTemplateRefs.some(ref => EntityReference.areEqual(ref, notFromTemplateRef))) {
+                    for (const mapItemGroup of data.mapItemGroups) {
+                        for (const mapItem of mapItemGroup.mapItems) {
+                            if (EntityReference.areEqual(mapItemTemplate.ref, mapItem.mapItemTemplateRef)) {
+                                mapItem.mapItemTemplateRef.isFromTemplate = false;
+                            }
+                        }
+                    }
+                    templateOut.ref.isFromTemplate = false;
+                }
+                templatesOut.push(templateOut);
+            }
+        }
+        data.mapItemTemplates = templatesOut;
+    }
+
+    async #updateMapItemTemplateThumbnails() {
+        const palettes = await this.getToolPalettes("MapItemTemplates");
+        const palettesLength = palettes.length;
+        for (let i = 0; i < palettesLength; i++) {
+            const paletteItems = await this.getToolPaletteItems("MapItemTemplates", i);
+            for (let j = 0; j < paletteItems.length; j++) {
+                const thumbnailSrc = paletteItems[j].data.thumbnailSrc;
+                const elementId = `MapItemTemplates-${i}-${j}`;
+                const query = `[data-map-item-template-thumbnail="${elementId}"]`;
+                const thumbnailElement = this.#componentElement.querySelector(query);
+                const style = `background-image: url('${thumbnailSrc}');`;
+                thumbnailElement.setAttribute("style", style);
             }
         }
     }
@@ -783,6 +754,8 @@ export class EditorModel {
         KitMessenger.subscribe(EditorModel.PresentationViewerStatusTopic, this.#componentId, this.onPresentationViewerStatusChanged.name);
     }
 
+    static #mouseLeaveHandlerRegistered;
+    static #mouseEnterHandlerRegistered;
     async #initializeToolsAndCanvas() {
         const map = await MapWorkerClient.getMap();
         const toolsElement = this.#componentElement.querySelector("#tools");
@@ -808,9 +781,6 @@ export class EditorModel {
             await this.toggleToolsPinned();
         }
     }
-
-    static #mouseLeaveHandlerRegistered;
-    static #mouseEnterHandlerRegistered;
 
     #initializeMapWorker() {
         const appDocument = KitDependencyManager.getDocument();
@@ -992,11 +962,9 @@ export class EditorModel {
         return false;
     }
 
-    async #reRenderElement(elementId) {
-        const componentElement = KitRenderer.getComponentElement(this.#componentId);
-        const element = componentElement.querySelector(`#${elementId}`);
-        const componentId = element.getAttribute("data-kit-component-id");
-        await KitRenderer.renderComponent(componentId);
+    async #disabledWhenNoMap() {
+        const map = await MapWorkerClient.getMap();
+        return map ? null : "disabled";
     }
 
     #showSavedNotification() {

@@ -1,6 +1,7 @@
 ﻿
 import { KitRenderer } from "../../ui-kit.js";
 import { DebugConsole } from "../shared/debug-console.js";
+import { DomHelper } from "../shared/dom-helper.js";
 import { Preferences } from "../shared/preferences.js";
 
 export function createModel() {
@@ -15,8 +16,8 @@ class HelpModel {
     }
 
     async onRenderComplete() {
-        this.#getElement("#select-theme").value = Preferences.theme;
-        this.#getElement("#select-dark-mode").value = Preferences.darkMode;
+        DomHelper.getElement(this.#componentElement, "#select-theme").value = Preferences.theme;
+        DomHelper.getElement(this.#componentElement, "#select-dark-mode").value = Preferences.darkMode;
     }
 
     // methods
@@ -29,17 +30,17 @@ class HelpModel {
     }
 
     setTheme() {
-        Preferences.theme = this.#getElement("#select-theme").value;
-        Preferences.darkMode = this.#getElement("#select-dark-mode").value;
+        Preferences.theme = DomHelper.getElement(this.#componentElement, "#select-theme").value;
+        Preferences.darkMode = DomHelper.getElement(this.#componentElement, "#select-dark-mode").value;
         Preferences.applyTheme();
     }
 
     // helpers
-    #componentElement;
-    #getElement(selector) {
-        if (!this.#componentElement) {
-            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
+    #componentElementInternal;
+    get #componentElement() {
+        if (!this.#componentElementInternal) {
+            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
         }
-        return this.#componentElement.querySelector(selector);
+        return this.#componentElementInternal
     }
 }

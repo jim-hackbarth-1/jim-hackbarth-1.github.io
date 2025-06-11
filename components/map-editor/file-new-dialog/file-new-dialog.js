@@ -68,8 +68,7 @@ export class BuiltInTemplates {
 
 class FileNewDialogModel {
 
-    #templateRef = null;
-
+    // event handlers
     async onRenderStart(componentId) {
         this.componentId = componentId;
     }
@@ -83,6 +82,8 @@ class FileNewDialogModel {
         }
     }
 
+    // methods
+    #clickHandlerRegistered;
     showDialog() {
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         const dialog = componentElement.querySelector("dialog");
@@ -98,8 +99,6 @@ class FileNewDialogModel {
             });
         }
     }
-
-    #clickHandlerRegistered;
 
     closeDialog() {
         const componentElement = KitRenderer.getComponentElement(this.componentId);
@@ -133,4 +132,7 @@ class FileNewDialogModel {
         await KitMessenger.publish(EditorModel.NewFileRequestTopic, { templateRef: this.#templateRef });
         
     }
+
+    // helpers
+    #templateRef = null;
 }

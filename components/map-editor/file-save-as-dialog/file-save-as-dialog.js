@@ -1,5 +1,6 @@
 ﻿
 import { KitMessenger, KitRenderer } from "../../../ui-kit.js";
+import { DomHelper } from "../../shared/dom-helper.js";
 import { EditorModel } from "../editor/editor.js";
 
 export function createModel() {
@@ -8,8 +9,7 @@ export function createModel() {
 
 class FileSaveAsDialogModel {
 
-    #fileHandle;
-
+    // event handlers
     async onRenderStart(componentId) {
         this.componentId = componentId;
     }
@@ -17,6 +17,8 @@ class FileSaveAsDialogModel {
     async onRenderComplete() {
     }
 
+    // methods
+    #clickHandlerRegistered;
     showDialog() {
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         const dialog = componentElement.querySelector("dialog");
@@ -32,31 +34,29 @@ class FileSaveAsDialogModel {
             });
         }
         this.#asMap = true;
-        this.#getElement("#as-map-radio").checked = true;
-        this.#getElement("#file-name").value = "";
-        this.#getElement("#button-ok").disabled = true;
+        DomHelper.getElement(this.#componentElement, "#as-map-radio").checked = true;
+        DomHelper.getElement(this.#componentElement, "#file-name").value = "";
+        DomHelper.getElement(this.#componentElement, "#button-ok").disabled = true;
         this.#fileHandle = null;
     }
-
-    #clickHandlerRegistered;
-    #asMap = true;
 
     closeDialog() {
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         componentElement.querySelector("dialog").close();
     }
 
+    #asMap = true;
     asMap() {
         return this.#asMap;
     }
 
     async setAsMap(asMap) {
         this.#asMap = asMap;
-        await this.#reRenderElement("file-controls-container");
+        await DomHelper.reRenderElement(this.#componentElement, "file-controls-container");
     }
 
     async browse() {
-        const asMap = this.#getElement("#as-map-radio").checked;
+        const asMap = DomHelper.getElement(this.#componentElement, "#as-map-radio").checked;
         let fileTypes = {
             description: "Json Files",
             accept: { "text/plain": [".json"] }
@@ -83,12 +83,12 @@ class FileSaveAsDialogModel {
     }
 
     onFileNameChanged() {
-        const element = this.#getElement("#file-name");
+        const element = DomHelper.getElement(this.#componentElement, "#file-name");
         let disabled = true;
         if (element.value && element.value.trim().length > 0) {
             disabled = false;
         }
-        this.#getElement("#button-ok").disabled = disabled;
+        DomHelper.getElement(this.#componentElement, "#button-ok").disabled = disabled;
     }
 
     async buttonOkClicked() {
@@ -98,24 +98,19 @@ class FileSaveAsDialogModel {
             await KitMessenger.publish(EditorModel.SaveFileAsRequestTopic, { fileHandle: this.#fileHandle, fileType: fileType });
         }
         else {
-            const fileName = this.#getElement("#file-name").value.trim();
+            const fileName = DomHelper.getElement(this.#componentElement, "#file-name").value.trim();
             await KitMessenger.publish(EditorModel.SaveFileAsRequestTopic, { fileName: fileName, fileType: fileType });
         }
     }
 
     // helpers
-    #componentElement;
-    #getElement(selector) {
-        if (!this.#componentElement) {
-            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
-        }
-        return this.#componentElement.querySelector(selector);
-    }
+    #fileHandle;
 
-    async #reRenderElement(elementId) {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const element = componentElement.querySelector(`#${elementId}`);
-        const componentId = element.getAttribute("data-kit-component-id");
-        await KitRenderer.renderComponent(componentId);
+    #componentElementInternal;
+    get #componentElement() {
+        if (!this.#componentElementInternal) {
+            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
+        }
+        return this.#componentElementInternal
     }
 }

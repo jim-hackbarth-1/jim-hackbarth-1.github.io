@@ -1,6 +1,7 @@
 ﻿
 import { KitDependencyManager, KitNavigator, KitRenderer } from "../../../ui-kit.js";
 import { MapWorkerClient } from "../../../domain/references.js";
+import { DomHelper } from "../../shared/dom-helper.js";
 
 export function createModel() {
     return new PresentationViewerModel();
@@ -41,16 +42,16 @@ class PresentationViewerModel {
     }
 
     // helpers
-    #componentElement;
     #messageHandlerRegistered;
     #flipped;
     #showCaptions;
 
-    #getElement(selector) {
-        if (!this.#componentElement) {
-            this.#componentElement = KitRenderer.getComponentElement(this.componentId);
+    #componentElementInternal;
+    get #componentElement() {
+        if (!this.#componentElementInternal) {
+            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
         }
-        return this.#componentElement.querySelector(selector);
+        return this.#componentElementInternal
     }
 
     async #startListeningForMessages() {
@@ -61,7 +62,7 @@ class PresentationViewerModel {
                 if (event.origin === appWindow.origin) {
                     switch (event.data.messageType) {
                         case "refresh":
-                            const canvas = me.#getElement("#presentation-canvas");
+                            const canvas = DomHelper.getElement(me.#componentElement, "#presentation-canvas");
                             canvas.setAttribute("width", appWindow.innerWidth );
                             canvas.setAttribute("height", appWindow.innerHeight);
                             await me.#refresh();
@@ -84,7 +85,7 @@ class PresentationViewerModel {
             appWindow.addEventListener('resize', function (event) {
                 clearTimeout(resizeTimer);
                 resizeTimer = setTimeout(async function () {
-                    const canvas = me.#getElement("#presentation-canvas");
+                    const canvas = DomHelper.getElement(me.#componentElement, "#presentation-canvas");
                     canvas.setAttribute("width", appWindow.innerWidth);
                     canvas.setAttribute("height", appWindow.innerHeight);
                     const message = { messageType: "resized", width: appWindow.innerWidth, height: appWindow.innerHeight };
@@ -98,7 +99,7 @@ class PresentationViewerModel {
 
     async #refresh() {
         const map = await MapWorkerClient.getMap(true);
-        const canvas = this.#getElement("#presentation-canvas");
+        const canvas = DomHelper.getElement(this.#componentElement, "#presentation-canvas");
         const context = canvas.getContext("2d");
         const options = {
             updatedViewPort: true,
@@ -108,7 +109,7 @@ class PresentationViewerModel {
         };
         await map.render(canvas, context, options);
         const appDocument = KitDependencyManager.getDocument();
-        const button = this.#getElement("#full-screen-button");
+        const button = DomHelper.getElement(this.#componentElement, "#full-screen-button");
         if (appDocument.fullscreenElement) {
             button.classList.add("hidden");
         }

@@ -1,5 +1,5 @@
 ﻿
-import { KitMessenger, KitRenderer } from "../../../ui-kit.js";
+import { KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
 import { DomHelper } from "../../shared/dom-helper.js";
 import { EditorModel } from "../editor/editor.js";
 
@@ -19,7 +19,7 @@ class FileSaveAsDialogModel {
 
     // methods
     #clickHandlerRegistered;
-    showDialog() {
+    async showDialog() {
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         const dialog = componentElement.querySelector("dialog");
         dialog.showModal();
@@ -35,9 +35,10 @@ class FileSaveAsDialogModel {
         }
         this.#asMap = true;
         DomHelper.getElement(this.#componentElement, "#as-map-radio").checked = true;
+        this.#fileHandle = null;
         DomHelper.getElement(this.#componentElement, "#file-name").value = "";
         DomHelper.getElement(this.#componentElement, "#button-ok").disabled = true;
-        this.#fileHandle = null;
+        await DomHelper.reRenderElement(this.#componentElement, "file-controls-container");
     }
 
     closeDialog() {
@@ -45,37 +46,30 @@ class FileSaveAsDialogModel {
         componentElement.querySelector("dialog").close();
     }
 
-    #asMap = true;
-    asMap() {
-        return this.#asMap;
+    canBrowse() {
+        return this.#hasFileSystemAccess() ? this.#asMap : false;
     }
 
+    #asMap = true;
     async setAsMap(asMap) {
         this.#asMap = asMap;
+        this.#fileHandle = null;
+        DomHelper.getElement(this.#componentElement, "#file-name").value = "";
+        DomHelper.getElement(this.#componentElement, "#button-ok").disabled = true;
         await DomHelper.reRenderElement(this.#componentElement, "file-controls-container");
     }
 
     async browse() {
-        const asMap = DomHelper.getElement(this.#componentElement, "#as-map-radio").checked;
-        let fileTypes = {
+        const fileTypes = {
             description: "Json Files",
             accept: { "text/plain": [".json"] }
         };
-        if (!asMap) {
-            fileTypes = {
-                description: "Image Files",
-                accept: { "image/png": [".png"] }
-            };
-        }
         try {
-            this.#fileHandle = await window.showSaveFilePicker({
-                types: [fileTypes]
-            });
+            this.#fileHandle = await window.showSaveFilePicker({ types: [fileTypes] });
         }
         catch {
             return;
         }
-        this.#asMap = asMap;
         const componentElement = KitRenderer.getComponentElement(this.componentId);
         const fileNameElement = componentElement.querySelector("#file-name");
         fileNameElement.value = this.#fileHandle.name;
@@ -94,11 +88,17 @@ class FileSaveAsDialogModel {
     async buttonOkClicked() {
         this.closeDialog();
         const fileType = this.#asMap ? "map" : "image";
-        if (fileType == "map") {
+        if (this.canBrowse()) {
             await KitMessenger.publish(EditorModel.SaveFileAsRequestTopic, { fileHandle: this.#fileHandle, fileType: fileType });
         }
         else {
-            const fileName = DomHelper.getElement(this.#componentElement, "#file-name").value.trim();
+            let fileName = DomHelper.getElement(this.#componentElement, "#file-name").value.trim();
+            if (fileType == "map" && !fileName.toLowerCase().endsWith(".json")) {
+                fileName += ".json";
+            }
+            if (fileType == "image" && !fileName.toLowerCase().endsWith(".png")) {
+                fileName += ".png";
+            }
             await KitMessenger.publish(EditorModel.SaveFileAsRequestTopic, { fileName: fileName, fileType: fileType });
         }
     }
@@ -112,5 +112,12 @@ class FileSaveAsDialogModel {
             this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
         }
         return this.#componentElementInternal
+    }
+
+    #hasFileSystemAccess() {
+        if ('showSaveFilePicker' in KitDependencyManager.getWindow()) {
+            return true;
+        }
+        return false;
     }
 }

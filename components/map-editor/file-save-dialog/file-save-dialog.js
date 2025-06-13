@@ -85,7 +85,10 @@ class FileSaveDialogModel {
             await KitMessenger.publish(EditorModel.SaveFileRequestTopic, { fileHandle: this.#fileHandle });
         }
         else {
-            const fileName = DomHelper.getElement(this.#componentElement, "#file-name").value.trim();
+            let fileName = DomHelper.getElement(this.#componentElement, "#file-name").value.trim();
+            if (!fileName.toLowerCase().endsWith(".json")) {
+                fileName += ".json";
+            }
             await KitMessenger.publish(EditorModel.SaveFileRequestTopic, { fileName: fileName });
         }  
     }

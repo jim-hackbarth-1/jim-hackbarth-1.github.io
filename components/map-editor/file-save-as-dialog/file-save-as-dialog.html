@@ -81,7 +81,7 @@
             </div>
         </div>
         <kit-if id="file-controls-container" data-kit-condition="true">
-            <kit-if data-kit-condition="#model.asMap()">
+            <kit-if data-kit-condition="#model.canBrowse()">
                 <div>
                     <label>Choose file path:</label>
                 </div>
@@ -90,7 +90,7 @@
                     <button id="browse" class="button dialog-button" title="browse" onclick="#model.browse()">...</button>
                 </div>
             </kit-if>
-            <kit-if data-kit-condition="!#model.asMap()">
+            <kit-if data-kit-condition="!#model.canBrowse()">
                 <div>
                     <label>Choose file name:</label>
                 </div>

@@ -363,9 +363,18 @@ export class PathStyle {
         const bottomLeft = { x: x, y: y + image.height };
         const bottomRight = { x: x + image.width, y: y + image.height };
         const center = { x: x + image.width / 2, y: y + image.height / 2 };
-        return geometryUtilities.isPointInPath(bottomLeft, path.bounds, path)
+        const isPointInPath = geometryUtilities.isPointInPath(bottomLeft, path.bounds, path)
             && geometryUtilities.isPointInPath(bottomRight, path.bounds, path)
             && geometryUtilities.isPointInPath(center, path.bounds, path);
+        if (isPointInPath && path.clipPaths && path.clipPaths.length > 0) {
+            for (const clipPath of path.clipPaths) {
+                let isInClipPath = PathStyle.#isImageInPathFill(x, y, image, clipPath, geometryUtilities);
+                if (isInClipPath) {
+                    return false;
+                }
+            }
+        }
+        return isPointInPath;
     }
 
     static #isImageOnPathStroke(strokeWidth, x, y, image, path, isClip, geometryUtilities) {

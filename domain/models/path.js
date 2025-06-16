@@ -530,7 +530,7 @@ export class Path {
         if (stroke && this.#isViewable(map, options)) {
             const offset = stroke.getStyleOptionValue(PathStyleOption.StrokeOffset) ?? { x: 0, y: 0 };
             if (!quickRender && stroke.getStyleOptionValue(PathStyleOption.PathStyleType) == PathStyleType.ImageArrayStroke) {
-                const imageArrayInfo = await Path.#getImageArrayInfo(map, this, false, stroke);
+                let imageArrayInfo = await Path.#getImageArrayInfo(map, this, false, stroke);
                 context.globalAlpha = stroke.options.find(o => o.key == PathStyleOption.Opacity)?.value ?? 1;
                 map.renderImageArray(context, this, imageArrayInfo, zGroup, z, offset);
                 if (this.clipPaths) {
@@ -580,12 +580,6 @@ export class Path {
                 let imageArrayInfo = await Path.#getImageArrayInfo(map, this, false, fill);
                 context.globalAlpha = fill.options.find(o => o.key == PathStyleOption.Opacity)?.value ?? 1;
                 map.renderImageArray(context, this, imageArrayInfo, zGroup, z, { x: 0, y: 0 });
-                if (this.clipPaths) {
-                    for (const clipPath of this.clipPaths) {
-                        imageArrayInfo = await Path.#getImageArrayInfo(map, clipPath, true, fill);
-                        map.renderImageArray(context, path, imageArrayInfo, zGroup, z, { x: 0, y: 0 });
-                    }
-                }
                 return;
             }
             let pathInfo = this.getPathInfo();

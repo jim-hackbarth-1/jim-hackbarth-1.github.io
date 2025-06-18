@@ -14,10 +14,6 @@ class PresentationViewerDialogModel {
         this.componentId = componentId;
     }
 
-    async onRenderComplete() {
-        await this.#startListeningForMessages();
-    }
-
     // methods
     async showDialog() {
         const componentElement = KitRenderer.getComponentElement(this.componentId);    
@@ -35,6 +31,7 @@ class PresentationViewerDialogModel {
             });
             this.#clickHandlerRegistered = true;
         }
+        await this.#startListeningForMessages();
     }
 
     closeDialog() {

@@ -341,7 +341,7 @@ export class PathStyle {
                     });
                 }
             }
-            x = 0;
+            x = path.bounds.x;
             yBase += 0.75 * heightAvg;
         }
         return {

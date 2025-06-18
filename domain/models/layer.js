@@ -256,24 +256,27 @@ export class Layer {
             }
         }
         const locationsToRender = [];
-        for (const location of imageArrayInfo.locationInfo.locations) {
-            const bounds = {
-                x: location.bounds.x + path.start.x,
-                y: location.bounds.y + path.start.y,
-                width: location.bounds.width,
-                height: location.bounds.height
-            };
-            let hasOverlap = false;
-            for (const pathToCheck of pathsToCheck) {
-                hasOverlap = this.#doesBoundsIntersectPath(geometryUtilities, bounds, pathToCheck);
-                if (hasOverlap) {
-                    break;
+        if (imageArrayInfo.locationInfo.locations.length == 1) {
+            locationsToRender.push(imageArrayInfo.locationInfo.locations[0]);
+        }
+        else {
+            for (const location of imageArrayInfo.locationInfo.locations) {
+                const bounds = {
+                    x: location.bounds.x + path.start.x,
+                    y: location.bounds.y + path.start.y,
+                    width: location.bounds.width,
+                    height: location.bounds.height
+                };
+                let hasOverlap = false;
+                for (const pathToCheck of pathsToCheck) {
+                    hasOverlap = this.#doesBoundsIntersectPath(geometryUtilities, bounds, pathToCheck);
+                    if (hasOverlap) {
+                        break;
+                    }
                 }
-            }
-            if (hasOverlap) {
-            }
-            if (!hasOverlap) {
-                locationsToRender.push(location);
+                if (!hasOverlap) {
+                    locationsToRender.push(location);
+                }
             }
         }
 

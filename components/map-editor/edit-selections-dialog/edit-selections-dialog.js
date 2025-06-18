@@ -33,6 +33,7 @@ class EditSelectionsDialogModel {
     onKitIfRenderComplete = async () => {
         await this.#onRenderComplete();
         this.#restoreScrollPosition();
+        this.#restoreMapItemListScrollPosition();
     }
 
     async onMapUpdated(message) {
@@ -552,6 +553,7 @@ class EditSelectionsDialogModel {
 
     #updateMap(changes) {
         this.#saveScrollPosition();
+        this.#saveMapItemListScrollPosition();
         MapWorkerClient.postWorkerMessage({
             messageType: MapWorkerInputMessageType.UpdateMap,
             changeSet: { changes: changes }
@@ -744,7 +746,18 @@ class EditSelectionsDialogModel {
         option.value = `ref-none-1-true-false`;
         option.innerHTML = "[None]";
         select.appendChild(option);
-        for (const ref of map.mapItemTemplateRefs) {
+        function sortRefsByName(ref1, ref2) {
+            if (ref1.name < ref2.name) {
+                return -1;
+            }
+            if (ref1.name > ref2.name) {
+                return 1;
+            }
+            return 0;
+        }
+        const mapItemTemplateRefs = map.mapItemTemplateRefs;
+        mapItemTemplateRefs.sort(sortRefsByName);
+        for (const ref of mapItemTemplateRefs) {
             option = appDocument.createElement("option");
             let displayName = ref.name;
             if (displayName.length > 25) {
@@ -769,6 +782,23 @@ class EditSelectionsDialogModel {
         const container = appDocument.querySelector("#edit-selection-properties-container");
         container.scrollTo({
             top: this.#scrollPosition,
+            left: 0,
+            behavior: "smooth",
+        });
+    }
+
+    #mapItemListscrollPosition = 0;
+    #saveMapItemListScrollPosition() {
+        const appDocument = KitDependencyManager.getDocument();
+        let container = appDocument.querySelector("#map-item-list-container");
+        this.#mapItemListscrollPosition = container.scrollTop;
+    }
+
+    #restoreMapItemListScrollPosition() {
+        const appDocument = KitDependencyManager.getDocument();
+        const container = appDocument.querySelector("#map-item-list-container");
+        container.scrollTo({
+            top: this.#mapItemListscrollPosition,
             left: 0,
             behavior: "smooth",
         });

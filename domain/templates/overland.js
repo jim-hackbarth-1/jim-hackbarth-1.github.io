@@ -1540,7 +1540,7 @@ export function getTemplate() {
         },
         overlay: {
             pattern: "Hex",
-            size: 30,
+            size: 20,
             color: "#000000",
             opacity: 0.5
         }

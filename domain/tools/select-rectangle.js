@@ -296,7 +296,7 @@ class SelectRectangleTool {
             height: Math.abs(start.y - end.y)
         };
         const selectionPath = {
-            start: start,
+            start: { x: bounds.x, y: bounds.y },
             transits: [
                 { x: bounds.width, y: 0 },
                 { x: 0, y: bounds.height },

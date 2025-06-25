@@ -162,6 +162,52 @@ class EditSelectionsDialogModel {
         return this.#disabledAttribute;
     }
 
+    async applyFilter() {
+        const filterTextElement = DomHelper.getElement(this.#componentElement, "#filter-text");
+        const filter = (filterTextElement.value ?? "").trim().toLowerCase();
+        if (filter.length == 0) {
+            return;
+        }
+        const mapItemGroups = [];
+        let hasPrimary = false;
+        const map = await MapWorkerClient.getMap();
+        const layer = map.getActiveLayer();
+        for (const selection of this.#initialSelections) {
+            
+            let name = (selection.mapItem.mapItemTemplateRef?.name ?? "").toLowerCase();
+            let caption = (selection.mapItem.captionText ?? "").toLowerCase();
+            let newSelectionStatus = null;
+            if (name.includes(filter) || caption.includes(filter)) {
+                if (hasPrimary) {
+                    newSelectionStatus = SelectionStatusType.Secondary;
+                }
+                else {
+                    newSelectionStatus = SelectionStatusType.Primary;
+                    hasPrimary = true;
+                }
+            }
+            let mapItemGroup = layer.mapItemGroups.find(mig => mig.id == selection.mapItemGroupId);
+            let currentSelectionStatus = mapItemGroup.selectionStatus;
+            if (newSelectionStatus != currentSelectionStatus) {
+                mapItemGroups.push({
+                    id: selection.mapItemGroupId,
+                    oldValue: currentSelectionStatus,
+                    newValue: newSelectionStatus
+                });
+            }
+        }
+        const changes = mapItemGroups.map(mig => ({
+            changeType: "Edit",
+            changeObjectType: MapItemGroup.name,
+            propertyName: "selectionStatus",
+            oldValue: mig.oldValue,
+            newValue: mig.newValue,
+            layerName: layer.name,
+            mapItemGroupId: mig.id
+        }));
+        this.#updateMap(changes);
+    }
+
     async updateCaptionText() {
         const captionTextElement = DomHelper.getElement(this.#componentElement, "#caption-text");
         const captionText = (captionTextElement.value ?? "").trim();

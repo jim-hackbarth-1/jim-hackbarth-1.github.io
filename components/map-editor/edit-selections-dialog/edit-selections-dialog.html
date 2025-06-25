@@ -306,6 +306,20 @@
                     <label>Edit current selection properties (%{#model.getCurrentSelectionCount()}%):</label>
                 </div>
                 <fieldset data-kit-add-attributes="%{#model.isDisabledAttribute()}%">
+                    <legend>Filter selections</legend>
+                    <div class="property-group">
+                        <div class="flex-control-group">
+                            <input id="filter-text"
+                                   type="text"
+                                   placeholder="[Caption or map item template name]"
+                                   maxlength="30"
+                                   style="width:250px;"
+                                   onkeydown="#model.onKeyDown(event)" />
+                            <button class="button dialog-button" onclick="#model.applyFilter()">Apply filter</button>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset data-kit-add-attributes="%{#model.isDisabledAttribute()}%">
                     <legend>Caption</legend>
                     <div class="property-group">
                         <div class="property-label-container">

@@ -52,10 +52,10 @@ export class Preferences {
     // helpers
     static #getNorthernSeasonsTheme(currentDate) {
         const currentYear = currentDate.getFullYear();
-        const springStart = new Date(currentYear, 3, 21);
-        const summerStart = new Date(currentYear, 6, 21);
-        const fallStart = new Date(currentYear, 9, 21);
-        const winterStart = new Date(currentYear, 12, 21);
+        const springStart = new Date(currentYear, 2, 21);
+        const summerStart = new Date(currentYear, 5, 21);
+        const fallStart = new Date(currentYear, 8, 21);
+        const winterStart = new Date(currentYear, 11, 21);
         if (currentDate >= springStart && currentDate < summerStart) {
             return "spring";
         }

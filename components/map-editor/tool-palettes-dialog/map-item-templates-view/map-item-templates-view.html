@@ -1,0 +1,51 @@
+﻿
+<div style="margin:0;">
+    <link rel="stylesheet" href="/components/map-editor/tool-palettes-dialog/map-item-templates-view/map-item-templates-view.css" />
+    <div class="detail-section-heading-container">
+        <div class="detail-section-heading-row">
+            <div class="spacer">
+                <h3>Map item templates</h3>
+            </div>
+            <div>
+                <button title="Add map item template" class="button dialog-button" onclick="#model.addMapItemTemplate();">
+                    Add map item template
+                </button>
+            </div>
+        </div>
+    </div>
+    <div style="padding:10px 10px 0 10px;margin:0;">
+        <div id="map-item-template-list">
+            <kit-if kit-condition="%{!#model.hasMapItemTemplates()}%">
+                <div style="padding:10px;">[No map item templates]</div>
+            </kit-if>
+            <kit-array kit-array="#model.getMapItemTemplates()" kit-array-item-alias="mapItemTemplate">
+                <div class="map-item-template-item">
+                    <div class="thumbnail">
+                        <img height="25" width="25" kit-element kit-attr-add-src="src:%{#mapItemTemplate.thumbnailSrc}%" />
+                    </div>
+                    <div class="map-item-template-name-container spacer">
+                        <div style="margin:0;padding:0;">
+                            <label class="edit-label"
+                                   onclick="#model.editMapItemTemplate('%{#mapItemTemplate.id}%')">
+                                %{#mapItemTemplate.displayName}%
+                            </label>
+                        </div>
+                        <div style="margin:0;padding:0;">
+                            <label class="list-item-note">%{#mapItemTemplate.refNote}%</label>
+                        </div>
+                    </div>
+                    <div>
+                        <button title="Copy map item template"
+                                class="action-text edit-button"
+                                onclick="#model.copy('%{#mapItemTemplate.id}%');">
+                            <div class="icon-container" style="padding:0 0 3px 3px;">
+                                <kit-component kit-template-path="/resources/icons/edit-copy.html" kit-model="null">
+                                </kit-component>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </kit-array>
+        </div>
+    </div>
+</div>

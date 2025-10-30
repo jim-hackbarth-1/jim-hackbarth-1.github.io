@@ -316,6 +316,27 @@ export class Layer {
         this.#processSelectionResults(selectionResults, toggleCurrentSelections);
     }
 
+    areAllPointsInBadge(context, points) {
+        for (const mapItemGroup of this.mapItemGroups) {
+            for (const mapItem of mapItemGroup.mapItems) {
+                if (mapItem.areAllPointsInBadge(context, points)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    toggleBadge(context, points) {
+        for (const mapItemGroup of this.mapItemGroups) {
+            for (const mapItem of mapItemGroup.mapItems) {
+                if (mapItem.areAllPointsInBadge(context, points)) {
+                    mapItem.isHidden = !mapItem.isHidden;
+                }
+            }
+        }
+    }
+
     getSelectionBounds(map) {
         const selectionBounds = [];
         for (const mapItemGroup of this.mapItemGroups) {
@@ -497,6 +518,23 @@ export class Layer {
             for (const mapItem of mapItemGroup.mapItems) {
                 if (mapItem.zGroup == zGroup) {
                     mapItems.push(mapItem);
+                }
+            }
+        }
+        if (mapItems.some(mi => mi.z == 0)) {
+            let max = 0;
+            for (const mapItem of mapItems) {
+                if (mapItem.z > max) {
+                    max = mapItem.z;
+                }
+            }
+            for (const mapItem of mapItems) {
+                if (mapItem.z == 0) {
+                    if (max > Number.MAX_SAFE_INTEGER * 0.9) {
+                        max = 0;
+                    }
+                    max += 32;
+                    mapItem.adjustZ(max);
                 }
             }
         }

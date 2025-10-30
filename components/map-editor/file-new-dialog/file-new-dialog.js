@@ -1,6 +1,6 @@
 ﻿
 import { EntityReference } from "../../../domain/references.js";
-import { KitMessenger, KitRenderer } from "../../../ui-kit.js";
+import { DialogHelper } from "../../shared/dialog-helper.js";
 import { EditorModel } from "../editor/editor.js";
 
 export function createModel() {
@@ -69,40 +69,31 @@ export class BuiltInTemplates {
 class FileNewDialogModel {
 
     // event handlers
-    async onRenderStart(componentId) {
-        this.componentId = componentId;
+    async init(kitElement) {
+        this.#kitElement = kitElement;
     }
 
-    async onRenderComplete() {
-        const element = KitRenderer.getComponentElement(this.componentId);
-        const imgs = element.querySelectorAll(".template-item img");
-        for (const img of imgs) {
-            img.setAttribute("src", img.getAttribute("data-src"));
-            img.removeAttribute("data-src");
+    async onRendered() {
+        if (FileNewDialogModel.#isVisible) {
+            const dialog = this.#kitElement.querySelector("dialog");
+            const header = this.#kitElement.querySelector("header");
+            this.#dialogHelper = new DialogHelper();
+            this.#dialogHelper.show(dialog, header, this.#onCloseDialog);
         }
     }
 
     // methods
-    #clickHandlerRegistered;
-    showDialog() {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const dialog = componentElement.querySelector("dialog");
-        dialog.showModal();
-        if (!this.#clickHandlerRegistered) {
-            dialog.addEventListener('click', function (event) {
-                var rect = dialog.getBoundingClientRect();
-                var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
-                    rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
-                if (!isInDialog) {
-                    dialog.close();
-                }
-            });
-        }
+    isVisible() {
+        return FileNewDialogModel.#isVisible;
+    }
+
+    async showDialog() {
+        FileNewDialogModel.#isVisible = true;
+        await UIKit.renderer.renderKitElement(this.#kitElement);
     }
 
     closeDialog() {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        componentElement.querySelector("dialog").close();
+        this.#dialogHelper.close();
     }
 
     getTemplates() {
@@ -123,16 +114,22 @@ class FileNewDialogModel {
 
     templateSelected(templateRef) {
         this.#templateRef = templateRef;
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        componentElement.querySelector("#button-ok").disabled = false;
+        this.#kitElement.querySelector("#button-ok").disabled = false;
     }
 
     async buttonOkClicked() {
         this.closeDialog();
-        await KitMessenger.publish(EditorModel.NewFileRequestTopic, { templateRef: this.#templateRef });
-        
+        await UIKit.messenger.publish(EditorModel.NewFileRequestTopic, { templateRef: this.#templateRef });        
     }
 
     // helpers
+    static #isVisible = false;
+    #kitElement = null;
     #templateRef = null;
+    #dialogHelper = null;
+
+    #onCloseDialog = async () => {
+        FileNewDialogModel.#isVisible = false;
+        await UIKit.renderer.renderKitElement(this.#kitElement);
+    }
 }

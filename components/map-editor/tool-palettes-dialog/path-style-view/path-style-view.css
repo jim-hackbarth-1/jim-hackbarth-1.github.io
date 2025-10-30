@@ -1,0 +1,112 @@
+﻿
+.map-item-template-name {
+    margin: 0 5px 5px 0;
+    display: block;
+    font-size: small;
+    font-weight: normal;
+}
+
+.map-item-template-name:not(.from-template) {
+    cursor: pointer;
+}
+
+.map-item-template-name:not(.from-template):hover {
+    text-decoration: underline;
+}
+
+.image-container {
+    border: 1px solid var(--color-outline);
+    border-radius: 3px;
+    padding: 4px;
+    margin-right: 10px;
+    width: 35px;
+    height: 35px;
+}
+
+.list-container {
+    padding: 2px;
+    border: 1px solid var(--color-outline);
+    border-radius: 3px;
+    background-color: var(--color-surface-container);
+    margin: 0;
+}
+
+.form-field-container {
+    padding: 5px;
+    border: 1px solid var(--color-outline);
+    border-radius: 3px;
+    margin: 0;
+}
+
+.note-label {
+    font-weight: normal;
+    font-size:smaller;
+    font-style:italic;
+}
+
+.image-item,
+.color-stop-item {
+    display: flex;
+    background-color: var(--color-primary-container);
+    padding: 4px;
+    border-radius: 3px;
+    border: 1px solid var(--color-outline);
+    margin: 1px 0 0 1px;
+    color: var(--color-primary-container-on);
+}
+
+.image-item .icon,
+.image-item .icon-text,
+.color-stop-item .icon,
+.color-stop-item .icon-text {
+    stroke: var(--color-primary-container-on);
+}
+
+.image-item .icon-text,
+.color-stop-item .icon-text {
+    fill: var(--color-primary-container-on);
+}
+
+.image-item:hover,
+.color-stop-item:hover {
+    background-color: var(--color-secondary-container);
+    color: var(--color-secondary-container-on);
+}
+
+.image-item:hover .icon,
+.image-item:hover .icon-text,
+.color-stop-item:hover .icon,
+.color-stop-item:hover .icon-text {
+    stroke: var(--color-secondary-container-on);
+}
+
+.image-item:hover .icon-text,
+.color-stop-item:hover .icon-text {
+    fill: var(--color-secondary-container-on);
+}
+
+.remove-button {
+    text-decoration: none;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+    outline: none;
+}
+
+.remove-button[disabled] {
+    cursor: default;
+}
+
+.remove-button:not([disabled]):hover {
+    color: var(--color-secondary-container-on-variant-2) !important;
+}
+
+.remove-button:not([disabled]):hover .icon {
+    stroke: var(--color-secondary-container-on-variant-2) !important;
+}
+
+.remove-button:not([disabled]):hover .icon-text {
+    stroke: var(--color-secondary-container-on-variant-2) !important;
+    fill: var(--color-secondary-container-on-variant-2) !important;
+}

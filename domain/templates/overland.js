@@ -1518,8 +1518,10 @@ export function getTemplate() {
             ],
             drawingToolPalettes: [
                 [
-                    { versionId: 1, isBuiltIn: true, name: "Draw point" },
                     { versionId: 1, isBuiltIn: true, name: "Draw path" },
+                    { versionId: 1, isBuiltIn: true, name: "Draw point" }
+                ],
+                [
                     { versionId: 1, isBuiltIn: true, name: "Draw rectangle" },
                     { versionId: 1, isBuiltIn: true, name: "Draw ellipse" },
                     { versionId: 1, isBuiltIn: true, name: "Draw arc" },

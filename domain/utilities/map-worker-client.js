@@ -1,5 +1,4 @@
 ﻿
-import { KitDependencyManager } from "../../ui-kit.js";
 import {
     BooleanToolOption,
     DbManager,
@@ -93,10 +92,10 @@ export class MapWorkerClient {
 
     static async handleWorkerMessage(message) {
         if (message?.data?.messageType === MapWorkerOutputMessageType.DebugInfo) {
-            KitDependencyManager.getConsole().log(message.data.data);
+            UIKit.console.log(message.data.data);
         }
         if (message?.data?.messageType === MapWorkerOutputMessageType.Error) {
-            KitDependencyManager.getConsole().error(message.data.error);
+            UIKit.console.error(message.data.error);
         }
         if (message?.data?.messageType === MapWorkerOutputMessageType.ChangeCursor) {
             await MapWorkerClient.mapChangeListener(message.data);
@@ -154,7 +153,7 @@ export class MapWorkerClient {
             if (eventType == "wheel" && event.altKey) {
                 event.preventDefault();
             }
-            await MapWorkerClient.postWorkerMessage({
+            MapWorkerClient.postWorkerMessage({
                 messageType: MapWorkerInputMessageType.ClientEvent,
                 eventType: eventType,
                 eventData: MapWorkerClient.#cloneEvent(event)

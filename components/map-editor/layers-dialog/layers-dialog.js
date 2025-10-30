@@ -1,8 +1,7 @@
 ﻿
 import { ChangeType, InputUtilities, Layer, Map, MapWorkerClient, MapWorkerInputMessageType } from "../../../domain/references.js";
-import { KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
-import { DomHelper } from "../../shared/dom-helper.js";
 import { EditorModel } from "../editor/editor.js";
+import { DialogHelper } from "../../shared/dialog-helper.js";
 
 export function createModel() {
     return new LayersDialogModel();
@@ -11,155 +10,52 @@ export function createModel() {
 class LayersDialogModel {
 
     // event handlers
-    async onRenderStart(componentId) {
-        this.componentId = componentId;
+    async init(kitElement) {
+        this.#kitElement = kitElement;
+        const kitKey = UIKit.renderer.getKitElementKey(this.#kitElement);
+        UIKit.messenger.subscribe(
+            EditorModel.MapUpdatedNotificationTopic,
+            {
+                elementKey: kitKey,
+                id: `${EditorModel.MapUpdatedNotificationTopic}-${kitKey}`,
+                object: this,
+                callback: this.onMapUpdated.name
+            }
+        );
     }
 
-    async onRenderComplete() {
-        KitMessenger.subscribe(EditorModel.MapUpdatedNotificationTopic, this.componentId, this.onMapUpdated.name);
+    async onRendered() {
+        if (LayersDialogModel.#isVisible) {
+            const dialog = this.#kitElement.querySelector("dialog");
+            const header = this.#kitElement.querySelector("header");
+            this.#dialogHelper = new DialogHelper();
+            this.#dialogHelper.show(dialog, header, this.#onCloseDialog);
+        }
     }
 
     async onMapUpdated(message) {
-        if (this.#isVisible) {
-            await this.#reRenderDialog();
+        if (LayersDialogModel.#isVisible) {
+            const layersElement = this.#kitElement.querySelector("#layer-list");
+            await UIKit.renderer.renderKitElement(layersElement);
         }
     }
 
     // methods
-    #clickHandlerRegistered;
-    async showDialog() {
-        this.#isVisible = true;
-        await this.#reRenderDialog();
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const dialog = componentElement.querySelector("dialog");
-        dialog.showModal();  
-        if (!this.#clickHandlerRegistered) {
-            const me = this;
-            dialog.addEventListener('click', function (event) {
-                var rect = dialog.getBoundingClientRect();
-                var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
-                    rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
-                if (!isInDialog) {
-                    me.#isVisible = false;
-                    dialog.close();
-                }
-            });
-        }
-    }
-
-    #isVisible;
     isVisible() {
-        return this.#isVisible
+        return LayersDialogModel.#isVisible;
     }
 
-    async getMap() {
-        return await MapWorkerClient.getMap();
+    async showDialog() {
+        LayersDialogModel.#isVisible = true;
+        await UIKit.renderer.renderKitElement(this.#kitElement);
     }
 
-    async getLayers() {
-        const map = await this.getMap();
-        if (map) {
-            const layers = [];
-            for (let i = map.layers.length - 1; i >= 0; i--) {
-                layers.push(map.layers[i]);
-            }
-            return layers;
-        }
-        return [];
-    }
-
-    async onActiveLayerChange() {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const inputActiveLayer = componentElement.querySelector("#inputActiveLayer");
-        const newActiveLayerName = inputActiveLayer.value;
-        const map = await this.getMap();
-        const currentActiveLayer = map.getActiveLayer();
-        const newActiveLayer = map.layers.find(l => l.name == newActiveLayerName);
-        const changes = [];
-        if (newActiveLayer.isHidden) {
-            changes.push({
-                changeType: ChangeType.Edit,
-                changeObjectType: Layer.name,
-                propertyName: "isHidden",
-                oldValue: true,
-                newValue: false,
-                layerName: newActiveLayerName
-            });
-        }
-        changes.push({
-            changeType: ChangeType.Edit,
-            changeObjectType: Map.name,
-            propertyName: "activeLayer",
-            oldValue: currentActiveLayer.name,
-            newValue: newActiveLayerName
-        });
-        if (currentActiveLayer.mapItemGroups.some(mig => mig.selectionStatus)) {
-            MapWorkerClient.postWorkerMessage({ messageType: MapWorkerInputMessageType.UnSelectAll });
-        }
-        await this.#updateMap(changes);
-        await this.#reRenderDialog();
-    }
-
-    async showLayer(evt, layerName) {
-
-        // select layer element
-        evt.stopPropagation();
-        await this.selectLayer(layerName);
-
-        // update map
-        const map = await this.getMap();
-        const changes = [
-            {
-                changeType: ChangeType.Edit,
-                changeObjectType: Layer.name,
-                propertyName: "isHidden",
-                oldValue: true,
-                newValue: false,
-                layerName: layerName
-            }
-        ];
-        await this.#updateMap(changes);
-
-        // re-render dialog
-        await this.#reRenderDialog();
-    }
-
-    async canHideLayer(layerName) {
-        const map = await this.getMap();
-        if (map.activeLayer == layerName) {
-            return "disabled";
-        }
-        return null;
-    }
-
-    async hideLayer(evt, layerName) {
-
-        // select layer element
-        evt.stopPropagation();
-        await this.selectLayer(layerName);
-
-        // update map
-        const map = await this.getMap();
-        const changes = [
-            {
-                changeType: ChangeType.Edit,
-                changeObjectType: Layer.name,
-                propertyName: "isHidden",
-                oldValue: false,
-                newValue: true,
-                layerName: layerName
-            }
-        ];
-        await this.#updateMap(changes);
-
-        // re-render dialog
-        await this.#reRenderDialog();
-
+    closeDialog() {
+        this.#dialogHelper.close();
     }
 
     async addLayer() {
-        // update map
-        const map = await this.getMap();
+        const map = await MapWorkerClient.getMap();
         let layerName = null;
         for (let i = 1; i <= 100; i++) {
             if (!map.layers.some(l => l.name == `Layer ${i}`)) {
@@ -180,175 +76,7 @@ class LayersDialogModel {
                 itemValue: layerData
             }
         ];
-        await this.#updateMap(changes);
-
-        // re-render dialog
-        await this.#reRenderDialog();
-    }
-
-    async showEdit(evt, layerName) {
-
-        // select layer element
-        evt.stopPropagation();
-        await this.selectLayer(layerName);
-
-        // find layer element
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const layerElements = componentElement.querySelectorAll(".layer-item");
-        let selectedLayerElement = null;
-        for (const layerElement of layerElements) {
-            const layerElementName = layerElement.getAttribute("data-layer-name");
-            if (layerElementName == layerName) {
-                selectedLayerElement = layerElement;
-                break;
-            }
-        }
-        if (!selectedLayerElement) {
-            return;
-        }
-
-        const label = selectedLayerElement.querySelector("label");
-        label.style.display = "none";
-        const input = selectedLayerElement.querySelector("input");
-        input.value = layerName;
-        input.style.display = "block";
-        input.focus();
-    }
-
-    async editLayer(layerName) {
-
-        // find layer element
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const layerElements = componentElement.querySelectorAll(".layer-item");
-        let selectedLayerElement = null;
-        for (const layerElement of layerElements) {
-            const layerElementName = layerElement.getAttribute("data-layer-name");
-            if (layerElementName == layerName) {
-                selectedLayerElement = layerElement;
-                break;
-            }
-        }
-        if (!selectedLayerElement) {
-            return;
-        }
-
-        const input = selectedLayerElement.querySelector("input");
-        input.style.display = "none";
-        const newLayerName = InputUtilities.cleanseString(input.value);
-
-        const map = await this.getMap();
-        const layer = map.layers.find(l => l.name == layerName);
-        const existingLayer = map.layers.find(l => l.name == newLayerName);
-        const label = selectedLayerElement.querySelector("label");
-        label.style.display = "block";
-        if (!layer || !newLayerName || existingLayer) {
-            return;
-        }
-        label.innerHTML = newLayerName;    
-        if (newLayerName != layerName) {
-            
-            if (layer && !existingLayer) {
-                const changes = [
-                    {
-                        changeType: ChangeType.Edit,
-                        changeObjectType: Layer.name,
-                        propertyName: "name",
-                        oldValue: layer.name,
-                        newValue: newLayerName,
-                        layerName: layer.name
-                    }
-                ];
-                if (map.activeLayer == layerName) {
-                    changes.push({
-                        changeType: ChangeType.Edit,
-                        changeObjectType: Map.name,
-                        propertyName: "activeLayer",
-                        oldValue: map.activeLayer,
-                        newValue: newLayerName
-                    })
-                }
-                await this.#updateMap(changes);
-                await this.#reRenderDialog();
-                return;
-            }
-        }
-    }
-
-    async selectLayer(layerName) {
-        const map = await this.getMap();   
-        const activeLayerName = map.activeLayer;
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const layerElements = componentElement.querySelectorAll(".layer-item");
-        let selectedLayerName = null;
-        for (const layerElement of layerElements) {
-            const layerElementName = layerElement.getAttribute("data-layer-name");
-            if (layerElementName == layerName) {
-                layerElement.setAttribute("data-selected", "true");
-                selectedLayerName = layerElement.getAttribute("data-layer-name");
-            }
-            else {
-                layerElement.setAttribute("data-selected", "false");
-            }
-        }
-        const canDelete = selectedLayerName && (selectedLayerName != activeLayerName);
-        const deleteButton = componentElement.querySelector("#delete-button");
-        deleteButton.disabled = !canDelete;
-    }
-
-    async deleteLayer() {
-
-        // find selected layer
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const layerElement = componentElement.querySelector(".layer-item[data-selected='true']");
-        const map = await this.getMap();  
-        const length = map.layers.length;
-        let layerIndex = -1;
-        if (layerElement) {
-            layerIndex = length - 1 - layerElement.getAttribute("data-layer-index");
-        }
-        if (!layerIndex || layerIndex < 0) {
-            return;
-        }
- 
-        // update map   
-        const layerToDelete = map.layers[layerIndex].getData();
-        if (map.activeLayer == layerToDelete.name) {
-            
-            return;
-        }
-        const changes = [
-            {
-                changeType: ChangeType.Delete,
-                changeObjectType: Map.name,
-                propertyName: "layers",
-                itemIndex: layerIndex,
-                itemValue: layerToDelete
-            }
-        ];
-        await this.#updateMap(changes);
-
-        // re-render dialog
-        await this.#reRenderDialog();
-    }
-
-    async moveLayer(evt, layerName) {
-        if (!evt?.dataTransfer) {
-            return;
-        }
-        evt.dataTransfer.setData("text", layerName);
-        const dragStartEvent = new DragEvent("dragstart", {
-            bubbles: true,
-            cancelable: true,
-            clientX: evt.clientX,
-            clientY: evt.clientY,
-        });
-        const layerItemElement = DomHelper.getElement(this.#componentElement, `[data-layer-name="${layerName}"]`);
-        layerItemElement.dispatchEvent(dragStartEvent);
-    }
-
-    layerDrag(evt) {
-        const layerName = evt.srcElement.getAttribute("data-layer-name");
-        evt.dataTransfer.setData("text", layerName);
+        await LayersDialogModel.#updateMap(changes);
     }
 
     allowLayerDrop(evt) {
@@ -356,17 +84,16 @@ class LayersDialogModel {
     }
 
     async layerDrop(evt) {
-        
+
         // get current and new indices
         evt.preventDefault();
         const layerName = evt.dataTransfer.getData("text");
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const layerElements = componentElement.querySelectorAll(".layer-item");
+        const layerElements = this.#kitElement.querySelectorAll(".layer-item");
         const mouseY = evt.clientY;
         let currentIndex = -1;
         let newIndex = -1;
         const length = layerElements.length;
-        const map = await this.getMap();
+        const map = await MapWorkerClient.getMap();
         for (let i = length - 1; i >= 0; i--) {
 
             const elementLayerName = layerElements[i].getAttribute("data-layer-name");
@@ -404,55 +131,212 @@ class LayersDialogModel {
                 itemValue: layerData
             }
         ];
-        await this.#updateMap(changes);
-
-        // re-render dialog
-        await this.#reRenderDialog();
+        await LayersDialogModel.#updateMap(changes);
     }
 
-    closeDialog() {
-        this.#isVisible = false;
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        componentElement.querySelector("dialog").close();
+    async getLayers() {
+        const map = await MapWorkerClient.getMap();
+        if (map) {
+            const layers = [];
+            for (let i = map.layers.length - 1; i >= 0; i--) {
+                layers.push(map.layers[i]);
+            }
+            return layers.map(l => LayersDialogModel.#mapLayer(l, map.activeLayer));
+        }
+        return [];
+    }
+
+    layerDrag(evt) {
+        const layerName = evt.srcElement.getAttribute("data-layer-name");
+        evt.dataTransfer.setData("text", layerName);
+    }
+
+    async layerActivated(newActiveLayerName) {
+        const map = await MapWorkerClient.getMap();
+        const currentActiveLayer = map.getActiveLayer();
+        const newActiveLayer = map.layers.find(l => l.name == newActiveLayerName);
+        const changes = [];
+        if (newActiveLayer.isHidden) {
+            changes.push({
+                changeType: ChangeType.Edit,
+                changeObjectType: Layer.name,
+                propertyName: "isHidden",
+                oldValue: true,
+                newValue: false,
+                layerName: newActiveLayerName
+            });
+        }
+        changes.push({
+            changeType: ChangeType.Edit,
+            changeObjectType: Map.name,
+            propertyName: "activeLayer",
+            oldValue: currentActiveLayer.name,
+            newValue: newActiveLayerName
+        });
+        if (currentActiveLayer.mapItemGroups.some(mig => mig.selectionStatus)) {
+            MapWorkerClient.postWorkerMessage({ messageType: MapWorkerInputMessageType.UnSelectAll });
+        }
+        await LayersDialogModel.#updateMap(changes);
+    }
+
+    async validateLayerName(layerName, input) {
+        let isValid = false;
+        let newLayerName = input.value.trim();
+        newLayerName = LayersDialogModel.removeHtmlCharacters(newLayerName);
+        if (newLayerName) {
+            isValid = true;
+            if (layerName != newLayerName) {
+                const map = await MapWorkerClient.getMap();
+                const existingLayer = map.layers.find(l => l.name == newLayerName);
+                if (existingLayer) {
+                    isValid = false;
+                }
+            }
+        }
+        const layerItemElement = this.#kitElement.querySelector(`[data-layer-name="${layerName}"]`);
+        const validationElement = layerItemElement.querySelector(".validation-message");
+        const okButton = layerItemElement.querySelector(".edit-button-ok");
+        if (isValid) {
+            validationElement.classList.add("is-valid");
+            okButton.disabled = false;
+        }
+        else {
+            validationElement.classList.remove("is-valid");
+            okButton.disabled = true;
+        }
+    }
+
+    async editLayer(layerName) {
+
+        // get values
+        const layerItemElement = this.#kitElement.querySelector(`[data-layer-name="${layerName}"]`);
+        const editContainer = layerItemElement.querySelector(".edit-container");
+        let newLayerName = editContainer.querySelector("input[type='text']").value;
+        newLayerName = LayersDialogModel.removeHtmlCharacters(newLayerName);
+        const isHidden = editContainer.querySelector("input[type='checkbox']").checked;
+
+        // update map
+        const map = await MapWorkerClient.getMap();
+        const layer = map.layers.find(l => l.name == layerName);
+        let existingLayer = false;
+        if (layerName != newLayerName && map.layers.find(l => l.name == newLayerName)) {
+            existingLayer = true;
+        }
+        if (!layer || !newLayerName || existingLayer) {
+            return;
+        }
+        const changes = [];
+        if (isHidden != layer.isHidden) {
+            changes.push({
+                changeType: ChangeType.Edit,
+                changeObjectType: Layer.name,
+                propertyName: "isHidden",
+                oldValue: layer.isHidden,
+                newValue: isHidden,
+                layerName: layerName
+            })
+        }
+        if (newLayerName != layerName) {
+            changes.push({
+                changeType: ChangeType.Edit,
+                changeObjectType: Layer.name,
+                propertyName: "name",
+                oldValue: layer.name,
+                newValue: newLayerName,
+                layerName: layer.name
+            });
+            if (map.activeLayer == layerName) {
+                changes.push({
+                    changeType: ChangeType.Edit,
+                    changeObjectType: Map.name,
+                    propertyName: "activeLayer",
+                    oldValue: map.activeLayer,
+                    newValue: newLayerName
+                })
+            }
+        }
+        if (changes.length > 0) {
+            await LayersDialogModel.#updateMap(changes);
+        }
+        else {
+            this.toggleEdit(layerName);
+        }
+    }
+
+    toggleEdit(layerName) {
+        const layerItemElement = this.#kitElement.querySelector(`[data-layer-name="${layerName}"]`);
+        const editContainer = layerItemElement.querySelector(".edit-container");
+        editContainer.classList.toggle("hide-edit");
+    }
+
+    async deleteLayer(layerName) {
+
+        // find selected layer
+        const layerElement = this.#kitElement.querySelector(`[data-layer-name="${layerName}"]`);
+        const map = await MapWorkerClient.getMap();
+        const length = map.layers.length;
+        let layerIndex = -1;
+        if (layerElement) {
+            layerIndex = length - 1 - layerElement.getAttribute("data-layer-index");
+        }
+        if (!layerIndex || layerIndex < 0) {
+            return;
+        }
+
+        // update map
+        const layerToDelete = map.layers[layerIndex].getData();
+        if (map.activeLayer == layerToDelete.name) {
+            return;
+        }
+        const changes = [
+            {
+                changeType: ChangeType.Delete,
+                changeObjectType: Map.name,
+                propertyName: "layers",
+                itemIndex: layerIndex,
+                itemValue: layerToDelete
+            }
+        ];
+        await LayersDialogModel.#updateMap(changes);
     }
 
     // helpers
-    #componentElementInternal;
-    get #componentElement() {
-        if (!this.#componentElementInternal) {
-            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
+    static #isVisible = false;
+    #kitElement = null;
+    #dialogHelper = null;
+
+    #onCloseDialog = async () => {
+        LayersDialogModel.#isVisible = false;
+        await UIKit.renderer.renderKitElement(this.#kitElement);
+    }
+
+    static #mapLayer(layer, activeLayerName) {
+        let displayName = layer.name;
+        if (displayName.length > 25) {
+            displayName = displayName.slice(0, 25) + "...";
         }
-        return this.#componentElementInternal
-    }
-
-    async #reRenderDialog() {
-        await DomHelper.reRenderElement(this.#componentElement, "kitIfVisible");
-        await this.#loadActiveLayerList();
-    }
-
-    async #loadActiveLayerList() {
-        const map = await this.getMap();
-        const appDocument = KitDependencyManager.getDocument();
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const inputActiveLayer = componentElement.querySelector("#inputActiveLayer");
-        for (const layer of map.layers) {
-            const option = appDocument.createElement('option');
-            let displayName = layer.name;
-            if (displayName.length > 25) {
-                displayName = displayName.slice(0, 25) + "...";
-            }
-            option.value = layer.name;
-            option.title = layer.name;
-            option.innerHTML = displayName;
-            option.selected = (map.activeLayer == layer.name);
-            inputActiveLayer.appendChild(option);
+        const isActive = layer.name == activeLayerName;
+        return {
+            name: layer.name,
+            displayName: displayName,
+            isActive: isActive,
+            isHidden: layer.isHidden
         }
     }
 
-    async #updateMap(changes) {
+    static async #updateMap(changes) {
         MapWorkerClient.postWorkerMessage({
             messageType: MapWorkerInputMessageType.UpdateMap,
             changeSet: { changes: changes }
         });
+    }
+
+    static removeHtmlCharacters(string) {
+        return string
+            .replaceAll("&", "")
+            .replaceAll("<", "")
+            .replaceAll(">", "")
+            .replaceAll("'", "")
+            .replaceAll('"', "");
     }
 }

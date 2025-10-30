@@ -1,0 +1,41 @@
+﻿
+<kit-component kit-model="#dialogModel.getNavItemModel(#model.id)" kit-object-dialog-model="dialogModel:#dialogModel" >
+    <div data-nav-item-id="%{#model.id}%"
+         style="padding-left:25px;margin:0;"
+         data-nav-item-expanded-state="%{#model.expandedState}%">
+        <div style="display:flex;margin:0;">
+            <div class="nav-item-expanded"
+                 onclick="#dialogModel.collapseNavItem(this)">
+                <kit-component kit-template-path="/resources/icons/expanded.html" kit-model="null"></kit-component>
+            </div>
+            <div class="nav-item-collapsed"
+                 onclick="#dialogModel.expandNavItem(this)">
+                <kit-component kit-template-path="/resources/icons/collapsed.html" kit-model="null"></kit-component>
+            </div>
+            <div style="display:flex;" class="nav-item-label spacer" onclick="#dialogModel.selectNavItem(this)">
+                <kit-if kit-condition="#model.thumbnailSrc">
+                    <div class="thumbnail">
+                        <img height="25" width="25" kit-element kit-attr-add-src="src:%{#model.thumbnailSrc}%" />
+                    </div>
+                </kit-if>
+                <kit-if kit-condition="#model.thumbnailSvgSrc">
+                    <div class="thumbnail">
+                        <svg height="25" width="25" viewBox="0 0 100 100">%{#model.thumbnailSvgSrc}%</svg>
+                    </div>
+                </kit-if>
+                <div>
+                    <label>%{#model.displayName}%</label>
+                </div>
+            </div>
+
+        </div>
+        <div class="nav-item-children">
+            <kit-array kit-array="#model.children ?? []" kit-array-item-alias="child">
+                <kit-component kit-object-dialog-model="dialogModel:#dialogModel"
+                               kit-model="#child"
+                               kit-template-path="/components/map-editor/tool-palettes-dialog/nav-node-view/nav-node-view.html">
+                </kit-component>
+            </kit-array>
+        </div>
+    </div>
+</kit-component>

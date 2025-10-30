@@ -1,0 +1,46 @@
+﻿
+@scope (#file-new-dialog) {
+    :scope {
+        height: 400px;
+        width: 600px;
+    }
+
+    @media (max-width: 600px), (max-height: 500px) {
+        :scope {
+            position: absolute;
+            transform: unset;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-height: 100%;
+            max-width: 100%;
+            height: 100%;
+            width: 100%;
+        }
+    }
+
+    #template-list {
+        height: 240px;
+        overflow-y: auto;
+        padding: 2px;
+        border: 1px solid var(--color-outline);
+        border-radius: 3px;
+        background-color: var(--color-surface-container);
+    }
+
+    .template-item:has(input:checked) {
+        color: var(--color-tertiary-container-on);
+        background-color: var(--color-tertiary-container);
+        box-shadow: var(--color-tertiary-container-on) 1px 1px 3px 0 inset, var(--color-tertiary-container-on) -1px -1px 3px 0 inset;
+    }
+
+    .template-item:has(input:checked) .icon {
+        stroke: var(--color-tertiary-container-on);
+    }
+
+    .template-item:has(input:checked) .icon-text {
+        stroke: var(--color-tertiary-container-on);
+        fill: var(--color-tertiary-container-on);
+    }
+}

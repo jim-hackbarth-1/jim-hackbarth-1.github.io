@@ -1,0 +1,87 @@
+﻿
+<kit-if kit-condition="#model?.isVisible()">
+    <link rel="stylesheet" href="/components/map-editor/tool-palettes-dialog/tool-palettes-dialog.css" />
+    <dialog id="tool-palettes-dialog">
+        <header>
+            <div class="icon-container">
+                <kit-component kit-template-path="/resources/icons/tool-palette.html" kit-model="null"></kit-component>
+            </div>
+            <div>
+                <h1>Manage tool palettes</h1>
+            </div>
+            <div class="spacer"></div>
+            <div>
+                <button title="Close" class="dialog-close-button" onclick="#model.closeDialog();">
+                    <div class="icon-container">
+                        <kit-component kit-template-path="/resources/icons/file-close.html" kit-model="null"></kit-component>
+                    </div>
+                </button>
+            </div>
+        </header>
+        <section id="tool-palettes-dialog-section" kit-element>
+            <div id="navigation-container">
+                <div id="navigation-heading-container">
+                    <button id="nav-toggle" class="action-text" onclick="#model.toggleNavigation()" title="Toggle navigation panel">
+                        <kit-component kit-template-path="/resources/icons/nav-toggle.html" kit-model="null"></kit-component>
+                    </button>
+                    <label id="navigation-heading-label">Navigation</label>
+                </div>
+                <div id="navigation-tree-container">
+                    <kit-array kit-array="#model.getRootNavItems()" kit-array-item-alias="navItem">
+                        <kit-component kit-object-dialog-model="dialogModel:#model" 
+                                       kit-model="#navItem"
+                                       kit-template-path="/components/map-editor/tool-palettes-dialog/nav-node-view/nav-node-view.html">
+                        </kit-component>
+                    </kit-array>
+                </div>
+            </div>
+            <div id="detail-container" style="margin-bottom:0;" kit-element>
+                <kit-if kit-condition="#model.getSelectedDetailComponentInfo().componentName == 'palette'">
+                    <kit-component kit-object-dialog-model="dialogModel:#model"
+                                   kit-template-path="/components/map-editor/tool-palettes-dialog/palette-view/palette-view.html">
+                    </kit-component>
+                </kit-if>
+                <kit-if kit-condition="#model.getSelectedDetailComponentInfo().componentName == 'tools'">
+                    <kit-component kit-object-dialog-model="dialogModel:#model"
+                                   kit-template-path="/components/map-editor/tool-palettes-dialog/tools-view/tools-view.html">
+                    </kit-component>
+                </kit-if>
+                <kit-if kit-condition="#model.getSelectedDetailComponentInfo().componentName == 'tool'">
+                    <kit-component kit-object-dialog-model="dialogModel:#model"
+                                   kit-template-path="/components/map-editor/tool-palettes-dialog/tool-view/tool-view.html">
+                    </kit-component>
+                </kit-if>
+                <kit-if kit-condition="#model.getSelectedDetailComponentInfo().componentName == 'map.item.templates'">
+                    <kit-component kit-object-dialog-model="dialogModel:#model"
+                                   kit-template-path="/components/map-editor/tool-palettes-dialog/map-item-templates-view/map-item-templates-view.html">
+                    </kit-component>
+                </kit-if>
+                <kit-if kit-condition="#model.getSelectedDetailComponentInfo().componentName == 'map.item.template'">
+                    <kit-component kit-object-dialog-model="dialogModel:#model"
+                                   kit-template-path="/components/map-editor/tool-palettes-dialog/map-item-template-view/map-item-template-view.html">
+                    </kit-component>
+                </kit-if>
+                <kit-if kit-condition="#model.getSelectedDetailComponentInfo().componentName == 'path.styles'">
+                    <kit-component kit-object-dialog-model="dialogModel:#model"
+                                   kit-template-path="/components/map-editor/tool-palettes-dialog/path-styles-view/path-styles-view.html">
+                    </kit-component>
+                </kit-if>
+                <kit-if kit-condition="#model.getSelectedDetailComponentInfo().componentName == 'path.style'">
+                    <kit-component kit-object-dialog-model="dialogModel:#model"
+                                   kit-template-path="/components/map-editor/tool-palettes-dialog/path-style-view/path-style-view.html">
+                    </kit-component>
+                </kit-if>
+                <kit-if kit-condition="#model.getSelectedDetailComponentInfo().componentName == 'shadow'">
+                    <kit-component kit-object-dialog-model="dialogModel:#model"
+                                   kit-template-path="/components/map-editor/tool-palettes-dialog/shadow-view/shadow-view.html">
+                    </kit-component>
+                </kit-if>
+                <kit-if kit-condition="#model.getSelectedDetailComponentInfo().componentName == 'caption'">
+                    <kit-component kit-object-dialog-model="dialogModel:#model"
+                                   kit-template-path="/components/map-editor/tool-palettes-dialog/caption-view/caption-view.html">
+                    </kit-component>
+                </kit-if>
+            </div>
+        </section>
+    </dialog>
+</kit-if>

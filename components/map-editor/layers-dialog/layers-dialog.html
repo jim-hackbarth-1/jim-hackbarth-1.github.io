@@ -1,136 +1,10 @@
 ﻿
-<dialog class="layers-dialog-component">
-    <kit-if id="kitIfVisible" data-kit-condition="#model.isVisible()">
-        <style>
-            @scope (.layers-dialog-component) {
-                :scope {
-                    height: 475px;
-                    width: 350px;
-                }
-
-                @media (max-width: 350px), (max-height: 575px) {
-                    :scope {
-                        position: absolute;
-                        transform: unset;
-                        top: 0;
-                        bottom: 0;
-                        left: 0;
-                        right: 0;
-                        max-height: 100%;
-                        max-width: 100%;
-                        height: 100%;
-                        width: 100%;
-                        padding-bottom: 50px;
-                    }
-                }
-
-                .controls-container {
-                    display: flex;
-                    flex-direction: column;
-                }
-
-                #layersLabelRow {
-                    display: flex;
-                    padding: 0;
-                    margin: 0;
-                }
-
-                #layersLabelRow div {
-                    padding: 0;
-                    margin: 0;
-                }
-
-                #layersLabelRow label {
-                    margin-top: 10px;
-                }
-
-                #layer-list {
-                    height: 240px;
-                    overflow-y: auto;
-                    padding: 2px;
-                    border: 1px solid var(--color-outline);
-                    border-radius: 3px;
-                    background-color: var(--color-surface-container);
-                }
-
-                .layer-item {
-                    display: flex;
-                }
-
-                .layer-item .grip {
-                    stroke: var(--color-secondary-container-on);
-                }
-
-                .layer-item:hover .grip {
-                    stroke: var(--color-primary-on);
-                }
-
-                .layer-item[data-selected="true"] {
-                    color: var(--color-tertiary-container-on);
-                    background-color: var(--color-tertiary-container);
-                    box-shadow: var(--color-tertiary-container-on) 1px 1px 3px 0 inset, var(--color-tertiary-container-on) -1px -1px 3px 0 inset;
-                }
-
-                .layer-item[data-selected="true"] .icon,
-                .layer-item[data-selected="true"] .grip {
-                    stroke: var(--color-tertiary-container-on);
-                }
-
-                .layer-item[data-selected="true"] .icon-text {
-                    stroke: var(--color-tertiary-container-on);
-                    fill: var(--color-tertiary-container-on);
-                }
-
-                .layer-item button[disabled] .icon {
-                    stroke: var(--color-primary-container-on-disabled);
-                }
-
-                .layer-item div {
-                    padding: 0;
-                    margin: 0;
-                }
-
-                .layer-name-container {
-                    overflow: hidden;
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-                }
-
-                .layer-item-spacer {
-                    flex-grow: 4;
-                }
-
-                .move-container button {
-                    margin-left: -10px;
-                    padding: 0;
-                }
-
-                .move-container button .icon-container {
-                    margin-left: 5px;
-                    margin-bottom: 30px;
-                }
-
-                button, .icon-container {
-                    min-width: 25px;
-                }
-
-                select {
-                    width: 100%;
-                }
-
-                #add-button, #delete-button {
-                    padding: 0 0 4px 0;
-                    margin: 2px;
-                }
-
-                #inputActiveLayer {
-                    margin-bottom: 20px;
-                }
-            }
-        </style>
+<kit-if kit-condition="#model?.isVisible()">
+    <link rel="stylesheet" href="/components/map-editor/layers-dialog/layers-dialog.css" />
+    <dialog id="layers-dialog">
         <header>
             <div class="icon-container">
-                <kit-component data-kit-template-path="/resources/icons/view-layers.html" data-kit-model="null"></kit-component>
+                <kit-component kit-template-path="/resources/icons/view-layers.html" kit-model="null"></kit-component>
             </div>
             <div>
                 <h1>Layers</h1>
@@ -139,7 +13,7 @@
             <div>
                 <button title="Close" class="action-text" onclick="#model.closeDialog();">
                     <div class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/file-close.html" data-kit-model="null"></kit-component>
+                        <kit-component kit-template-path="/resources/icons/file-close.html" kit-model="null"></kit-component>
                     </div>
                 </button>
             </div>
@@ -147,81 +21,103 @@
         <section>
             <div class="controls-container">
                 <div>
-                    <label>Active layer:</label>
-                    <select id="inputActiveLayer" title="Active Layer" onchange="#model.onActiveLayerChange()">
-                    </select>
+                    <button title="Add layer" class="button dialog-button" onclick="#model.addLayer();">Add layer</button>
                 </div>
-                <div>
-                    <div id="layersLabelRow">
-                        <label>Layers:</label>
-                        <div class="spacer"></div>
-                        <div>
-                            <button id="add-button" title="Add layer" class="button dialog-button" onclick="#model.addLayer();">
-                                <div class="icon-container">
-                                    <kit-component data-kit-template-path="/resources/icons/add.html" data-kit-model="null"></kit-component>
-                                </div>
-                            </button>
-                        </div>
-                        <div>
-                            <button id="delete-button" title="Delete layer" class="button dialog-button" onclick="#model.deleteLayer();" disabled>
-                                <div class="icon-container">
-                                    <kit-component data-kit-template-path="/resources/icons/delete.html" data-kit-model="null"></kit-component>
-                                </div>
-                            </button>
-                        </div>
-                    </div>
-                    <div id="layer-list" ondragover="#model.allowLayerDrop(event)" ondrop="#model.layerDrop(event)">
-                        <kit-array id="layer-list-kit-array" 
-                                   data-kit-array="#model.getLayers()" 
-                                   data-kit-item-ref="layer" 
-                                   data-kit-item-index-ref="layerIndex">
-                            <div data-layer-name="%{#layer.name}%" 
-                                 data-layer-index="%{#layerIndex}%" 
-                                 class="layer-item tool-button" 
-                                 title="%{#layer.name}%" 
-                                 onclick="#model.selectLayer(#layer.name)" 
-                                 draggable="true" 
-                                 ondragstart="#model.layerDrag(event)">
-                                <div class="icon-container">
-                                    <kit-if data-kit-condition="#layer.isHidden">
-                                        <button title="Toggle layer visibility" class="action-text" onclick="#model.showLayer(event, #layer.name);">
-                                            <div class="icon-container">
-                                                <kit-component data-kit-template-path="/resources/icons/layer-hidden.html" data-kit-model="null"></kit-component>
-                                            </div>
-                                        </button>
-                                    </kit-if>
-                                    <kit-if data-kit-condition="!#layer.isHidden">
-                                        <button title="Toggle layer visibility" class="action-text" onclick="#model.hideLayer(event, #layer.name);" data-kit-add-attributes="%{#model.canHideLayer(#layer.name)}%">
-                                            <div class="icon-container">
-                                                <kit-component data-kit-template-path="/resources/icons/layer-visible.html" data-kit-model="null"></kit-component>
-                                            </div>
-                                        </button>
-                                    </kit-if>
-                                </div>
+                <div id="layer-list" kit-element ondragover="#model.allowLayerDrop(event)" ondrop="#model.layerDrop(event)">
+                    <kit-array kit-array="#model.getLayers()"
+                               kit-array-item-alias="layer"
+                               kit-array-item-index-alias="layerIndex">
+                        <div data-layer-name="%{#layer.name}%"
+                             data-layer-index="%{#layerIndex}%"
+                             class="layer-item tool-button"
+                             draggable="true"
+                             ondragstart="#model.layerDrag(event)">
+                            <div title="Set active layer">
+                                <label class="radio-button">
+                                    <input type="radio" 
+                                           name="layers" 
+                                           kit-element 
+                                           kit-attr-add-checked="checked:%{#layer.isActive ? '' : null}%"
+                                           onchange="#model.layerActivated('%{#layer.name}%')" />
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                            <div>
                                 <div class="layer-name-container">
-                                    <label class="layer-name-label">%{#layer.name}%</label>
-                                    <input type="text" maxlength="50" class="layer-name-input" style="display:none;" onblur="#model.editLayer(#layer.name)" />
+                                    <label>%{#layer.displayName}%</label>
                                 </div>
-                                <div class="layer-item-spacer"></div>
-                                <div>
-                                    <button title="Edit layer name" class="action-text" onclick="#model.showEdit(event, #layer.name);">
-                                        <div class="icon-container">
-                                            <kit-component data-kit-template-path="/resources/icons/edit.html" data-kit-model="null"></kit-component>
+                                <kit-if kit-condition="#layer.isActive">
+                                    <div class="active-layer">
+                                        <span>Active layer</span>
+                                    </div>
+                                </kit-if>
+                                <kit-if kit-condition="#layer.isHidden">
+                                    <div title="Hidden" class="icon-container">
+                                        <kit-component kit-template-path="/resources/icons/layer-hidden.html" kit-model="null">
+                                        </kit-component>
+                                    </div>
+                                </kit-if>
+                                <div class="edit-container hide-edit" style="margin-top:4px;padding:4px;">
+                                    <div style="display:flex;">
+                                        <button title="Save layer"
+                                                class="button dialog-button edit-button-ok"
+                                                onclick="#model.editLayer('%{#layer.name}%')">
+                                            Save
+                                        </button>
+                                        <div class="layer-item-spacer"></div>
+                                        <button title="Delete layer"
+                                                class="button dialog-button"
+                                                kit-element
+                                                kit-attr-add-checked="disabled:%{#layer.isActive ? '' : null}%"
+                                                onclick="#model.deleteLayer('%{#layer.name}%');">
+                                            Delete
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <label style="margin-right:15px;">Name:</label>
+                                        <div>
+                                            <div>
+                                                <input type="text"
+                                                       value="%{#layer.name}%"
+                                                       maxlength="30"
+                                                       oninput="#model.validateLayerName('%{#layer.name}%', this)" />
+                                            </div>
+                                            <div class="validation-message is-valid">Layer name is required and must be unique.</div>
                                         </div>
-                                    </button>
-                                </div>
-                                <div class="move-container">
-                                    <button title="Move" class="action-text" style="height:50px;width:30px;" onclick="#model.moveLayer(event, #layer.name);">
-                                        <div class="icon-container">
-                                            <kit-component data-kit-template-path="/resources/icons/move.html" data-kit-model="null"></kit-component>
-                                        </div>
-                                    </button>
+
+                                    </div>
+                                    <div>
+                                        <label>Hidden:</label>
+                                        <label class="checkbox"
+                                               title="%{#layer.isActive ? 'Active layer may not be hidden' : ''}%">
+                                            <input type="checkbox"
+                                                   kit-element
+                                                   kit-attr-add-disabled="disabled:%{#layer.isActive ? '' : null}%"
+                                                   kit-attr-add-checked="checked:%{#layer.isHidden ? '' : null}%" />
+                                            <span class="checkmark"
+                                                  kit-element
+                                                  kit-attr-add-disabled="disabled:%{#layer.isActive ? '' : null}%">
+                                            </span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
-                        </kit-array>
-                    </div>
+                            <div class="layer-item-spacer"></div>
+                            <div>
+                                <button title="Edit layer" 
+                                        class="action-text edit-button" 
+                                        onclick="#model.toggleEdit('%{#layer.name}%')">
+                                    <div class="icon-container">
+                                        <kit-component kit-template-path="/resources/icons/edit.html" kit-model="null">
+                                        </kit-component>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </kit-array>
                 </div>
+                <div class="layer-note">Drag layers to change rendering order.</div>
             </div>
         </section>
-    </kit-if>
-</dialog>
+    </dialog>
+</kit-if>

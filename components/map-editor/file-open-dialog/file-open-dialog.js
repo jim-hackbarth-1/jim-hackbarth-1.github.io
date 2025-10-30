@@ -1,7 +1,6 @@
 ﻿
-import { KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
-import { DomHelper } from "../../shared/dom-helper.js";
 import { EditorModel } from "../editor/editor.js";
+import { DialogHelper } from "../../shared/dialog-helper.js";
 
 export function createModel() {
     return new FileOpenDialogModel();
@@ -10,45 +9,44 @@ export function createModel() {
 class FileOpenDialogModel {
 
     // event handlers
-    async onRenderStart(componentId) {
-        this.componentId = componentId;
+    async init(kitElement) {
+        this.#kitElement = kitElement;
     }
 
-    async onRenderComplete() {
-    }
-
-    // methods
-    #clickHandlerRegistered;
-    showDialog() {
-        const dialog = DomHelper.getElement(this.#componentElement, "dialog");
-        const fileNameElement = DomHelper.getElement(this.#componentElement, "#file-name");
-        fileNameElement.value = "";
-        fileNameElement.disabled = true;
-        DomHelper.getElement(this.#componentElement, "#button-ok").disabled = true;
-        this.#fileHandle = null;
-        this.#fileContents = null;
-        dialog.showModal();
-        if (!this.#clickHandlerRegistered) {
-            dialog.addEventListener('click', function (event) {
-                var rect = dialog.getBoundingClientRect();
-                var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
-                    rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
-                if (!isInDialog) {
-                    dialog.close();
-                }
-            });
+    async onRendered() {
+        if (FileOpenDialogModel.#isVisible) {
+            const fileNameElement = this.#kitElement.querySelector("#file-name");
+            fileNameElement.value = "";
+            fileNameElement.disabled = true;
+            this.#kitElement.querySelector("#button-ok").disabled = true;
+            FileOpenDialogModel.#fileHandle = null;
+            FileOpenDialogModel.#fileContents = null;
+            const dialog = this.#kitElement.querySelector("dialog");
+            const header = this.#kitElement.querySelector("header");
+            this.#dialogHelper = new DialogHelper();
+            this.#dialogHelper.show(dialog, header, this.#onCloseDialog);
         }
     }
 
+    // methods
+    isVisible() {
+        return FileOpenDialogModel.#isVisible;
+    }
+
+    async showDialog() {
+        FileOpenDialogModel.#isVisible = true;
+        await UIKit.renderer.renderKitElement(this.#kitElement);
+    }
+
     closeDialog() {
-        DomHelper.getElement(this.#componentElement, "dialog").close();
+        this.#dialogHelper.close();
     }
 
     async browse(event) {
-        if (this.#hasFileSystemAccess()) {
+        if (FileOpenDialogModel.#hasFileSystemAccess()) {
             let fileHandles = null;
             try {
-                fileHandles = await window.showOpenFilePicker({
+                fileHandles = await UIKit.window.showOpenFilePicker({
                     types: [
                         {
                             description: 'Json Files',
@@ -62,65 +60,63 @@ class FileOpenDialogModel {
             catch {
                 return;
             }
-            this.#fileHandle = fileHandles[0];
-            DomHelper.getElement(this.#componentElement, "#file-name").value = this.#fileHandle.name;
-            DomHelper.getElement(this.#componentElement, "#button-ok").disabled = false;
+            FileOpenDialogModel.#fileHandle = fileHandles[0];
+            this.#kitElement.querySelector("#file-name").value = FileOpenDialogModel.#fileHandle.name;
+            this.#kitElement.querySelector("#button-ok").disabled = false;
         }
         else {
             const clickEvent = new MouseEvent('click', {
                 clientX: event.clientX,
                 clientY: event.clientY
             });
-            DomHelper.getElement(this.#componentElement, "#file-input").dispatchEvent(clickEvent);
-        }
-        
-    }
-
-    onFileSelected() {
-        const appDocument = KitDependencyManager.getDocument();
-        const startCursor = appDocument.body.style.cursor;
-        const file = DomHelper.getElement(this.#componentElement, "#file-input").files[0];
-        if (file) {
-            try {
-                appDocument.body.style.cursor = "wait";
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.#fileContents = e.target.result;
-                    DomHelper.getElement(this.#componentElement, "#file-name").value = file.name;
-                    DomHelper.getElement(this.#componentElement, "#button-ok").disabled = false;
-                };
-                reader.readAsText(file);
-            }
-            finally {
-                appDocument.body.style.cursor = startCursor;
-            }  
+            this.#kitElement.querySelector("#file-input").dispatchEvent(clickEvent);
         }
     }
 
     async buttonOkClicked() {
         this.closeDialog();
-        if (this.#hasFileSystemAccess()) {
-            await KitMessenger.publish(EditorModel.OpenFileRequestTopic, { fileHandle: this.#fileHandle });
+        if (FileOpenDialogModel.#hasFileSystemAccess()) {
+            await UIKit.messenger.publish(EditorModel.OpenFileRequestTopic, { fileHandle: FileOpenDialogModel.#fileHandle });
         }
         else {
-            await KitMessenger.publish(EditorModel.OpenFileRequestTopic, { fileContents: this.#fileContents });
+            await UIKit.messenger.publish(EditorModel.OpenFileRequestTopic, { fileContents: FileOpenDialogModel.#fileContents });
+        }
+    }
+
+    onFileSelected() {
+        const startCursor = UIKit.document.body.style.cursor;
+        const file = this.#kitElement.querySelector("#file-input").files[0];
+        if (file) {
+            try {
+                UIKit.document.body.style.cursor = "wait";
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    FileOpenDialogModel.#fileContents = e.target.result;
+                    this.#kitElement.querySelector("#file-name").value = file.name;
+                    this.#kitElement.querySelector("#button-ok").disabled = false;
+                };
+                reader.readAsText(file);
+            }
+            finally {
+                UIKit.document.body.style.cursor = startCursor;
+            }
         }
     }
 
     // helpers
-    #fileHandle;
-    #fileContents;
+    static #isVisible = false;
+    static #fileHandle = null;
+    static #fileContents = null;
+    #kitElement = null;
+    #dialogHelper = null;
 
-    #componentElementInternal;
-    get #componentElement() {
-        if (!this.#componentElementInternal) {
-            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
-        }
-        return this.#componentElementInternal
+    #onCloseDialog = async () => {
+        FileOpenDialogModel.#isVisible = false;
+        await UIKit.renderer.renderKitElement(this.#kitElement);
     }
 
-    #hasFileSystemAccess() {
-        if ('showSaveFilePicker' in KitDependencyManager.getWindow()) {
+    static #hasFileSystemAccess() {
+        if ('showSaveFilePicker' in UIKit.window) {
             return true;
         }
         return false;

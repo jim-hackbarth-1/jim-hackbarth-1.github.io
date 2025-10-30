@@ -1,0 +1,36 @@
+﻿
+<div style="margin:0;">
+    <link rel="stylesheet" href="/components/map-editor/tool-palettes-dialog/tools-view/tools-view.css" />
+    <div class="detail-section-heading-container">
+        <div class="detail-section-heading-row">
+            <div class="spacer">
+                <h3>Tools</h3>
+            </div>
+            <div>
+                <button title="Add tool" class="button dialog-button" onclick="#model.addTool();">Add tool</button>
+            </div>
+        </div>
+    </div>
+    <div style="padding:10px 10px 0 10px;margin:0;">
+        <div id="tool-list">
+            <kit-if kit-condition="%{!#model.hasTools()}%">
+                <div style="padding:10px;">[No tools]</div>
+            </kit-if>
+            <kit-array kit-array="#model.getTools()" kit-array-item-alias="tool">
+                <div class="tool-item">
+                    <div class="thumbnail">
+                        <svg height="25" width="25" viewBox="0 0 100 100">%{#tool.thumbnailSvgSrc}%</svg>
+                    </div>
+                    <div class="tool-name-container spacer">
+                        <div style="margin:0;padding:0;">
+                            <label class="edit-label" onclick="#model.editTool('%{#tool.id}%')">%{#tool.displayName}%</label>
+                        </div>
+                        <div style="margin:0;padding:0;">
+                            <label class="list-item-note">%{#tool.refNote}%</label>
+                        </div>
+                    </div>
+                </div>
+            </kit-array>
+        </div>
+    </div>
+</div>

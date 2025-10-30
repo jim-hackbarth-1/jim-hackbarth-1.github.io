@@ -19,6 +19,7 @@ class SelectRectangleTool {
     #isSingleSelectionModeOn;
     #isSnapToOverlayModeOn;
     #isMoveCaptionModeOn;
+    #badgePoint;
 
     // methods
     async onActivate(mapWorker) {
@@ -31,6 +32,7 @@ class SelectRectangleTool {
         this.#isArrowPressed = false;
         this.#moveIncrementIteration = 0;
         this.#isToggleSelectionModeOn = false;
+        this.#badgePoint = null;
         this.#initializeToolOptions();  
     }
 
@@ -101,6 +103,12 @@ class SelectRectangleTool {
     #onPointerDown(eventData) {
         if (eventData && eventData.button === 0) {
             this.#pointDown = { x: eventData.offsetX, y: eventData.offsetY };
+            this.#badgePoint = null;
+            const isPointInBadge = this.#isPointInBadge(this.#pointDown);
+            if (isPointInBadge) {
+                this.#badgePoint = this.#pointDown;
+                return;
+            }
             const transformedPoint = this.#transformCanvasPoint(eventData.offsetX, eventData.offsetY);
             this.#selectionUtilities.setActivityState(transformedPoint, this.#isAltSelectModeOn());
             if (this.#selectionUtilities.activityState === "Select") {
@@ -146,22 +154,26 @@ class SelectRectangleTool {
 
     async #onPointerUp(eventData) {
         if (eventData) {
-            if (this.#selectionUtilities.activityState === "Select") {
-                await this.#selectUp(eventData);
+            if (this.#badgePoint) {
+                const endPoint = { x: eventData.offsetX, y: eventData.offsetY };
+                this.#toggleBadge([this.#badgePoint, endPoint]);
             }
-            if (this.#selectionUtilities.activityState === "Move") {
-                this.#selectionUtilities.completeChange(this.#mapWorker, "Move");
-                await this.#mapWorker.renderMap();
+            else {
+                if (this.#selectionUtilities.activityState === "Select") {
+                    this.#selectUp(eventData);
+                }
+                if (this.#selectionUtilities.activityState === "Move") {
+                    this.#selectionUtilities.completeChange(this.#mapWorker, "Move");
+                }
+                if (this.#selectionUtilities.activityState.startsWith("Resize")) {
+                    this.#selectionUtilities.removeExteriorClipPaths(this.#mapWorker);
+                    this.#selectionUtilities.completeChange(this.#mapWorker, "Resize");
+                }
+                if (this.#selectionUtilities.activityState === "Rotate") {
+                    this.#selectionUtilities.completeChange(this.#mapWorker, "Rotate");
+                }
             }
-            if (this.#selectionUtilities.activityState.startsWith("Resize")) {
-                this.#selectionUtilities.removeExteriorClipPaths(this.#mapWorker);
-                this.#selectionUtilities.completeChange(this.#mapWorker, "Resize");
-                await this.#mapWorker.renderMap();
-            }
-            if (this.#selectionUtilities.activityState === "Rotate") {
-                this.#selectionUtilities.completeChange(this.#mapWorker, "Rotate"); 
-                await this.#mapWorker.renderMap();
-            }  
+            await this.#mapWorker.renderMap();
         }
         this.#selectionUtilities.activityState = "Default";
     }
@@ -233,6 +245,16 @@ class SelectRectangleTool {
         }
     }
 
+    #isPointInBadge(point) {
+        const layer = this.#mapWorker.map.getActiveLayer();
+        return layer.areAllPointsInBadge(this.#mapWorker.renderingContext, [point]);
+    }
+
+    #toggleBadge(points) {
+        const layer = this.#mapWorker.map.getActiveLayer();
+        layer.toggleBadge(this.#mapWorker.renderingContext, points);
+    }
+
     #selectDown(eventData) {
         this.#mapWorker.renderingContext.setLineDash([5, 10]);
         this.#pointCurrent = { x: eventData.offsetX, y: eventData.offsetY };
@@ -271,7 +293,6 @@ class SelectRectangleTool {
         const changeSet = this.#selectionUtilities.getSelectionChangeSet(this.#mapWorker, layer.name, oldSelections, newSelections);
         this.#mapWorker.map.completeChangeSet(changeSet);
         this.#selectionUtilities.resetSelectionBounds(this.#mapWorker);
-        await this.#mapWorker.renderMap();
     }
 
     #selectByPoints(scale, translation) {

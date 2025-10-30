@@ -1,19 +1,14 @@
 ﻿
-import { KitDependencyManager } from "../../ui-kit.js";
-
 export function createModel() {
     return new LoadingIndicatorModel();
 }
 
 class LoadingIndicatorModel {
 
-    async onRenderStart(componentId) {
+    async init() {
 
         // initialize
-        this.componentId = componentId;
-
-        const appDocument = KitDependencyManager.getDocument();
-        const style = getComputedStyle(appDocument.documentElement);
+        const style = getComputedStyle(UIKit.document.documentElement);
         const color1 = style.getPropertyValue("--color-primary");
         const color2 = style.getPropertyValue("--color-secondary");
         const color3 = style.getPropertyValue("--color-tertiary");

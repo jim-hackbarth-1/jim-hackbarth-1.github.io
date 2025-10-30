@@ -1,5 +1,5 @@
 ﻿
-import { KitMessenger, KitNavigator, KitRenderer } from "../../ui-kit.js";
+import { UIKit, KitNavigator } from "../../ui-kit.js";
 
 export function createModel() {
     return new NavigationModel();
@@ -7,34 +7,33 @@ export function createModel() {
 
 class NavigationModel {
 
-    async onRenderStart(componentId) {
-        this.componentId = componentId;
-        this.routeName = KitNavigator.getCurrentUrlFragment();
-        KitMessenger.subscribe(KitNavigator.navTopicName, this.componentId, this.onNavigation.name);
+    // event handlers
+    async init(kitElement) {
+        this.#kitElement = kitElement;
+        this.routeName = UIKit.navigator.getHash(UIKit.document.location.href);
+        const elementKey = this.#kitElement.getAttribute("kit-element-key");
+        const subscriber = {
+            elementKey: elementKey,
+            id: `nav-${elementKey}`,
+            object: this,
+            callback: this.onNavigation.name
+        }
+        UIKit.messenger.subscribe(KitNavigator.NavTopic, subscriber);
     }
 
-    async onRenderComplete() {
-        this.setSelectedLink();
+    async onRendered() {
+        this.#setSelectedLink();
     }
 
     onNavigation(url) {
-        this.routeName = KitNavigator.getUrlFragment(url);
-        this.setSelectedLink();
+        this.routeName = UIKit.navigator.getHash(url);
+        this.#setSelectedLink();
     }
 
-    setSelectedLink() {
-        const element = KitRenderer.getComponentElement(this.componentId);
-        const listItems = element.querySelectorAll("li");
-        let currentRouteName = this.routeName;
-        if (!currentRouteName) {
-            currentRouteName = "#home";
-        }
-        for (let i = 0; i < listItems.length; i++) {
-            listItems[i].classList.remove("selected");
-            if ("#" + listItems[i].id === currentRouteName) {
-                listItems[i].classList.add("selected");
-            }
-        }
+    // methods
+    isPresentationView() {
+        const routeName = UIKit.navigator.getHash(UIKit.document.location.href) ?? "";
+        return (routeName == "#presentation-view");
     }
 
     getNavItems() {
@@ -47,9 +46,20 @@ class NavigationModel {
         ];
     }
 
-    isPresentationView() {
-        const routeName = KitNavigator.getCurrentUrlFragment() ?? "";
-        return (routeName == "#presentation-view");
-    }
+    // helpers
+    #kitElement;
 
+    #setSelectedLink() {
+        const listItems = this.#kitElement.querySelectorAll("li");
+        let currentRouteName = this.routeName;
+        if (!currentRouteName) {
+            currentRouteName = "#home";
+        }
+        for (let i = 0; i < listItems.length; i++) {
+            listItems[i].classList.remove("selected");
+            if ("#" + listItems[i].id === currentRouteName) {
+                listItems[i].classList.add("selected");
+            }
+        }
+    }
 }

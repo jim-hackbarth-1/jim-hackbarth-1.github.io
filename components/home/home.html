@@ -1,25 +1,6 @@
 ﻿
 <section class="home-component">
-    <style>
-        @scope (.home-component) {
-            :scope {
-                padding: 10px;
-            }
-
-            #welcome {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-            }
-
-            #logo {
-                height: 180px;
-                width: 180px;
-                margin-bottom: 50px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="/components/home/home.css" />
     <div id="welcome">
         <div>
             <h1>Welcome to Atlas Cooperative</h1>
@@ -27,7 +8,7 @@
         </div>
         <div>
             <div id="logo" title="Atlas Cooperative">
-                <kit-component data-kit-template-path="/resources/icons/logo.html" data-kit-model="null"></kit-component>
+                <kit-component kit-template-path="/resources/icons/logo.html" kit-model="null"></kit-component>
             </div>
         </div>
     </div>

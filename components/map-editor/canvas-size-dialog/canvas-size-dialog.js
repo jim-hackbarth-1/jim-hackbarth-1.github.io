@@ -1,6 +1,6 @@
 ﻿
 import { MapWorkerClient } from "../../../domain/references.js";
-import { KitMessenger, KitRenderer } from "../../../ui-kit.js";
+import { DialogHelper } from "../../shared/dialog-helper.js";
 import { EditorModel } from "../editor/editor.js";
 
 export function createModel() {
@@ -10,49 +10,54 @@ export function createModel() {
 class CanvasSizeDialogModel {
 
     // event handlers
-    async onRenderStart(componentId) {
-        this.componentId = componentId;
+    async init(kitElement) {
+        this.#kitElement = kitElement;
+        
     }
 
-    async onRenderComplete() {
+    async onRendered() {
+        if (CanvasSizeDialogModel.#isVisible) {
+            const currentCanvasSize = MapWorkerClient.getCurrentCanvasSize();
+            this.#kitElement.querySelector("#inputHeight").value = currentCanvasSize.height;
+            this.#kitElement.querySelector("#inputWidth").value = currentCanvasSize.width;
+            const dialog = this.#kitElement.querySelector("dialog");
+            const header = this.#kitElement.querySelector("header");
+            this.#dialogHelper = new DialogHelper();
+            this.#dialogHelper.show(dialog, header, this.#onCloseDialog);
+        }
     }
 
     // methods
-    #clickHandlerRegistered;
+    isVisible() {
+        return CanvasSizeDialogModel.#isVisible;
+    }
+
     async showDialog() {
-        const currentCanvasSize = MapWorkerClient.getCurrentCanvasSize();
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        componentElement.querySelector("#inputHeight").value = currentCanvasSize.height;
-        componentElement.querySelector("#inputWidth").value = currentCanvasSize.width;
-        const dialog = componentElement.querySelector("dialog");
-        dialog.showModal();
-        if (!this.#clickHandlerRegistered) {
-            dialog.addEventListener('click', function (event) {
-                var rect = dialog.getBoundingClientRect();
-                var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
-                    rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
-                if (!isInDialog) {
-                    dialog.close();
-                }
-            });
-            this.#clickHandlerRegistered = true;
-        }
+        CanvasSizeDialogModel.#isVisible = true;
+        await UIKit.renderer.renderKitElement(this.#kitElement);
+    }
+
+    closeDialog = () => {
+        this.#dialogHelper.close();
     }
 
     async onSizeChange() {
         await this.#updateCanvasSize();
     }
 
-    closeDialog() {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        componentElement.querySelector("dialog").close();
+    // helpers
+    static #isVisible = false;
+    #kitElement = null;
+    #dialogHelper = null;
+
+    #onCloseDialog = async () => {
+        CanvasSizeDialogModel.#isVisible = false;
+        await UIKit.renderer.renderKitElement(this.#kitElement);
     }
 
-    // helpers
     async #updateCanvasSize() {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const height = Number(componentElement.querySelector("#inputHeight").value);
-        const width = Number(componentElement.querySelector("#inputWidth").value);
-        await KitMessenger.publish(EditorModel.CanvasResizeRequestTopic, { height: height, width: width });
+        const height = Number(this.#kitElement.querySelector("#inputHeight").value);
+        const width = Number(this.#kitElement.querySelector("#inputWidth").value);
+        await UIKit.messenger.publish(EditorModel.CanvasResizeRequestTopic, { height: height, width: width });
     }
 }

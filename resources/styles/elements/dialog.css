@@ -50,6 +50,7 @@ dialog header {
     color: var(--color-tertiary-container-on);
     background-color: var(--color-tertiary-container);
     z-index: 10;
+    cursor: pointer;
 }
 
 dialog header .icon-container .icon {
@@ -62,6 +63,7 @@ dialog header .icon-container .icon-text {
 }
 
 dialog header h1 {
+    font-size: 20px;
     margin-top: 2px;
     padding-left: 5px;
 }

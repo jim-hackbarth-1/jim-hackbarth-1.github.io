@@ -1,8 +1,6 @@
 ﻿
 import { ChangeType, Map, MapWorkerClient, MapWorkerInputMessageType } from "../../../domain/references.js";
-import { KitMessenger, KitRenderer } from "../../../ui-kit.js";
-import { DomHelper } from "../../shared/dom-helper.js";
-import { EditorModel } from "../editor/editor.js";
+import { DialogHelper } from "../../shared/dialog-helper.js";
 
 export function createModel() {
     return new ZoomDialogModel();
@@ -11,81 +9,65 @@ export function createModel() {
 class ZoomDialogModel {
 
     // event handlers
-    async onRenderStart(componentId) {
-        this.componentId = componentId;
+    async init(kitElement) {
+        this.#kitElement = kitElement;
     }
 
-    async onRenderComplete() {    
-        KitMessenger.subscribe(EditorModel.MapUpdatedNotificationTopic, this.componentId, this.onMapUpdated.name);
-    }
-
-    async onMapUpdated(message) {
-        const map = await MapWorkerClient.getMap();
-        if (map && this.#isVisible) {
-            this.#zoomPercent = map.zoom * 100;
+    async onRendered() {
+        if (ZoomDialogModel.#isVisible) {
+            ZoomDialogModel.#zoomPercent = 100;
+            const map = await MapWorkerClient.getMap();
+            if (map) {
+                ZoomDialogModel.#zoomPercent = map.zoom * 100;
+            }
             this.#displayCurrentZoom();
+            const dialog = this.#kitElement.querySelector("dialog");
+            const header = this.#kitElement.querySelector("header");
+            this.#dialogHelper = new DialogHelper();
+            this.#dialogHelper.show(dialog, header, this.#onCloseDialog);
         }
     }
 
     // methods
-    #clickHandlerRegistered;
-    async showDialog() {
-        this.#isVisible = true;
-        await DomHelper.reRenderElement(this.#componentElement, "kitIfVisible");
-        this.#zoomPercent = 100;
-        const map = await MapWorkerClient.getMap();
-        if (map) {
-            this.#zoomPercent = map.zoom * 100;
-        }
-        this.#displayCurrentZoom();
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const dialog = componentElement.querySelector("dialog");
-        dialog.showModal();
-        if (!this.#clickHandlerRegistered) {
-            const me = this;
-            dialog.addEventListener('click', function (event) {
-                var rect = dialog.getBoundingClientRect();
-                var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
-                    rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
-                if (!isInDialog) {
-                    me.#isVisible = false;
-                    dialog.close();
-                }
-            });
-        }
+    isVisible() {
+        return ZoomDialogModel.#isVisible;
     }
 
-    #isVisible;
-    isVisible() {
-        return this.#isVisible
+    async showDialog() {
+        ZoomDialogModel.#isVisible = true;
+        await UIKit.renderer.renderKitElement(this.#kitElement);
+    }
+
+    closeDialog() {
+        this.#dialogHelper.close();
     }
 
     getZoom() {
-        return parseFloat(this.#zoomPercent).toFixed(0) + "%"
+        return parseFloat(ZoomDialogModel.#zoomPercent).toFixed(0) + "%"
     }
 
     async zoomOut() {
         let zoom = 25;
         switch (true) {
-            case (this.#zoomPercent > 400):
+            case (ZoomDialogModel.#zoomPercent > 400):
                 zoom = 400;
                 break;
-            case (this.#zoomPercent > 200):
+            case (ZoomDialogModel.#zoomPercent > 200):
                 zoom = 200;
                 break;
-            case (this.#zoomPercent > 150):
+            case (ZoomDialogModel.#zoomPercent > 150):
                 zoom = 150;
                 break;
-            case (this.#zoomPercent > 125):
+            case (ZoomDialogModel.#zoomPercent > 125):
                 zoom = 125;
                 break;
-            case (this.#zoomPercent > 100):
+            case (ZoomDialogModel.#zoomPercent > 100):
                 zoom = 100;
                 break;
-            case (this.#zoomPercent > 75):
+            case (ZoomDialogModel.#zoomPercent > 75):
                 zoom = 75;
                 break;
-            case (this.#zoomPercent > 50):
+            case (ZoomDialogModel.#zoomPercent > 50):
                 zoom = 50;
                 break;
         }
@@ -95,25 +77,25 @@ class ZoomDialogModel {
     async zoomIn() {
         let zoom = 400;
         switch (true) {
-            case (this.#zoomPercent < 25):
+            case (ZoomDialogModel.#zoomPercent < 25):
                 zoom = 25;
                 break;
-            case (this.#zoomPercent < 50):
+            case (ZoomDialogModel.#zoomPercent < 50):
                 zoom = 50;
                 break;
-            case (this.#zoomPercent < 75):
+            case (ZoomDialogModel.#zoomPercent < 75):
                 zoom = 75;
                 break;
-            case (this.#zoomPercent < 100):
+            case (ZoomDialogModel.#zoomPercent < 100):
                 zoom = 100;
                 break;
-            case (this.#zoomPercent < 125):
+            case (ZoomDialogModel.#zoomPercent < 125):
                 zoom = 125;
                 break;
-            case (this.#zoomPercent < 150):
+            case (ZoomDialogModel.#zoomPercent < 150):
                 zoom = 150;
                 break;
-            case (this.#zoomPercent < 200):
+            case (ZoomDialogModel.#zoomPercent < 200):
                 zoom = 200;
                 break;
         }
@@ -135,8 +117,8 @@ class ZoomDialogModel {
             numberValue = 400;
         }
         numberValue = numberValue.toFixed(0);
-        this.#zoomPercent = numberValue;
-        let zoom = this.#zoomPercent / 100;
+        ZoomDialogModel.#zoomPercent = numberValue;
+        let zoom = ZoomDialogModel.#zoomPercent / 100;
         zoom = zoom.toFixed(2);
         const map = await MapWorkerClient.getMap();
         MapWorkerClient.postWorkerMessage({
@@ -155,14 +137,13 @@ class ZoomDialogModel {
     }
 
     onZoomBlur() {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        componentElement.querySelector("#zoom-current").value = this.getZoom();
+        this.#kitElement.querySelector("#zoom-current").value = this.getZoom();
     }
 
     async zoomToFit() {
         // get bounds to fit
         const map = await MapWorkerClient.getMap();
-        const boundsToFit = this.#getBoundsToFit(map);
+        const boundsToFit = ZoomDialogModel.#getBoundsToFit(map);
 
         // get canvas size
         const canvasSize = MapWorkerClient.getCurrentCanvasSize();
@@ -202,39 +183,32 @@ class ZoomDialogModel {
                 ]
             }
         });
-        
+
         // display current zoom
-        this.#zoomPercent = zoom * 100;
+        ZoomDialogModel.#zoomPercent = zoom * 100;
         this.#displayCurrentZoom();
     }
 
-    closeDialog() {
-        this.#isVisible = false;
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        componentElement.querySelector("dialog").close();
-    }
-
     // helpers
-    #zoomPercent = 100;
+    static #isVisible = false;
+    static #zoomPercent = 100;
+    #kitElement = null;
+    #dialogHelper = null;
 
-    #componentElementInternal;
-    get #componentElement() {
-        if (!this.#componentElementInternal) {
-            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
-        }
-        return this.#componentElementInternal
+    #onCloseDialog = async () => {
+        ZoomDialogModel.#isVisible = false;
+        await UIKit.renderer.renderKitElement(this.#kitElement);
     }
 
     #displayCurrentZoom() {
-        const zoomInDisabled = this.#zoomPercent === 400;
-        let zoomOutDisabled = this.#zoomPercent === 25;
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        componentElement.querySelector("#zoom-current").value = this.getZoom();
-        componentElement.querySelector("#zoom-in").disabled = zoomInDisabled;
-        componentElement.querySelector("#zoom-out").disabled = zoomOutDisabled;
+        const zoomInDisabled = ZoomDialogModel.#zoomPercent === 400;
+        let zoomOutDisabled = ZoomDialogModel.#zoomPercent === 25;
+        this.#kitElement.querySelector("#zoom-current").value = this.getZoom();
+        this.#kitElement.querySelector("#zoom-in").disabled = zoomInDisabled;
+        this.#kitElement.querySelector("#zoom-out").disabled = zoomOutDisabled;
     }
 
-    #getBoundsToFit(map) {
+    static #getBoundsToFit(map) {
         let xMin = NaN, xMax = NaN, yMin = NaN, yMax = NaN;
         for (const layer of map.layers) {
             for (const mapItemGroup of layer.mapItemGroups) {

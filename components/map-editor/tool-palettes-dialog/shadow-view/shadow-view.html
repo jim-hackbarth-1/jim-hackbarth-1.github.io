@@ -1,0 +1,121 @@
+﻿
+<div style="margin:0;">
+    <link rel="stylesheet" href="/components/map-editor/tool-palettes-dialog/shadow-view/shadow-view.css" />
+    <div class="detail-section-heading-container">
+        <div class="detail-section-heading-row">
+            <div class="spacer" style="margin-bottom:5px;">
+                <h3 style="margin-bottom:5px;">%{#model.getTitle()}%</h3>
+                <div style="display:flex;margin-bottom:0;">
+                    <label class="map-item-template-name"
+                           onclick="#model.editMapItemTemplate()">
+                        %{#model.getMapItemTemplateName()}%
+                    </label>
+                    <kit-if kit-condition="#model.isFromTemplate()">
+                        <label class="map-item-template-name from-template"
+                               style="color:var(--color-secondary-container-on-variant-1)">
+                            (from template)
+                        </label>
+                    </kit-if>
+                </div>
+            </div>
+        </div>
+        <div class="detail-section-heading-row" style="padding-top:0;">
+            <div>
+                <button id="save-button"
+                        title="Save"
+                        class="button dialog-button"
+                        style="width:80px;"
+                        kit-element
+                        kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                        onclick="#model.saveShadow()">
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+    <div kit-element class="tool-palettes-form" style="height:347px;">
+
+        <!-- Blur and Offset -->
+        <div style="display:flex;margin:0;">
+            <div style="margin:0 10px 0 0;">
+                <label class="tool-palettes-dialog-form-label">Blur:</label>
+                <input id="shadow-blur"
+                       type="number"
+                       min="0"
+                       max="100"
+                       kit-element
+                       kit-attr-add-value="value:%{#model.getBlur()}%"
+                       kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                       oninput="#model.validate()"
+                       onkeydown="#dialogModel.onInputKeyDown(event)">
+                <div id="shadow-blur-validation" class="validation-message"></div>
+            </div>
+            <div style="margin:0;">
+                <div style="margin-bottom:0;">
+                    <label class="tool-palettes-dialog-form-label">Offset:</label>
+                </div>
+                <div style="display: flex; margin: 0;">
+                    <div style="margin-right:10px;white-space:nowrap;">
+                        <label class="tool-palettes-dialog-form-label" style="display:inline-block;vertical-align:top;">x:</label>
+                        <input id="shadow-offset-x"
+                               type="number"
+                               min="-100"
+                               max="100"
+                               kit-element
+                               kit-attr-add-value="value:%{#model.getOffsetX()}%"
+                               kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                               oninput="#model.validate()"
+                               onkeydown="#dialogModel.onInputKeyDown(event)">
+                    </div>
+                    <div class="spacer" style="white-space: nowrap;">
+                        <label class="tool-palettes-dialog-form-label" style="display:inline-block;vertical-align:top;">y:</label>
+                        <input id="shadow-offset-y"
+                               type="number"
+                               min="-100"
+                               max="100"
+                               kit-element
+                               kit-attr-add-value="value:%{#model.getOffsetY()}%"
+                               kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                               oninput="#model.validate()"
+                               onkeydown="#dialogModel.onInputKeyDown(event)">
+                    </div>
+                </div>
+                <div>
+                    <div style="margin-left:20px;" id="shadow-offset-validation" class="validation-message"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Color and Rendering order -->
+        <div style="display:flex;">
+            <div style="width:140px;">
+                <label class="tool-palettes-dialog-form-label">Color:</label>
+                <kit-component id="shadow-color"
+                               kit-template-path="/components/map-editor/tool-palettes-dialog/color-view/color-view.html"
+                               kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                               value="%{#model.getColor()}%">
+                </kit-component>
+                <div id="shadow-color-validation" class="validation-message"></div>
+            </div>
+            <div>
+                <label class="tool-palettes-dialog-form-label">Rendering order:</label>
+                <select id="shadow-rendering-order"
+                        kit-element
+                        kit-attr-add-value="value:%{#model.getRenderingOrder()}%"
+                        kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%">
+                    <option value="BelowStrokes"
+                            kit-element
+                            kit-attr-add-selected="selected:%{#model.getRenderingOrder() == 'BelowStrokes' ? '' : null}%">
+                        Below strokes (default)
+                    </option>
+                    <option value="AboveStrokes"
+                            kit-element
+                            kit-attr-add-selected="selected:%{#model.getRenderingOrder() == 'AboveStrokes' ? '' : null}%">
+                        Above strokes
+                    </option>
+                </select>
+                <div id="shadow-rendering-order-validation" class="validation-message"></div>
+            </div>
+        </div>
+    </div>
+</div>

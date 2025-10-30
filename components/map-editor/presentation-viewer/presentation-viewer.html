@@ -1,15 +1,6 @@
 ﻿
-<kit-if data-kit-condition="#model.isPresentationView()">
-    <style>
-        #full-screen-button, #presentation-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-        .hidden {
-            display: none;
-        }
-    </style>
+<kit-if kit-condition="#model.isPresentationView()">
+    <link rel="stylesheet" href="/components/map-editor/presentation-viewer/presentation-viewer.css" />
     <canvas id="presentation-canvas"></canvas>
     <button id="full-screen-button" class="button dialog-button" onclick="#model.toggleFullScreen()">Full screen</button>
 </kit-if>

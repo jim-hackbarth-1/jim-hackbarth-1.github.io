@@ -1,8 +1,7 @@
 ﻿
 import { ChangeType, Map, MapWorkerClient, MapWorkerInputMessageType } from "../../../domain/references.js";
-import { KitMessenger, KitRenderer } from "../../../ui-kit.js";
-import { DomHelper } from "../../shared/dom-helper.js";
 import { EditorModel } from "../editor/editor.js";
+import { DialogHelper } from "../../shared/dialog-helper.js";
 
 export function createModel() {
     return new OverlayDialogModel();
@@ -11,63 +10,59 @@ export function createModel() {
 class OverlayDialogModel {
 
     // event handlers
-    async onRenderStart(componentId) {
-        this.componentId = componentId;
+    async init(kitElement) {
+        this.#kitElement = kitElement;
+        const kitKey = UIKit.renderer.getKitElementKey(this.#kitElement);
+        UIKit.messenger.subscribe(
+            EditorModel.MapUpdatedNotificationTopic,
+            {
+                elementKey: kitKey,
+                id: `${EditorModel.MapUpdatedNotificationTopic}-${kitKey}`,
+                object: this,
+                callback: this.onMapUpdated.name
+            }
+        );
     }
 
-    async onRenderComplete() {
-        KitMessenger.subscribe(EditorModel.MapUpdatedNotificationTopic, this.componentId, this.onMapUpdated.name);
+    async onRendered() {
+        if (OverlayDialogModel.#isVisible) {
+            const map = await MapWorkerClient.getMap();
+            this.#kitElement.querySelector("#inputPattern").value = map.overlay.pattern;
+            this.#kitElement.querySelector("#inputSize").value = map.overlay.size;
+            this.#kitElement.querySelector("#inputColor").value = map.overlay.color;
+            this.#kitElement.querySelector("#inputOpacity").value = map.overlay.opacity * 100;
+            const dialog = this.#kitElement.querySelector("dialog");
+            const header = this.#kitElement.querySelector("header");
+            this.#dialogHelper = new DialogHelper();
+            this.#dialogHelper.show(dialog, header, this.#onCloseDialog);
+        }
     }
 
     async onMapUpdated(message) {
-        const map = await MapWorkerClient.getMap();
-        if (map && this.#isVisible) {
-            const componentElement = KitRenderer.getComponentElement(this.componentId);
-            componentElement.querySelector("#inputPattern").value = map.overlay.pattern;
-            componentElement.querySelector("#inputSize").value = map.overlay.size;
-            componentElement.querySelector("#inputColor").value = map.overlay.color;
-            componentElement.querySelector("#inputOpacity").value = map.overlay.opacity * 100;
+        if (OverlayDialogModel.#isVisible) {
+            //await UIKit.renderer.renderKitElement(this.#kitElement);
         }
     }
 
     // methods
-    #clickHandlerRegistered;
-    async showDialog() {
-        this.#isVisible = true;
-        await DomHelper.reRenderElement(this.#componentElement, "kitIfVisible");
-        const map = await MapWorkerClient.getMap();
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        componentElement.querySelector("#inputPattern").value = map.overlay.pattern;
-        componentElement.querySelector("#inputSize").value = map.overlay.size;
-        componentElement.querySelector("#inputColor").value = map.overlay.color;
-        componentElement.querySelector("#inputOpacity").value = map.overlay.opacity * 100;
-        const dialog = componentElement.querySelector("dialog");
-        dialog.showModal();
-        if (!this.#clickHandlerRegistered) {
-            const me = this;
-            dialog.addEventListener('click', function (event) {
-                var rect = dialog.getBoundingClientRect();
-                var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
-                    rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
-                if (!isInDialog) {
-                    me.#isVisible = false;
-                    dialog.close();
-                }
-            });
-        }
+    isVisible() {
+        return OverlayDialogModel.#isVisible;
     }
 
-    #isVisible;
-    isVisible() {
-        return this.#isVisible
+    async showDialog() {
+        OverlayDialogModel.#isVisible = true;
+        await UIKit.renderer.renderKitElement(this.#kitElement);
+    }
+
+    closeDialog() {
+        this.#dialogHelper.close();
     }
 
     async onOverlayChange() {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        const pattern = componentElement.querySelector("#inputPattern").value;
-        const size = Number(componentElement.querySelector("#inputSize").value);
-        const color = componentElement.querySelector("#inputColor").value;
-        const opacity = (Number(componentElement.querySelector("#inputOpacity").value) / 100).toFixed(2);
+        const pattern = this.#kitElement.querySelector("#inputPattern").value;
+        const size = Number(this.#kitElement.querySelector("#inputSize").value);
+        const color = this.#kitElement.querySelector("#inputColor").value;
+        const opacity = (Number(this.#kitElement.querySelector("#inputOpacity").value) / 100).toFixed(2);
         const overlayData = { pattern: pattern, size: size, color: color, opacity: opacity };
         const map = await MapWorkerClient.getMap();
 
@@ -85,18 +80,13 @@ class OverlayDialogModel {
         });
     }
 
-    closeDialog() {
-        this.#isVisible = false;
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        componentElement.querySelector("dialog").close();
-    }
-
     // helpers
-    #componentElementInternal;
-    get #componentElement() {
-        if (!this.#componentElementInternal) {
-            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
-        }
-        return this.#componentElementInternal
+    static #isVisible = false;
+    #kitElement = null;
+    #dialogHelper = null;
+
+    #onCloseDialog = async () => {
+        OverlayDialogModel.#isVisible = false;
+        await UIKit.renderer.renderKitElement(this.#kitElement);
     }
 }

@@ -1,71 +1,49 @@
 ﻿
-<dialog class="canvas-size-dialog-component">
-    <style>
-        @scope (.canvas-size-dialog-component) {
-            :scope {
-                height: 150px;
-                width: 300px;
-            }
-
-            @media (max-width: 300px), (max-height: 250px) {
-                :scope {
-                    position: absolute;
-                    transform: unset;
-                    top: 0;
-                    bottom: 0;
-                    left: 0;
-                    right: 0;
-                    max-height: 100%;
-                    max-width: 100%;
-                    height: 100%;
-                    width: 100%;
-                    padding-bottom: 50px;
-                }
-            }
-
-            .controls-container {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .controls-container div {
-                margin: 5px;
-            }
-
-            label {
-                display: block;
-            }
-        }
-    </style>
-    <header>
-        <div class="icon-container">
-            <kit-component data-kit-template-path="/resources/icons/view-resize-canvas.html" data-kit-model="null"></kit-component>
-        </div>
-        <div>
-            <h1>Canvas size</h1>
-        </div>
-        <div class="spacer"></div>
-        <div>
-            <button title="Close" class="dialog-close-button" onclick="#model.closeDialog();">
-                <div class="icon-container">
-                    <kit-component data-kit-template-path="/resources/icons/file-close.html" data-kit-model="null"></kit-component>
+<kit-if kit-condition="#model?.isVisible()">
+    <link rel="stylesheet" href="/components/map-editor/canvas-size-dialog/canvas-size-dialog.css" />
+    <dialog id="canvas-size-dialog">
+        <header>
+            <div class="icon-container">
+                <kit-component kit-template-path="/resources/icons/view-resize-canvas.html" kit-model="null"></kit-component>
+            </div>
+            <div>
+                <h1>Canvas size</h1>
+            </div>
+            <div class="spacer"></div>
+            <div>
+                <button title="Close" class="dialog-close-button" onclick="#model.closeDialog();">
+                    <div class="icon-container">
+                        <kit-component kit-template-path="/resources/icons/file-close.html" kit-model="null"></kit-component>
+                    </div>
+                </button>
+            </div>
+        </header>
+        <section>
+            <div class="controls-container">
+                <div>
+                    <label>Height:</label>
+                    <input id="inputHeight" 
+                           title="Height" 
+                           type="number" 
+                           min="100" 
+                           max="10000" 
+                           required 
+                           onchange="#model.onSizeChange()"
+                           autofocus />
+                    <span class="invalid"></span>
                 </div>
-            </button>
-        </div>
-    </header>
-    <section>
-        <div class="controls-container">
-            <div>
-                <label>Height:</label>
-                <input id="inputHeight" title="Height" type="number" min="100" max="10000" required onchange="#model.onSizeChange()" />
-                <span class="invalid"></span>
+                <div>
+                    <label>Width:</label>
+                    <input id="inputWidth" 
+                           title="Width" 
+                           type="number" 
+                           min="100" 
+                           max="10000" 
+                           required 
+                           onchange="#model.onSizeChange()" />
+                    <span class="invalid"></span>
+                </div>
             </div>
-            <div>
-                <label>Width:</label>
-                <input id="inputWidth" title="Width" type="number" min="100" max="10000" required onchange="#model.onSizeChange()" />
-                <span class="invalid"></span>
-            </div>
-        </div>
-    </section>
-</dialog>
+        </section>
+    </dialog>
+</kit-if>

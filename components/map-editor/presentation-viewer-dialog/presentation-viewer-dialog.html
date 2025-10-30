@@ -1,79 +1,44 @@
 ﻿
-<dialog class="presentation-viewer-dialog-component">
-    <style>
-        @scope (.presentation-viewer-dialog-component) {
-            :scope {
-                height: 250px;
-                width: 300px;
-            }
-
-            @media (max-width: 300px), (max-height: 350px) {
-                :scope {
-                    position: absolute;
-                    transform: unset;
-                    top: 0;
-                    bottom: 0;
-                    left: 0;
-                    right: 0;
-                    max-height: 100%;
-                    max-width: 100%;
-                    height: 100%;
-                    width: 100%;
-                    padding-bottom: 50px;
-                }
-            }
-
-            .controls-container {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .controls-container div {
-                margin: 5px;
-            }
-
-            .dialog-button {
-                width: 175px;
-            }
-        }
-    </style>
-    <header>
-        <div class="icon-container">
-            <kit-component data-kit-template-path="/resources/icons/view-read-only-viewer.html" data-kit-model="null"></kit-component>
-        </div>
-        <div>
-            <h1>Presentation viewer</h1>
-        </div>
-        <div class="spacer"></div>
-        <div>
-            <button title="Close" class="action-text" onclick="#model.closeDialog();">
-                <div class="icon-container">
-                    <kit-component data-kit-template-path="/resources/icons/file-close.html" data-kit-model="null"></kit-component>
-                </div>
-            </button>
-        </div>
-    </header>
-    <section>
-        <div class="controls-container">
-            <button id="button-open-viewer-window" class="button dialog-button" onclick="#model.openViewerWindow()">
-                Open viewer window
-            </button>
-        </div>
-        <div class="controls-container">
-            <button id="button-flip-map" class="button dialog-button" onclick="#model.flipMap()">
-                Flip map
-            </button>
-        </div>
-        <div class="controls-container">
-            <button id="button-toggle-captions" class="button dialog-button" onclick="#model.toggleCaptions()">
-                Toggle captions
-            </button>
-        </div>
-        <div class="controls-container">
-            <button id="button-refresh" class="button dialog-button" onclick="#model.refresh()">
-                Refresh
-            </button>
-        </div>
-    </section>
-</dialog>
+<kit-if kit-condition="#model?.isVisible()">
+    <link rel="stylesheet" href="/components/map-editor/presentation-viewer-dialog/presentation-viewer-dialog.css" />
+    <dialog id="presentation-viewer-dialog">
+        <header>
+            <div class="icon-container">
+                <kit-component kit-template-path="/resources/icons/view-read-only-viewer.html" kit-model="null"></kit-component>
+            </div>
+            <div>
+                <h1>Presentation viewer</h1>
+            </div>
+            <div class="spacer"></div>
+            <div>
+                <button title="Close" class="action-text" onclick="#model.closeDialog();">
+                    <div class="icon-container">
+                        <kit-component kit-template-path="/resources/icons/file-close.html" kit-model="null"></kit-component>
+                    </div>
+                </button>
+            </div>
+        </header>
+        <section>
+            <div class="controls-container">
+                <button id="button-open-viewer-window" class="button dialog-button" onclick="#model.openViewerWindow()" autofocus>
+                    Open viewer window
+                </button>
+            </div>
+            <div class="controls-container">
+                <button id="button-flip-map" class="button dialog-button" onclick="#model.flipMap()">
+                    Flip map
+                </button>
+            </div>
+            <div class="controls-container">
+                <button id="button-toggle-captions" class="button dialog-button" onclick="#model.toggleCaptions()">
+                    Toggle captions
+                </button>
+            </div>
+            <div class="controls-container">
+                <button id="button-refresh" class="button dialog-button" onclick="#model.refresh()">
+                    Refresh
+                </button>
+            </div>
+        </section>
+    </dialog>
+</kit-if>

@@ -1,7 +1,5 @@
 ﻿
-import { KitDependencyManager, KitNavigator, KitRenderer } from "../../../ui-kit.js";
 import { MapWorkerClient } from "../../../domain/references.js";
-import { DomHelper } from "../../shared/dom-helper.js";
 
 export function createModel() {
     return new PresentationViewerModel();
@@ -10,107 +8,96 @@ export function createModel() {
 class PresentationViewerModel {
 
     // event handlers
-    async onRenderStart(componentId) {
-        this.componentId = componentId;
+    async init(kitElement) {
+        this.#kitElement = kitElement;
         if (this.isPresentationView()) {
             await this.#startListeningForMessages();
         }
     }
 
-    async onRenderComplete() {
+    async onRendered() {
         if (this.isPresentationView()) {
-            const appWindow = KitDependencyManager.getWindow();
-            appWindow.opener.postMessage({ messageType: "loaded" }, appWindow.location.origin);
+            UIKit.window.opener.postMessage({ messageType: "loaded" }, UIKit.window.location.origin);
         }
     }
 
     // methods
     isPresentationView() {
-        const routeName = KitNavigator.getCurrentUrlFragment() ?? "";
+        const routeName = UIKit.navigator.getHash(UIKit.document.location.href) ?? "";
         return (routeName == "#presentation-view");
     }
 
     async toggleFullScreen() {
-        const appDocument = KitDependencyManager.getDocument();
-        if (!appDocument.fullscreenElement) {
-            appDocument.documentElement.requestFullscreen();
+        if (!UIKit.document.fullscreenElement) {
+            UIKit.document.documentElement.requestFullscreen();
         }
         else {
-            appDocument.exitFullscreen();
+            UIKit.document.exitFullscreen();
         }
         await this.#refresh();
     }
 
     // helpers
-    #messageHandlerRegistered;
-    #flipped;
-    #showCaptions;
-
-    #componentElementInternal;
-    get #componentElement() {
-        if (!this.#componentElementInternal) {
-            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
-        }
-        return this.#componentElementInternal
-    }
-
+    static #messageHandlerRegistered = false;
+    static #flipped = false;
+    static #showCaptions = false;
+    #kitElement = null;
+    
     async #startListeningForMessages() {
-        const appWindow = KitDependencyManager.getWindow();
-        if (!this.#messageHandlerRegistered) {
+        if (!PresentationViewerModel.#messageHandlerRegistered) {
             const me = this;
-            appWindow.addEventListener('message', async (event) => {
-                if (event.origin === appWindow.origin) {
+            UIKit.window.addEventListener('message', async (event) => {
+                if (event.origin === UIKit.window.origin) {
                     switch (event.data.messageType) {
                         case "refresh":
-                            const canvas = DomHelper.getElement(me.#componentElement, "#presentation-canvas");
-                            canvas.setAttribute("width", appWindow.innerWidth );
-                            canvas.setAttribute("height", appWindow.innerHeight);
+                            const canvas = me.#kitElement.querySelector("#presentation-canvas");
+                            canvas.setAttribute("width", UIKit.window.innerWidth );
+                            canvas.setAttribute("height", UIKit.window.innerHeight);
                             await me.#refresh();
                             break;
                         case "flip-map":
-                            me.#flipped = !me.#flipped;
+                            PresentationViewerModel.#flipped = !PresentationViewerModel.#flipped;
                             await me.#refresh();
                             break;
                         case "toggle-captions":
-                            me.#showCaptions = !me.#showCaptions;
+                            PresentationViewerModel.#showCaptions = !PresentationViewerModel.#showCaptions;
                             await me.#refresh();
                             break;
                     }
                 }
             });
-            appWindow.addEventListener('beforeunload', function (event) {
-                appWindow.opener.postMessage({ messageType: "unloading" }, appWindow.location.origin);
+            UIKit.window.addEventListener('beforeunload', function (event) {
+                UIKit.window.opener.postMessage({ messageType: "unloading" }, UIKit.window.location.origin);
             });
             let resizeTimer;
-            appWindow.addEventListener('resize', function (event) {
+            UIKit.window.addEventListener('resize', function (event) {
                 clearTimeout(resizeTimer);
                 resizeTimer = setTimeout(async function () {
-                    const canvas = DomHelper.getElement(me.#componentElement, "#presentation-canvas");
-                    canvas.setAttribute("width", appWindow.innerWidth);
-                    canvas.setAttribute("height", appWindow.innerHeight);
-                    const message = { messageType: "resized", width: appWindow.innerWidth, height: appWindow.innerHeight };
-                    appWindow.opener.postMessage(message, appWindow.location.origin);
+                    const canvas = me.#kitElement.querySelector("#presentation-canvas");
+                    canvas.setAttribute("width", UIKit.window.innerWidth);
+                    canvas.setAttribute("height", UIKit.window.innerHeight);
+                    const message = { messageType: "resized", width: UIKit.window.innerWidth, height: UIKit.window.innerHeight };
+                    UIKit.window.opener.postMessage(message, UIKit.window.location.origin);
                     await me.#refresh();
                 }, 250);
             });
-            this.#messageHandlerRegistered = true;
+            PresentationViewerModel.#messageHandlerRegistered = true;
         }
     }
 
     async #refresh() {
         const map = await MapWorkerClient.getMap(true);
-        const canvas = DomHelper.getElement(this.#componentElement, "#presentation-canvas");
+        const canvas = this.#kitElement.querySelector("#presentation-canvas");
         const context = canvas.getContext("2d");
         const options = {
             updatedViewPort: true,
-            flipped: this.#flipped,
+            flipped: PresentationViewerModel.#flipped,
             presentationView: true,
-            hideCaptions: !this.#showCaptions
+            hideCaptions: !PresentationViewerModel.#showCaptions
         };
         await map.render(canvas, context, options);
-        const appDocument = KitDependencyManager.getDocument();
-        const button = DomHelper.getElement(this.#componentElement, "#full-screen-button");
-        if (appDocument.fullscreenElement) {
+        const button = this.#kitElement.querySelector("#full-screen-button");
+        if (UIKit.document.fullscreenElement) {
             button.classList.add("hidden");
         }
         else {

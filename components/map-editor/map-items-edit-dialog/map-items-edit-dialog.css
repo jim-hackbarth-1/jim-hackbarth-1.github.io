@@ -1,0 +1,286 @@
+﻿
+@scope (#map-items-edit-dialog) {
+    :scope {
+        height: 650px;
+        width: 660px;
+    }
+
+    @media (max-width: 660px), (max-height: 750px) {
+        :scope {
+            position: absolute;
+            transform: unset;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-height: 100%;
+            max-width: 100%;
+            height: 100%;
+            width: 100%;
+        }
+    }
+
+    #map-items-section {
+        padding: 0;
+        margin: 0;
+    }
+
+    .controls-container {
+        display: flex;
+    }
+
+    #actions-container {
+        background-color: var(--color-primary-container);
+        position: fixed;
+        overflow-y: auto;
+        top: 0;
+        bottom: 0;
+        z-index: 10;
+        padding: 10px 0 10px 0;
+        margin: 42px 0 0 0;
+        width: var(--map-items-edit-actions-width);
+        color: var(--color-primary-container-on);
+        border-right: 2px solid var(--color-outline);
+    }
+
+    #actions-heading-container {
+        display: flex;
+        margin: 0;
+        padding: 0;
+    }
+
+    #actions-heading-container .action-text {
+        min-width: 25px;
+        margin-left: 5px;
+        margin-right: 15px;
+    }
+
+    #map-items-list-and-detail-container {
+        padding: 10px;
+        margin-left: var(--map-items-edit-actions-width);
+        flex-grow: 4;
+    }
+
+    ul {
+        margin: 0;
+        padding: 0;
+    }
+
+    li {
+        margin: 0;
+        display: flex;
+        height: 40px;
+    }
+
+    .selected-action-indicator {
+        min-width: 10px;
+        padding: 0;
+        height: 100%;
+    }
+
+    li.selected .selected-action-indicator {
+        background-color: var(--color-primary-container-on-variant-1);
+    }
+
+    li .icon-container,
+    .action-item-label {
+        margin-top: 10px;
+    }
+
+    li .icon-container {
+        min-width: 20px;
+        margin-right: 10px;
+    }
+
+    .action-text {
+        color: var(--color-primary-container-on);
+    }
+
+    .action-text .icon {
+        stroke: var(--color-primary-container-on);
+    }
+
+    .action-text .icon-text {
+        stroke: var(--color-primary-container-on);
+        fill: var(--color-primary-container-on);
+    }
+
+    .action-text[disabled] {
+        color: var(--color-primary-container-on-disabled);
+    }
+
+    .action-text[disabled] .icon {
+        stroke: var(--color-primary-container-on-disabled);
+    }
+
+    .action-text[disabled] .icon-text {
+        stroke: var(--color-primary-container-on-disabled);
+        fill: var(--color-primary-container-on-disabled);
+    }
+
+    .action-text:not([disabled]):hover {
+        color: var(--color-primary-container-on-variant-2);
+    }
+
+    .action-text:not([disabled]):hover .icon {
+        stroke: var(--color-primary-container-on-variant-2);
+    }
+
+    .action-text:not([disabled]):hover .icon-text {
+        stroke: var(--color-primary-container-on-variant-2);
+        fill: var(--color-primary-container-on-variant-2);
+    }
+
+    li.selected:not([disabled]) {
+        color: var(--color-primary-container-on-variant-1);
+    }
+
+    li.selected:not([disabled]) .icon {
+        stroke: var(--color-primary-container-on-variant-1);
+    }
+
+    li.selected:not([disabled]) .icon-text {
+        stroke: var(--color-primary-container-on-variant-1);
+        fill: var(--color-primary-container-on-variant-1);
+    }
+
+    #map-items-command-row {
+        display: flex;
+        margin: 0;
+        margin-left: 12px;
+    }
+
+    #filter-description {
+        font-size: x-small;
+        margin-top: auto;
+    }
+
+    #map-items-check-all-container {
+        margin-right: 10px;
+    }
+
+    #map-item-list-container {
+        border-radius: 3px;
+        border: 1px solid;
+        border-color: var(--color-outline);
+        overflow-y: auto;
+        height: 250px;
+        background-color: var(--color-surface-container);
+        width: 100%
+    }
+
+    #no-map-items-message {
+        margin: 5px;
+    }
+
+    .list-item-row {
+        display: flex;
+        margin-bottom: 0;
+    }
+
+    .list-item-row > div {
+        padding: 5px 5px 0 5px;
+        margin: 0;
+    }
+
+    .list-item-text-container, .list-item-text-container > div {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        margin: 0;
+    }
+
+    .thumbnail {
+        border: 1px solid;
+        border-color: var(--color-outline);
+    }
+
+    .caption {
+        font-size: smaller;
+        opacity: 0.8;
+        margin-bottom: 5px;
+    }
+
+    .list-item-details-link {
+        font-size: xx-small;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+    .list-item-details-container {
+        border-radius: 3px;
+        border: 1px solid;
+        border-color: var(--color-outline);
+        margin: 0 5px 5px 0;
+    }
+
+    .list-item-details-row {
+        display: flex;
+        margin-bottom: 2px;
+    }
+
+    .list-item-details-sub-section-label {
+        text-decoration: underline;
+        font-size: xx-small;
+        margin-bottom: 2px;
+    }
+
+    .list-item-details-label {
+        font-size: xx-small;
+        font-weight: bolder;
+    }
+
+    .list-item-details-value {
+        font-size: xx-small;
+        margin-right: 10px
+    }
+
+    .hidden-details {
+        display: none;
+    }
+
+    .map-items-edit-detail-form-container {
+        border-radius: 3px;
+        border: 1px solid;
+        border-color: var(--color-outline);
+        padding: 10px;
+        background-color: var(--color-secondary-container);
+        color: var(--color-secondary-container-on);
+    }
+
+    .map-items-edit-detail-form-container .checkbox-container {
+        min-height: 25px;
+    }
+
+    .map-items-edit-detail-form-container .checkmark {
+        background-color: var(--color-surface-container);
+    }
+
+    .map-item-edit-form-label {
+        display: block;
+        font-size: x-small;
+    }
+
+    .map-item-edit-form-flex-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom:0;
+    }
+
+    .map-item-edit-form-flex-row > div {
+        margin-right: 10px;
+    }
+
+    .button-control-group {
+        display: flex;
+        max-width: 25px;
+        margin: 0;
+        margin-left: 20px;
+        padding: 0;
+    }
+
+    .button-control-group div {
+        margin: 0;
+        padding: 0;
+    }
+}

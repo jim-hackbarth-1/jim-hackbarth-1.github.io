@@ -1,5 +1,5 @@
 ﻿
-import { KitMessenger, KitNavigator, KitRenderer } from "../../ui-kit.js";
+import { KitNavigator } from "../../ui-kit.js";
 
 export function createModel() {
     return new ContentModel();
@@ -7,26 +7,44 @@ export function createModel() {
 
 class ContentModel {
 
-    async onRenderStart(componentId) {
-        this.componentId = componentId;
-        this.routeName = KitNavigator.getCurrentUrlFragment() ?? "";
-        KitMessenger.subscribe(KitNavigator.navTopicName, this.componentId, this.onNavigation.name);
+    // properties
+    routeName;
+
+    // event handlers
+    async init(kitElement) {
+        this.#kitElement = kitElement;
+        this.routeName = UIKit.navigator.getHash(UIKit.document.location.href) ?? "";
+        const elementKey = this.#kitElement.getAttribute("kit-element-key");
+        const subscriber = {
+            elementKey: elementKey,
+            id: `nav-${elementKey}`,
+            object: this,
+            callback: this.onNavigation.name
+        };
+        UIKit.messenger.subscribe(KitNavigator.NavTopic, subscriber);
     }
 
-    async onRenderComplete() {
+    async onRendered() {
         if (!this.isPresentationView()) {
-            const element = KitRenderer.getComponentElement(this.componentId);
-            element.querySelector("#loading-indicator-container").classList.add("hide");
+            this.#kitElement.querySelector("#loading-indicator-container").classList.add("hide");
         }
     }
 
     async onNavigation(url) {
-        this.routeName = KitNavigator.getUrlFragment(url) ?? "";
-        await KitRenderer.renderComponent(this.componentId);
+        this.routeName = UIKit.navigator.getHash(url) ?? "";
+        await UIKit.renderer.renderKitElement(this.#kitElement);
     }
 
+    // methods
     isPresentationView() {
-        const routeName = KitNavigator.getCurrentUrlFragment() ?? "";
+        const routeName = UIKit.navigator.getHash(UIKit.document.location.href) ?? "";
         return (routeName == "#presentation-view");
     }
+
+    onCssLoaded() {
+        this.#kitElement.querySelector(".content-component").classList.remove("css-not-loaded");
+    }
+
+    // helpers
+    #kitElement;
 }

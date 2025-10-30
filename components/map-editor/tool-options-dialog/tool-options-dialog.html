@@ -1,53 +1,10 @@
 ﻿
-<dialog class="tool-options-dialog-component">
-    <kit-if id="kitIfVisible" data-kit-condition="#model.isVisible()">
-        <style>
-            @scope (.tool-options-dialog-component) {
-                :scope {
-                    height: 500px;
-                    width: 400px;
-                }
-
-                @media (max-width: 400px), (max-height: 600px) {
-                    :scope {
-                        position: absolute;
-                        transform: unset;
-                        top: 0;
-                        bottom: 0;
-                        left: 0;
-                        right: 0;
-                        max-height: 100%;
-                        max-width: 100%;
-                        height: 100%;
-                        width: 100%;
-                        padding-bottom: 50px;
-                    }
-                }
-
-                #tool-option-list {
-                    height: 390px;
-                    overflow-y: auto;
-                    padding: 2px;
-                    border: 1px solid var(--color-outline);
-                    border-radius: 3px;
-                    background-color: var(--color-surface-container);
-                }
-
-                .radio-button, .checkbox, .command {
-                    margin: 10px;
-                    font-weight: normal;
-                    display: flex;
-                }
-
-                .command, .command label {
-                    margin: 0;
-                    cursor: pointer;
-                }
-            }
-        </style>
+<kit-if kit-condition="#model?.isVisible()">
+    <dialog id="tool-options-dialog">
+        <link rel="stylesheet" href="/components/map-editor/tool-options-dialog/tool-options-dialog.css" />
         <header>
             <div class="icon-container">
-                <kit-component data-kit-template-path="/resources/icons/tool-options.html" data-kit-model="null"></kit-component>
+                <kit-component kit-template-path="/resources/icons/tool-options.html" kit-model="null"></kit-component>
             </div>
             <div>
                 <h1>Tool options</h1>
@@ -56,7 +13,7 @@
             <div>
                 <button title="Close" class="action-text" onclick="#model.closeDialog();">
                     <div class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/file-close.html" data-kit-model="null"></kit-component>
+                        <kit-component kit-template-path="/resources/icons/file-close.html" kit-model="null"></kit-component>
                     </div>
                 </button>
             </div>
@@ -66,20 +23,20 @@
                 <label>Tool options:</label>
             </div>
             <div id="tool-option-list">
-                <kit-array data-kit-array="#model.getToolOptions()" data-kit-item-ref="toolOption">
-                    <kit-if data-kit-condition="#toolOption.typeName == 'StatesToolOption'">
+                <kit-array kit-array="#model.getToolOptions()" kit-array-item-alias="toolOption">
+                    <kit-if kit-condition="#toolOption.typeName == 'StatesToolOption'">
                         <div class="tool-button" title="%{#toolOption.description ?? #toolOption.label}%">
                             <label>%{#toolOption.label}%</label>
-                            <kit-array data-kit-array="#toolOption.states" data-kit-item-ref="toolOptionState">
+                            <kit-array kit-array="#toolOption.states" kit-array-item-alias="toolOptionState">
                                 <label class="radio-button" title="%{#toolOptionState.description}%">
-                                    <input 
-                                           type="radio" 
+                                    <input type="radio"
                                            id="tool-option-radio-%{#toolOption.name}%-%{#toolOptionState.name}%"
                                            name="%{#toolOption.name}%"
                                            value="%{#toolOptionState.name}%"
-                                           data-kit-add-attributes="%{#model.isToolOptionStateChecked(#toolOption.name, #toolOptionState.name)}%"
-                                           onclick="#model.setStatesToolOption(#toolOption.name, this)"
-                                           />
+                                           kit-element
+                                           kit-attr-add-checked="checked:%{#model.isToolOptionStateChecked(
+                                                #toolOption.name, #toolOptionState.name) ? '' : null}%"
+                                           onclick="#model.setStatesToolOption(#toolOption.name, this)" />
                                     <span class="checkmark"></span>
                                     <span>%{#toolOptionState.label}%</span>
                                     <span class="spacer"></span>
@@ -88,13 +45,14 @@
                             </kit-array>
                         </div>
                     </kit-if>
-                    <kit-if data-kit-condition="#toolOption.typeName == 'BooleanToolOption'">
+                    <kit-if kit-condition="#toolOption.typeName == 'BooleanToolOption'">
                         <div class="tool-button" title="%{#toolOption.description ?? #toolOption.label}%">
                             <label>%{#toolOption.label}%</label>
                             <label class="checkbox">
                                 <input type="checkbox"
                                        id="tool-option-checkbox-%{#toolOption.name}%"
-                                       data-kit-add-attributes="%{#model.isToolOptionChecked(#toolOption.name)}%"
+                                       kit-element
+                                       kit-attr-add-checked="checked:%{#model.isToolOptionChecked(#toolOption.name) ? '' : null}%"
                                        onclick="#model.setBooleanToolOption(#toolOption.name, this)" />
                                 <span class="checkmark"></span>
                                 <span>Enabled</span>
@@ -103,9 +61,8 @@
                             </label>
                         </div>
                     </kit-if>
-                    <kit-if data-kit-condition="#toolOption.typeName == 'ToolOption'">
-                        <div 
-                             class="tool-button" 
+                    <kit-if kit-condition="#toolOption.typeName == 'ToolOption'">
+                        <div class="tool-button"
                              title="%{#toolOption.description ?? #toolOption.label}%"
                              onclick="#model.applyToolOption(#toolOption.name)">
                             <label class="command">
@@ -118,5 +75,5 @@
                 </kit-array>
             </div>
         </section>
-    </kit-if>
-</dialog>
+    </dialog>
+</kit-if>

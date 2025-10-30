@@ -1,0 +1,19 @@
+﻿
+@scope (.content-component) {
+    :scope {
+        margin-top: 60px;
+        margin-left: calc(var(--app-nav-left) + var(--app-nav-width-expanded));
+        transition: margin-left 0.5s;
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        overflow: auto;
+        border-top: 1px solid var(--color-outline);
+    }
+
+    .hide {
+        display: none;
+    }
+}

@@ -1,68 +1,35 @@
 ﻿
-<dialog class="file-open-dialog-component">
-    <style>
-        @scope (.file-open-dialog-component) {
-            :scope {
-                height: 200px;
-                width: 600px;
-            }
-
-            @media (max-width: 600px), (max-height: 300px) {
-                :scope {
-                    position: absolute;
-                    transform: unset;
-                    top: 0;
-                    bottom: 0;
-                    left: 0;
-                    right: 0;
-                    max-height: 100%;
-                    max-width: 100%;
-                    height: 100%;
-                    width: 100%;
-                    padding-bottom: 50px;
-                }
-            }
-
-            #file-container {
-                display: flex;
-            }
-
-            #file-name {
-                flex-grow: 4;
-            }
-
-            #browse {
-                margin-left: 5px;
-            }
-        }
-    </style>
-    <header>
-        <div class="icon-container">
-            <kit-component data-kit-template-path="/resources/icons/file-open.html" data-kit-model="null"></kit-component>
-        </div>
-        <div>
-            <h1>Open map</h1>
-        </div>
-        <div class="spacer"></div>
-        <div>
-            <button title="Close" class="action-text" onclick="#model.closeDialog();">
-                <div class="icon-container">
-                    <kit-component data-kit-template-path="/resources/icons/file-close.html" data-kit-model="null"></kit-component>
-                </div>
-            </button>
-        </div>
-    </header>
-    <section>
-        <div>
-            <label>Choose file path:</label>
-        </div>
-        <div id="file-container">
-            <input id="file-name" type="text" placeholder="file name" disabled />
-            <input id="file-input" type="file" accept=".json" onchange="#model.onFileSelected()" />
-            <button id="browse" class="button dialog-button" title="browse" onclick="#model.browse(event)">...</button>
-        </div>
-        <div>
-            <button id="button-ok" class="button dialog-button" title="OK" onclick="#model.buttonOkClicked();" disabled>OK</button>
-        </div>
-    </section>
-</dialog>
+<kit-if kit-condition="#model?.isVisible()">
+    <link rel="stylesheet" href="/components/map-editor/file-open-dialog/file-open-dialog.css" />
+    <dialog id="file-open-dialog">
+        <header>
+            <div class="icon-container">
+                <kit-component kit-template-path="/resources/icons/file-open.html" kit-model="null"></kit-component>
+            </div>
+            <div>
+                <h1>Open map</h1>
+            </div>
+            <div class="spacer"></div>
+            <div>
+                <button title="Close" class="action-text" onclick="#model.closeDialog();">
+                    <div class="icon-container">
+                        <kit-component kit-template-path="/resources/icons/file-close.html" kit-model="null"></kit-component>
+                    </div>
+                </button>
+            </div>
+        </header>
+        <section>
+            <div>
+                <label>Choose file path:</label>
+            </div>
+            <div id="file-container">
+                <input id="file-name" type="text" placeholder="file name" disabled />
+                <input id="file-input" type="file" accept=".json" onchange="#model.onFileSelected()" />
+                <button id="browse" class="button dialog-button" title="browse" onclick="#model.browse(event)" autofocus>...</button>
+            </div>
+            <div>
+                <button id="button-ok" class="button dialog-button" title="OK" onclick="#model.buttonOkClicked();" disabled>OK</button>
+            </div>
+        </section>
+    </dialog>
+</kit-if>

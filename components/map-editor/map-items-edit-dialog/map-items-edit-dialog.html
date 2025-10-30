@@ -1,0 +1,530 @@
+﻿
+<kit-if kit-condition="#model?.isVisible()">
+    <link rel="stylesheet" href="/components/map-editor/map-items-edit-dialog/map-items-edit-dialog.css" />
+    <dialog id="map-items-edit-dialog">
+        <header>
+            <div class="icon-container">
+                <kit-component kit-template-path="/resources/icons/edit-map-items-edit.html" kit-model="null"></kit-component>
+            </div>
+            <div>
+                <h1>Edit map items</h1>
+            </div>
+            <div class="spacer"></div>
+            <div>
+                <button title="Close" class="dialog-close-button" onclick="#model.closeDialog();">
+                    <div class="icon-container">
+                        <kit-component kit-template-path="/resources/icons/file-close.html" kit-model="null"></kit-component>
+                    </div>
+                </button>
+            </div>
+        </header>
+        <section id="map-items-section" kit-element>
+            <div class="controls-container">
+                <div id="actions-container">
+                    <div id="actions-heading-container">
+                        <button class="action-text" onclick="#model.toggleActionsPanel()" title="Toggle actions panel">
+                            <kit-component kit-template-path="/resources/icons/nav-toggle.html" kit-model="null"></kit-component>
+                        </button>
+                        <label id="map-items-edit-actions-label">Actions</label>
+                    </div>
+                    <ul>
+                        <li class="action-text %{#model.isSelectedActionClass('map-items-edit-detail-find')}%" 
+                            onclick="#model.selectAction('map-items-edit-detail-find', this)">
+                            <div class="selected-action-indicator"></div>
+                            <div class="icon-container" title="Find map items">
+                                <kit-component kit-template-path="/resources/icons/find.html" kit-model="null"></kit-component>
+                            </div>
+                            <div class="action-item-label">Find map items</div>
+                        </li>
+                        <li class="action-text %{#model.isSelectedActionClass('map-items-edit-detail-select')}%"
+                            kit-element
+                            kit-attr-add-disabled="disabled:%{#model.getNoMapItemsDisabledAttr()}%"
+                            onclick="#model.selectAction('map-items-edit-detail-select', this)">
+                            <div class="selected-action-indicator"></div>
+                            <div class="icon-container" title="Select / unselect">
+                                <kit-component kit-template-path="/resources/icons/edit-select-all-in-view.html" kit-model="null">
+                                </kit-component>
+                            </div>
+                            <div class="action-item-label">Select / unselect</div>
+                        </li>
+                        <li class="action-text %{#model.isSelectedActionClass('map-items-edit-detail-captions')}%"
+                            kit-element
+                            kit-attr-add-disabled="disabled:%{#model.getNoMapItemsDisabledAttr()}%"
+                            onclick="#model.selectAction('map-items-edit-detail-captions', this)">
+                            <div class="selected-action-indicator"></div>
+                            <div class="icon-container" title="Edit captions">
+                                <kit-component kit-template-path="/resources/icons/caption-edit.html" kit-model="null"></kit-component>
+                            </div>
+                            <div class="action-item-label">Edit captions</div>
+                        </li>
+                        <li class="action-text %{#model.isSelectedActionClass('map-items-edit-detail-rendering-order')}%"
+                            kit-element
+                            kit-attr-add-disabled="disabled:%{#model.getNoMapItemsDisabledAttr()}%"
+                            onclick="#model.selectAction('map-items-edit-detail-rendering-order', this)">
+                            <div class="selected-action-indicator"></div>
+                            <div class="icon-container" title="Rendering order">
+                                <kit-component kit-template-path="/resources/icons/rendering-order.html" kit-model="null">
+                                </kit-component>
+                            </div>
+                            <div class="action-item-label">Rendering order</div>
+                        </li>
+                        <li class="action-text %{#model.isSelectedActionClass('map-items-edit-detail-grouping')}%" 
+                            kit-element
+                            kit-attr-add-disabled="disabled:%{#model.getNoMapItemsDisabledAttr()}%"
+                            onclick="#model.selectAction('map-items-edit-detail-grouping', this)">
+                            <div class="selected-action-indicator"></div>
+                            <div class="icon-container" title="Grouping">
+                                <kit-component kit-template-path="/resources/icons/grouping.html" kit-model="null"></kit-component>
+                            </div>
+                            <div class="action-item-label">Grouping</div>
+                        </li>
+                        <li class="action-text %{#model.isSelectedActionClass('map-items-edit-detail-presentation-view')}%"
+                            kit-element
+                            kit-attr-add-disabled="disabled:%{#model.getNoMapItemsDisabledAttr()}%"
+                            onclick="#model.selectAction('map-items-edit-detail-presentation-view', this)">
+                            <div class="selected-action-indicator"></div>
+                            <div class="icon-container" title="Presentation view">
+                                <kit-component kit-template-path="/resources/icons/view-read-only-viewer.html" kit-model="null">
+                                </kit-component>
+                            </div>
+                            <div class="action-item-label">Presentation view</div>
+                        </li>
+                        <li class="action-text %{#model.isSelectedActionClass('map-items-edit-detail-map-item-template')}%"
+                            kit-element
+                            kit-attr-add-disabled="disabled:%{#model.getNoMapItemsDisabledAttr()}%"
+                            onclick="#model.selectAction('map-items-edit-detail-map-item-template', this)">
+                            <div class="selected-action-indicator"></div>
+                            <div class="icon-container" title="Map item template">
+                                <kit-component kit-template-path="/resources/icons/map-item-template.html" kit-model="null">
+                                </kit-component>
+                            </div>
+                            <div class="action-item-label">Map item template</div>
+                        </li>
+                        <li class="action-text %{#model.isSelectedActionClass('map-items-edit-detail-delete')}%"
+                            kit-element
+                            kit-attr-add-disabled="disabled:%{#model.getNoMapItemsDisabledAttr()}%"
+                            onclick="#model.selectAction('map-items-edit-detail-delete', this)">
+                            <div class="selected-action-indicator"></div>
+                            <div class="icon-container" title="Delete map items">
+                                <kit-component kit-template-path="/resources/icons/edit-delete.html" kit-model="null"></kit-component>
+                            </div>
+                            <div class="action-item-label">Delete map items</div>
+                        </li>
+                    </ul>
+                </div>
+                <div id="map-items-list-and-detail-container">
+                    <div>
+                        <div id="map-items-command-row">
+                            <div id="map-items-check-all-container" title="Check / un-check all">
+                                <label class="checkbox">
+                                    <input id="toggle-selection-checkbox" type="checkbox" onclick="#model.toggleSelections(this)" />
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                            <div><label>Map items</label></div>
+                            <div class="spacer"></div>
+                            <div id="filter-description">Filters: %{#model.getFilterDescription()}%</div>
+                        </div>
+                        <div id="map-item-list-container">
+                            <kit-if kit-condition="#model.noMapItems()">
+                                <div id="no-map-items-message">[No map items]</div>
+                            </kit-if>
+                            <kit-array kit-array="#model.getMapItems()" kit-array-item-alias="mapItem">
+                                <div class="tool-button">
+                                    <div class="list-item-row">
+                                        <div class="checkbox-container" title="Select">
+                                            <label class="checkbox">
+                                                <input data-map-item-id="%{#mapItem.id}%"
+                                                       data-map-item-group-id="%{#mapItem.mapItemGroupId}%"
+                                                       class="data-list-item-checkbox"
+                                                       type="checkbox"
+                                                       kit-element
+                                                       kit-attr-add-checked="checked:%{#mapItem.isCheckedAttr}%"
+                                                       onclick="#model.toggleSelection(#mapItem.id)" />
+                                                <span class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div>
+                                            <img class="thumbnail" 
+                                                 height="25" 
+                                                 width="25"
+                                                 kit-element 
+                                                 kit-attr-add-src="src:%{#mapItem.thumbnailSrc}%"/>
+                                        </div>
+                                        <div class="list-item-text-container">
+                                            <div>%{#mapItem.templateName}%</div>
+                                            <div class="caption">
+                                                <kit-if kit-condition="#mapItem.hasCaption">%{#mapItem.caption}%</kit-if>
+                                            </div>
+                                        </div>
+                                        <div class="spacer"></div>
+                                        <div>
+                                            <div class="badge-container">
+                                                <kit-if kit-condition="#mapItem.isHidden">
+                                                    <div class="icon-container" title="Hidden">
+                                                        <kit-component kit-template-path="/resources/icons/hidden.html"
+                                                                       kit-model="null">
+                                                        </kit-component>
+                                                    </div>
+                                                </kit-if>
+                                                <kit-if kit-condition="#mapItem.isShown">
+                                                    <div class="icon-container" title="Shown">
+                                                        <kit-component kit-template-path="/resources/icons/shown.html"
+                                                                       kit-model="null">
+                                                        </kit-component>
+                                                    </div>
+                                                </kit-if>
+                                            </div>
+                                            <div class="list-item-details-link" onclick="#model.toggleDetails(#mapItem.id)">
+                                                Details
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="map-item-details-row-%{#mapItem.id}%" class="list-item-row hidden-details">
+                                        <div class="spacer"></div>
+                                        <div class="list-item-details-container">
+                                            <div class="list-item-details-sub-section-label">location</div>
+                                            <div class="list-item-details-row">
+                                                <div class="list-item-details-label">x:</div>
+                                                <div class="list-item-details-value">%{#mapItem.location.x}%</div>
+                                                <div class="list-item-details-label">y:</div>
+                                                <div class="list-item-details-value">%{#mapItem.location.y}%</div>
+                                                <div class="list-item-details-label">height:</div>
+                                                <div class="list-item-details-value">%{#mapItem.location.height}%</div>
+                                                <div class="list-item-details-label">width:</div>
+                                                <div class="list-item-details-value">%{#mapItem.location.width}%</div>
+                                            </div>
+                                            <div class="list-item-details-sub-section-label">rendering order</div>
+                                            <div class="list-item-details-row">
+                                                <div class="list-item-details-label">z-group:</div>
+                                                <div class="list-item-details-value">%{#mapItem.zGroup}%</div>
+                                                <div class="list-item-details-label">z-order:</div>
+                                                <div class="list-item-details-value">%{#mapItem.zOrder}%</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </kit-array>
+                        </div>
+                    </div>
+                    <div id="map-items-detail-container" kit-element>
+                        <kit-if kit-condition="#model.getSelectedAction() == 'map-items-edit-detail-find'">
+                            <div class="map-items-edit-detail-form-container">
+                                <div>
+                                    <h3>Find map items</h3>
+                                </div>
+                                <div class="map-item-edit-form-flex-row">
+                                    <div>
+                                        <label class="map-item-edit-form-label">Map item template name:</label>
+                                        <input id="find-map-item-template-name" 
+                                               type="text" 
+                                               onkeydown="#model.onInputKeyDown(event)"
+                                               value="%{#model.getFilter().mapItemTemplateName}%" />
+                                    </div>
+                                    <div>
+                                        <label class="map-item-edit-form-label">Caption:</label>
+                                        <input id="find-caption" 
+                                               type="text" 
+                                               onkeydown="#model.onInputKeyDown(event)"
+                                               value="%{#model.getFilter().caption}%" />
+                                    </div>
+                                    
+                                </div>
+                                <div>
+                                    <div>
+                                        <label class="map-item-edit-form-label">Selected:</label>
+                                        <div title="Selected" class="checkbox-container">
+                                            <label class="checkbox">
+                                                <input id="find-selected" 
+                                                       type="checkbox" 
+                                                       kit-element 
+                                                       kit-attr-add-checked="checked:%{#model.getFilter().isSelectedAttr}%" />
+                                                <span class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <button class="button dialog-button" onclick="#model.applyFilter()">Apply filter</button>
+                                </div>
+                            </div>
+                        </kit-if>
+                        <kit-if kit-condition="#model.getSelectedAction() == 'map-items-edit-detail-select'">
+                            <div class="map-items-edit-detail-form-container">
+                                <div>
+                                    <h3>Select / unselect</h3>
+                                </div>
+                                <div class="map-item-edit-form-flex-row">
+                                    <div>
+                                        <button class="button dialog-button"
+                                                style="width:100px"
+                                                kit-element
+                                                kit-attr-add-disabled="disabled:%{#model.getHasCheckedItemsDisabledAttr()}%"
+                                                onclick="#model.toggleMapItemSelection(true)">
+                                            Select
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <button class="button dialog-button" 
+                                                style="width:100px"
+                                                kit-element
+                                                kit-attr-add-disabled="disabled:%{#model.getHasCheckedItemsDisabledAttr()}%"
+                                                onclick="#model.toggleMapItemSelection(false)">Unselect</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </kit-if>
+                        <kit-if kit-condition="#model.getSelectedAction() == 'map-items-edit-detail-captions'">
+                            <div class="map-items-edit-detail-form-container">
+                                <div>
+                                    <h3>Edit captions</h3>
+                                </div>
+                                <div class="map-item-edit-form-flex-row">
+                                    <div>
+                                        <label class="map-item-edit-form-label">Caption text:</label>
+                                        <input id="edit-caption-text" type="text" onkeydown="#model.onInputKeyDown(event)" />
+                                    </div>
+                                    <div style="margin-top:auto;">
+                                        <button class="button dialog-button"
+                                                kit-element
+                                                kit-attr-add-disabled="disabled:%{#model.getHasCheckedItemsDisabledAttr()}%"
+                                                onclick="#model.updateCaptionText()">
+                                            Update caption text
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="map-item-edit-form-flex-row">
+                                    <div>
+                                        <button class="button dialog-button"
+                                                style="width:85px;"
+                                                kit-element
+                                                kit-attr-add-disabled="disabled:%{#model.getHasCheckedItemsDisabledAttr()}%"
+                                                onclick="#model.toggleCaptionVisibility(true)">
+                                            Show captions
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <button class="button dialog-button"
+                                                style="width:85px;"
+                                                kit-element
+                                                kit-attr-add-disabled="disabled:%{#model.getHasCheckedItemsDisabledAttr()}%"
+                                                onclick="#model.toggleCaptionVisibility(false)">
+                                            Hide captions
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </kit-if>
+                        <kit-if kit-condition="#model.getSelectedAction() == 'map-items-edit-detail-rendering-order'">
+                            <div class="map-items-edit-detail-form-container">
+                                <div>
+                                    <h3>Rendering order</h3>
+                                </div>
+                                <div class="map-item-edit-form-flex-row">
+                                    <div>
+                                        <label class="map-item-edit-form-label">Z-group:</label>
+                                        <input id="rendering-group-edit"
+                                               onkeydown="#model.onInputKeyDown(event)"
+                                               type="number"
+                                               min="-10"
+                                               max="10"
+                                               value="0" />
+                                    </div>
+                                    <div style="margin-top:auto;">
+                                        <button class="button dialog-button"
+                                                kit-element
+                                                kit-attr-add-disabled="disabled:%{#model.getHasCheckedItemsDisabledAttr()}%"
+                                                onclick="#model.updateZGroup()">
+                                            Update z-group
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="map-item-edit-form-label">Z-order (within group):</label>
+                                </div>
+                                <div class="map-item-edit-form-flex-row">
+                                    <div>
+                                        <label class="map-item-edit-form-label" style="justify-self:center;">Send to back</label>
+                                        <button class="button dialog-button"
+                                                title="Send to back"
+                                                style="width:80px;"
+                                                kit-element
+                                                kit-attr-add-disabled="disabled:%{#model.getHasCheckedItemsDisabledAttr()}%"
+                                                onclick="#model.updateZOrder('SendToBack')">
+                                            <div class="button-control-group">
+                                                <div class="icon-container">
+                                                    <kit-component kit-template-path="/resources/icons/send-to-back.html"
+                                                                   kit-model="null">
+                                                    </kit-component>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <label class="map-item-edit-form-label" style="justify-self:center;">Send back</label>
+                                        <button class="button dialog-button"
+                                                title="Send back"
+                                                style="width:80px;"
+                                                kit-element
+                                                kit-attr-add-disabled="disabled:%{#model.getHasCheckedItemsDisabledAttr()}%"
+                                                onclick="#model.updateZOrder('SendBack')">
+                                            <div class="button-control-group">
+                                                <div class="icon-container">
+                                                    <kit-component kit-template-path="/resources/icons/send-back.html"
+                                                                   kit-model="null">
+                                                    </kit-component>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <label class="map-item-edit-form-label" style="justify-self:center;">Bring forward</label>
+                                        <button class="button dialog-button"
+                                                title="Bring forward"
+                                                style="width:80px;"
+                                                kit-element
+                                                kit-attr-add-disabled="disabled:%{#model.getHasCheckedItemsDisabledAttr()}%"
+                                                onclick="#model.updateZOrder('BringForward')">
+                                            <div class="button-control-group">
+                                                <div class="icon-container">
+                                                    <kit-component kit-template-path="/resources/icons/bring-forward.html"
+                                                                   kit-model="null">
+                                                    </kit-component>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <label class="map-item-edit-form-label" style="justify-self:center;">Bring to front</label>
+                                        <button class="button dialog-button"
+                                                title="Bring to front"
+                                                style="width:80px;"
+                                                kit-element
+                                                kit-attr-add-disabled="disabled:%{#model.getHasCheckedItemsDisabledAttr()}%"
+                                                onclick="#model.updateZOrder('BringToFront')">
+                                            <div class="button-control-group">
+                                                <div class="icon-container">
+                                                    <kit-component kit-template-path="/resources/icons/bring-to-front.html"
+                                                                   kit-model="null">
+                                                    </kit-component>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </kit-if>
+                        <kit-if kit-condition="#model.getSelectedAction() == 'map-items-edit-detail-grouping'">
+                            <div class="map-items-edit-detail-form-container">
+                                <div>
+                                    <h3>Grouping</h3>
+                                </div>
+                                <div class="map-item-edit-form-flex-row">
+                                    <div>
+                                        <button class="button dialog-button"
+                                                style="width:80px;"
+                                                kit-element
+                                                kit-attr-add-disabled="disabled:%{#model.getHasCheckedItemsDisabledAttr()}%"
+                                                onclick="#model.group()">
+                                            Group
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <button class="button dialog-button"
+                                                style="width:80px;"
+                                                kit-element
+                                                kit-attr-add-disabled="disabled:%{#model.getHasCheckedItemsDisabledAttr()}%"
+                                                onclick="#model.unGroup()">
+                                            Ungroup
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </kit-if>
+                        <kit-if kit-condition="#model.getSelectedAction() == 'map-items-edit-detail-presentation-view'">
+                            <div class="map-items-edit-detail-form-container">
+                                <div>
+                                    <h3>Presentation view</h3>
+                                </div>
+                                <div class="map-item-edit-form-flex-row">
+                                    <div>
+                                        <button class="button dialog-button"
+                                                style="width:80px;"
+                                                kit-element
+                                                kit-attr-add-disabled="disabled:%{#model.getHasCheckedItemsDisabledAttr()}%"
+                                                onclick="#model.togglePresentationView(false)">
+                                            Show
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <button class="button dialog-button"
+                                                style="width:80px;"
+                                                kit-element
+                                                kit-attr-add-disabled="disabled:%{#model.getHasCheckedItemsDisabledAttr()}%"
+                                                onclick="#model.togglePresentationView(true)">
+                                            Hide
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <button class="button dialog-button"
+                                                style="width:80px;"
+                                                kit-element
+                                                kit-attr-add-disabled="disabled:%{#model.getHasCheckedItemsDisabledAttr()}%"
+                                                onclick="#model.togglePresentationView(null)">
+                                            Unset
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </kit-if>
+                        <kit-if kit-condition="#model.getSelectedAction() == 'map-items-edit-detail-map-item-template'">
+                            <div class="map-items-edit-detail-form-container">
+                                <div>
+                                    <h3>Map item template</h3>
+                                </div>
+                                <div>
+                                    <label class="map-item-edit-form-label">Template:</label>
+                                    <select id="edit-template-select" style="width:100%">
+                                        <kit-array kit-array="#model.getTemplates()" kit-array-item-alias="template">
+                                            <option title="%{#template.name}%" value="%{#template.id}%">
+                                                %{#template.displayName}%
+                                            </option>
+                                        </kit-array>
+                                    </select>
+                                </div>
+                                <div>
+                                    <div>
+                                        <button class="button dialog-button"
+                                                kit-element
+                                                kit-attr-add-disabled="disabled:%{#model.getHasCheckedItemsDisabledAttr()}%"
+                                                onclick="#model.updateTemplate()">
+                                            Update template
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </kit-if>
+                        <kit-if kit-condition="#model.getSelectedAction() == 'map-items-edit-detail-delete'">
+                            <div class="map-items-edit-detail-form-container">
+                                <div>
+                                    <h3>Delete map items</h3>
+                                </div>
+                                <div>
+                                    <div>
+                                        <button class="button dialog-button"
+                                                style="width:80px;"
+                                                kit-element
+                                                kit-attr-add-disabled="disabled:%{#model.getHasCheckedItemsDisabledAttr()}%"
+                                                onclick="#model.delete()">
+                                            Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </kit-if>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </dialog>
+</kit-if>

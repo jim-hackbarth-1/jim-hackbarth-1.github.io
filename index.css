@@ -38,9 +38,9 @@ body {
     color: var(--color-background-on);
 }
 
-kit-array:not([data-kit-component-id]),
-kit-component:not([data-kit-component-id]),
-kit-if:not([data-kit-component-id]) {
+kit-array:not([kit-element-key]),
+kit-component:not([kit-element-key]),
+kit-if:not([kit-element-key]) {
     display: none;
 }
 

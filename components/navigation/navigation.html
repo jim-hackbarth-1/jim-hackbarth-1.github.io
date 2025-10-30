@@ -1,118 +1,16 @@
 ﻿
-<kit-if data-kit-condition="!#model.isPresentationView()">
+<kit-if kit-condition="!#model.isPresentationView()">
+    <link rel="stylesheet" href="/components/navigation/navigation.css" />
     <nav class="navigation-component surface-primary">
-        <style>
-            @scope (.navigation-component) {
-                :scope {
-                    position: fixed;
-                    left: var(--app-nav-left);
-                    width: var(--app-nav-width-expanded);
-                    top: 60px;
-                    bottom: 0;
-                    background: linear-gradient(180deg, var(--color-primary-container) 25%, hsl(from var(--color-primary-container) h s 30%) 100%);
-                    transition: left 0.5s, width 0.5s;
-                    overflow: hidden;
-                    border-right: 1px solid var(--color-outline);
-                }
-
-                .action-text {
-                    color: var(--color-primary-container-on);
-                }
-
-                .icon {
-                    stroke: var(--color-primary-container-on);
-                }
-
-                .icon-text {
-                    stroke: var(--color-primary-container-on);
-                    fill: var(--color-primary-container-on);
-                }
-
-                .action-text[disabled] {
-                    color: var(--color-primary-container-on-disabled);
-                }
-
-                .action-text[disabled] .icon {
-                    stroke: var(--color-primary-container-on-disabled);
-                }
-
-                .action-text[disabled] .icon-text {
-                    stroke: var(--color-primary-container-on-disabled);
-                    fill: var(--color-primary-container-on-disabled);
-                }
-
-                .action-text:not([disabled]):hover {
-                    color: var(--color-primary-container-on-variant-2);
-                }
-
-                .action-text:not([disabled]):hover .icon {
-                    stroke: var(--color-primary-container-on-variant-2);
-                }
-
-                .action-text:not([disabled]):hover .icon-text {
-                    stroke: var(--color-primary-container-on-variant-2);
-                    fill: var(--color-primary-container-on-variant-2);
-                }
-
-                li.selected .action-text:not([disabled]) {
-                    color: var(--color-primary-container-on-variant-1);
-                }
-
-                li.selected .action-text:not([disabled]) .icon {
-                    stroke: var(--color-primary-container-on-variant-1);
-                }
-
-                li.selected .action-text:not([disabled]) .icon-text {
-                    stroke: var(--color-primary-container-on-variant-1);
-                    fill: var(--color-primary-container-on-variant-1);
-                }
-
-                li {
-                    display: flex;
-                }
-
-                .link-content {
-                    display: flex;
-                    white-space: nowrap;
-                    align-items: center;
-                    padding: 2px;
-                }
-
-                .icon-container {
-                    min-height: 30px;
-                    min-width: 30px;
-                    margin: 2px;
-                }
-
-                .link-text {
-                    padding-left: 10px;
-                }
-
-                .selected-link-indicator {
-                    min-width: 10px;
-                    align-self: stretch;
-                }
-
-                li.selected .selected-link-indicator {
-                    background-color: var(--color-primary-container-on-variant-1);
-                }
-
-                @media (max-width: 768px) {
-                    .link-text {
-                        display: none;
-                    }
-                }
-            }
-        </style>
         <ul>
-            <kit-array data-kit-array="#model.getNavItems()" data-kit-item-ref="navItem">
+            <kit-array kit-array="#model.getNavItems()" kit-array-item-alias="navItem">
                 <li id="%{#navItem.id}%">
                     <div class="selected-link-indicator"></div>
                     <div>
                         <a href="#%{#navItem.id}%" title="%{#navItem.label}%" class="action-text">
                             <div class="link-content">
                                 <div class="icon-container">
-                                    <kit-component data-kit-template-path="/resources/icons/%{#navItem.id}%.html" data-kit-model="null"></kit-component>
+                                    <kit-component kit-template-path="/resources/icons/%{#navItem.id}%.html" kit-model="null"></kit-component>
                                 </div>
                                 <div class="link-text">%{#navItem.label}%</div>
                             </div>

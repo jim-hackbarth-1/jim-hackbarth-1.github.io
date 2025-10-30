@@ -1,77 +1,44 @@
 ﻿
-<dialog class="file-save-dialog-component">
-    <style>
-        @scope (.file-save-dialog-component) {
-            :scope {
-                height: 200px;
-                width: 600px;
-            }
-
-            @media (max-width: 600px), (max-height: 300px) {
-                :scope {
-                    position: absolute;
-                    transform: unset;
-                    top: 0;
-                    bottom: 0;
-                    left: 0;
-                    right: 0;
-                    max-height: 100%;
-                    max-width: 100%;
-                    height: 100%;
-                    width: 100%;
-                    padding-bottom: 50px;
-                }
-            }
-
-            #file-container {
-                display: flex;
-            }
-
-            #file-name {
-                flex-grow: 4;
-            }
-
-            #browse {
-                margin-left: 5px;
-            }
-        }
-    </style>
-    <header>
-        <div class="icon-container">
-            <kit-component data-kit-template-path="/resources/icons/file-save.html" data-kit-model="null"></kit-component>
-        </div>
-        <div>
-            <h1>Save map</h1>
-        </div>
-        <div class="spacer"></div>
-        <div>
-            <button title="Close" class="action-text" onclick="#model.closeDialog();">
-                <div class="icon-container">
-                    <kit-component data-kit-template-path="/resources/icons/file-close.html" data-kit-model="null"></kit-component>
+<kit-if kit-condition="#model?.isVisible()">
+    <link rel="stylesheet" href="/components/map-editor/file-save-dialog/file-save-dialog.css" />
+    <dialog id="file-save-dialog">
+        <header>
+            <div class="icon-container">
+                <kit-component kit-template-path="/resources/icons/file-save.html" kit-model="null"></kit-component>
+            </div>
+            <div>
+                <h1>Save map</h1>
+            </div>
+            <div class="spacer"></div>
+            <div>
+                <button title="Close" class="action-text" onclick="#model.closeDialog();">
+                    <div class="icon-container">
+                        <kit-component kit-template-path="/resources/icons/file-close.html" kit-model="null"></kit-component>
+                    </div>
+                </button>
+            </div>
+        </header>
+        <section>
+            <kit-if kit-condition="#model.hasFileSystemAccess()">
+                <div>
+                    <label>Choose file path:</label>
                 </div>
-            </button>
-        </div>
-    </header>
-    <section>
-        <kit-if data-kit-condition="#model.hasFileSystemAccess()">
+                <div id="file-container">
+                    <input id="file-name" type="text" placeholder="file name" disabled />
+                    <button id="browse" class="button dialog-button" title="browse" onclick="#model.browse()" autofocus>...</button>
+                </div>
+            </kit-if>
+            <kit-if kit-condition="!#model.hasFileSystemAccess()">
+                <div>
+                    <label>Choose file name:</label>
+                </div>
+                <div id="file-container">
+                    <input id="file-name" type="text" placeholder="file name" onchange="#model.onFileNameChanged()" />
+                </div>
+            </kit-if>
             <div>
-                <label>Choose file path:</label>
+                <button id="button-ok" class="button dialog-button" title="OK" onclick="#model.buttonOkClicked();" disabled>OK</button>
             </div>
-            <div id="file-container">
-                <input id="file-name" type="text" placeholder="file name" disabled />
-                <button id="browse" class="button dialog-button" title="browse" onclick="#model.browse()">...</button>
-            </div>
-        </kit-if>
-        <kit-if data-kit-condition="!#model.hasFileSystemAccess()">
-            <div>
-                <label>Choose file name:</label>
-            </div>
-            <div id="file-container">
-                <input id="file-name" type="text" placeholder="file name" onchange="#model.onFileNameChanged()" />
-            </div>
-        </kit-if>
-        <div>
-            <button id="button-ok" class="button dialog-button" title="OK" onclick="#model.buttonOkClicked();" disabled>OK</button>
-        </div>
-    </section>
-</dialog>
+        </section>
+    </dialog>
+</kit-if>

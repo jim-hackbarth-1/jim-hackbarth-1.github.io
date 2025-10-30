@@ -1,0 +1,190 @@
+﻿
+<div style="margin:0;">
+    <link rel="stylesheet" href="/components/map-editor/tool-palettes-dialog/caption-view/caption-view.css" />
+    <div class="detail-section-heading-container">
+        <div class="detail-section-heading-row">
+            <div class="spacer" style="margin-bottom:5px;">
+                <h3 style="margin-bottom:5px;">%{#model.getTitle()}%</h3>
+                <div style="display:flex;margin-bottom:0;">
+                    <label class="map-item-template-name"
+                           onclick="#model.editMapItemTemplate()">
+                        %{#model.getMapItemTemplateName()}%
+                    </label>
+                    <kit-if kit-condition="#model.isFromTemplate()">
+                        <label class="map-item-template-name from-template"
+                               style="color:var(--color-secondary-container-on-variant-1)">
+                            (from template)
+                        </label>
+                    </kit-if>
+                </div>
+            </div>
+        </div>
+        <div class="detail-section-heading-row" style="padding-top:0;">
+            <div>
+                <button id="save-button"
+                        title="Save"
+                        class="button dialog-button"
+                        style="width:80px;"
+                        kit-element
+                        kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                        onclick="#model.saveCaption()">
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+    <div kit-element class="tool-palettes-form" style="height:347px;">
+
+        <!-- Default text, Opacity -->
+        <div style="display: flex; flex-wrap:wrap; margin:0;">
+            <div class="spacer">
+                <label class="tool-palettes-dialog-form-label">Default text:</label>
+                <input id="caption-default-text"
+                       value="%{#model.getDefaultText()}%"
+                       type="text"
+                       style="width:100%;"
+                       placeholder="[Default text]"
+                       maxlength="30"
+                       kit-element
+                       kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                       oninput="#model.validate()"
+                       onkeydown="#dialogModel.onInputKeyDown(event)">
+                <div id="caption-default-text-validation" class="validation-message"></div>
+            </div>
+            <div style="margin: 0 0 0 10px;">
+                <label class="tool-palettes-dialog-form-label">Opacity (%):</label>
+                <input id="caption-opacity"
+                       type="number"
+                       min="0"
+                       max="100"
+                       kit-element
+                       kit-attr-add-value="value:%{#model.getOpacity()}%"
+                       kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                       oninput="#model.validate()"
+                       onkeydown="#dialogModel.onInputKeyDown(event)">
+                <div id="caption-opacity-validation" class="validation-message"></div>
+            </div>
+        </div>
+
+        <!-- Font, Font variant caps -->
+        <div style="display: flex; flex-wrap: wrap;">
+            <div class="spacer" style="margin:0 10px 0 0;">
+                <label class="tool-palettes-dialog-form-label">Font:</label>
+                <input id="caption-font"
+                       value="%{#model.getFont()}%"
+                       type="text"
+                       style="width:100%;"
+                       placeholder="[e.g. 12px Arial, sans-serif]"
+                       maxlength="60"
+                       kit-element
+                       kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                       oninput="#model.validate()"
+                       onkeydown="#dialogModel.onInputKeyDown(event)">
+                <div id="caption-font-validation" class="validation-message"></div>
+            </div>
+            <div style="margin:0;">
+                <label class="tool-palettes-dialog-form-label">Font variant caps:</label>
+                <select id="caption-font-variant-caps"
+                        kit-element
+                        kit-attr-add-value="value:%{#model.getFontVariantCaps()}%"
+                        kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%">
+                    <option value="normal"
+                            kit-element
+                            kit-attr-add-selected="selected:%{#model.getFontVariantCaps() == 'normal' ? '' : null}%">
+                        Normal
+                    </option>
+                    <option value="small-caps"
+                            kit-element
+                            kit-attr-add-selected="selected:%{#model.getFontVariantCaps() == 'small-caps' ? '' : null}%">
+                        Small caps
+                    </option>
+                    <option value="all-small-caps"
+                            kit-element
+                            kit-attr-add-selected="selected:%{#model.getFontVariantCaps() == 'all-small-caps' ? '' : null}%">
+                        All small caps
+                    </option>
+                    <option value="petite-caps"
+                            kit-element
+                            kit-attr-add-selected="selected:%{#model.getFontVariantCaps() == 'petite-caps' ? '' : null}%">
+                        Petite caps (smaller than small caps)
+                    </option>
+                    <option value="all-petite-caps"
+                            kit-element
+                            kit-attr-add-selected="selected:%{#model.getFontVariantCaps() == 'all-petite-caps' ? '' : null}%">
+                        All petite caps (smaller than small caps)
+                    </option>
+                    <option value="unicase"
+                            kit-element
+                            kit-attr-add-selected="selected:%{#model.getFontVariantCaps() == 'unicase' ? '' : null}%">
+                        Unicase
+                    </option>
+                    <option value="titling-caps"
+                            kit-element
+                            kit-attr-add-selected="selected:%{#model.getFontVariantCaps() == 'titling-caps' ? '' : null}%">
+                        Titling cap
+                    </option>
+                </select>
+                <div id="caption-font-variant-caps-validation" class="validation-message"></div>
+            </div>
+        </div>
+
+        <!-- Color, Outline color -->
+        <div style="display: flex; margin: 0;">
+            <div style="width:140px;">
+                <label class="tool-palettes-dialog-form-label">Color:</label>
+                <kit-component id="caption-color"
+                               kit-template-path="/components/map-editor/tool-palettes-dialog/color-view/color-view.html"
+                               kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                               value="%{#model.getColor()}%">
+                </kit-component>
+                <div id="caption-color-validation" class="validation-message"></div>
+            </div>
+            <div>
+                <label class="tool-palettes-dialog-form-label">Outline color:</label>
+                <kit-component id="caption-outline-color"
+                               kit-template-path="/components/map-editor/tool-palettes-dialog/color-view/color-view.html"
+                               kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                               value="%{#model.getOutlineColor()}%">
+                </kit-component>
+                <div id="caption-outline-color-validation" class="validation-message"></div>
+            </div>
+        </div>
+
+        <!-- Nav links -->
+        <div style="display: flex; flex-wrap: wrap;justify-content:space-between; margin: 25px 0 0 0;">
+            <div style="margin: 5px 0 0 0;">
+                <button title="Add/edit background"
+                        style="width: 100px;"
+                        class="button link-button"
+                        onclick="#model.editBackground()">
+                    Background
+                </button>
+            </div>
+            <div style="margin: 5px 0 0 0;">
+                <button title="Add/edit border"
+                        style="width: 100px;"
+                        class="button link-button"
+                        onclick="#model.editBorder()">
+                    Border
+                </button>
+            </div>
+            <div style="margin: 5px 0 0 0;">
+                <button title="Edit shadow"
+                        style="width: 100px;"
+                        class="button link-button"
+                        onclick="#model.editShadow()">
+                    Shadow
+                </button>
+            </div>
+            <div style="margin: 5px 0 0 0;">
+                <button title="Edit text shadow"
+                        style="width: 100px;"
+                        class="button link-button"
+                        onclick="#model.editTextShadow()">
+                    Text shadow
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>

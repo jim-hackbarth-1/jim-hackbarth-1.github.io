@@ -1,361 +1,63 @@
 ﻿
 <section class="editor-component">
-    <style>
-        @scope (.editor-component) {
-            :scope {
-                display: flex;
-                flex-direction: column;
-                position: absolute;
-                left: 0;
-                right: 0;
-                top: 0;
-                bottom: 0;
-            }
-
-            .button-content {
-                display: flex;
-                white-space: nowrap;
-                align-items: center;
-                padding: 2px;
-            }
-
-            .spacer {
-                flex-grow: 4;
-            }
-            /* menu - start */
-            .action-text {
-                color: var(--color-secondary-container-on);
-            }
-
-            .action-text .icon {
-                stroke: var(--color-secondary-container-on);
-            }
-
-            .action-text .icon-text {
-                stroke: var(--color-secondary-container-on);
-                fill: var(--color-secondary-container-on);
-            }
-
-            .action-text[disabled] {
-                color: var(--color-secondary-container-on-disabled);
-            }
-
-            .action-text[disabled] .icon {
-                stroke: var(--color-secondary-container-on-disabled);
-            }
-
-            .action-text[disabled] .icon-text {
-                stroke: var(--color-secondary-container-on-disabled);
-                fill: var(--color-secondary-container-on-disabled);
-            }
-
-            .action-text:not([disabled]):hover {
-                color: var(--color-secondary-container-on-variant-2);
-            }
-
-            .action-text:not([disabled]):hover .icon {
-                stroke: var(--color-secondary-container-on-variant-2);
-            }
-
-            .action-text:not([disabled]):hover .icon-text {
-                stroke: var(--color-secondary-container-on-variant-2);
-                fill: var(--color-secondary-container-on-variant-2);
-            }
-
-            #menu, #toolbar {
-                display: flex;
-                flex-direction: row;
-                background-color: var(--color-secondary-container);
-            }
-
-            #menu, #toolbar {
-                border-bottom: 1px solid var(--color-outline);
-            }
-
-            .dropdown-content {
-                display: none;
-                position: absolute;
-                min-width: 160px;
-                margin-left: 8px;
-                padding-right: 5px;
-                border-bottom: 1px solid var(--color-outline);
-                border-left: 1px solid var(--color-outline);
-                border-right: 1px solid var(--color-outline);
-                z-index: 1;
-                background-color: var(--color-secondary-container);
-            }
-
-            .dropdown-content button {
-                display: flex;
-                padding: 3px;
-            }
-
-            .dropdown-content a {
-                margin: 10px;
-                display: block;
-            }
-
-            .dropdown-content hr {
-                border: none;
-                height: 1px;
-                margin-left: 10px;
-                margin-right: 10px;
-                background-color: var(--color-outline);
-            }
-
-            .top-menu-item {
-                padding: 10px;
-            }
-
-            .button-text {
-                padding-left: 10px;
-            }
-
-            .show {
-                display: block;
-            }
-            /* menu - end */
-            /* toolbar - start */
-            #toolbar {
-                padding-left: 5px;
-                flex-wrap: wrap;
-            }
-
-            #toolbar .toolbar-group {
-                padding-right: 5px;
-            }
-
-            #toolbar .group-divider {
-                border-right: 1px dotted var(--color-outline);
-                width: 1px;
-                height: 15px;
-                margin-right: -10px;
-                display: inline-block;
-            }
-
-            #divActiveLayer {
-                padding-bottom: 5px;
-            }
-            /* toolbar - end */
-            /* tools - start */
-            #tools-and-map {
-                display: flex;
-                height: 100%;
-                overflow: hidden;
-            }
-
-            #tools {
-                flex: 0 0 var(--editor-tool-width);
-                background-color: var(--color-surface-container);
-                border-right: 1px solid var(--color-outline);
-                display: none;
-                margin-left: var(--editor-tool-left);
-                transition: margin-left 0.5s;
-            }
-
-            #pinned-icon {
-                transform: rotate(90deg);
-            }
-
-            #pinned-icon.pinned {
-                transform: unset;
-            }
-
-            #edit-tool-palettes-button {
-                padding-right: 5px;
-            }
-
-            #tools.has-map {
-                display: block;
-            }
-
-            #tools header {
-                display: flex;
-                padding: 5px;
-                border-top: 1px solid var(--color-outline);
-            }
-
-            #tools-header {
-                background-color: var(--color-secondary-container);
-                font-weight: bolder;
-                border-bottom: 3px double var(--color-outline);
-            }
-
-            .tool-types {
-                padding-bottom: 20px;
-            }
-
-            .tool-types header {
-                background-color: var(--color-secondary-container);
-                border-bottom: 1px solid var(--color-outline);
-            }
-
-            .tool-types section {
-                padding-right: 1px;
-            }
-
-            .tool-palette {
-                display: flex;
-            }
-
-            .tool-button {
-                background-color: var(--color-secondary-container);
-                padding: 4px;
-                border-radius: 3px;
-                border: 1px solid var(--color-outline);
-                margin: 1px 0 0 1px;
-                cursor: pointer;
-                color: var(--color-secondary-container-on);
-            }
-
-            .tool-button label {
-                cursor: pointer;
-            }
-
-            .tool-button .icon {
-                stroke: var(--color-secondary-container-on);
-                stroke-width: 4px;
-            }
-
-            .tool-button .icon-text {
-                stroke: var(--color-secondary-container-on);
-                fill: var(--color-secondary-container-on);
-            }
-
-            .tool-button:hover {
-                color: var(--color-primary-on);
-                background-color: var(--color-primary);
-                box-shadow: var(--color-primary-on) 1px 1px 3px 0 inset, var(--color-primary-on) -1px -1px 3px 0 inset;
-            }
-
-            .tool-button:hover .icon {
-                stroke: var(--color-primary-on);
-            }
-
-            .tool-button:hover .icon-text {
-                stroke: var(--color-primary-container-on-variant-2);
-                fill: var(--color-primary-container-on-variant-2);
-            }
-
-            .tool-button.active {
-                color: var(--color-tertiary-container-on);
-                background-color: var(--color-tertiary-container);
-                box-shadow: var(--color-tertiary-container-on) 1px 1px 3px 0 inset, var(--color-tertiary-container-on) -1px -1px 3px 0 inset;
-            }
-
-            .tool-button.active .icon {
-                stroke: var(--color-tertiary-container-on);
-            }
-
-            .tool-button.active .icon-text {
-                stroke: var(--color-tertiary-container-on);
-                fill: var(--color-tertiary-container-on);
-            }
-
-            .image-thumbnail {
-                height: 25px;
-                width: 25px;
-                border: 1px solid var(--color-outline);
-                border-radius: 3px;
-                background-position: center;
-            }
-            /* tools - end */
-            /* canvas - start */
-            #map-container {
-                display: flex;
-                height: 100%;
-                width: 100%;
-                overflow: auto;
-            }
-
-            #map-canvas {
-                display: none;
-                border: 1px solid var(--color-outline);
-                touch-action: none;
-            }
-
-            @media (max-width: 768px), (max-height: 500px) {
-                #map-canvas {
-                    margin-top: 40px;
-                    margin-left: 40px;
-                }
-            }
-
-            #no-map {
-                display: block;
-                margin-top: 40px;
-                margin-left: 40px;
-            }
-
-            #map-container.has-map #map-canvas {
-                display: block;
-            }
-
-            #map-container.has-map #no-map {
-                display: none;
-            }
-            /* canvas - end */
-            /* map saved notification */
-            #map-saved-notification {
-                position: absolute;
-                top: 0;
-                left: 220px;
-                border: 1px solid var(--color-outline);
-                border-radius: 3px;
-                padding: 5px;
-                margin: 2px;
-                color: var(--color-tertiary-container-on);
-                background-color: var(--color-tertiary-container);
-            }
-
-            .hidden {
-                opacity: 0;
-                transition: opacity 1.0s ease-out, overlay 1.0s ease-out allow-discrete, display 1.0s ease-out allow-discrete;
-            }
-            /* map saved notification - end*/
-        }
-    </style>
+    <link rel="stylesheet" href="/components/map-editor/editor/editor.css" />
     <div id="menu">
         <div>
-            <button onclick="#model.toggleDropdown('menu-file')" class="top-menu-item action-text" data-dropdown-id="menu-file">File</button>
+            <button onclick="#model.toggleDropdown('menu-file')" 
+                    class="top-menu-item action-text" 
+                    data-dropdown-id="menu-file">
+                File
+            </button>
             <div id="menu-file" class="dropdown-content">
                 <button title="New map" class="action-text" onclick="#model.showDialog('file-new-dialog-component')">
                     <div class="button-content">
                         <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/file-new.html" data-kit-model="null"></kit-component>
+                            <kit-component kit-template-path="/resources/icons/file-new.html" kit-model="null"></kit-component>
                         </div>
                         <div class="button-text">New ...</div>
                     </div>
                 </button>
-                <button title="Open map" class="action-text" onclick="#model.showDialog('file-open-dialog-component')" data-kit-add-attributes="%{#model.isOpenDisabled()}%">
+                <button title="Open map" class="action-text" onclick="#model.showDialog('file-open-dialog-component')">
                     <div class="button-content">
                         <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/file-open.html" data-kit-model="null"></kit-component>
+                            <kit-component kit-template-path="/resources/icons/file-open.html" kit-model="null"></kit-component>
                         </div>
                         <div class="button-text">Open ...</div>
                     </div>
                 </button>
-                <button title="Close map" class="action-text" onclick="#model.closeMap()" data-kit-add-attributes="%{#model.isCloseDisabled()}%">
+                <button title="Close map" 
+                        class="action-text" 
+                        onclick="#model.closeMap()" 
+                        kit-element 
+                        kit-attr-add-disabled="disabled:%{#model.getCloseDisabledAttr()}%">
                     <div class="button-content">
                         <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/file-close.html" data-kit-model="null"></kit-component>
+                            <kit-component kit-template-path="/resources/icons/file-close.html" kit-model="null"></kit-component>
                         </div>
                         <div class="button-text">Close</div>
                     </div>
                 </button>
                 <hr />
-                <button title="Save map" class="action-text" onclick="#model.saveMap()" data-kit-add-attributes="%{#model.isSaveDisabled()}%">
+                <button title="Save map" 
+                        class="action-text" 
+                        onclick="#model.saveMap()" 
+                        kit-element 
+                        kit-attr-add-disabled="disabled:%{#model.getSaveDisabledAttr()}%">
                     <div class="button-content">
                         <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/file-save.html" data-kit-model="null"></kit-component>
+                            <kit-component kit-template-path="/resources/icons/file-save.html" kit-model="null"></kit-component>
                         </div>
                         <div class="button-text">Save</div>
                     </div>
                 </button>
-                <button title="Save map as" class="action-text" onclick="#model.saveMapAs()" data-kit-add-attributes="%{#model.isSaveDisabled()}%">
+                <button title="Save map as" 
+                        class="action-text" 
+                        onclick="#model.saveMapAs()" 
+                        kit-element 
+                        kit-attr-add-disabled="disabled:%{#model.getSaveDisabledAttr()}%">
                     <div class="button-content">
                         <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/file-save-as.html" data-kit-model="null"></kit-component>
+                            <kit-component kit-template-path="/resources/icons/file-save-as.html" kit-model="null"></kit-component>
                         </div>
                         <div class="button-text">Save as ...</div>
                     </div>
@@ -363,7 +65,7 @@
                 <button title="Publish file" class="action-text" disabled>
                     <div class="button-content">
                         <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/file-publish.html" data-kit-model="null"></kit-component>
+                            <kit-component kit-template-path="/resources/icons/file-publish.html" kit-model="null"></kit-component>
                         </div>
                         <div class="button-text">Publish ...</div>
                     </div>
@@ -371,141 +73,227 @@
             </div>
         </div>
         <div>
-            <button onclick="#model.toggleDropdown('menu-edit')" class="top-menu-item action-text" data-dropdown-id="menu-edit">Edit</button>
+            <button onclick="#model.toggleDropdown('menu-edit')" 
+                    class="top-menu-item action-text" 
+                    data-dropdown-id="menu-edit">
+                Edit
+            </button>
             <div id="menu-edit" class="dropdown-content">
-                <button id="menuEditSelectAllInView" title="Select all in view" class="action-text" onclick="#model.selectAllInView()" data-kit-add-attributes="%{#model.isSelectAllInViewDisabled()}%">
+                <button id="menuEditSelectAllInView" 
+                        title="Select all in view" 
+                        class="action-text" 
+                        onclick="#model.selectAllInView()" 
+                        kit-element 
+                        kit-attr-add-disabled="disabled:%{#model.getSelectAllInViewDisabledAttr()}%">
                     <div class="button-content">
                         <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/edit-select-all-in-view.html" data-kit-model="null"></kit-component>
+                            <kit-component kit-template-path="/resources/icons/edit-select-all-in-view.html" kit-model="null">
+                            </kit-component>
                         </div>
                         <div class="button-text">Select all in view (Ctrl+A)</div>
                     </div>
                 </button>
-                <button id="menuEditUnSelectAll" title="Unselect all" class="action-text" onclick="#model.unSelectAll()" data-kit-add-attributes="%{#model.isUnSelectAllDisabled()}%">
+                <button id="menuEditUnSelectAll" 
+                        title="Unselect all" 
+                        class="action-text" 
+                        onclick="#model.unSelectAll()" 
+                        kit-element 
+                        kit-attr-add-disabled="disabled:%{#model.getUnSelectAllDisabledAttr()}%">
                     <div class="button-content">
                         <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/edit-unselect-all.html" data-kit-model="null"></kit-component>
+                            <kit-component kit-template-path="/resources/icons/edit-unselect-all.html" kit-model="null"></kit-component>
                         </div>
                         <div class="button-text">Unselect all (Ctrl+Alt+A)</div>
                     </div>
                 </button>
                 <hr />
-                <button id="menuEditUndo" title="Undo" class="action-text" onclick="#model.undo()" data-kit-add-attributes="%{#model.isUndoDisabled()}%">
+                <button id="menuEditUndo" 
+                        title="Undo" 
+                        class="action-text" 
+                        onclick="#model.undo()" 
+                        kit-element 
+                        kit-attr-add-disabled="disabled:%{#model.getUndoDisabledAttr()}%">
                     <div class="button-content">
                         <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/edit-undo.html" data-kit-model="null"></kit-component>
+                            <kit-component kit-template-path="/resources/icons/edit-undo.html" kit-model="null"></kit-component>
                         </div>
                         <div class="button-text">Undo (Ctrl+Z)</div>
                     </div>
                 </button>
-                <button id="menuEditRedo" title="Redo" class="action-text" onclick="#model.redo()" data-kit-add-attributes="%{#model.isRedoDisabled()}%">
+                <button id="menuEditRedo" 
+                        title="Redo" 
+                        class="action-text" 
+                        onclick="#model.redo()" 
+                        kit-element 
+                        kit-attr-add-disabled="disabled:%{#model.getRedoDisabledAttr()}%">
                     <div class="button-content">
                         <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/edit-redo.html" data-kit-model="null"></kit-component>
+                            <kit-component kit-template-path="/resources/icons/edit-redo.html" kit-model="null"></kit-component>
                         </div>
                         <div class="button-text">Redo (Ctrl+Y)</div>
                     </div>
                 </button>
                 <hr />
-                <button id="menuEditCut" title="Cut" class="action-text" onclick="#model.cut()" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
+                <button id="menuEditCut" 
+                        title="Cut" 
+                        class="action-text" 
+                        onclick="#model.cut()" 
+                        kit-element 
+                        kit-attr-add-disabled="disabled:%{#model.getEditSelectionDisabledAttr()}%">
                     <div class="button-content">
                         <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/edit-cut.html" data-kit-model="null"></kit-component>
+                            <kit-component kit-template-path="/resources/icons/edit-cut.html" kit-model="null"></kit-component>
                         </div>
                         <div class="button-text">Cut (Ctrl+X)</div>
                     </div>
                 </button>
-                <button id="menuEditCopy" title="Copy" class="action-text" onclick="#model.copy()" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
+                <button id="menuEditCopy" 
+                        title="Copy" 
+                        class="action-text" 
+                        onclick="#model.copy()" 
+                        kit-element 
+                        kit-attr-add-disabled="disabled:%{#model.getEditSelectionDisabledAttr()}%">
                     <div class="button-content">
                         <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/edit-copy.html" data-kit-model="null"></kit-component>
+                            <kit-component kit-template-path="/resources/icons/edit-copy.html" kit-model="null"></kit-component>
                         </div>
                         <div class="button-text">Copy (Ctrl+C)</div>
                     </div>
                 </button>
-                <button id="menuEditPaste" title="Paste" class="action-text" onclick="#model.paste()" data-kit-add-attributes="%{#model.isPasteDisabled()}%">
+                <button id="menuEditPaste" 
+                        title="Paste" 
+                        class="action-text" 
+                        onclick="#model.paste()" 
+                        kit-element 
+                        kit-attr-add-disabled="disabled:%{#model.getPasteDisabledAttr()}%">
                     <div class="button-content">
                         <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/edit-paste.html" data-kit-model="null"></kit-component>
+                            <kit-component kit-template-path="/resources/icons/edit-paste.html" kit-model="null"></kit-component>
                         </div>
                         <div class="button-text">Paste (Ctrl+V)</div>
                     </div>
                 </button>
-                <button id="menuEditDelete" title="Delete" class="action-text" onclick="#model.delete()" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
+                <button id="menuEditDelete" 
+                        title="Delete" 
+                        class="action-text" 
+                        onclick="#model.delete()" 
+                        kit-element 
+                        kit-attr-add-disabled="disabled:%{#model.getEditSelectionDisabledAttr()}%">
                     <div class="button-content">
                         <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/edit-delete.html" data-kit-model="null"></kit-component>
+                            <kit-component kit-template-path="/resources/icons/edit-delete.html" kit-model="null"></kit-component>
                         </div>
                         <div class="button-text">Delete (Del)</div>
                     </div>
                 </button>
                 <hr />
-                <button id="menuEditToolOptions" title="Tool options" class="action-text" onclick="#model.showDialog('tool-options-dialog-component')" data-kit-add-attributes="%{#model.isToolOptionsDisabled()}%">
+                <button id="menuEditToolOptions" 
+                        title="Tool options" 
+                        class="action-text" 
+                        onclick="#model.showDialog('tool-options-dialog-component')" 
+                        kit-element 
+                        kit-attr-add-disabled="disabled:%{#model.getToolOptionsDisabledAttr()}%">
                     <div class="button-content">
                         <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/tool-options.html" data-kit-model="null"></kit-component>
+                            <kit-component kit-template-path="/resources/icons/tool-options.html" kit-model="null"></kit-component>
                         </div>
                         <div class="button-text">Tool options ...</div>
                     </div>
                 </button>
-                <button id="menuEditEditSelections" title="Edit selections" class="action-text" onclick="#model.showDialog('edit-selections-dialog-component')" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
+                <button id="menuEditEditMapItems" 
+                        title="Edit map items" 
+                        class="action-text" 
+                        onclick="#model.showDialog('map-items-edit-dialog-component')" 
+                        kit-element 
+                        kit-attr-add-disabled="disabled:%{#model.getMapItemsEditDisabledAttr()}%">
                     <div class="button-content">
                         <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/edit-edit-selections.html" data-kit-model="null"></kit-component>
+                            <kit-component kit-template-path="/resources/icons/edit-map-items-edit.html" kit-model="null">
+                            </kit-component>
                         </div>
-                        <div class="button-text">Edit selections ...</div>
+                        <div class="button-text">Edit map items ...</div>
                     </div>
                 </button>
             </div>
         </div>
         <div>
-            <button onclick="#model.toggleDropdown('menu-view')" class="top-menu-item action-text" data-dropdown-id="menu-view">View</button>
+            <button onclick="#model.toggleDropdown('menu-view')" 
+                    class="top-menu-item action-text" 
+                    data-dropdown-id="menu-view">
+                View
+            </button>
             <div id="menu-view" class="dropdown-content">
-                <button title="Zoom" class="action-text" onclick="#model.showDialog('zoom-dialog-component')" data-kit-add-attributes="%{#model.isZoomDisabled()}%">
+                <button title="Zoom" 
+                        class="action-text" 
+                        onclick="#model.showDialog('zoom-dialog-component')" 
+                        kit-element 
+                        kit-attr-add-disabled="disabled:%{#model.getZoomDisabledAttr()}%">
                     <div class="button-content">
                         <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/view-zoom.html" data-kit-model="null"></kit-component>
+                            <kit-component kit-template-path="/resources/icons/view-zoom.html" kit-model="null"></kit-component>
                         </div>
                         <div class="button-text">Zoom ...</div>
                     </div>
                 </button>
-                <button title="Resize canvas" class="action-text" onclick="#model.showDialog('canvas-size-dialog-component')" data-kit-add-attributes="%{#model.isResizeCanvasDisabled()}%">
+                <button title="Resize canvas" 
+                        class="action-text" 
+                        onclick="#model.showDialog('canvas-size-dialog-component')" 
+                        kit-element 
+                        kit-attr-add-disabled="disabled:%{#model.getResizeCanvasDisabledAttr()}%">
                     <div class="button-content">
                         <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/view-resize-canvas.html" data-kit-model="null"></kit-component>
+                            <kit-component kit-template-path="/resources/icons/view-resize-canvas.html" kit-model="null"></kit-component>
                         </div>
                         <div class="button-text">Resize canvas ...</div>
                     </div>
                 </button>
-                <button title="Overlay" class="action-text" onclick="#model.showDialog('overlay-dialog-component')" data-kit-add-attributes="%{#model.isOverlayDisabled()}%">
+                <button title="Overlay" 
+                        class="action-text" 
+                        onclick="#model.showDialog('overlay-dialog-component')" 
+                        kit-element 
+                        kit-attr-add-disabled="disabled:%{#model.getOverlayDisabledAttr()}%">
                     <div class="button-content">
                         <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/view-overlay.html" data-kit-model="null"></kit-component>
+                            <kit-component kit-template-path="/resources/icons/view-overlay.html" kit-model="null"></kit-component>
                         </div>
                         <div class="button-text">Overlay ...</div>
                     </div>
                 </button>
-                <button title="Layers" class="action-text" onclick="#model.showDialog('layers-dialog-component')" data-kit-add-attributes="%{#model.isLayersDisabled()}%">
+                <button title="Layers" 
+                        class="action-text" 
+                        onclick="#model.showDialog('layers-dialog-component')" 
+                        kit-element 
+                        kit-attr-add-disabled="disabled:%{#model.getLayersDisabledAttr()}%">
                     <div class="button-content">
                         <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/view-layers.html" data-kit-model="null"></kit-component>
+                            <kit-component kit-template-path="/resources/icons/view-layers.html" kit-model="null"></kit-component>
                         </div>
                         <div class="button-text">Layers ...</div>
                     </div>
                 </button>
                 <hr />
-                <button title="Presentation viewer" class="action-text" onclick="#model.showDialog('presentation-viewer-dialog-component')" data-kit-add-attributes="%{#model.isPresentationViewDisabled()}%">
+                <button title="Presentation viewer" 
+                        class="action-text" 
+                        onclick="#model.showDialog('presentation-viewer-dialog-component')" 
+                        kit-element 
+                        kit-attr-add-disabled="disabled:%{#model.getPresentationViewDisabledAttr()}%">
                     <div class="button-content">
                         <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/view-read-only-viewer.html" data-kit-model="null"></kit-component>
+                            <kit-component kit-template-path="/resources/icons/view-read-only-viewer.html" kit-model="null">
+                            </kit-component>
                         </div>
                         <div class="button-text">Presentation viewer ...</div>
                     </div>
                 </button>
-                <button id="refresh-presentation-view-menu-button" title="Refresh presentation viewer" class="action-text" onclick="#model.refreshPresentationViewer()" data-kit-add-attributes="%{#model.isRefreshPresentationViewerDisabled()}%">
+                <button id="refresh-presentation-view-menu-button" 
+                        title="Refresh presentation viewer" 
+                        class="action-text" 
+                        onclick="#model.refreshPresentationViewer()" 
+                        kit-element 
+                        kit-attr-add-disabled="disabled:%{#model.getRefreshPresentationViewerDisabledAttr()}%">
                     <div class="button-content">
                         <div class="icon-container">
-                            <kit-component data-kit-template-path="/resources/icons/refresh.html" data-kit-model="null"></kit-component>
+                            <kit-component kit-template-path="/resources/icons/refresh.html" kit-model="null"></kit-component>
                         </div>
                         <div class="button-text">Refresh presentation viewer</div>
                     </div>
@@ -519,134 +307,210 @@
             <button title="New map" class="action-text" onclick="#model.showDialog('file-new-dialog-component')">
                 <div class="button-content">
                     <div class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/file-new.html" data-kit-model="null"></kit-component>
+                        <kit-component kit-template-path="/resources/icons/file-new.html" kit-model="null"></kit-component>
                     </div>
                 </div>
             </button>
-            <button title="Open map" class="action-text" onclick="#model.showDialog('file-open-dialog-component')" data-kit-add-attributes="%{#model.isOpenDisabled()}%">
+            <button title="Open map" class="action-text" onclick="#model.showDialog('file-open-dialog-component')">
                 <div class="button-content">
                     <div class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/file-open.html" data-kit-model="null"></kit-component>
+                        <kit-component kit-template-path="/resources/icons/file-open.html" kit-model="null"></kit-component>
                     </div>
                 </div>
             </button>
-            <button title="Save map" class="action-text" onclick="#model.saveMap()" data-kit-add-attributes="%{#model.isSaveDisabled()}%">
+            <button title="Save map" 
+                    class="action-text" 
+                    onclick="#model.saveMap()" 
+                    kit-element 
+                    kit-attr-add-disabled="disabled:%{#model.getSaveDisabledAttr()}%">
                 <div class="button-content">
                     <div class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/file-save.html" data-kit-model="null"></kit-component>
-                    </div>
-                </div>
-            </button>
-        </div>
-        <div class="toolbar-group">
-            <div class="group-divider"></div>
-            <button id="buttonSelectAllInView" title="Select all in view" class="action-text" onclick="#model.selectAllInView()" data-kit-add-attributes="%{#model.isSelectAllInViewDisabled()}%">
-                <div class="button-content">
-                    <div class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/edit-select-all-in-view.html" data-kit-model="null"></kit-component>
-                    </div>
-                </div>
-            </button>
-            <button id="buttonUnSelectAll" title="Unselect all" class="action-text" onclick="#model.unSelectAll()" data-kit-add-attributes="%{#model.isUnSelectAllDisabled()}%">
-                <div class="button-content">
-                    <div class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/edit-unselect-all.html" data-kit-model="null"></kit-component>
-                    </div>
-                </div>
-            </button>
-            <button id="buttonUndo" title="Undo" class="action-text" onclick="#model.undo()" data-kit-add-attributes="%{#model.isUndoDisabled()}%">
-                <div class="button-content">
-                    <div class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/edit-undo.html" data-kit-model="null"></kit-component>
-                    </div>
-                </div>
-            </button>
-            <button id="buttonRedo" title="Redo" class="action-text" onclick="#model.redo()" data-kit-add-attributes="%{#model.isRedoDisabled()}%">
-                <div class="button-content">
-                    <div class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/edit-redo.html" data-kit-model="null"></kit-component>
-                    </div>
-                </div>
-            </button>
-            <button id="buttonCut" title="Cut" class="action-text" onclick="#model.cut()" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
-                <div class="button-content">
-                    <div class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/edit-cut.html" data-kit-model="null"></kit-component>
-                    </div>
-                </div>
-            </button>
-            <button id="buttonCopy" title="Copy" class="action-text" onclick="#model.copy()" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
-                <div class="button-content">
-                    <div class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/edit-copy.html" data-kit-model="null"></kit-component>
-                    </div>
-                </div>
-            </button>
-            <button id="buttonPaste" title="Paste" class="action-text" onclick="#model.paste()" data-kit-add-attributes="%{#model.isPasteDisabled()}%">
-                <div class="button-content">
-                    <div class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/edit-paste.html" data-kit-model="null"></kit-component>
-                    </div>
-                </div>
-            </button>
-            <button id="buttonDelete" title="Delete" class="action-text" onclick="#model.delete()" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
-                <div class="button-content">
-                    <div class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/edit-delete.html" data-kit-model="null"></kit-component>
-                    </div>
-                </div>
-            </button>
-            <button id="buttonToolOptions" title="Tool options" class="action-text" onclick="#model.showDialog('tool-options-dialog-component')" data-kit-add-attributes="%{#model.isToolOptionsDisabled()}%">
-                <div class="button-content">
-                    <div class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/tool-options.html" data-kit-model="null"></kit-component>
-                    </div>
-                </div>
-            </button>
-            <button id="buttonEditSelections" title="Edit selections" class="action-text" onclick="#model.showDialog('edit-selections-dialog-component')" data-kit-add-attributes="%{#model.isEditSelectionDisabled()}%">
-                <div class="button-content">
-                    <div class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/edit-edit-selections.html" data-kit-model="null"></kit-component>
+                        <kit-component kit-template-path="/resources/icons/file-save.html" kit-model="null"></kit-component>
                     </div>
                 </div>
             </button>
         </div>
         <div class="toolbar-group">
             <div class="group-divider"></div>
-            <button title="Zoom" class="action-text" onclick="#model.showDialog('zoom-dialog-component')" data-kit-add-attributes="%{#model.isZoomDisabled()}%">
+            <button id="buttonSelectAllInView" 
+                    title="Select all in view" 
+                    class="action-text" 
+                    onclick="#model.selectAllInView()" 
+                    kit-element 
+                    kit-attr-add-disabled="disabled:%{#model.getSelectAllInViewDisabledAttr()}%">
                 <div class="button-content">
                     <div class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/view-zoom.html" data-kit-model="null"></kit-component>
+                        <kit-component kit-template-path="/resources/icons/edit-select-all-in-view.html" kit-model="null">
+                        </kit-component>
+                    </div>
+                </div>
+            </button>
+            <button id="buttonUnSelectAll" 
+                    title="Unselect all" 
+                    class="action-text" 
+                    onclick="#model.unSelectAll()" 
+                    kit-element 
+                    kit-attr-add-disabled="disabled:%{#model.getUnSelectAllDisabledAttr()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component kit-template-path="/resources/icons/edit-unselect-all.html" kit-model="null"></kit-component>
+                    </div>
+                </div>
+            </button>
+            <button id="buttonUndo" 
+                    title="Undo" 
+                    class="action-text" 
+                    onclick="#model.undo()" 
+                    kit-element 
+                    kit-attr-add-disabled="disabled:%{#model.getUndoDisabledAttr()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component kit-template-path="/resources/icons/edit-undo.html" kit-model="null"></kit-component>
+                    </div>
+                </div>
+            </button>
+            <button id="buttonRedo" 
+                    title="Redo" 
+                    class="action-text" 
+                    onclick="#model.redo()" 
+                    kit-element 
+                    kit-attr-add-disabled="disabled:%{#model.getRedoDisabledAttr()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component kit-template-path="/resources/icons/edit-redo.html" kit-model="null"></kit-component>
+                    </div>
+                </div>
+            </button>
+            <button id="buttonCut" 
+                    title="Cut" 
+                    class="action-text" 
+                    onclick="#model.cut()" 
+                    kit-element 
+                    kit-attr-add-disabled="disabled:%{#model.getEditSelectionDisabledAttr()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component kit-template-path="/resources/icons/edit-cut.html" kit-model="null"></kit-component>
+                    </div>
+                </div>
+            </button>
+            <button id="buttonCopy" 
+                    title="Copy" 
+                    class="action-text" 
+                    onclick="#model.copy()" 
+                    kit-element 
+                    kit-attr-add-disabled="disabled:%{#model.getEditSelectionDisabledAttr()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component kit-template-path="/resources/icons/edit-copy.html" kit-model="null"></kit-component>
+                    </div>
+                </div>
+            </button>
+            <button id="buttonPaste" 
+                    title="Paste" 
+                    class="action-text" 
+                    onclick="#model.paste()" 
+                    kit-element 
+                    kit-attr-add-disabled="disabled:%{#model.getPasteDisabledAttr()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component kit-template-path="/resources/icons/edit-paste.html" kit-model="null"></kit-component>
+                    </div>
+                </div>
+            </button>
+            <button id="buttonDelete" 
+                    title="Delete" 
+                    class="action-text" 
+                    onclick="#model.delete()" 
+                    kit-element 
+                    kit-attr-add-disabled="disabled:%{#model.getEditSelectionDisabledAttr()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component kit-template-path="/resources/icons/edit-delete.html" kit-model="null"></kit-component>
+                    </div>
+                </div>
+            </button>
+            <button id="buttonToolOptions" 
+                    title="Tool options" 
+                    class="action-text" 
+                    onclick="#model.showDialog('tool-options-dialog-component')" 
+                    kit-element 
+                    kit-attr-add-disabled="disabled:%{#model.getToolOptionsDisabledAttr()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component kit-template-path="/resources/icons/tool-options.html" kit-model="null"></kit-component>
+                    </div>
+                </div>
+            </button>
+            <button id="buttonMapItemsEdit" 
+                    title="Edit map items" 
+                    class="action-text" 
+                    onclick="#model.showDialog('map-items-edit-dialog-component')" 
+                    kit-element 
+                    kit-attr-add-disabled="disabled:%{#model.getMapItemsEditDisabledAttr()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component kit-template-path="/resources/icons/edit-map-items-edit.html" kit-model="null"></kit-component>
+                    </div>
+                </div>
+            </button>
+        </div>
+        <div class="toolbar-group">
+            <div class="group-divider"></div>
+            <button title="Zoom" 
+                    class="action-text" 
+                    onclick="#model.showDialog('zoom-dialog-component')" 
+                    kit-element 
+                    kit-attr-add-disabled="disabled:%{#model.getZoomDisabledAttr()}%">
+                <div class="button-content">
+                    <div class="icon-container">
+                        <kit-component kit-template-path="/resources/icons/view-zoom.html" kit-model="null"></kit-component>
                     </div>
                     <span id="zoom-label">%{#model.getZoom()}%</span>
                 </div>
             </button>
-            <button title="Resize canvas" class="action-text" onclick="#model.showDialog('canvas-size-dialog-component')" data-kit-add-attributes="%{#model.isResizeCanvasDisabled()}%">
+            <button title="Resize canvas" 
+                    class="action-text" 
+                    onclick="#model.showDialog('canvas-size-dialog-component')" 
+                    kit-element 
+                    kit-attr-add-disabled="disabled:%{#model.getResizeCanvasDisabledAttr()}%">
                 <div class="button-content">
                     <div class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/view-resize-canvas.html" data-kit-model="null"></kit-component>
+                        <kit-component kit-template-path="/resources/icons/view-resize-canvas.html" kit-model="null"></kit-component>
                     </div>
                 </div>
             </button>
-            <button title="Overlay" class="action-text" onclick="#model.showDialog('overlay-dialog-component')" data-kit-add-attributes="%{#model.isOverlayDisabled()}%">
+            <button title="Overlay" 
+                    class="action-text" 
+                    onclick="#model.showDialog('overlay-dialog-component')" 
+                    kit-element 
+                    kit-attr-add-disabled="disabled:%{#model.getOverlayDisabledAttr()}%">
                 <div class="button-content">
                     <div class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/view-overlay.html" data-kit-model="null"></kit-component>
+                        <kit-component kit-template-path="/resources/icons/view-overlay.html" kit-model="null"></kit-component>
                     </div>
                 </div>
             </button>
-            <button title="Layers" class="action-text" onclick="#model.showDialog('layers-dialog-component')" data-kit-add-attributes="%{#model.isLayersDisabled()}%">
+            <button title="Layers" 
+                    class="action-text" 
+                    onclick="#model.showDialog('layers-dialog-component')" 
+                    kit-element 
+                    kit-attr-add-disabled="disabled:%{#model.getLayersDisabledAttr()}%">
                 <div class="button-content">
                     <div class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/view-layers.html" data-kit-model="null"></kit-component>
+                        <kit-component kit-template-path="/resources/icons/view-layers.html" kit-model="null"></kit-component>
                     </div>
                     <div id="divActiveLayer">%{#model.getActiveLayerName()}%</div>
                 </div>
             </button>
-            <button id="refresh-presentation-view-toolbar-button" title="Refresh presentation viewer" class="action-text" onclick="#model.refreshPresentationViewer()" data-kit-add-attributes="%{#model.isRefreshPresentationViewerDisabled()}%">
+            <button id="refresh-presentation-view-toolbar-button" 
+                    title="Refresh presentation viewer" 
+                    class="action-text" 
+                    onclick="#model.refreshPresentationViewer()" 
+                    kit-element 
+                    kit-attr-add-disabled="disabled:%{#model.getRefreshPresentationViewerDisabledAttr()}%">
                 <div class="button-content">
                     <div class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/refresh.html" data-kit-model="null"></kit-component>
+                        <kit-component kit-template-path="/resources/icons/refresh.html" kit-model="null"></kit-component>
                     </div>
                 </div>
             </button>
@@ -657,33 +521,33 @@
             <header id="tools-header">
                 <div>Tools</div>
                 <div class="spacer"></div>
-                <button id="edit-tool-palettes-button" title="Edit tool palette" class="action-text" onclick="#model.showDialog('tool-palette-dialog-component')">
+                <button id="manage-tool-palettes-button" 
+                        title="Manage tool palettes" 
+                        class="action-text" 
+                        onclick="#model.showDialog('tool-palettes-dialog-component')">
                     <div class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/tool-palette.html" data-kit-model="null"></kit-component>
+                        <kit-component kit-template-path="/resources/icons/tool-palette.html" kit-model="null"></kit-component>
                     </div>
                 </button>
-                <button title="Pin tool palette" class="action-text" onclick="#model.toggleToolsPinned()">
+                <button title="Pin tool palettes" class="action-text" onclick="#model.toggleToolsPinned()">
                     <div id="pinned-icon" class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/pin.html" data-kit-model="null"></kit-component>
+                        <kit-component kit-template-path="/resources/icons/pin.html" kit-model="null"></kit-component>
                     </div>
                 </button>
             </header>
             <section>
-                <kit-if id="tool-palette-content" data-kit-condition="true">
+                <kit-if id="tool-palette-content" kit-condition="true">
                     <div class="tool-types">
                         <header>
                             <div>Editing tools</div>
-                            <div class="spacer"></div>
-                            <button title="Reset tools" class="action-text" onclick="#model.onToolReset()">
-                                <div class="icon-container">
-                                    <kit-component data-kit-template-path="/resources/icons/reset.html" data-kit-model="null"></kit-component>
-                                </div>
-                            </button>
                         </header>
-                        <section>
-                            <kit-array data-kit-array="#model.getToolPalettes('EditingTools')" data-kit-array-ref="palettes" data-kit-item-index-ref="paletteIndex">
+                        <section style="overflow-x:auto;">
+                            <kit-array kit-array="#model.getToolPalettes('EditingTools')" kit-array-item-index-alias="paletteIndex">
                                 <div>
-                                    <kit-array class="tool-palette" data-kit-array="#model.getToolPaletteItems('EditingTools', #paletteIndex)" data-kit-item-ref="tool">
+                                    <kit-array class="tool-palette" 
+                                               kit-array="#model.getToolPaletteItems('EditingTools', %{#paletteIndex}%)" 
+                                               kit-array-alias="paletteItems" 
+                                               kit-array-item-alias="tool">
                                         <button id="%{#tool.id}%"
                                                 onclick="#model.onToolSelected(#tool.id, #tool.data.ref)"
                                                 class="tool-button data-editing-tool-button"
@@ -698,17 +562,13 @@
                     <div id="drawing-tools" class="tool-types">
                         <header class="surface-secondary">
                             <div>Drawing tools</div>
-                            <div class="spacer"></div>
-                            <button title="Reset tools" class="action-text" onclick="#model.onToolReset()">
-                                <div class="icon-container">
-                                    <kit-component data-kit-template-path="/resources/icons/reset.html" data-kit-model="null"></kit-component>
-                                </div>
-                            </button>
                         </header>
-                        <section>
-                            <kit-array data-kit-array="#model.getToolPalettes('DrawingTools')" data-kit-item-index-ref="paletteIndex">
+                        <section style="overflow-x:auto;">
+                            <kit-array kit-array="#model.getToolPalettes('DrawingTools')" kit-array-item-index-alias="paletteIndex">
                                 <div>
-                                    <kit-array class="tool-palette" data-kit-array="#model.getToolPaletteItems('DrawingTools', #paletteIndex)" data-kit-item-ref="tool">
+                                    <kit-array class="tool-palette" 
+                                               kit-array="#model.getToolPaletteItems('DrawingTools', #paletteIndex)" 
+                                               kit-array-item-alias="tool">
                                         <button id="%{#tool.id}%"
                                                 onclick="#model.onToolSelected(#tool.id, #tool.data.ref)"
                                                 class="tool-button data-drawing-tool-button"
@@ -723,22 +583,19 @@
                     <div id="map-item-templates" class="tool-types">
                         <header>
                             <div>Map item templates</div>
-                            <div class="spacer"></div>
-                            <button title="Reset map item templates" class="action-text" onclick="#model.onMapItemTemplateReset()">
-                                <div class="icon-container">
-                                    <kit-component data-kit-template-path="/resources/icons/reset.html" data-kit-model="null"></kit-component>
-                                </div>
-                            </button>
                         </header>
-                        <section>
-                            <kit-array data-kit-array="#model.getToolPalettes('MapItemTemplates')" data-kit-item-index-ref="paletteIndex">
+                        <section style="overflow-x:auto;">
+                            <kit-array kit-array="#model.getToolPalettes('MapItemTemplates')" kit-array-item-index-alias="paletteIndex">
                                 <div>
-                                    <kit-array class="tool-palette" data-kit-array="#model.getToolPaletteItems('MapItemTemplates', #paletteIndex)" data-kit-item-ref="mapItemTemplate">
+                                    <kit-array class="tool-palette" 
+                                               kit-array="#model.getToolPaletteItems('MapItemTemplates', #paletteIndex)" 
+                                               kit-array-item-alias="mapItemTemplate">
                                         <button id="%{#mapItemTemplate.id}%"
                                                 onclick="#model.onMapItemTemplateSelected(#mapItemTemplate.id, #mapItemTemplate.data.ref)"
                                                 class="tool-button data-map-item-template-button"
                                                 title="%{#mapItemTemplate.data.ref.name}%">
-                                            <div class="image-thumbnail" data-map-item-template-thumbnail="%{#mapItemTemplate.id}%">
+                                            <div class="image-thumbnail" 
+                                                 style="background-image: url('%{#mapItemTemplate.data.thumbnailSrc}%');">
                                             </div>
                                         </button>
                                     </kit-array>
@@ -760,16 +617,40 @@
             <div class="spacer"></div>
         </div>
     </div>
-    <kit-component id="file-new-dialog-component" data-kit-template-path="/components/map-editor/file-new-dialog/file-new-dialog.html"></kit-component>
-    <kit-component id="file-save-dialog-component" data-kit-template-path="/components/map-editor/file-save-dialog/file-save-dialog.html"></kit-component>
-    <kit-component id="file-save-as-dialog-component" data-kit-template-path="/components/map-editor/file-save-as-dialog/file-save-as-dialog.html"></kit-component>
-    <kit-component id="file-open-dialog-component" data-kit-template-path="/components/map-editor/file-open-dialog/file-open-dialog.html"></kit-component>
-    <kit-component id="tool-options-dialog-component" data-kit-template-path="/components/map-editor/tool-options-dialog/tool-options-dialog.html"></kit-component>
-    <kit-component id="edit-selections-dialog-component" data-kit-template-path="/components/map-editor/edit-selections-dialog/edit-selections-dialog.html"></kit-component>
-    <kit-component id="zoom-dialog-component" data-kit-template-path="/components/map-editor/zoom-dialog/zoom-dialog.html"></kit-component>
-    <kit-component id="canvas-size-dialog-component" data-kit-template-path="/components/map-editor/canvas-size-dialog/canvas-size-dialog.html"></kit-component>
-    <kit-component id="overlay-dialog-component" data-kit-template-path="/components/map-editor/overlay-dialog/overlay-dialog.html"></kit-component>
-    <kit-component id="layers-dialog-component" data-kit-template-path="/components/map-editor/layers-dialog/layers-dialog.html"></kit-component>
-    <kit-component id="tool-palette-dialog-component" data-kit-template-path="/components/map-editor/tool-palette-dialog/tool-palette-dialog.html"></kit-component>
-    <kit-component id="presentation-viewer-dialog-component" data-kit-template-path="/components/map-editor/presentation-viewer-dialog/presentation-viewer-dialog.html"></kit-component>
+    <kit-component id="file-new-dialog-component" 
+                   kit-template-path="/components/map-editor/file-new-dialog/file-new-dialog.html">
+    </kit-component>
+    <kit-component id="file-open-dialog-component" 
+                   kit-template-path="/components/map-editor/file-open-dialog/file-open-dialog.html">
+    </kit-component>
+    <kit-component id="file-save-dialog-component" 
+                   kit-template-path="/components/map-editor/file-save-dialog/file-save-dialog.html">
+    </kit-component>
+    <kit-component id="file-save-as-dialog-component" 
+                   kit-template-path="/components/map-editor/file-save-as-dialog/file-save-as-dialog.html">
+    </kit-component>
+    <kit-component id="tool-options-dialog-component" 
+                   kit-template-path="/components/map-editor/tool-options-dialog/tool-options-dialog.html">
+    </kit-component>
+    <kit-component id="map-items-edit-dialog-component" 
+                   kit-template-path="/components/map-editor/map-items-edit-dialog/map-items-edit-dialog.html">
+    </kit-component>
+    <kit-component id="zoom-dialog-component" 
+                   kit-template-path="/components/map-editor/zoom-dialog/zoom-dialog.html">
+    </kit-component>
+    <kit-component id="canvas-size-dialog-component" 
+                   kit-template-path="/components/map-editor/canvas-size-dialog/canvas-size-dialog.html">
+    </kit-component>
+    <kit-component id="overlay-dialog-component" 
+                   kit-template-path="/components/map-editor/overlay-dialog/overlay-dialog.html">
+    </kit-component>
+    <kit-component id="layers-dialog-component" 
+                   kit-template-path="/components/map-editor/layers-dialog/layers-dialog.html">
+    </kit-component>
+    <kit-component id="tool-palettes-dialog-component" 
+                   kit-template-path="/components/map-editor/tool-palettes-dialog/tool-palettes-dialog.html">
+    </kit-component>
+    <kit-component id="presentation-viewer-dialog-component" 
+                   kit-template-path="/components/map-editor/presentation-viewer-dialog/presentation-viewer-dialog.html">
+    </kit-component>
 </section>

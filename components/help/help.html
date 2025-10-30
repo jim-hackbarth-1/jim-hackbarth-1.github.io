@@ -1,42 +1,6 @@
-﻿<section class="help-component">
-    <style>
-        @scope (.help-component) {
-            :scope {
-                padding: 10px;
-            }
-
-            fieldset {
-                margin-bottom: 20px;
-                padding-bottom: 10px;
-            }
-
-            legend {
-                font-size: larger;
-                margin-left: 10px;
-                padding: 5px;
-            }
-
-            .field-container {
-                padding: 5px 15px 5px 15px;
-            }
-
-            label {
-                display: block;
-                margin-bottom: 2px;
-            }
-
-            #debug-console {
-                border: 1px solid var(--color-outline);
-                border-radius: 3px;
-                margin: 5px 15px 5px 15px;
-            }
-
-            .debug-console-item {
-                padding: 5px;
-                border-bottom: 1px dotted var(--color-outline);
-            }
-        }
-    </style>
+﻿
+<section class="help-component">
+    <link rel="stylesheet" href="/components/help/help.css" />
     <fieldset>
         <legend>Preferences</legend>
         <div class="field-container">
@@ -70,15 +34,15 @@
     <fieldset>
         <legend>Debug console</legend>
         <div id="debug-console">
-            <kit-array data-kit-array="#model.getDebugConsoleItems()" data-kit-item-ref="item">
+            <kit-array kit-array="#model.getDebugConsoleItems()" kit-array-item-alias="item">
                 <div class="debug-console-item">
-                    <kit-if data-kit-condition="#item.itemType === 'info'">
+                    <kit-if kit-condition="#item.itemType === 'info'">
                         <span>&#9432;</span>
                     </kit-if>
-                    <kit-if data-kit-condition="#item.itemType === 'warning'">
+                    <kit-if kit-condition="#item.itemType === 'warning'">
                         <span>&#9888;</span>
                     </kit-if>
-                    <kit-if data-kit-condition="#item.itemType === 'error'">
+                    <kit-if kit-condition="#item.itemType === 'error'">
                         <span>&#10539;</span>
                     </kit-if>
                     <pre>%{#item.data}%</pre>

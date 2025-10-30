@@ -29,7 +29,7 @@ export class MapItem {
         this.#mapItemTemplateRef = new EntityReference(data?.mapItemTemplateRef);
         this.#zGroup = InputUtilities.cleanseNumber(data?.zGroup);
         this.#z = InputUtilities.cleanseNumber(data?.z);
-        this.#isHidden = InputUtilities.cleanseBoolean(data?.isHidden);
+        this.#isHidden = InputUtilities.cleanseBoolean(data?.isHidden, true);
         this.#isCaptionVisible = InputUtilities.cleanseBoolean(data?.isCaptionVisible);
         this.#captionText = InputUtilities.cleanseString(data?.captionText);
         this.#captionLocation = InputUtilities.cleansePoint(data?.captionLocation);
@@ -195,6 +195,10 @@ export class MapItem {
         };
     }
 
+    adjustZ(z) {
+        this.#z = z; // no change recorded
+    }
+
     addEventListener(eventName, listener) {
         if (!this.#eventListeners[eventName]) {
             this.#eventListeners[eventName] = [];
@@ -325,7 +329,10 @@ export class MapItem {
             };
             await caption.render(context, map, this.captionText, location, options);
         }
-        if (this.isHidden) {
+        if (this.isHidden == false) {
+            this.#renderShownBadge(context);
+        }
+        if (this.isHidden == true) {
             this.#renderHiddenBadge(context);
         }
     }
@@ -382,6 +389,28 @@ export class MapItem {
         return false;
     }
 
+    areAllPointsInBadge(context, points) {
+        if (this.isHidden == null) {
+            return false;
+        }
+        let location = {
+            x: this.bounds.x + this.bounds.width / 2 + this.captionLocation.x,
+            y: this.bounds.y + this.bounds.height / 2 + this.captionLocation.y
+        };
+        const width = 50;
+        const height = 30;
+        location.x = location.x - width - 5;
+        location.y = location.y - height - 5;
+        const pathInfo = `M ${location.x},${location.y} l ${width},0 l 0,${height} l -${width},0 z`;
+        const path2D = new Path2D(pathInfo);
+        for (const point of points) {
+            if (!context.isPointInPath(path2D, point.x, point.y)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     applyChange(change, undoing) {
         if (change.changeType == ChangeType.Edit) {
             this.#applyPropertyChange(change.propertyName, undoing ? change.oldValue : change.newValue);
@@ -425,7 +454,7 @@ export class MapItem {
                 this.z = InputUtilities.cleanseNumber(propertyValue);
                 break;
             case "isHidden":
-                this.isHidden = InputUtilities.cleanseBoolean(propertyValue);
+                this.isHidden = InputUtilities.cleanseBoolean(propertyValue, true);
                 break;
             case "isCaptionVisible":
                 this.isCaptionVisible = InputUtilities.cleanseBoolean(propertyValue);
@@ -566,11 +595,47 @@ export class MapItem {
         context.fill(eyeBall);
         context.stroke(eyeBall);
         context.stroke(eye);
+        const line1 = new Path2D(`M ${location.x + 10},${location.y + 5} l 30,7`);
+        context.stroke(line1);
+        const line2 = new Path2D(`M ${location.x + 11},${location.y + 12} l 30,-7`);
+        context.stroke(line2);
         const textX = location.x + 4;
         const textY = location.y + height - 6;
         context.fillStyle = "dimgray";
         context.font = "12px sans-serif";
         context.fillText("[hidden]", textX, textY);
+    }
+
+    #renderShownBadge(context) {
+        let location = {
+            x: this.bounds.x + this.bounds.width / 2 + this.captionLocation.x,
+            y: this.bounds.y + this.bounds.height / 2 + this.captionLocation.y
+        };
+        const width = 50;
+        const height = 30;
+        location.x = location.x - width - 5;
+        location.y = location.y - height - 5;
+        const eye = new Path2D(`M ${location.x + width / 2},${location.y + 8} m -10,0 a 15 15 0 0 0 20 0 a 15 15 0 0 0 -20 0`);
+        const eyeBall = new Path2D(`M ${location.x + width / 2},${location.y + 8} m -3.5,0 a 3.5 3.5 0 0 0 7 0 a 3.5 3.5 0 0 0 -7 0`);
+        const rect = new Path2D(`M ${location.x},${location.y} l ${width},0 0,${height} ${-(width)},0 z`);
+        context.lineWidth = 1;
+        context.fillStyle = "#a2d7e2";
+        context.globalAlpha = 0.75;
+        context.fill(rect);
+        context.globalAlpha = 1;
+        context.strokeStyle = "dimgray";
+        context.stroke(rect);
+        context.fillStyle = "white";
+        context.fill(eye);
+        context.fillStyle = "dimgray";
+        context.fill(eyeBall);
+        context.stroke(eyeBall);
+        context.stroke(eye);
+        const textX = location.x + 4;
+        const textY = location.y + height - 6;
+        context.fillStyle = "dimgray";
+        context.font = "12px sans-serif";
+        context.fillText("[shown]", textX, textY);
     }
 
     #doShadowRender(shadow, aboveStrokes) {

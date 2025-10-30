@@ -1,0 +1,15 @@
+﻿
+<div style="display: flex; height: 25px;" kit-element>
+    <label style="position: relative; font-weight: normal;">
+        <input style="position: absolute;"
+               type="color"
+               onchange="#model.setValue()"
+               kit-element
+               kit-attr-add-value="value:%{#model.getValue()}%"
+               kit-attr-add-disabled="disabled:%{#model.isDisabled() ? '' : null}%" />
+        <span kit-element
+              kit-attr-add-style="style:position: absolute; margin: 8px 0 0 30px; color:%{#model.getValueInverse()}%;">
+            %{#model.getValue()}%
+        </span>
+    </label>
+</div>

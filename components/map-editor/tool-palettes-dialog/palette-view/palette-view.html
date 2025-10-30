@@ -1,0 +1,95 @@
+﻿
+<div>
+    <link rel="stylesheet" href="/components/map-editor/tool-palettes-dialog/palette-view/palette-view.css" />
+    <div>
+        <div class="detail-section-heading-container">
+            <div class="detail-section-heading-row">
+                <div class="spacer">
+                    <h3>%{#model.getTitle()}%</h3>
+                </div>
+            </div>
+        </div>
+        <div style="display:flex;padding:10px 10px 0 10px;margin:0;">
+            <div>
+                <label>Current palette</label>
+                <div class="item-list"
+                     style="padding:10px;width:280px;overflow-x:auto;"
+                     id="current-items-container"
+                     ondragover="#model.allowDrop(event)"
+                     ondrop="#model.dropAvailableItem(event)">
+                    <kit-array kit-array="#model.getSubPalettes()"
+                               kit-array-item-index-alias="paletteIndex">
+                        <div style="white-space:nowrap;">
+                            <kit-array kit-array="#model.getPaletteItems(#paletteIndex)"
+                                       kit-array-item-alias="item">
+                                <button class="tool-button"
+                                        style="margin-right:5px;"
+                                        title="%{#item.ref.name}%"
+                                        id="%{#item.refId}%"
+                                        data-location="%{#item.location}%"
+                                        draggable="true"
+                                        ondragstart="#model.dragItem(event)">
+                                    <kit-if kit-condition="#item.thumbnailSrc">
+                                        <img height="25"
+                                             width="25"
+                                             draggable="false"
+                                             kit-element
+                                             kit-attr-add-src="src:%{#item.thumbnailSrc}%" />
+                                    </kit-if>
+                                    <kit-if kit-condition="#item.thumbnailSvgSrc">
+                                        <svg height="25" width="25" viewBox="0 0 100 100">%{#item.thumbnailSvgSrc}%</svg>
+                                    </kit-if>
+                                </button>
+                            </kit-array>
+                        </div>
+                    </kit-array>
+                </div>
+            </div>
+            <div style="flex-grow:4;">
+                <label>Available items</label>
+                <div class="item-list"
+                     id="available-items-container"
+                     ondragover="#model.allowDrop(event)"
+                     ondrop="#model.dropPaletteItem(event)">
+                    <kit-array kit-array="#model.getAvailableItems()"
+                               kit-array-item-alias="item">
+                        <div draggable="true"
+                             class="tool-button available-item"
+                             title="%{#item.ref.name}%"
+                             id="%{#item.refId}%"
+                             ondragstart="#model.dragItem(event)">
+                            <div>
+                                <kit-if kit-condition="#item.thumbnailSrc">
+                                    <img height="25" width="25" draggable="false" kit-element kit-attr-add-src="src:%{#item.thumbnailSrc}%" />
+                                </kit-if>
+                                <kit-if kit-condition="#item.thumbnailSvgSrc">
+                                    <svg height="25" width="25" viewBox="0 0 100 100">%{#item.thumbnailSvgSrc}%</svg>
+                                </kit-if>
+                            </div>
+                            <div>
+                                <label>%{#item.ref.name}%</label>
+                            </div>
+                            <div class="spacer"></div>
+                            <div class="secondary-info">
+                                <label>%{#item.refTypeLabel}%</label>
+                                <label>%{#item.refVersionLabel}%</label>
+                            </div>
+                        </div>
+                    </kit-array>
+                </div>
+            </div>
+        </div>
+        <div class="palette-view-note">Drag and drop to add, remove, or reposition palette buttons.</div>
+        <div style="display:flex;margin: 0 20px 0 0;">
+            <div class="spacer"></div>
+            <div style="margin:0;">
+                <button id="manage-items-link"
+                        title="%{#model.getManageButtonLabel()}%"
+                        class="button link-button"
+                        onclick="#model.manageItems()">
+                    %{#model.getManageButtonLabel()}%
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,5 +1,4 @@
 ﻿
-import { KitDependencyManager, KitNavigator } from "../../ui-kit.js";
 import { DebugConsole } from "../shared/debug-console.js"
 import { Preferences } from "../shared/preferences.js"
 
@@ -11,9 +10,8 @@ class HeadingModel {
 
     displayNav = true;
 
-    async onRenderStart(componentId) {
-        this.componentId = componentId;
-        KitDependencyManager.setConsole(new DebugConsole());
+    async init() {
+        UIKit.console = new DebugConsole();
         Preferences.applyTheme();
     }
 
@@ -23,13 +21,11 @@ class HeadingModel {
         if (!this.displayNav) {
             appNavLeft = "calc(-1 * var(--app-nav-width-expanded))";
         }
-        const appDocument = KitDependencyManager.getDocument();
-        const element = appDocument.documentElement;
-        element.style.setProperty("--app-nav-left", appNavLeft);
+        UIKit.document.documentElement.style.setProperty("--app-nav-left", appNavLeft);
     }
 
     isPresentationView() {
-        const routeName = KitNavigator.getCurrentUrlFragment() ?? "";
+        const routeName = UIKit.navigator.getHash(UIKit.document.location.href) ?? "";
         return (routeName == "#presentation-view");
     }
 }

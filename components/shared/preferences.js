@@ -1,25 +1,21 @@
 ﻿
-import { KitDependencyManager } from "../../ui-kit.js";
+import { UIKit } from "../../ui-kit.js";
 
 export class Preferences {
 
     //properties
     static get theme() {
-        const appWindow = KitDependencyManager.getWindow();
-        return appWindow.localStorage.getItem("theme");
+        return UIKit.window.localStorage.getItem("theme");
     }
     static set theme(theme) {
-        const appWindow = KitDependencyManager.getWindow();
-        appWindow.localStorage.setItem("theme", theme);
+        UIKit.window.localStorage.setItem("theme", theme);
     }
 
     static get darkMode() {
-        const appWindow = KitDependencyManager.getWindow();
-        return appWindow.localStorage.getItem("dark-mode");
+        return UIKit.window.localStorage.getItem("dark-mode");
     }
     static set darkMode(darkMode) {
-        const appWindow = KitDependencyManager.getWindow();
-        appWindow.localStorage.setItem("dark-mode", darkMode);
+        UIKit.window.localStorage.setItem("dark-mode", darkMode);
     }
 
     // methods
@@ -45,8 +41,7 @@ export class Preferences {
         if (darkMode == "dark") {
             theme += "-dark";
         }
-        const appDocument = KitDependencyManager.getDocument();
-        appDocument.documentElement.setAttribute("data-app-theme", theme);
+        UIKit.document.documentElement.setAttribute("data-app-theme", theme);
     }
 
     // helpers

@@ -1,0 +1,166 @@
+﻿
+<div style="margin:0;">
+    <link rel="stylesheet" href="/components/map-editor/tool-palettes-dialog/tool-view/tool-view.css" />
+    <div class="detail-section-heading-container">
+        <div class="detail-section-heading-row">
+            <div class="thumbnail" style="margin:0 10px 0 0;">
+                <svg height="25" width="25" viewBox="0 0 100 100">%{#model.getThumbnailSource()}%</svg>
+            </div>
+            <div class="spacer">
+                <h3>%{#model.getDisplayName()}%</h3>
+            </div>
+            <kit-if kit-condition="#model.isBuiltIn()">
+                <div class="ref-attribute"><label>Built in</label></div>
+            </kit-if>
+            <kit-if kit-condition="#model.isFromTemplate()">
+                <div class="ref-attribute"><label>From template</label></div>
+            </kit-if>
+        </div>
+        <div class="detail-section-heading-row">
+            <div>
+                <button id="save-button"
+                        title="Save tool"
+                        class="button dialog-button"
+                        style="width:80px;"
+                        kit-element
+                        kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                        onclick="#model.saveTool()">
+                    Save
+                </button>
+            </div>
+            <div class="spacer"></div>
+            <div>
+                <button title="Delete tool"
+                        class="button dialog-button"
+                        style="width:80px;"
+                        kit-element
+                        kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                        onclick="#model.deleteTool();">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="tool-palettes-form" style="height:357px;">
+        <div style="display:flex;">
+            <div class="spacer">
+                <label class="tool-palettes-dialog-form-label">Name:</label>
+                <input id="tool-name"
+                       value="%{#model.getName()}%"
+                       type="text"
+                       style="width:100%;"
+                       maxlength="30"
+                       kit-element
+                       kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                       oninput="#model.validate()"
+                       onkeydown="#dialogModel.onInputKeyDown(event)">
+                <div id="tool-name-validation" class="validation-message"></div>
+            </div>
+            <div style="padding:0 10px 0 10px;">
+                <label class="tool-palettes-dialog-form-label">Version:</label>
+                <input id="tool-version"
+                       type="number"
+                       min="1"
+                       max="1000"
+                       kit-element
+                       kit-attr-add-value="value:%{#model.getVersion()}%"
+                       kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                       oninput="#model.validate()"
+                       onkeydown="#dialogModel.onInputKeyDown(event)">
+                <div id="tool-version-validation" class="validation-message"></div>
+            </div>
+            <div>
+                <label class="tool-palettes-dialog-form-label">Tool type:</label>
+                <select id="tool-type"
+                        kit-element
+                        kit-attr-add-value="value:%{#model.getToolType()}%"
+                        kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%">
+                    <option value="EditingTool"
+                            kit-element
+                            kit-attr-add-selected="selected:%{#model.getToolType() == 'EditingTool' ? '' : null}%">
+                        Editing tool
+                    </option>
+                    <option value="DrawingTool"
+                            kit-element
+                            kit-attr-add-selected="selected:%{#model.getToolType() == 'DrawingTool' ? '' : null}%">
+                        Drawing tool
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div>
+            <label class="tool-palettes-dialog-form-label">Module source:</label>
+            <textarea id="tool-module-source"
+                      kit-element
+                      kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                      oninput="#model.validate()"
+                      onkeydown="#dialogModel.onInputKeyDown(event)"
+                      maxlength="200000"
+                      autocomplete="off"
+                      autocorrect="off"
+                      autocapitalize="off"
+                      spellcheck="false">%{#model.getModuleSource()}%</textarea>
+            <div id="tool-module-source-validation" class="validation-message"></div>
+        </div>
+        <div>
+            <label class="tool-palettes-dialog-form-label">Thumbnail svg source:</label>
+            <textarea id="tool-thumbnail-source"
+                      kit-element
+                      kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                      oninput="#model.validate()"
+                      onkeydown="#dialogModel.onInputKeyDown(event)"
+                      maxlength="1000"
+                      autocomplete="off"
+                      autocorrect="off"
+                      autocapitalize="off"
+                      spellcheck="false">%{#model.getThumbnailSource()}%</textarea>
+            <div id="tool-thumbnail-source-validation" class="validation-message"></div>
+        </div>
+        <div>
+            <label class="tool-palettes-dialog-form-label">Cursor svg source:</label>
+            <textarea id="tool-cursor-source"
+                      kit-element
+                      kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                      oninput="#model.validate()"
+                      onkeydown="#dialogModel.onInputKeyDown(event)"
+                      maxlength="1000"
+                      autocomplete="off"
+                      autocorrect="off"
+                      autocapitalize="off"
+                      spellcheck="false">%{#model.getCursorSource()}%</textarea>
+            <div id="tool-cursor-source-validation" class="validation-message"></div>
+        </div>
+        <div style="margin-bottom:0;">
+            <label class="tool-palettes-dialog-form-label">Cursor hotspot:</label>
+        </div>
+        <div style="display: flex; margin: 0;">
+            <div style="padding: 0 10px 0 0; margin: 0;">
+                <label class="tool-palettes-dialog-form-label" style="display:inline-block;vertical-align:top;">x:</label>
+                <input id="tool-cursor-hotspot-x"
+                       type="number"
+                       min="0"
+                       max="100"
+                       kit-element
+                       kit-attr-add-value="value:%{#model.getCursorHotspotX()}%"
+                       kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                       oninput="#model.validate()"
+                       onkeydown="#dialogModel.onInputKeyDown(event)">
+            </div>
+            <div class="spacer" style="margin:0;">
+                <label class="tool-palettes-dialog-form-label" style="display:inline-block;vertical-align:top;">y:</label>
+                <input id="tool-cursor-hotspot-y"
+                       type="number"
+                       min="0"
+                       max="100"
+                       kit-element
+                       kit-attr-add-value="value:%{#model.getCursorHotspotY()}%"
+                       kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                       oninput="#model.validate()"
+                       onkeydown="#dialogModel.onInputKeyDown(event)">
+            </div>
+        </div>
+        <div>
+            <div id="tool-cursor-hotspot-validation" class="validation-message"></div>
+        </div>
+    </div>
+</div>

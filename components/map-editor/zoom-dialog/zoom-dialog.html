@@ -1,51 +1,10 @@
 ﻿
-<dialog class="zoom-dialog-component">
-    <kit-if id="kitIfVisible" data-kit-condition="#model.isVisible()">
-        <style>
-            @scope (.zoom-dialog-component) {
-                :scope {
-                    height: 175px;
-                    width: 200px;
-                }
-
-                @media (max-width: 200px), (max-height: 275px) {
-                    :scope {
-                        position: absolute;
-                        transform: unset;
-                        top: 0;
-                        bottom: 0;
-                        left: 0;
-                        right: 0;
-                        max-height: 100%;
-                        max-width: 100%;
-                        height: 100%;
-                        width: 100%;
-                        padding-bottom: 50px;
-                    }
-                }
-
-                .zoom-controls-container {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-
-                .zoom-controls-container button {
-                    margin: 2px;
-                }
-
-                input[type="text"] {
-                    width: 75px;
-                }
-
-                datalist {
-                    background-color:blue;
-                }
-            }
-        </style>
+<kit-if kit-condition="#model?.isVisible()">
+    <link rel="stylesheet" href="/components/map-editor/zoom-dialog/zoom-dialog.css" />
+    <dialog id="zoom-dialog">
         <header>
             <div class="icon-container">
-                <kit-component data-kit-template-path="/resources/icons/view-zoom.html" data-kit-model="null"></kit-component>
+                <kit-component kit-template-path="/resources/icons/view-zoom.html" kit-model="null"></kit-component>
             </div>
             <div>
                 <h1>Zoom</h1>
@@ -54,7 +13,7 @@
             <div>
                 <button title="Close" class="action-text" onclick="#model.closeDialog();">
                     <div class="icon-container">
-                        <kit-component data-kit-template-path="/resources/icons/file-close.html" data-kit-model="null"></kit-component>
+                        <kit-component kit-template-path="/resources/icons/file-close.html" kit-model="null"></kit-component>
                     </div>
                 </button>
             </div>
@@ -62,7 +21,16 @@
         <section>
             <div class="zoom-controls-container">
                 <button id="zoom-out" class="button dialog-button" title="Zoom out" onclick="#model.zoomOut();">-</button>
-                <input type="text" list="zoom-levels" id="zoom-current" title="Zoom" placeholder="Zoom" value="%{#model.getZoom()}%" onchange="#model.onZoomChange(this.value)" onmousedown="this.value = '';" onblur="#model.onZoomBlur()" />
+                <input type="text" 
+                       list="zoom-levels" 
+                       id="zoom-current" 
+                       title="Zoom" 
+                       placeholder="Zoom" 
+                       value="%{#model.getZoom()}%" 
+                       onchange="#model.onZoomChange(this.value)" 
+                       onmousedown="this.value = '';" 
+                       onblur="#model.onZoomBlur()"
+                       autofocus />
                 <datalist id="zoom-levels">
                     <option value="25%"></option>
                     <option value="50%"></option>
@@ -76,8 +44,13 @@
                 <button id="zoom-in" class="button dialog-button" title="Zoom in" onclick="#model.zoomIn();">+</button>
             </div>
             <div class="zoom-controls-container">
-                <button id="zoom-to-fit" class="button dialog-button" title="Zoom to fit map contents" onclick="#model.zoomToFit();">Zoom to fit</button>
+                <button id="zoom-to-fit" 
+                        class="button dialog-button" 
+                        title="Zoom to fit map contents" 
+                        onclick="#model.zoomToFit();">
+                    Zoom to fit
+                </button>
             </div>
         </section>
-    </kit-if>
-</dialog>
+    </dialog>
+</kit-if>

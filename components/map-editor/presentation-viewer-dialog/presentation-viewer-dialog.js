@@ -1,7 +1,6 @@
 ﻿
-import { KitDependencyManager, KitMessenger, KitRenderer } from "../../../ui-kit.js";
-import { DomHelper } from "../../shared/dom-helper.js";
 import { EditorModel } from "../editor/editor.js";
+import { DialogHelper } from "../../shared/dialog-helper.js";
 
 export function createModel() {
     return new PresentationViewerDialogModel();
@@ -10,108 +9,88 @@ export function createModel() {
 class PresentationViewerDialogModel {
 
     // event handlers
-    async onRenderStart(componentId) {
-        this.componentId = componentId;
+    async init(kitElement) {
+        this.#kitElement = kitElement;
+    }
+
+    async onRendered() {
+        if (PresentationViewerDialogModel.#isVisible) {
+            await this.#startListeningForMessages();
+            const dialog = this.#kitElement.querySelector("dialog");
+            const header = this.#kitElement.querySelector("header");
+            this.#dialogHelper = new DialogHelper();
+            this.#dialogHelper.show(dialog, header, this.#onCloseDialog);
+        }
     }
 
     // methods
+    isVisible() {
+        return PresentationViewerDialogModel.#isVisible;
+    }
+
     async showDialog() {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);    
-        const dialog = componentElement.querySelector("dialog");
-        dialog.showModal();
-        this.#updateButtonAvailability();
-        if (!this.#clickHandlerRegistered) {
-            dialog.addEventListener('click', function (event) {
-                var rect = dialog.getBoundingClientRect();
-                var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
-                    rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
-                if (!isInDialog) {
-                    dialog.close();
-                }
-            });
-            this.#clickHandlerRegistered = true;
-        }
-        await this.#startListeningForMessages();
+        PresentationViewerDialogModel.#isVisible = true;
+        await UIKit.renderer.renderKitElement(this.#kitElement);
     }
 
     closeDialog() {
-        const componentElement = KitRenderer.getComponentElement(this.componentId);
-        componentElement.querySelector("dialog").close();
+        this.#dialogHelper.close();
     }
 
     openViewerWindow() {
-        const appWindow = KitDependencyManager.getWindow();
-        this.#presentationWindow = appWindow.open("index.html#presentation-view", "presentation-view", "width=500,height=300,resizable=no");   
+        PresentationViewerDialogModel.#presentationWindow
+            = UIKit.window.open("index.html#presentation-view", "presentation-view", "width=500,height=300,resizable=no");
     }
 
     flipMap() {
-        if (this.#presentationWindow) {
-            const appWindow = KitDependencyManager.getWindow();
-            this.#presentationWindow.postMessage({ messageType: "flip-map" }, appWindow.location.origin);
+        if (PresentationViewerDialogModel.#presentationWindow) {
+            PresentationViewerDialogModel.#presentationWindow.postMessage({ messageType: "flip-map" }, UIKit.window.location.origin);
         }
     }
 
     toggleCaptions() {
-        if (this.#presentationWindow) {
-            const appWindow = KitDependencyManager.getWindow();
-            this.#presentationWindow.postMessage({ messageType: "toggle-captions" }, appWindow.location.origin);
+        if (PresentationViewerDialogModel.#presentationWindow) {
+            PresentationViewerDialogModel.#presentationWindow.postMessage(
+                { messageType: "toggle-captions" }, UIKit.window.location.origin);
         }
     }
 
     refresh() {
-        if (this.#presentationWindow) {
-            const appWindow = KitDependencyManager.getWindow();
-            this.#presentationWindow.postMessage({ messageType: "refresh" }, appWindow.location.origin);
+        if (PresentationViewerDialogModel.#presentationWindow) {
+            PresentationViewerDialogModel.#presentationWindow.postMessage({ messageType: "refresh" }, UIKit.window.location.origin);
         }
     }
 
     // helpers
-    #clickHandlerRegistered;
-    #presentationWindow;
-    #messageHandlerRegistered;
+    static #isVisible = false;
+    static #presentationWindow = null;
+    static #messageHandlerRegistered = false;
+    #kitElement = null;
+    #dialogHelper = null;
 
-    #componentElementInternal;
-    get #componentElement() {
-        if (!this.#componentElementInternal) {
-            this.#componentElementInternal = KitRenderer.getComponentElement(this.componentId);
-        }
-        return this.#componentElementInternal
-    }
-
-    #updateButtonAvailability() {
-        let disabled = true;
-        if (this.#presentationWindow) {
-            disabled = false;
-        }
-        let element = DomHelper.getElement(this.#componentElement, "#button-flip-map");
-        if (element) {
-            element.disabled = disabled;
-        }
-        element = DomHelper.getElement(this.#componentElement, "#button-toggle-captions");
-        if (element) {
-            element.disabled = disabled;
-        }
-        element = DomHelper.getElement(this.#componentElement, "#button-refresh");
-        if (element) {
-            element.disabled = disabled;
-        }
+    #onCloseDialog = async () => {
+        PresentationViewerDialogModel.#isVisible = false;
+        await UIKit.renderer.renderKitElement(this.#kitElement);
     }
 
     async #startListeningForMessages() {
-        const appWindow = KitDependencyManager.getWindow();
-        if (!this.#messageHandlerRegistered) {
-            appWindow.addEventListener('message', async (event) => {
-                if (event.origin === appWindow.origin) {
+        if (!PresentationViewerDialogModel.#messageHandlerRegistered) {
+            UIKit.window.addEventListener('message', async (event) => {
+                if (event.origin === UIKit.window.origin) {
                     switch (event.data.messageType) {
                         case "loaded":
                             this.#updateButtonAvailability();
-                            await KitMessenger.publish(EditorModel.PresentationViewerStatusTopic, { presentationWindow: this.#presentationWindow });
+                            await UIKit.messenger.publish(
+                                EditorModel.PresentationViewerStatusTopic,
+                                { presentationWindow: PresentationViewerDialogModel.#presentationWindow });
                             this.refresh();
                             break;
                         case "unloading":
-                            this.#presentationWindow = null;
+                            PresentationViewerDialogModel.#presentationWindow = null;
                             this.#updateButtonAvailability();
-                            await KitMessenger.publish(EditorModel.PresentationViewerStatusTopic, { isPresentationWindowOpen: null });
+                            await UIKit.messenger.publish(
+                                EditorModel.PresentationViewerStatusTopic,
+                                { isPresentationWindowOpen: null });
                             break;
                         case "resized":
                             let width = event.data.width;
@@ -120,12 +99,33 @@ class PresentationViewerDialogModel {
                                 width = 1200;
                                 height = 750
                             }
-                            await KitMessenger.publish(EditorModel.CanvasResizeRequestTopic, { width: width, height: height });
+                            await UIKit.messenger.publish(
+                                EditorModel.CanvasResizeRequestTopic,
+                                { width: width, height: height });
                             break;
                     }
                 }
             });
-            this.#messageHandlerRegistered = true;
+            PresentationViewerDialogModel.#messageHandlerRegistered = true;
+        }
+    }
+
+    #updateButtonAvailability() {
+        let disabled = true;
+        if (PresentationViewerDialogModel.#presentationWindow) {
+            disabled = false;
+        }
+        let element = this.#kitElement.querySelector("#button-flip-map");
+        if (element) {
+            element.disabled = disabled;
+        }
+        element = this.#kitElement.querySelector("#button-toggle-captions");
+        if (element) {
+            element.disabled = disabled;
+        }
+        element = this.#kitElement.querySelector("#button-refresh");
+        if (element) {
+            element.disabled = disabled;
         }
     }
 }

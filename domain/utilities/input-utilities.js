@@ -15,7 +15,10 @@ export class InputUtilities {
         return stringOut;
     }
 
-    static cleanseBoolean(boolean) {
+    static cleanseBoolean(boolean, allowNull) {
+        if (boolean == null && allowNull) {
+            return null;
+        }
         return boolean ? true : false;
     }
 

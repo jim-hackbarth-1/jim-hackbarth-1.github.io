@@ -1,5 +1,5 @@
 ﻿
-import { KitDependencyManager } from "../../ui-kit.js";
+import { UIKit } from "../../ui-kit.js";
 
 export class DebugConsole {
 
@@ -12,13 +12,12 @@ export class DebugConsole {
     }
 
     constructor() {
-        const appWindow = KitDependencyManager.getWindow();
         if (!DebugConsole.#errorHandlerRegistered) {
-            appWindow.addEventListener("error", (event) => this.#handleError(event));
+            UIKit.window.addEventListener("error", (event) => this.#handleError(event));
             DebugConsole.#errorHandlerRegistered = true;
         }
         if (!DebugConsole.#promiseRejectionHandlerRegistered) {
-            appWindow.addEventListener("unhandledrejection", (event) => this.#handlePromiseRejection(event));
+            UIKit.window.addEventListener("unhandledrejection", (event) => this.#handlePromiseRejection(event));
             DebugConsole.#promiseRejectionHandlerRegistered = true;
         }
     }

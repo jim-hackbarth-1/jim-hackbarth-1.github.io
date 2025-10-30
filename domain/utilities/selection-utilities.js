@@ -960,7 +960,7 @@ export class SelectionUtilities {
     }
 
     #canMoveMapItemCaption(mapItem) {
-        if (mapItem && (mapItem.isHidden || (mapItem.isCaptionVisible && mapItem.captionText.length > 0))) {
+        if (mapItem && ((mapItem.isHidden != null) || (mapItem.isCaptionVisible && mapItem.captionText.length > 0))) {
             return true;
         }
         return false;

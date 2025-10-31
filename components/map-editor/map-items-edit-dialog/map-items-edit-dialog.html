@@ -484,13 +484,14 @@
                                 </div>
                                 <div>
                                     <label class="map-item-edit-form-label">Template:</label>
-                                    <div id="edit-template-select" style="width:100%">
+                                    <select id="edit-template-select" style="width:100%">
                                         <kit-array kit-array="#model.getTemplates()" kit-array-item-alias="template">
-                                            <div title="%{#template.name}%" value="%{#template.id}%">
+                                            <!--<option title="%{#template.name}%" value="%{#template.id}%">
                                                 %{#template.displayName}%
-                                            </div>
+                                            </option>-->
+                                            <option>[debug]</option>
                                         </kit-array>
-                                    </div>
+                                    </select>
                                 </div>
                                 <div>
                                     <div>

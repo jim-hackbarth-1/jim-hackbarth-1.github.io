@@ -1,12 +1,12 @@
 ﻿
-<div style="margin:0;">
+<div style="margin:0;height:100%;">
     <link rel="stylesheet" href="/components/map-editor/tool-palettes-dialog/tool-view/tool-view.css" />
     <div class="detail-section-heading-container">
         <div class="detail-section-heading-row">
             <div class="thumbnail" style="margin:0 10px 0 0;">
                 <svg height="25" width="25" viewBox="0 0 100 100">%{#model.getThumbnailSource()}%</svg>
             </div>
-            <div class="spacer">
+            <div class="spacer" style="white-space:nowrap;">
                 <h3>%{#model.getDisplayName()}%</h3>
             </div>
             <kit-if kit-condition="#model.isBuiltIn()">
@@ -41,9 +41,9 @@
             </div>
         </div>
     </div>
-    <div class="tool-palettes-form" style="height:357px;">
-        <div style="display:flex;">
-            <div class="spacer">
+    <div class="tool-palettes-form" style="height: calc(100% - (99px));">
+        <div style="display:flex;flex-wrap:wrap;">
+            <div class="spacer" style="margin:0 10px 0 0;">
                 <label class="tool-palettes-dialog-form-label">Name:</label>
                 <input id="tool-name"
                        value="%{#model.getName()}%"
@@ -56,7 +56,7 @@
                        onkeydown="#dialogModel.onInputKeyDown(event)">
                 <div id="tool-name-validation" class="validation-message"></div>
             </div>
-            <div style="padding:0 10px 0 10px;">
+            <div style="margin:0 10px 0 0;">
                 <label class="tool-palettes-dialog-form-label">Version:</label>
                 <input id="tool-version"
                        type="number"

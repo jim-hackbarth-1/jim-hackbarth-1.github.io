@@ -1,5 +1,5 @@
 ﻿
-<div style="margin:0;">
+<div style="margin:0;height:100%;">
     <link rel="stylesheet" href="/components/map-editor/tool-palettes-dialog/caption-view/caption-view.css" />
     <div class="detail-section-heading-container">
         <div class="detail-section-heading-row">
@@ -33,11 +33,11 @@
             </div>
         </div>
     </div>
-    <div kit-element class="tool-palettes-form" style="height:347px;">
+    <div kit-element class="tool-palettes-form" style="height:calc(100% - (109px));">
 
         <!-- Default text, Opacity -->
         <div style="display: flex; flex-wrap:wrap; margin:0;">
-            <div class="spacer">
+            <div class="spacer" style="margin:0 10px 0 0;">
                 <label class="tool-palettes-dialog-form-label">Default text:</label>
                 <input id="caption-default-text"
                        value="%{#model.getDefaultText()}%"
@@ -51,7 +51,7 @@
                        onkeydown="#dialogModel.onInputKeyDown(event)">
                 <div id="caption-default-text-validation" class="validation-message"></div>
             </div>
-            <div style="margin: 0 0 0 10px;">
+            <div style="margin:0 10px 0 0;">
                 <label class="tool-palettes-dialog-form-label">Opacity (%):</label>
                 <input id="caption-opacity"
                        type="number"
@@ -67,7 +67,7 @@
         </div>
 
         <!-- Font, Font variant caps -->
-        <div style="display: flex; flex-wrap: wrap;">
+        <div style="display: flex; flex-wrap: wrap;margin:0;">
             <div class="spacer" style="margin:0 10px 0 0;">
                 <label class="tool-palettes-dialog-form-label">Font:</label>
                 <input id="caption-font"
@@ -82,7 +82,7 @@
                        onkeydown="#dialogModel.onInputKeyDown(event)">
                 <div id="caption-font-validation" class="validation-message"></div>
             </div>
-            <div style="margin:0;">
+            <div style="margin:0 10px 0 0;">
                 <label class="tool-palettes-dialog-form-label">Font variant caps:</label>
                 <select id="caption-font-variant-caps"
                         kit-element
@@ -151,7 +151,7 @@
         </div>
 
         <!-- Nav links -->
-        <div style="display: flex; flex-wrap: wrap;justify-content:space-between; margin: 25px 0 0 0;">
+        <div style="display: flex; flex-wrap: wrap;justify-content:space-between; margin: 25px 10px 0 0;">
             <div style="margin: 5px 0 0 0;">
                 <button title="Add/edit background"
                         style="width: 100px;"

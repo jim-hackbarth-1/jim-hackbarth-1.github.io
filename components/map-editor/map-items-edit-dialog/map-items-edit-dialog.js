@@ -911,6 +911,9 @@ class MapItemsEditDialogModel {
 
     static async #getTemplates() {
         const map = await MapWorkerClient.getMap();
+        if (!map) {
+            return [];
+        }
         function sortRefsByName(ref1, ref2) {
             if (ref1.name < ref2.name) {
                 return -1;

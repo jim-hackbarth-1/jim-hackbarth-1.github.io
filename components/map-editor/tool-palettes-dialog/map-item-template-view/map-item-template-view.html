@@ -1,12 +1,12 @@
 ﻿
-<div style="margin:0;">
+<div style="margin:0;height:100%;">
     <link rel="stylesheet" href="/components/map-editor/tool-palettes-dialog/map-item-template-view/map-item-template-view.css" />
     <div class="detail-section-heading-container">
         <div class="detail-section-heading-row">
             <div style="margin:0 10px 0 0;">
                 <img height="25" width="25" kit-element kit-attr-add-src="src:%{#model.getThumbnailSrc()}%" />
             </div>
-            <div class="spacer">
+            <div class="spacer" style="white-space:nowrap;">
                 <h3>%{#model.getDisplayName()}%</h3>
             </div>
             <kit-if kit-condition="#model.isBuiltIn()">
@@ -41,8 +41,8 @@
             </div>
         </div>
     </div>
-    <div class="tool-palettes-form" style="height:357px;">
-        <div style="display:flex;margin-bottom:0;">
+    <div class="tool-palettes-form" style="height:calc(100% - (99px));">
+        <div style="display:flex;flex-wrap:wrap;margin-bottom:0;">
             <div class="spacer">
                 <label class="tool-palettes-dialog-form-label">Name:</label>
                 <input id="map-item-template-name"
@@ -138,7 +138,7 @@
                    onkeydown="#dialogModel.onInputKeyDown(event)">
             <div id="map-item-template-tags-validation" class="validation-message"></div>
         </div>
-        <div style="display:flex;justify-content:space-between;margin:30px 0 0 0;">
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;margin:30px 0 0 0;">
             <div style="margin:0;">
                 <button title="Manage fills"
                         style="width:80px;"

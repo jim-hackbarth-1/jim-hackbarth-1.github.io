@@ -1,5 +1,5 @@
 ﻿
-<div style="margin:0;">
+<div style="margin:0;height:100%;">
     <link rel="stylesheet" href="/components/map-editor/tool-palettes-dialog/path-style-view/path-style-view.css" />
     <div class="detail-section-heading-container">
         <div class="detail-section-heading-row">
@@ -54,11 +54,11 @@
             </div>
         </div>
     </div>
-    <div kit-element class="tool-palettes-form" style="height:347px;">
+    <div kit-element class="tool-palettes-form" style="height:calc(100% - (109px));">
 
         <!-- PathStyleType, Opacity, PresentationMode -->
-        <div style="display:flex;flex-wrap:wrap;margin:0;">
-            <div style="margin:0;">
+        <div style="display:flex;flex-wrap:wrap;margin:0">
+            <div style="margin:0 10px 10px 0;">
                 <label class="tool-palettes-dialog-form-label">%{#model.getPathStyleTypeLabel()}% type:</label>
                 <select id="path-style-type"
                         onchange="#model.updatePathStyleType()"
@@ -67,7 +67,7 @@
                         kit-attr-add-disabled="disabled:%{#model.isPathStyleTypeDisabled() ? '' : null}%">
                 </select>
             </div>
-            <div style="margin: 0; padding: 0 10px 0 10px;">
+            <div style="margin:0 10px 0 0;">
                 <label class="tool-palettes-dialog-form-label">Opacity (%):</label>
                 <input id="path-style-opacity"
                        type="number"
@@ -399,7 +399,7 @@
         <!-- Common stroke fields -->
         <kit-if kit-condition="#model.isStroke()">
             <div style="display:flex;flex-wrap:wrap;margin:0;">
-                <div style="margin:0;">
+                <div style="margin:0 10px 0 0;">
                     <label class="tool-palettes-dialog-form-label">Stroke width:</label>
                     <input id="path-style-width"
                            type="number"
@@ -412,7 +412,7 @@
                            onkeydown="#dialogModel.onInputKeyDown(event)">
                     <div id="path-style-width-validation" class="validation-message"></div>
                 </div>
-                <div style="margin: 0;padding: 0 10px 0 10px;">
+                <div style="margin:0 10px 0 0;">
                     <label class="tool-palettes-dialog-form-label">Dash:</label>
                     <input id="path-style-dash"
                            type="text"
@@ -440,7 +440,7 @@
                 </div>
             </div>
             <div style="display:flex;flex-wrap:wrap;margin:0;">
-                <div style="padding:0 10px 0 0;margin:0;">
+                <div style="margin:0 10px 0 0;">
                     <label class="tool-palettes-dialog-form-label">End cap:</label>
                     <select id="path-style-end-cap"
                             kit-element
@@ -464,7 +464,7 @@
                     </select>
                     <div id="path-style-end-cap-validation" class="validation-message"></div>
                 </div>
-                <div style="margin:0 0 0 10px;">
+                <div style="margin:0 10px 0 0;">
                     <label class="tool-palettes-dialog-form-label">Join:</label>
                     <select id="path-style-join"
                             kit-element

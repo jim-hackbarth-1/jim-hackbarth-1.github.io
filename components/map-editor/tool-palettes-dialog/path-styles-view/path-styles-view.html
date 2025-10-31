@@ -1,18 +1,19 @@
 ﻿
-<div style="margin:0;">
+<div style="margin:0;height:100%;">
     <link rel="stylesheet" href="/components/map-editor/tool-palettes-dialog/path-styles-view/path-styles-view.css" />
     <div class="detail-section-heading-container">
         <div class="detail-section-heading-row">
             <div class="spacer" style="margin-bottom:0;">
                 <h3 style="margin-bottom:5px;">%{#model.getPathStylesLabel()}%</h3>
                 <div style="display:flex">
-                    <label class="map-item-template-name" 
+                    <label class="map-item-template-name"
+                           style="white-space:nowrap;"
                            onclick="#model.editMapItemTemplate()">
                         %{#model.getMapItemTemplateName()}%
                     </label>
                     <kit-if kit-condition="#model.isFromTemplate()">
                         <label class="map-item-template-name from-template" 
-                               style="color:var(--color-secondary-container-on-variant-1)">
+                               style="white-space:nowrap;color:var(--color-secondary-container-on-variant-1)">
                             (from template)
                         </label>
                     </kit-if>
@@ -21,6 +22,7 @@
             <div>
                 <button title="%{#model.getAddButtonLabel()}%"
                         class="button dialog-button"
+                        style="white-space:nowrap;"
                         kit-element
                         kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                         onclick="#model.addPathStyle();">
@@ -29,7 +31,7 @@
             </div>
         </div>
     </div>
-    <div style="padding:10px 10px 0 10px;margin:0;">
+    <div style="padding:10px 10px 0 10px;margin:0;height:calc(100% - (100px));">
         <div id="path-style-list"
              ondragover="#model.allowDrop(event)"
              ondrop="#model.dropPathStyleItem(event)">

@@ -65,13 +65,6 @@
                         kit-element
                         kit-attr-add-value="value:%{#model.getPathStyleType()}%"
                         kit-attr-add-disabled="disabled:%{#model.isPathStyleTypeDisabled() ? '' : null}%">
-                    <kit-array kit-array="#model.getPathStyleTypes()" kit-array-item-alias="pathStyleType">
-                        <option value="%{#pathStyleType.id}%"
-                                kit-element
-                                kit-attr-add-selected="selected:%{#pathStyleType.isSelected ? '' : null}%">
-                            %{#pathStyleType.name}%
-                        </option>
-                    </kit-array>
                 </select>
             </div>
             <div style="margin: 0; padding: 0 10px 0 10px;">

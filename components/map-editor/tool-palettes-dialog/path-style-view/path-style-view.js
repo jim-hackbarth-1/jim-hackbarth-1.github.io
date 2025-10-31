@@ -70,6 +70,10 @@ class PathStyleViewModel {
         }
     }
 
+    async onRendered() {
+        this.#loadPathStyleTypes();
+    }
+
     // methods
     getThumbnailSrc() {
         return ToolPalettesDialogModel.getThumbnailSrc(PathStyleViewModel.#pathStyle);
@@ -234,79 +238,6 @@ class PathStyleViewModel {
         return this.isStroke() ? "Stroke" : "Fill";
     }
 
-    getPathStyleTypes() {
-        const isStroke = this.isStroke();
-        const pathStyleType = this.getPathStyleType();
-        if (isStroke) {
-            return [
-                {
-                    id: PathStyleType.ColorStroke,
-                    name: "Color",
-                    isSelected: pathStyleType == PathStyleType.ColorStroke
-                },
-                {
-                    id: PathStyleType.LinearGradientStroke,
-                    name: "Linear gradient",
-                    isSelected: pathStyleType == PathStyleType.LinearGradientStroke
-                },
-                {
-                    id: PathStyleType.RadialGradientStroke,
-                    name: "Radial gradient",
-                    isSelected: pathStyleType == PathStyleType.RadialGradientStroke
-                },
-                {
-                    id: PathStyleType.ConicalGradientStroke,
-                    name: "Conical gradient",
-                    isSelected: pathStyleType == PathStyleType.ConicalGradientStroke
-                },
-                {
-                    id: PathStyleType.TileStroke,
-                    name: "Tile",
-                    isSelected: pathStyleType == PathStyleType.TileStroke
-                },
-                {
-                    id: PathStyleType.ImageArrayStroke,
-                    name: "Image array",
-                    isSelected: pathStyleType == PathStyleType.ImageArrayStroke
-                }
-            ];
-        }
-        else {
-            return [
-                {
-                    id: PathStyleType.ColorFill,
-                    name: "Color",
-                    isSelected: pathStyleType == PathStyleType.ColorFill
-                },
-                {
-                    id: PathStyleType.LinearGradientFill,
-                    name: "Linear gradient",
-                    isSelected: pathStyleType == PathStyleType.LinearGradientFill
-                },
-                {
-                    id: PathStyleType.RadialGradientFill,
-                    name: "Radial gradient",
-                    isSelected: pathStyleType == PathStyleType.RadialGradientFill
-                },
-                {
-                    id: PathStyleType.ConicalGradientFill,
-                    name: "Conical gradient",
-                    isSelected: pathStyleType == PathStyleType.ConicalGradientFill
-                },
-                {
-                    id: PathStyleType.TileFill,
-                    name: "Tile",
-                    isSelected: pathStyleType == PathStyleType.TileFill
-                },
-                {
-                    id: PathStyleType.ImageArrayFill,
-                    name: "Image array",
-                    isSelected: pathStyleType == PathStyleType.ImageArrayFill
-                }
-            ];
-        }
-    }
-
     getPathStyleType() {
         if (!PathStyleViewModel.#tempPathStyleType) {
             PathStyleViewModel.#tempPathStyleType = PathStyleViewModel.#pathStyle.getStyleOptionValue(PathStyleOption.PathStyleType);
@@ -322,6 +253,7 @@ class PathStyleViewModel {
         PathStyleViewModel.#tempPathStyleType = this.#kitElement.querySelector("#path-style-type").value;
         const form = this.#kitElement.querySelector(".tool-palettes-form");
         await UIKit.renderer.renderKitElement(form);
+        this.#loadPathStyleTypes();
         const showGradientStart = this.showGradientStart();
         if (showGradientStart) {
             const gradientStart = this.#getDefaultGradientStart();
@@ -893,4 +825,92 @@ class PathStyleViewModel {
         return gradientEnd;
     }
 
+    #getPathStyleTypes() {
+        const isStroke = this.isStroke();
+        const pathStyleType = this.getPathStyleType();
+        if (isStroke) {
+            return [
+                {
+                    id: PathStyleType.ColorStroke,
+                    name: "Color",
+                    isSelected: pathStyleType == PathStyleType.ColorStroke
+                },
+                {
+                    id: PathStyleType.LinearGradientStroke,
+                    name: "Linear gradient",
+                    isSelected: pathStyleType == PathStyleType.LinearGradientStroke
+                },
+                {
+                    id: PathStyleType.RadialGradientStroke,
+                    name: "Radial gradient",
+                    isSelected: pathStyleType == PathStyleType.RadialGradientStroke
+                },
+                {
+                    id: PathStyleType.ConicalGradientStroke,
+                    name: "Conical gradient",
+                    isSelected: pathStyleType == PathStyleType.ConicalGradientStroke
+                },
+                {
+                    id: PathStyleType.TileStroke,
+                    name: "Tile",
+                    isSelected: pathStyleType == PathStyleType.TileStroke
+                },
+                {
+                    id: PathStyleType.ImageArrayStroke,
+                    name: "Image array",
+                    isSelected: pathStyleType == PathStyleType.ImageArrayStroke
+                }
+            ];
+        }
+        else {
+            return [
+                {
+                    id: PathStyleType.ColorFill,
+                    name: "Color",
+                    isSelected: pathStyleType == PathStyleType.ColorFill
+                },
+                {
+                    id: PathStyleType.LinearGradientFill,
+                    name: "Linear gradient",
+                    isSelected: pathStyleType == PathStyleType.LinearGradientFill
+                },
+                {
+                    id: PathStyleType.RadialGradientFill,
+                    name: "Radial gradient",
+                    isSelected: pathStyleType == PathStyleType.RadialGradientFill
+                },
+                {
+                    id: PathStyleType.ConicalGradientFill,
+                    name: "Conical gradient",
+                    isSelected: pathStyleType == PathStyleType.ConicalGradientFill
+                },
+                {
+                    id: PathStyleType.TileFill,
+                    name: "Tile",
+                    isSelected: pathStyleType == PathStyleType.TileFill
+                },
+                {
+                    id: PathStyleType.ImageArrayFill,
+                    name: "Image array",
+                    isSelected: pathStyleType == PathStyleType.ImageArrayFill
+                }
+            ];
+        }
+    }
+
+    #loadPathStyleTypes() {
+        const select = this.#kitElement.querySelector("#path-style-type");
+        if (select) {
+            const pathStyleTypes = this.#getPathStyleTypes();
+            for (const pathStyleType of pathStyleTypes) {
+                const option = UIKit.document.createElement("option");
+                option.value = pathStyleType.id;
+                option.innerHTML = pathStyleType.name;
+                if (pathStyleType.isSelected) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            }
+        }
+    }
 }

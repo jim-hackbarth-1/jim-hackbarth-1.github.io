@@ -25,6 +25,7 @@ class MapItemsEditDialogModel {
         MapItemsEditDialogModel.#mapItemCount = null;
         MapItemsEditDialogModel.#selectedAction = "map-items-edit-detail-find";
         MapItemsEditDialogModel.#selections = [];
+        MapItemsEditDialogModel.#templates = await MapItemsEditDialogModel.#getTemplates();
         const kitKey = UIKit.renderer.getKitElementKey(this.#kitElement);
         UIKit.messenger.subscribe(
             EditorModel.MapUpdatedNotificationTopic,
@@ -53,6 +54,7 @@ class MapItemsEditDialogModel {
             MapItemsEditDialogModel.#mapItemCount = null;
             const section = this.#kitElement.querySelector("#map-items-section");
             await UIKit.renderer.renderKitElement(section);
+            this.#loadTemplates();
         }
     }
 
@@ -64,6 +66,7 @@ class MapItemsEditDialogModel {
     async showDialog() {
         MapItemsEditDialogModel.#isVisible = true;
         await UIKit.renderer.renderKitElement(this.#kitElement);
+        this.#loadTemplates();
     }
 
     closeDialog = () => {
@@ -103,6 +106,7 @@ class MapItemsEditDialogModel {
         MapItemsEditDialogModel.#selectedAction = detailId;
         const details = this.#kitElement.querySelector("#map-items-detail-container");
         await UIKit.renderer.renderKitElement(details);
+        this.#loadTemplates();
     }
 
     async getMapItems() {
@@ -170,6 +174,7 @@ class MapItemsEditDialogModel {
         MapItemsEditDialogModel.#saveCurrentSelections(this.#kitElement.querySelectorAll(".data-list-item-checkbox:checked"));
         const details = this.#kitElement.querySelector("#map-items-detail-container");
         await UIKit.renderer.renderKitElement(details);
+        this.#loadTemplates();
     }
 
     async toggleSelection() {
@@ -179,6 +184,7 @@ class MapItemsEditDialogModel {
         MapItemsEditDialogModel.#saveCurrentSelections(this.#kitElement.querySelectorAll(".data-list-item-checkbox:checked"));
         const details = this.#kitElement.querySelector("#map-items-detail-container");
         await UIKit.renderer.renderKitElement(details);
+        this.#loadTemplates();
     }
 
     toggleDetails(mapItemId) {
@@ -229,6 +235,7 @@ class MapItemsEditDialogModel {
         MapItemsEditDialogModel.#mapItemCount = null;
         const section = this.#kitElement.querySelector("#map-items-section");
         await UIKit.renderer.renderKitElement(section);
+        this.#loadTemplates();
     }
 
     onInputKeyDown(event) {
@@ -669,31 +676,6 @@ class MapItemsEditDialogModel {
         });
     }
 
-    async getTemplates() {
-        const map = await MapWorkerClient.getMap();
-        function sortRefsByName(ref1, ref2) {
-            if (ref1.name < ref2.name) {
-                return -1;
-            }
-            if (ref1.name > ref2.name) {
-                return 1;
-            }
-            return 0;
-        }
-        const templates = map.mapItemTemplateRefs.map(ref => ({
-            id: `ref-${ref.name}-${ref.versionId}-${ref.isBuiltIn}-${ref.isFromTemplate}`,
-            name: ref.name,
-            displayName: ref.name.length > 25 ? ref.name.slice(0, 25) + "..." : ref.name
-        }));
-        templates.sort(sortRefsByName);
-        templates.unshift({
-            id: "ref-none-1-true-false",
-            name: "[None]",
-            displayName: "[None]"
-        })
-        return templates;
-    }
-
     async updateTemplate() {
         const templateId = this.#kitElement.querySelector("#edit-template-select").value;
         const parts = templateId.replace("ref-", "").split("-");
@@ -781,6 +763,7 @@ class MapItemsEditDialogModel {
     static #selections = [];
     #kitElement = null;
     #dialogHelper = null;
+    static #templates = [];
 
     #onCloseDialog = async () => {
         MapItemsEditDialogModel.#isVisible = false;
@@ -924,5 +907,43 @@ class MapItemsEditDialogModel {
             selections.push(item.getAttribute("data-map-item-id"));
         }
         MapItemsEditDialogModel.#selections = selections;
+    }
+
+    static async #getTemplates() {
+        const map = await MapWorkerClient.getMap();
+        function sortRefsByName(ref1, ref2) {
+            if (ref1.name < ref2.name) {
+                return -1;
+            }
+            if (ref1.name > ref2.name) {
+                return 1;
+            }
+            return 0;
+        }
+        const templates = map.mapItemTemplateRefs.map(ref => ({
+            id: `ref-${ref.name}-${ref.versionId}-${ref.isBuiltIn}-${ref.isFromTemplate}`,
+            name: ref.name,
+            displayName: ref.name.length > 25 ? ref.name.slice(0, 25) + "..." : ref.name
+        }));
+        templates.sort(sortRefsByName);
+        templates.unshift({
+            id: "ref-none-1-true-false",
+            name: "[None]",
+            displayName: "[None]"
+        })
+        return templates;
+    }
+
+    #loadTemplates() {
+        const select = this.#kitElement.querySelector("#edit-template-select");
+        if (select) {
+            for (const template of MapItemsEditDialogModel.#templates) {
+                const option = UIKit.document.createElement("option");
+                option.value = template.id;
+                option.title = template.name;
+                option.innerHTML = template.displayName;
+                select.appendChild(option);
+            }
+        }
     }
 }

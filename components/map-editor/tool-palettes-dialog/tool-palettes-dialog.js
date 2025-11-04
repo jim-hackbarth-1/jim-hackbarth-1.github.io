@@ -46,7 +46,7 @@ export class ToolPalettesDialogModel {
 
     async onMapUpdated(message) {
         if (ToolPalettesDialogModel.#isVisible) {
-            ToolPalettesDialogModel.#map = await MapWorkerClient.getMap(); 
+            ToolPalettesDialogModel.#map = await MapWorkerClient.getMap();
             const changeInfo = ToolPalettesDialogModel.#getChangeInfo(message);
             switch (changeInfo.changeType) {
                 case "tool-insert":
@@ -199,7 +199,7 @@ export class ToolPalettesDialogModel {
                     }
                     break;
             }
-            const detailContainer = this.#kitElement.querySelector("#detail-container");
+            const detailContainer = this.#kitElement.querySelector("#detail-section");
             await UIKit.renderer.renderKitElement(detailContainer);
         }
     }
@@ -226,7 +226,7 @@ export class ToolPalettesDialogModel {
         this.#slideNavigation();
     }
 
-    getRootNavItems() {
+    getRootNavIds() {
         return [
             { id: "palette.editing.tools" },
             { id: "palette.drawing.tools" },
@@ -236,92 +236,9 @@ export class ToolPalettesDialogModel {
         ];
     }
 
-    collapseNavItem(element) {
-        const navElement = element.closest("[data-nav-item-id]");
-        navElement.setAttribute("data-nav-item-expanded-state", "collapsed");
-        navElement.scrollIntoView({ block: "nearest", behavior: "smooth" });
-    }
-
-    expandNavItem(element, scrollIntoView = true) {
-        const navElement = element.closest("[data-nav-item-id]");
-        const expandableNavItemElements = [];
-        this.#collectExpandableNavItemSelfAndAncestors(navElement, expandableNavItemElements);
-        for (const expandableNavItemElement of expandableNavItemElements) {
-            expandableNavItemElement.setAttribute("data-nav-item-expanded-state", "expanded");
-        }
-        if (scrollIntoView) {
-            const firstChildNavItemElement = navElement.querySelector("[data-nav-item-id]");
-            if (firstChildNavItemElement) {
-                firstChildNavItemElement.scrollIntoView({ block: "nearest", behavior: "smooth" });
-            }
-        }
-    }
-
-    async selectNavItem(element) {
-        const selectedNavElement = this.#kitElement.querySelector("[data-nav-selected]");
-        if (selectedNavElement) {
-            selectedNavElement.removeAttribute("data-nav-selected");
-        }
-        const navElement = element.closest("[data-nav-item-id]");
-        navElement.setAttribute("data-nav-selected", "");
-        this.expandNavItem(navElement, false);
-        navElement.scrollIntoView({ block: "nearest", behavior: "smooth" });
-        const detailContainer = this.#kitElement.querySelector("#detail-container");
-        await UIKit.renderer.renderKitElement(detailContainer);
-    }
-
-    async selectNavItemByRefId(refId) {
-        const element = this.#kitElement.querySelector(`[data-nav-item-id="${refId}"]`);
-        await this.selectNavItem(element);
-    }
-
     getNavItemModel(navItemId) {
+
         return ToolPalettesDialogModel.#getNavItemModelFromMap(navItemId);
-    }
-
-    getSelectedDetailComponentInfo() {
-        const selectedNavElement = this.#kitElement.querySelector("[data-nav-selected]");
-        let id = "";
-        if (selectedNavElement) {
-            id = selectedNavElement.getAttribute("data-nav-item-id");
-        }
-        if (id.startsWith("caption.text.shadow-")
-            || id.startsWith("caption.shadow-")
-            || id.startsWith("shadow-")) {
-            return { componentName: "shadow", id: id };
-        }
-        if (id.startsWith("caption.border-")
-            || id.startsWith("caption.background-")
-            || id.startsWith("stroke-")
-            || id.startsWith("fill-")) {
-            return { componentName: "path.style", id: id };
-        }
-        if (id.startsWith("caption-")) {
-            return { componentName: "caption", id: id }
-        }
-        if (id.startsWith("strokes-") || id.startsWith("fills-")) {
-            return { componentName: "path.styles", id: id };
-        }
-        if (id.startsWith("map.item.template-")) {
-            return { componentName: "map.item.template", id: id };
-        }
-        if (id.startsWith("tool-")) {
-            return { componentName: "tool", id: id };
-        }
-        if (id == "map.item.templates") {
-            return { componentName: "map.item.templates" };
-        }
-        if (id == "tools") {
-            return { componentName: "tools" };
-        }
-        if (id.startsWith("palette")) {
-            return { componentName: "palette", id: id };
-        }
-        return { componentName: "none" };
-    }
-
-    onInputKeyDown(event) {
-        event.stopPropagation();
     }
 
     static serializeRef(ref) {
@@ -415,6 +332,90 @@ export class ToolPalettesDialogModel {
         return null;
     }
 
+    expandNavItem(element, scrollIntoView = true) {
+        const navItemContainer = element.closest("[data-nav-item-id]");
+        const expandableNavItemElements = [];
+        ToolPalettesDialogModel.#collectExpandableNavItemSelfAndAncestors(navItemContainer, expandableNavItemElements);
+        for (const expandableNavItemElement of expandableNavItemElements) {
+            expandableNavItemElement.setAttribute("data-nav-item-state", "expanded");
+        }
+        if (scrollIntoView) {
+            const firstChildNavItemContainer = navItemContainer.querySelector("[data-nav-item-id]");
+            if (firstChildNavItemContainer) {
+                firstChildNavItemContainer.firstElementChild.scrollIntoView({ block: "nearest", behavior: "smooth" });
+            }
+        }
+    }
+
+    collapseNavItem(element) {
+        const navItemContainer = element.closest("[data-nav-item-id]");
+        navItemContainer.setAttribute("data-nav-item-state", "collapsed");
+        navItemContainer.firstElementChild.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+
+    async selectNavItem(element) {
+        const selectedNavItemContainer = this.#kitElement.querySelector("[data-nav-selected]");
+        if (selectedNavItemContainer) {
+            selectedNavItemContainer.removeAttribute("data-nav-selected");
+        }
+        const navItemContainer = element.closest("[data-nav-item-id]");
+        navItemContainer.setAttribute("data-nav-selected", "");
+        this.expandNavItem(navItemContainer, false);
+        navItemContainer.firstElementChild.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        const detailSection = this.#kitElement.querySelector("#detail-section");
+        await UIKit.renderer.renderKitElement(detailSection);
+    }
+
+    async selectNavItemByRefId(refId) {
+        const element = this.#kitElement.querySelector(`[data-nav-item-id="${refId}"]`);
+        await this.selectNavItem(element);
+    }
+
+    getSelectedDetailComponentInfo() {
+        const selectedNavItemContainer = this.#kitElement.querySelector("[data-nav-selected]");
+        let id = "";
+        if (selectedNavItemContainer) {
+            id = selectedNavItemContainer.getAttribute("data-nav-item-id");
+        }
+        if (id.startsWith("caption.text.shadow-")
+            || id.startsWith("caption.shadow-")
+            || id.startsWith("shadow-")) {
+            return { componentName: "shadow", id: id };
+        }
+        if (id.startsWith("caption.border-")
+            || id.startsWith("caption.background-")
+            || id.startsWith("stroke-")
+            || id.startsWith("fill-")) {
+            return { componentName: "path.style", id: id };
+        }
+        if (id.startsWith("caption-")) {
+            return { componentName: "caption", id: id }
+        }
+        if (id.startsWith("strokes-") || id.startsWith("fills-")) {
+            return { componentName: "path.styles", id: id };
+        }
+        if (id.startsWith("map.item.template-")) {
+            return { componentName: "map.item.template", id: id };
+        }
+        if (id.startsWith("tool-")) {
+            return { componentName: "tool", id: id };
+        }
+        if (id == "map.item.templates") {
+            return { componentName: "map.item.templates" };
+        }
+        if (id == "tools") {
+            return { componentName: "tools" };
+        }
+        if (id.startsWith("palette")) {
+            return { componentName: "palette", id: id };
+        }
+        return { componentName: "none" };
+    }
+
+    onInputKeyDown(event) {
+        event.stopPropagation();
+    }
+
     // helpers
     static #isVisible = false;
     static #navMinimized = false;
@@ -447,21 +448,8 @@ export class ToolPalettesDialogModel {
         UIKit.document.documentElement.style.setProperty("--tool-palettes-nav-width", navWidth);
     }
 
-    #collectExpandableNavItemSelfAndAncestors(navItemElement, expandableNavItemElements) {
-        const expandedState = navItemElement.getAttribute("data-nav-item-expanded-state");
-        if (expandedState == "collapsed") {
-            expandableNavItemElements.push(navItemElement);
-        }
-        if (navItemElement.parentElement) {
-            const parentNavItemElement = navItemElement.parentElement.closest("[data-nav-item-id]");
-            if (parentNavItemElement) {
-                this.#collectExpandableNavItemSelfAndAncestors(parentNavItemElement, expandableNavItemElements)
-            }
-        }
-    }
-
     static #getNavItemModelFromMap(id) {
-        const model = { id: id, children: [] };
+        const model = { id: id, children: [], state: "bullet" };
         const map = ToolPalettesDialogModel.#map;
         function sortByDisplayName(item1, item2) {
             if (item1.displayName.toLowerCase() < item2.displayName.toLowerCase()) {
@@ -493,7 +481,7 @@ export class ToolPalettesDialogModel {
             }
             tools.sort(sortByDisplayName);
             model.children = tools.map(t => ({ id: t.id }));
-            model.expandedState = model.children.length > 0 ? "collapsed" : null;
+            model.state = model.children.length > 0 ? "collapsed" : "bullet";
         }
         if (id.startsWith("tool-")) {
             const serialRef = id.replace("tool-", "");
@@ -514,7 +502,7 @@ export class ToolPalettesDialogModel {
             }
             mapItemTemplates.sort(sortByDisplayName);
             model.children = mapItemTemplates.map(t => ({ id: t.id }));
-            model.expandedState = model.children.length > 0 ? "collapsed" : null;
+            model.state = model.children.length > 0 ? "collapsed" : "bullet";
         }
         if (id.startsWith("map.item.template-")) {
             const serialRef = id.replace("map.item.template-", "");
@@ -528,7 +516,7 @@ export class ToolPalettesDialogModel {
                 { id: `shadow-${serialRef}` },
                 { id: `caption-${serialRef}` }
             ];
-            model.expandedState = "collapsed";
+            model.state = "collapsed";
         }
         if (id.startsWith("fills-")) {
             model.displayName = "Fills";
@@ -540,7 +528,7 @@ export class ToolPalettesDialogModel {
                 fills.push({ id: `fill-${fillId}-${serialRef}` });
             }
             model.children = fills;
-            model.expandedState = model.children.length > 0 ? "collapsed" : null;
+            model.state = model.children.length > 0 ? "collapsed" : "bullet";
         }
         if (id.startsWith("fill-")) {
             const parts = id.split("-");
@@ -563,7 +551,7 @@ export class ToolPalettesDialogModel {
                 strokes.push({ id: `stroke-${strokeId}-${serialRef}` });
             }
             model.children = strokes;
-            model.expandedState = model.children.length > 0 ? "collapsed" : null;
+            model.state = model.children.length > 0 ? "collapsed" : "bullet";
         }
         if (id.startsWith("stroke-")) {
             const parts = id.split("-");
@@ -594,7 +582,7 @@ export class ToolPalettesDialogModel {
             children.push({ id: `caption.shadow-${serialRef}` });
             children.push({ id: `caption.text.shadow-${serialRef}` });
             model.children = children;
-            model.expandedState = "collapsed";
+            model.state = "collapsed";
         }
         if (id.startsWith("caption.background-")) {
             model.displayName = "Background";
@@ -614,6 +602,19 @@ export class ToolPalettesDialogModel {
     static #getMapItemTemplate(serialRef) {
         const ref = ToolPalettesDialogModel.deSerializeRef(serialRef);
         return ToolPalettesDialogModel.#map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, ref));
+    }
+
+    static #collectExpandableNavItemSelfAndAncestors(navItemElement, expandableNavItemElements) {
+        const expandedState = navItemElement.getAttribute("data-nav-item-state");
+        if (expandedState == "collapsed") {
+            expandableNavItemElements.push(navItemElement);
+        }
+        if (navItemElement.parentElement) {
+            const parentNavItemElement = navItemElement.parentElement.closest("[data-nav-item-id]");
+            if (parentNavItemElement) {
+                ToolPalettesDialogModel.#collectExpandableNavItemSelfAndAncestors(parentNavItemElement, expandableNavItemElements)
+            }
+        }
     }
 
     static #getChangeInfo(message) {

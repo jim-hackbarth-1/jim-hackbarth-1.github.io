@@ -175,7 +175,7 @@ class PathStylesViewModel {
             return;
         }
         const id = event.dataTransfer.getData("text");
-        const listElements = this.#kitElement.querySelectorAll(".path-style-item");
+        const listElements = this.#kitElement.querySelectorAll(".list-item");
         const mouseY = event.clientY;
         let newIndex = 0;
         let currentIndex = 0;

@@ -150,61 +150,70 @@ class MapItemTemplateViewModel {
     }
 
     async generateThumbnail(select) {
-        let thumbnailSrc = MapItemTemplateViewModel.#getThumbnailSrcFromPathStyles();
-        if (!thumbnailSrc) {
-            const shape = this.#kitElement.querySelector("#thumbnail-generate").value;
-            const thumbnailPathData = MapItemTemplateViewModel.#getThumbnailPathData(shape);
-            let path2D = new Path2D(thumbnailPathData);
-            const offscreenCanvas = new OffscreenCanvas(30, 30);
-            const context = offscreenCanvas.getContext("2d");
-            context.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
-            const bounds = { x: 5, y: 5, width: 90, height: 90 };
-            const map = MapItemTemplateViewModel.#map;
-            map.zoom = 1;
-            map.pan = { x: 0, y: 0 };
-            const fillCount = MapItemTemplateViewModel.#mapItemTemplate.fills.length;
+        let thumbnailSrc = null;
+        const imageData = MapItemTemplateViewModel.#getThumbnailSrcFromPathStyles();
+        const shape = this.#kitElement.querySelector("#thumbnail-generate").value;
+        const thumbnailPathData = MapItemTemplateViewModel.#getThumbnailPathData(shape);
+        let path2D = new Path2D(thumbnailPathData);
+        const offscreenCanvas = new OffscreenCanvas(30, 30);
+        const context = offscreenCanvas.getContext("2d");
+        context.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+        const bounds = { x: 5, y: 5, width: 90, height: 90 };
+        const map = MapItemTemplateViewModel.#map;
+        map.zoom = 1;
+        map.pan = { x: 0, y: 0 };
+        const fillCount = MapItemTemplateViewModel.#mapItemTemplate.fills.length;
+        if (imageData) {
+            const response = await fetch(imageData);
+            const blob = await response.blob();
+            const bmp = await createImageBitmap(blob);
+            const pattern = context.createPattern(bmp, "repeat");
+            context.fillStyle = pattern;
+            context.fill(path2D);
+        }
+        else {
             for (let i = fillCount - 1; i > -1; i--) {
                 let fill = MapItemTemplateViewModel.#mapItemTemplate.fills[i];
                 await fill.setStyle(context, map, bounds, true);
                 context.fill(path2D);
             }
-            if (fillCount > 0) {
-                const widestStroke = MapItemTemplateViewModel.#getWidestStroke();
-                if (widestStroke) {
-                    let strokeData = widestStroke.getData();
-                    for (const option of strokeData.options) {
-                        if (option.key == PathStyleOption.Width) {
-                            option.value = 2;
-                        }
-                    }
-                    let stroke = new PathStyle(strokeData);
-                    await stroke.setStyle(context, map, bounds, true);
-                    context.stroke(path2D);
-                }
-            }
-            else {
-                const strokes = MapItemTemplateViewModel.#mapItemTemplate.strokes ?? [];
-                const strokeCount = strokes.length;
-                let width = 8;
-                for (let i = strokeCount - 1; i > -1; i--) {
-                    width -= 3;
-                    if (width <= 0) {
-                        break;
-                    }
-                    let strokeData = strokes[i].getData();
-                    for (const option of strokeData.options) {
-                        if (option.key == PathStyleOption.Width) {
-                            option.value = width;
-                        }
-                    }
-                    let stroke = new PathStyle(strokeData);
-                    await stroke.setStyle(context, map, bounds, false);
-                    context.stroke(path2D);
-                }
-            }
-            const blob = await offscreenCanvas.convertToBlob();
-            thumbnailSrc = await MapItemTemplateViewModel.#getDataUrl(blob);
         }
+        if (fillCount > 0) {
+            const widestStroke = MapItemTemplateViewModel.#getWidestStroke();
+            if (widestStroke) {
+                let strokeData = widestStroke.getData();
+                for (const option of strokeData.options) {
+                    if (option.key == PathStyleOption.Width) {
+                        option.value = 2;
+                    }
+                }
+                let stroke = new PathStyle(strokeData);
+                await stroke.setStyle(context, map, bounds, true);
+                context.stroke(path2D);
+            }
+        }
+        else {
+            const strokes = MapItemTemplateViewModel.#mapItemTemplate.strokes ?? [];
+            const strokeCount = strokes.length;
+            let width = 8;
+            for (let i = strokeCount - 1; i > -1; i--) {
+                width -= 3;
+                if (width <= 0) {
+                    break;
+                }
+                let strokeData = strokes[i].getData();
+                for (const option of strokeData.options) {
+                    if (option.key == PathStyleOption.Width) {
+                        option.value = width;
+                    }
+                }
+                let stroke = new PathStyle(strokeData);
+                await stroke.setStyle(context, map, bounds, false);
+                context.stroke(path2D);
+            }
+        }
+        const blob = await offscreenCanvas.convertToBlob();
+        thumbnailSrc = await MapItemTemplateViewModel.#getDataUrl(blob);
         if (thumbnailSrc) {
             const previewElement = this.#kitElement.querySelector("#map-item-template-thumbnail-preview");
             previewElement.src = thumbnailSrc;
@@ -238,30 +247,29 @@ class MapItemTemplateViewModel {
         let isValid = true;
         const validationLabels = this.#kitElement.querySelectorAll(".validation-message");
         for (const label of validationLabels) {
+            label.classList.remove("active");
             label.innerHTML = "";
         }
 
         // validate name
         const name = this.#kitElement.querySelector("#map-item-template-name").value;
         if (name.length == 0) {
-            this.#kitElement.querySelector("#map-item-template-name-validation").innerHTML = "Name is required.";
+            this.#showValidationMessage("#map-item-template-name-validation", "Name is required.");
             isValid = false;
         }
         if (!name.match(/^[a-zA-Z0-9\s()]*$/)) {
-            this.#kitElement.querySelector("#map-item-template-name-validation").innerHTML
-                = "Invalid character(s). Alpha-numeric only.";
+            this.#showValidationMessage("#map-item-template-name-validation", "Invalid character(s). Alpha-numeric only.");
             isValid = false;
         }
 
         // validate version
         const versionId = parseInt(this.#kitElement.querySelector("#map-item-template-version").value);
         if (isNaN(versionId)) {
-            this.#kitElement.querySelector("#map-item-template-version-validation").innerHTML = "Version is required.";
+            this.#showValidationMessage("#map-item-template-version-validation", "Version is required.");
             isValid = false;
         }
         if (versionId < 1 || versionId > 1000) {
-            this.#kitElement.querySelector("#map-item-template-version-validation").innerHTML
-                = "Version must be an integer between 1 and 1000.";
+            this.#showValidationMessage("#map-item-template-version-validation", "Version must be an integer between 1 and 1000.");
             isValid = false;
         }
         const newRef = {
@@ -272,36 +280,32 @@ class MapItemTemplateViewModel {
         };
         const isStartingRef = EntityReference.areEqual(MapItemTemplateViewModel.#mapItemTemplate.ref, newRef);
         if (!isStartingRef && MapItemTemplateViewModel.#map.mapItemTemplateRefs.some(mitr => EntityReference.areEqual(mitr, newRef))) {
-            this.#kitElement.querySelector("#map-item-template-name-validation").innerHTML
-                = "The combination of name and version must be unique.";
+            this.#showValidationMessage("#map-item-template-name-validation", "The combination of name and version must be unique.");
             isValid = false;
         }
 
         // validate thumbnail
         const thumbnailSrc = this.#kitElement.querySelector("#map-item-template-thumbnail-preview").src;
         if (!thumbnailSrc || thumbnailSrc.length == 0) {
-            this.#kitElement.querySelector("#map-item-template-thumbnail-validation").innerHTML = "Thumbnail is required.";
+            this.#showValidationMessage("#map-item-template-thumbnail-validation", "Thumbnail is required.");
             isValid = false;
         }
 
         // validate z-group
         const defaultZGroup = parseInt(this.#kitElement.querySelector("#map-item-template-z-group")?.value);
         if (isNaN(defaultZGroup)) {
-            this.#kitElement.querySelector("#map-item-template-z-group-validation").innerHTML
-                = "Default z-order rendering group is required.";
+            this.#showValidationMessage("#map-item-template-z-group-validation", "Default z-order is required.");
             isValid = false;
         }
         if (defaultZGroup < -10 || defaultZGroup > 10) {
-            this.#kitElement.querySelector("#map-item-template-z-group-validation").innerHTML
-                = "Default z-order rendering group must be an integer between -10 and 10.";
+            this.#showValidationMessage("#map-item-template-z-group-validation", "Default z-order must be an integer between -10 and 10.");
             isValid = false;
         }
 
         // validate tags
         const tags = this.#kitElement.querySelector("#map-item-template-tags").value;
         if (tags && !tags.match(/^[a-zA-Z0-9\s()]*$/)) {
-            this.#kitElement.querySelector("#map-item-template-tags-validation").innerHTML
-                = "Invalid character(s). Alpha-numeric only.";
+            this.#showValidationMessage("#map-item-template-tags-validation", "Invalid character(s). Alpha-numeric only");
             isValid = false;
         }
 
@@ -332,6 +336,13 @@ class MapItemTemplateViewModel {
                 tags: tags
             }
         };
+    }
+
+    #showValidationMessage(selector, message) {
+        const element = this.#kitElement.querySelector(selector);
+        element.innerHTML = message;
+        element.classList.add("active");
+        element.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
 
     static #getUpdateChanges(currentMapItemTemplate, updatedMapItemTemplate) {

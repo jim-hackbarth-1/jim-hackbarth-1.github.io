@@ -251,7 +251,7 @@ class PathStyleViewModel {
 
     async updatePathStyleType() {
         PathStyleViewModel.#tempPathStyleType = this.#kitElement.querySelector("#path-style-type").value;
-        const form = this.#kitElement.querySelector(".tool-palettes-form");
+        const form = this.#kitElement.querySelector(".detail-content");
         await UIKit.renderer.renderKitElement(form);
         this.#loadPathStyleTypes();
         const showGradientStart = this.showGradientStart();
@@ -523,6 +523,7 @@ class PathStyleViewModel {
         let isValid = true;
         const validationLabels = this.#kitElement.querySelectorAll(".validation-message");
         for (const label of validationLabels) {
+            label.classList.remove("active");
             label.innerHTML = "";
         }
         const options = []; 
@@ -785,6 +786,7 @@ class PathStyleViewModel {
     #showValidationMessage(selector, message) {
         const element = this.#kitElement.querySelector(selector);
         element.innerHTML = message;
+        element.classList.add("active");
         element.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
 

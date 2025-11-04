@@ -175,28 +175,29 @@ class ToolViewModel {
         let isValid = true;
         const validationLabels = this.#kitElement.querySelectorAll(".validation-message");
         for (const label of validationLabels) {
+            label.classList.remove("active");
             label.innerHTML = "";
         }
         
         // validate name
         const name = this.#kitElement.querySelector("#tool-name").value;
         if (name.length == 0) {
-            this.#kitElement.querySelector("#tool-name-validation").innerHTML = "Name is required.";
+            this.#showValidationMessage("#tool-name-validation", "Name is required.");
             isValid = false;
         }
         if (!name.match(/^[a-zA-Z0-9\s()]*$/)) {
-            this.#kitElement.querySelector("#tool-name-validation").innerHTML = "Invalid character(s). Alpha-numeric only.";
+            this.#showValidationMessage("#tool-name-validation", "Invalid character(s). Alpha-numeric only.");
             isValid = false;
         }
 
         // validate version
         const versionId = parseInt(this.#kitElement.querySelector("#tool-version").value);
         if (isNaN(versionId)) {
-            this.#kitElement.querySelector("#tool-version-validation").innerHTML = "Version is required.";
+            this.#showValidationMessage("#tool-version-validation", "Version is required.");
             isValid = false;
         }
         if (versionId < 1 || versionId > 1000) {
-            this.#kitElement.querySelector("#tool-version-validation").innerHTML = "Version must be an integer between 1 and 1000.";
+            this.#showValidationMessage("#tool-version-validation", "Version must be an integer between 1 and 1000.");
             isValid = false;
         }
         const newRef = {
@@ -207,19 +208,18 @@ class ToolViewModel {
         };
         const isStartingRef = EntityReference.areEqual(ToolViewModel.#tool.ref, newRef);
         if (!isStartingRef && ToolViewModel.#map.toolRefs.some(tr => EntityReference.areEqual(tr, newRef))) {
-            this.#kitElement.querySelector("#tool-name-validation").innerHTML = "The combination of name and version must be unique.";
+            this.#showValidationMessage("#tool-name-validation", "The combination of name and version must be unique.");
             isValid = false;
         }
 
         // validate module source
         let moduleSrc = this.#kitElement.querySelector("#tool-module-source").value;
         if (!moduleSrc || moduleSrc.length == 0) {
-            this.#kitElement.querySelector("#tool-module-source-validation").innerHTML = "Source is required.";
+            this.#showValidationMessage("#tool-module-source-validation", "Source is required.");
             isValid = false;
         }
         if (moduleSrc && !moduleSrc.includes("export function createToolModel()")) {
-            this.#kitElement.querySelector("#tool-module-source-validation").innerHTML
-                = "Source must export a function named 'createToolModel'";
+            this.#showValidationMessage("#tool-module-source-validation", "Source must export a function named 'createToolModel'");
             isValid = false;
         }
         moduleSrc = `data-${btoa(moduleSrc.trim())}`
@@ -227,14 +227,14 @@ class ToolViewModel {
         // validate thumbnail
         const thumbnailSrc = this.#kitElement.querySelector("#tool-thumbnail-source").value;
         if (!thumbnailSrc || thumbnailSrc.length == 0) {
-            this.#kitElement.querySelector("#tool-thumbnail-source-validation").innerHTML = "Thumbnail is required.";
+            this.#showValidationMessage("#tool-thumbnail-source-validation", "Thumbnail is required.");
             isValid = false;
         }
 
         // validate cursor
         const cursorSrc = this.#kitElement.querySelector("#tool-cursor-source").value;
         if (!cursorSrc || cursorSrc.length == 0) {
-            this.#kitElement.querySelector("#tool-cursor-source-validation").innerHTML = "Cursor is required.";
+            this.#showValidationMessage("#tool-cursor-source-validation", "Cursor source is required.");
             isValid = false;
         }
 
@@ -242,13 +242,11 @@ class ToolViewModel {
         const cursorHotspotX = parseInt(this.#kitElement.querySelector("#tool-cursor-hotspot-x").value);
         const cursorHotspotY = parseInt(this.#kitElement.querySelector("#tool-cursor-hotspot-y").value);
         if (isNaN(cursorHotspotX) || isNaN(cursorHotspotY)) {
-            this.#kitElement.querySelector("#tool-cursor-hotspot-validation").innerHTML
-                = "Cursor hotspot x and y coordinates are required.";
+            this.#showValidationMessage("#tool-cursor-hotspot-validation", "Cursor hotspot x and y coordinates are required.");
             isValid = false;
         }
         if (cursorHotspotX < 0 || cursorHotspotX > 100 || cursorHotspotY < 0 || cursorHotspotY > 100) {
-            this.#kitElement.querySelector("#tool-cursor-hotspot-validation").innerHTML
-                = "Cursor hotspot coordinates must be an integer between 0 and 100.";
+            this.#showValidationMessage("#tool-cursor-hotspot-validation", "Cursor hotspot coordinates must be an integer between 0 and 100.");
             isValid = false;
         }
 
@@ -273,6 +271,13 @@ class ToolViewModel {
                 toolType: toolType
             }
         };
+    }
+
+    #showValidationMessage(selector, message) {
+        const element = this.#kitElement.querySelector(selector);
+        element.innerHTML = message;
+        element.classList.add("active");
+        element.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
 
     static #getUpdateChanges(currentTool, updatedTool) {

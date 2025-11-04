@@ -1,26 +1,19 @@
 ﻿
-<div style="margin:0;height:100%;">
-    <link rel="stylesheet" href="/components/map-editor/tool-palettes-dialog/caption-view/caption-view.css" />
-    <div class="detail-section-heading-container">
-        <div class="detail-section-heading-row">
-            <div class="spacer" style="margin-bottom:5px;">
-                <h3 style="margin-bottom:5px;">%{#model.getTitle()}%</h3>
-                <div style="display:flex;margin-bottom:0;">
-                    <label class="map-item-template-name"
-                           onclick="#model.editMapItemTemplate()">
-                        %{#model.getMapItemTemplateName()}%
-                    </label>
+<div>
+    <div class="detail-heading" style="height:120px;">
+        <div class="detail-heading-row">
+            <div class="detail-heading-field detail-heading-label detail-title-label spacer">
+                <div>%{#model.getTitle()}%</div>
+                <div class="detail-heading-label">
+                    <label class="map-item-template-name" onclick="#model.editMapItemTemplate()">%{#model.getMapItemTemplateName()}%</label>
                     <kit-if kit-condition="#model.isFromTemplate()">
-                        <label class="map-item-template-name from-template"
-                               style="color:var(--color-secondary-container-on-variant-1)">
-                            (from template)
-                        </label>
+                        <label class="from-template-note">(from template)</label>
                     </kit-if>
                 </div>
             </div>
         </div>
-        <div class="detail-section-heading-row" style="padding-top:0;">
-            <div>
+        <div class="detail-heading-row">
+            <div class="detail-heading-field">
                 <button id="save-button"
                         title="Save"
                         class="button dialog-button"
@@ -33,16 +26,15 @@
             </div>
         </div>
     </div>
-    <div kit-element class="tool-palettes-form" style="height:calc(100% - (109px));">
+    <div class="detail-content" style="top:120px;">
 
         <!-- Default text, Opacity -->
-        <div style="display: flex; flex-wrap:wrap; margin:0;">
-            <div class="spacer" style="margin:0 10px 0 0;">
-                <label class="tool-palettes-dialog-form-label">Default text:</label>
+        <div class="form-row">
+            <div class="form-field">
+                <label class="form-label">Default text:</label>
                 <input id="caption-default-text"
                        value="%{#model.getDefaultText()}%"
                        type="text"
-                       style="width:100%;"
                        placeholder="[Default text]"
                        maxlength="30"
                        kit-element
@@ -51,10 +43,11 @@
                        onkeydown="#dialogModel.onInputKeyDown(event)">
                 <div id="caption-default-text-validation" class="validation-message"></div>
             </div>
-            <div style="margin:0 10px 0 0;">
-                <label class="tool-palettes-dialog-form-label">Opacity (%):</label>
+            <div class="form-field">
+                <label class="form-label">Opacity (%):</label>
                 <input id="caption-opacity"
                        type="number"
+                       style="width:100%"
                        min="0"
                        max="100"
                        kit-element
@@ -67,13 +60,12 @@
         </div>
 
         <!-- Font, Font variant caps -->
-        <div style="display: flex; flex-wrap: wrap;margin:0;">
-            <div class="spacer" style="margin:0 10px 0 0;">
-                <label class="tool-palettes-dialog-form-label">Font:</label>
+        <div class="form-row">
+            <div class="form-field">
+                <label class="form-label">Font:</label>
                 <input id="caption-font"
                        value="%{#model.getFont()}%"
                        type="text"
-                       style="width:100%;"
                        placeholder="[e.g. 12px Arial, sans-serif]"
                        maxlength="60"
                        kit-element
@@ -82,8 +74,8 @@
                        onkeydown="#dialogModel.onInputKeyDown(event)">
                 <div id="caption-font-validation" class="validation-message"></div>
             </div>
-            <div style="margin:0 10px 0 0;">
-                <label class="tool-palettes-dialog-form-label">Font variant caps:</label>
+            <div class="form-field">
+                <label class="form-label">Font variant caps:</label>
                 <select id="caption-font-variant-caps"
                         kit-element
                         kit-attr-add-value="value:%{#model.getFontVariantCaps()}%"
@@ -129,9 +121,9 @@
         </div>
 
         <!-- Color, Outline color -->
-        <div style="display: flex; margin: 0;">
-            <div style="width:140px;">
-                <label class="tool-palettes-dialog-form-label">Color:</label>
+        <div class="form-row">
+            <div class="form-field">
+                <label class="form-label">Color:</label>
                 <kit-component id="caption-color"
                                kit-template-path="/components/map-editor/tool-palettes-dialog/color-view/color-view.html"
                                kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
@@ -139,8 +131,8 @@
                 </kit-component>
                 <div id="caption-color-validation" class="validation-message"></div>
             </div>
-            <div>
-                <label class="tool-palettes-dialog-form-label">Outline color:</label>
+            <div class="form-field">
+                <label class="form-label">Outline color:</label>
                 <kit-component id="caption-outline-color"
                                kit-template-path="/components/map-editor/tool-palettes-dialog/color-view/color-view.html"
                                kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
@@ -151,8 +143,8 @@
         </div>
 
         <!-- Nav links -->
-        <div style="display: flex; flex-wrap: wrap;justify-content:space-between; margin: 25px 10px 0 0;">
-            <div style="margin: 5px 0 0 0;">
+        <div class="form-row">
+            <div class="form-field">
                 <button title="Add/edit background"
                         style="width: 100px;"
                         class="button link-button"
@@ -160,7 +152,7 @@
                     Background
                 </button>
             </div>
-            <div style="margin: 5px 0 0 0;">
+            <div class="form-field">
                 <button title="Add/edit border"
                         style="width: 100px;"
                         class="button link-button"
@@ -168,7 +160,7 @@
                     Border
                 </button>
             </div>
-            <div style="margin: 5px 0 0 0;">
+            <div class="form-field">
                 <button title="Edit shadow"
                         style="width: 100px;"
                         class="button link-button"
@@ -176,7 +168,7 @@
                     Shadow
                 </button>
             </div>
-            <div style="margin: 5px 0 0 0;">
+            <div class="form-field">
                 <button title="Edit text shadow"
                         style="width: 100px;"
                         class="button link-button"

@@ -182,13 +182,15 @@ class CaptionViewModel {
         let isValid = true;
         const validationLabels = this.#kitElement.querySelectorAll(".validation-message");
         for (const label of validationLabels) {
+            label.classList.remove("active");
             label.innerHTML = "";
         }
 
         const defaultText = this.#kitElement.querySelector("#caption-default-text").value;
         if (defaultText && !defaultText.match(/^[a-zA-Z0-9\s()]*$/)) {
-            this.#kitElement.querySelector("#caption-default-text-validation").innerHTML
-                = "Invalid character(s). Alpha-numeric only.";
+            this.#showValidationMessage(
+                "#caption-default-text-validation",
+                "Invalid character(s). Alpha-numeric only.");
             isValid = false;
         }
 
@@ -215,8 +217,9 @@ class CaptionViewModel {
             isValid = false;
         }
         if (font && CaptionViewModel.#containsHtml(font)) {
-            this.#kitElement.querySelector("#caption-font-validation").innerHTML
-                = "Invalid character(s). &amp;, &lt;, &gt;, &apos;, and &quot; are not allowed.";
+            this.#showValidationMessage(
+                "#caption-font-validation",
+                "Invalid character(s). &amp;, &lt;, &gt;, &apos;, and &quot; are not allowed.");
             isValid = false;
         }
 
@@ -279,6 +282,7 @@ class CaptionViewModel {
     #showValidationMessage(selector, message) {
         const element = this.#kitElement.querySelector(selector);
         element.innerHTML = message;
+        element.classList.add("active");
         element.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
 

@@ -137,6 +137,7 @@ class ShadowViewModel {
         let isValid = true;
         const validationLabels = this.#kitElement.querySelectorAll(".validation-message");
         for (const label of validationLabels) {
+            label.classList.remove("active");
             label.innerHTML = "";
         }
 
@@ -192,6 +193,7 @@ class ShadowViewModel {
     #showValidationMessage(selector, message) {
         const element = this.#kitElement.querySelector(selector);
         element.innerHTML = message;
+        element.classList.add("active");
         element.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
 }

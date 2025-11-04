@@ -1,36 +1,37 @@
 ﻿
-<div style="margin:0;height:100%;">
-    <link rel="stylesheet" href="/components/map-editor/tool-palettes-dialog/tools-view/tools-view.css" />
-    <div class="detail-section-heading-container">
-        <div class="detail-section-heading-row">
-            <div class="spacer">
-                <h3>Tools</h3>
+<div>
+    <div class="detail-heading" style="height:55px;">
+        <div class="detail-heading-row">
+            <div class="detail-heading-field detail-heading-label detail-title-label spacer" title="Tools">
+                Tools
             </div>
-            <div>
+            <div class="detail-heading-field">
                 <button title="Add tool" class="button dialog-button" onclick="#model.addTool();">Add tool</button>
             </div>
         </div>
     </div>
-    <div style="padding:10px 10px 0 10px;margin:0;height:calc(100% - (56px));">
-        <div id="tool-list">
-            <kit-if kit-condition="%{!#model.hasTools()}%">
-                <div style="padding:10px;">[No tools]</div>
-            </kit-if>
-            <kit-array kit-array="#model.getTools()" kit-array-item-alias="tool">
-                <div class="tool-item">
-                    <div class="thumbnail">
-                        <svg height="25" width="25" viewBox="0 0 100 100">%{#tool.thumbnailSvgSrc}%</svg>
-                    </div>
-                    <div class="tool-name-container spacer">
-                        <div style="margin:0;padding:0;">
-                            <label class="edit-label" onclick="#model.editTool('%{#tool.id}%')">%{#tool.displayName}%</label>
+    <div class="detail-content" style="top:55px;">
+        <div class="form-row">
+            <div class="form-field">
+                <div class="item-list">
+                    <kit-if kit-condition="%{!#model.hasTools()}%">
+                        <div class="no-items-message">[No tools]</div>
+                    </kit-if>
+                    <kit-array kit-array="#model.getTools()" kit-array-item-alias="tool">
+                        <div class="tool-button list-item">
+                            <div>
+                                <svg height="25" width="25" viewBox="0 0 100 100">%{#tool.thumbnailSvgSrc}%</svg>
+                            </div>
+                            <div class="spacer">
+                                <label onclick="#model.editTool('%{#tool.id}%')">%{#tool.displayName}%</label>
+                            </div>
+                            <div class="secondary-info">
+                                <span>%{#tool.refNote}%</span>
+                            </div>
                         </div>
-                        <div style="margin:0;padding:0;">
-                            <label class="list-item-note">%{#tool.refNote}%</label>
-                        </div>
-                    </div>
+                    </kit-array>
                 </div>
-            </kit-array>
-        </div>
+            </div>
+        </div>      
     </div>
 </div>

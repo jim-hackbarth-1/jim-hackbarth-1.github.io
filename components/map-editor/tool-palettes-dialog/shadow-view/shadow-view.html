@@ -1,26 +1,19 @@
 ﻿
-<div style="margin:0;">
-    <link rel="stylesheet" href="/components/map-editor/tool-palettes-dialog/shadow-view/shadow-view.css" />
-    <div class="detail-section-heading-container">
-        <div class="detail-section-heading-row">
-            <div class="spacer" style="margin-bottom:5px;">
-                <h3 style="margin-bottom:5px;">%{#model.getTitle()}%</h3>
-                <div style="display:flex;margin-bottom:0;">
-                    <label class="map-item-template-name"
-                           onclick="#model.editMapItemTemplate()">
-                        %{#model.getMapItemTemplateName()}%
-                    </label>
+<div>
+    <div class="detail-heading" style="height:120px;">
+        <div class="detail-heading-row">
+            <div class="detail-heading-field detail-heading-label detail-title-label spacer">
+                <div>%{#model.getTitle()}%</div>
+                <div class="detail-heading-label">
+                    <label class="map-item-template-name" onclick="#model.editMapItemTemplate()">%{#model.getMapItemTemplateName()}%</label>
                     <kit-if kit-condition="#model.isFromTemplate()">
-                        <label class="map-item-template-name from-template"
-                               style="color:var(--color-secondary-container-on-variant-1)">
-                            (from template)
-                        </label>
+                        <label class="from-template-note">(from template)</label>
                     </kit-if>
                 </div>
             </div>
         </div>
-        <div class="detail-section-heading-row" style="padding-top:0;">
-            <div>
+        <div class="detail-heading-row">
+            <div class="detail-heading-field">
                 <button id="save-button"
                         title="Save"
                         class="button dialog-button"
@@ -33,14 +26,15 @@
             </div>
         </div>
     </div>
-    <div kit-element class="tool-palettes-form">
+    <div class="detail-content" style="top:120px;">
 
         <!-- Blur and Offset -->
-        <div style="display:flex;flex-wrap:wrap;margin:0;">
-            <div style="margin:0 10px 0 0;">
-                <label class="tool-palettes-dialog-form-label">Blur:</label>
+        <div class="form-row">
+            <div class="form-field">
+                <label class="form-label">Blur:</label>
                 <input id="shadow-blur"
                        type="number"
+                       style="width:100%"
                        min="0"
                        max="100"
                        kit-element
@@ -50,13 +44,11 @@
                        onkeydown="#dialogModel.onInputKeyDown(event)">
                 <div id="shadow-blur-validation" class="validation-message"></div>
             </div>
-            <div style="margin:0;">
-                <div style="margin-bottom:0;">
-                    <label class="tool-palettes-dialog-form-label">Offset:</label>
-                </div>
-                <div style="display: flex; margin: 0;">
-                    <div style="margin-right:10px;white-space:nowrap;">
-                        <label class="tool-palettes-dialog-form-label" style="display:inline-block;vertical-align:top;">x:</label>
+            <div class="form-field">
+                <label class="form-label">Offset:</label>
+                <div class="form-field form-field-group">
+                    <div class="form-field-group-item">
+                        <label class="inline-form-label">x:</label>
                         <input id="shadow-offset-x"
                                type="number"
                                min="-100"
@@ -67,8 +59,8 @@
                                oninput="#model.validate()"
                                onkeydown="#dialogModel.onInputKeyDown(event)">
                     </div>
-                    <div class="spacer" style="white-space: nowrap;">
-                        <label class="tool-palettes-dialog-form-label" style="display:inline-block;vertical-align:top;">y:</label>
+                    <div class="form-field-group-item">
+                        <label class="inline-form-label">y:</label>
                         <input id="shadow-offset-y"
                                type="number"
                                min="-100"
@@ -80,16 +72,14 @@
                                onkeydown="#dialogModel.onInputKeyDown(event)">
                     </div>
                 </div>
-                <div>
-                    <div style="margin-left:20px;" id="shadow-offset-validation" class="validation-message"></div>
-                </div>
+                <div id="shadow-offset-validation" class="validation-message"></div>
             </div>
         </div>
-        
-        <!-- Color and Rendering order -->
-        <div style="display:flex;flex-wrap:wrap;">
-            <div style="width:140px;">
-                <label class="tool-palettes-dialog-form-label">Color:</label>
+
+        <!-- Color -->
+        <div class="form-row">
+            <div class="form-field">
+                <label class="form-label">Color:</label>
                 <kit-component id="shadow-color"
                                kit-template-path="/components/map-editor/tool-palettes-dialog/color-view/color-view.html"
                                kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
@@ -97,8 +87,12 @@
                 </kit-component>
                 <div id="shadow-color-validation" class="validation-message"></div>
             </div>
-            <div>
-                <label class="tool-palettes-dialog-form-label">Rendering order:</label>
+        </div>
+
+        <!-- Rendering order -->
+        <div class="form-row">
+            <div class="form-field">
+                <label class="form-label">Rendering order:</label>
                 <select id="shadow-rendering-order"
                         kit-element
                         kit-attr-add-value="value:%{#model.getRenderingOrder()}%"
@@ -117,5 +111,6 @@
                 <div id="shadow-rendering-order-validation" class="validation-message"></div>
             </div>
         </div>
+
     </div>
 </div>

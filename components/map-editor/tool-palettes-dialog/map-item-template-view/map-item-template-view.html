@@ -1,23 +1,26 @@
 ﻿
-<div style="margin:0;height:100%;">
-    <link rel="stylesheet" href="/components/map-editor/tool-palettes-dialog/map-item-template-view/map-item-template-view.css" />
-    <div class="detail-section-heading-container">
-        <div class="detail-section-heading-row">
-            <div style="margin:0 10px 0 0;">
+<div>
+    <div class="detail-heading" style="height:100px;">
+        <div class="detail-heading-row">
+            <div class="icon-container detail-heading-field">
                 <img height="25" width="25" kit-element kit-attr-add-src="src:%{#model.getThumbnailSrc()}%" />
             </div>
-            <div class="spacer" style="white-space:nowrap;">
-                <h3>%{#model.getDisplayName()}%</h3>
+            <div class="detail-heading-field detail-heading-label detail-title-label spacer" title="%{#model.getDisplayName()}%">
+                %{#model.getDisplayName()}%
             </div>
             <kit-if kit-condition="#model.isBuiltIn()">
-                <div class="ref-attribute"><label>Built in</label></div>
+                <div class="detail-heading-field detail-heading-note">
+                    <span>Built in</span>
+                </div>
             </kit-if>
             <kit-if kit-condition="#model.isFromTemplate()">
-                <div class="ref-attribute"><label>From template</label></div>
+                <div class="detail-heading-field detail-heading-note">
+                    <span>From template</span>
+                </div>
             </kit-if>
         </div>
-        <div class="detail-section-heading-row">
-            <div>
+        <div class="detail-heading-row">
+            <div class="detail-heading-field spacer">
                 <button id="save-button"
                         title="Save map item template"
                         class="button dialog-button"
@@ -28,8 +31,7 @@
                     Save
                 </button>
             </div>
-            <div class="spacer"></div>
-            <div>
+            <div class="detail-heading-field">
                 <button title="Delete map item template"
                         class="button dialog-button"
                         style="width:80px;"
@@ -41,14 +43,13 @@
             </div>
         </div>
     </div>
-    <div class="tool-palettes-form" style="height:calc(100% - (99px));">
-        <div style="display:flex;flex-wrap:wrap;margin-bottom:0;">
-            <div class="spacer">
-                <label class="tool-palettes-dialog-form-label">Name:</label>
+    <div class="detail-content" style="top:100px;">
+        <div class="form-row">
+            <div class="form-field">
+                <label class="form-label">Name:</label>
                 <input id="map-item-template-name"
                        value="%{#model.getName()}%"
                        type="text"
-                       style="width:100%;"
                        maxlength="30"
                        kit-element
                        kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
@@ -56,10 +57,11 @@
                        onkeydown="#dialogModel.onInputKeyDown(event)">
                 <div id="map-item-template-name-validation" class="validation-message"></div>
             </div>
-            <div style="padding: 0 0 0 10px;">
-                <label class="tool-palettes-dialog-form-label">Version:</label>
+            <div class="form-field">
+                <label class="form-label">Version:</label>
                 <input id="map-item-template-version"
                        type="number"
+                       style="width:100%"
                        min="1"
                        max="1000"
                        kit-element
@@ -70,76 +72,81 @@
                 <div id="map-item-template-version-validation" class="validation-message"></div>
             </div>
         </div>
-        <div style="margin-bottom:2px;">
-            <label class="tool-palettes-dialog-form-label">Thumbnail:</label>
-        </div>
-        <div style="display:flex;">
-            <div class="thumbnail-preview-container">
-                <img id="map-item-template-thumbnail-preview"
-                     height="25"
-                     width="25"
-                     kit-element
-                     kit-attr-add-src="src:%{#model.getThumbnailSrc()}%" />
-            </div>
-            <div style="margin-bottom:0;">
-                <div>
-                    <button id="thumbnail-browse"
-                            title="Browse for thumbnail image"
-                            class="button dialog-button"
-                            style="width:250px;"
-                            kit-element
-                            kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
-                            onclick="#model.browseThumbnail()">
-                        Browse for thumbnail image ...
-                    </button>
+        <div class="form-row">
+            <div class="form-field">
+                <label class="form-label">Thumbnail:</label>
+                <div class="form-field form-field-group">
+                    <div class="form-field-group-item thumbnail-preview">
+                        <img id="map-item-template-thumbnail-preview"
+                             height="25"
+                             width="25"
+                             kit-element
+                             kit-attr-add-src="src:%{#model.getThumbnailSrc()}%" />
+                    </div>
+                    <div class="form-field-group-item">
+                        <div>
+                            <button id="thumbnail-browse"
+                                    title="Browse for image"
+                                    class="button dialog-button"
+                                    style="width:175px;text-align:left;"
+                                    kit-element
+                                    kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                                    onclick="#model.browseThumbnail()">
+                                Browse for image ...
+                            </button>
+                        </div>
+                        <div>
+                            <select id="thumbnail-generate"
+                                    title="Generate from shape selection"
+                                    style="width:175px;"
+                                    kit-element
+                                    kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                                    onchange="#model.generateThumbnail(this)">
+                                <option value="">Generate from shape ...</option>
+                                <option value="path">Generate path shape</option>
+                                <option value="lines">Generate lines shape</option>
+                                <option value="square">Generate square shape</option>
+                                <option value="circle">Generate circle shape</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <div id="map-item-template-thumbnail-validation" class="validation-message"></div>
-                <div style="margin-bottom:0;">
-                    <select id="thumbnail-generate"
-                            title="Generate thumbnail from shape selection"
-                            style="width:250px;"
-                            kit-element
-                            kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
-                            onchange="#model.generateThumbnail(this)">
-                        <option value="">Generate thumbnail from shape ...</option>
-                        <option value="path">Generate path shape</option>
-                        <option value="lines">Generate lines shape</option>
-                        <option value="square">Generate square shape</option>
-                        <option value="circle">Generate circle shape</option>
-                    </select>
-                </div>
             </div>
         </div>
-        <div>
-            <label class="tool-palettes-dialog-form-label">Default z-group:</label>
-            <input id="map-item-template-z-group"
-                   type="number"
-                   min="-10"
-                   max="10"
-                   title="Default z-group (rendering order)"
-                   style="width:100px"
-                   kit-element
-                   kit-attr-add-value="value:%{#model.getZGroup()}%"
-                   kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
-                   oninput="#model.validate()"
-                   onkeydown="#dialogModel.onInputKeyDown(event)">
-            <div id="map-item-template-z-group-validation" class="validation-message"></div>
+        <div class="form-row">
+            <div class="form-field">
+                <label class="form-label">Default z-group:</label>
+                <input id="map-item-template-z-group"
+                       type="number"
+                       style="width:100%"
+                       min="-10"
+                       max="10"
+                       title="Default z-group (rendering order)"
+                       kit-element
+                       kit-attr-add-value="value:%{#model.getZGroup()}%"
+                       kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                       oninput="#model.validate()"
+                       onkeydown="#dialogModel.onInputKeyDown(event)">
+                <div id="map-item-template-z-group-validation" class="validation-message"></div>
+            </div>
         </div>
-        <div>
-            <label class="tool-palettes-dialog-form-label">Tags:</label>
-            <input id="map-item-template-tags"
-                   value="%{#model.getTags()}%"
-                   type="text"
-                   style="width:100%;margin-right:10px;"
-                   maxlength="100"
-                   kit-element
-                   kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
-                   oninput="#model.validate()"
-                   onkeydown="#dialogModel.onInputKeyDown(event)">
-            <div id="map-item-template-tags-validation" class="validation-message"></div>
+        <div class="form-row">
+            <div class="form-field">
+                <label class="form-label">Tags:</label>
+                <input id="map-item-template-tags"
+                       value="%{#model.getTags()}%"
+                       type="text"
+                       maxlength="100"
+                       kit-element
+                       kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                       oninput="#model.validate()"
+                       onkeydown="#dialogModel.onInputKeyDown(event)">
+                <div id="map-item-template-tags-validation" class="validation-message"></div>
+            </div>
         </div>
-        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;margin:30px 0 0 0;">
-            <div style="margin:0;">
+        <div class="form-row">
+            <div class="form-field">
                 <button title="Manage fills"
                         style="width:80px;"
                         class="button link-button"
@@ -147,7 +154,7 @@
                     Fills
                 </button>
             </div>
-            <div style="margin:0;">
+            <div class="form-field">
                 <button title="Manage strokes"
                         style="width:80px;"
                         class="button link-button"
@@ -155,7 +162,7 @@
                     Strokes
                 </button>
             </div>
-            <div style="margin:0;">
+            <div class="form-field">
                 <button title="Manage shadow"
                         style="width:80px;"
                         class="button link-button"
@@ -163,7 +170,7 @@
                     Shadow
                 </button>
             </div>
-            <div style="margin:0;">
+            <div class="form-field">
                 <button title="Manage caption"
                         style="width:80px;"
                         class="button link-button"

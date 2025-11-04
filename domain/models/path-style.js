@@ -330,11 +330,6 @@ export class PathStyle {
                     addToArray = !isClip && PathStyle.#isImageInPathFill(x, y, image, path, geometryUtilities);
                 }
                 if (addToArray) {
-                    addToArray = !PathStyle.#doesImageIntersectExistingBounds(geometryUtilities, x - path.start.x, y - path.start.y, image, locations);
-                    if (!addToArray) {
-                    }
-                }
-                if (addToArray) {
                     locations.push({
                         index: imageIndex,
                         bounds: { x: x - path.start.x, y: y - path.start.y, width: image.width, height: image.height }
@@ -395,17 +390,6 @@ export class PathStyle {
             }
             return !inPath;
         } 
-        return false;
-    }
-
-    static #doesImageIntersectExistingBounds(geometryUtilities, x, y, image, array) {
-        const bottomLeft = { x: x, y: y + image.height };
-        const bottomRight = { x: x + image.width, y: y + image.height };
-        for (const item of array) {
-            if (geometryUtilities.isPointInBounds(bottomLeft, item.bounds) || geometryUtilities.isPointInBounds(bottomRight, item.bounds)) {
-                return true;
-            }
-        }
         return false;
     }
 

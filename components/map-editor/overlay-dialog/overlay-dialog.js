@@ -12,16 +12,6 @@ class OverlayDialogModel {
     // event handlers
     async init(kitElement) {
         this.#kitElement = kitElement;
-        const kitKey = UIKit.renderer.getKitElementKey(this.#kitElement);
-        UIKit.messenger.subscribe(
-            EditorModel.MapUpdatedNotificationTopic,
-            {
-                elementKey: kitKey,
-                id: `${EditorModel.MapUpdatedNotificationTopic}-${kitKey}`,
-                object: this,
-                callback: this.onMapUpdated.name
-            }
-        );
     }
 
     async onRendered() {
@@ -35,12 +25,6 @@ class OverlayDialogModel {
             const header = this.#kitElement.querySelector("header");
             this.#dialogHelper = new DialogHelper();
             this.#dialogHelper.show(dialog, header, this.#onCloseDialog);
-        }
-    }
-
-    async onMapUpdated(message) {
-        if (OverlayDialogModel.#isVisible) {
-            //await UIKit.renderer.renderKitElement(this.#kitElement);
         }
     }
 
@@ -59,6 +43,10 @@ class OverlayDialogModel {
     }
 
     async onOverlayChange() {
+        const hasInvalidInput = this.#kitElement.querySelector("input:invalid");
+        if (hasInvalidInput) {
+            return;
+        }
         const pattern = this.#kitElement.querySelector("#inputPattern").value;
         const size = Number(this.#kitElement.querySelector("#inputSize").value);
         const color = this.#kitElement.querySelector("#inputColor").value;

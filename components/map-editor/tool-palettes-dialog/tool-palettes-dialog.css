@@ -20,7 +20,6 @@
             width: 100%;
         }
     }
-
     /*dialog styles*/
     #dialog-title-container {
         min-width: 0;
@@ -52,7 +51,6 @@
         left: 0;
         right: 0;
     }
-
     /*nav section styles*/
     #nav-section {
         position: absolute;
@@ -74,7 +72,6 @@
     #nav-section .icon-text {
         fill: var(--color-primary-container-on);
     }
-
     /*nav heading styles*/
     #navigation-heading-container {
         display: flex;
@@ -98,7 +95,6 @@
     #nav-section #nav-toggle:hover .icon-text {
         fill: var(--color-primary-container-on-variant-2);
     }
-
     /*nav tree view styles*/
     #navigation-tree-container {
         padding: 0 5px 0 0;
@@ -155,7 +151,6 @@
     #nav-section .nav-item-container[data-nav-item-state="bullet"] > .nav-item > .bullet-container {
         display: block
     }
-
     /*selected nav item styles*/
     #nav-section .nav-item-container[data-nav-selected] > .nav-item {
         background-color: var(--color-secondary-container);
@@ -174,7 +169,6 @@
     #nav-section .nav-item .nav-item-state-container {
         margin-left: 5px;
     }
-
     /*hover nav item styles*/
     #nav-section .nav-item-container:not([data-nav-selected]):hover > .nav-item {
         color: var(--color-primary-container-on-variant-2);
@@ -188,7 +182,6 @@
     #nav-section .nav-item-container:not([data-nav-selected]):hover > .nav-item .icon-text {
         fill: var(--color-primary-container-on-variant-2);
     }
-
     /*details section styles*/
     #detail-section {
         position: absolute;
@@ -197,7 +190,6 @@
         left: var(--tool-palettes-nav-width);
         right: 0;
     }
-
     /*detail section heading styles*/
     #detail-section .detail-heading {
         position: absolute;
@@ -272,7 +264,6 @@
         font-weight: normal;
         color: var(--color-secondary-container-on-variant-1)
     }
-
     /*detail section content styles*/
     #detail-section .detail-content {
         position: absolute;
@@ -344,6 +335,14 @@
         white-space: nowrap;
     }
 
+    #detail-section .detail-content .form-row .form-field .item-list .list-item .edit-button {
+        background-color: var(--color-secondary-container);
+    }
+
+    #detail-section .detail-content .form-row .form-field .item-list .list-item:hover .edit-button {
+        background-color: var(--color-primary);
+    }
+
     #detail-section .detail-content .form-row .form-field .item-list .list-item .edit-button .icon-container {
         margin: 0;
         padding: 2px;
@@ -362,6 +361,16 @@
 
     #detail-section .detail-content .form-row .form-field .item-list .list-item .edit-button:not([disabled]):hover .icon-text {
         fill: var(--color-tertiary-container-on);
+    }
+
+    #detail-section .detail-content .form-row .form-field .item-list .list-item .edit-button[disabled] .icon,
+    #detail-section .detail-content .form-row .form-field .item-list .list-item .edit-button[disabled] .icon-text {
+        stroke: color-mix(in srgb, var(--color-secondary-container-on) 25%, var(--color-secondary-container) 75%);
+    }
+
+    #detail-section .detail-content .form-row .form-field .item-list .list-item:hover .edit-button[disabled] .icon,
+    #detail-section .detail-content .form-row .form-field .item-list .list-item:hover .edit-button[disabled] .icon-text {
+        stroke: color-mix(in srgb, var(--color-primary-on) 25%, var(--color-primary) 75%);
     }
 
     #detail-section .detail-content .form-row .form-field .link-button {

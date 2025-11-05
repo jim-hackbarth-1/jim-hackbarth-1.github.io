@@ -42,6 +42,10 @@ class CanvasSizeDialogModel {
     }
 
     async onSizeChange() {
+        const hasInvalidInput = this.#kitElement.querySelector("input:invalid");
+        if (hasInvalidInput) {
+            return;
+        }
         await this.#updateCanvasSize();
     }
 

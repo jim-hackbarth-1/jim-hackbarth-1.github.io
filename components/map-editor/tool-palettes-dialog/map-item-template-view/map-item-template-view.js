@@ -316,7 +316,7 @@ class MapItemTemplateViewModel {
         }
         const strokes = [];
         for (const stroke of MapItemTemplateViewModel.#mapItemTemplate.strokes) {
-            fills.push(stroke.getData());
+            strokes.push(stroke.getData());
         }
 
         // enable/disable save button

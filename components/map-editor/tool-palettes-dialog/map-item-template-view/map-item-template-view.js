@@ -24,12 +24,15 @@ class MapItemTemplateViewModel {
     async init(kitElement, kitObjects) {
         this.#kitElement = kitElement;
         MapItemTemplateViewModel.#dialogModel = kitObjects.find(o => o.alias == "dialogModel")?.object;
-        let mapItemTemplateId = MapItemTemplateViewModel.#dialogModel.getSelectedDetailComponentInfo().id;
-        mapItemTemplateId = mapItemTemplateId.replace("map.item.template-", "");
-        const ref = ToolPalettesDialogModel.deSerializeRef(mapItemTemplateId);
-        MapItemTemplateViewModel.#map = await MapWorkerClient.getMap();
-        MapItemTemplateViewModel.#mapItemTemplate
-            = MapItemTemplateViewModel.#map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, ref));
+        const componentInfo = MapItemTemplateViewModel.#dialogModel.getSelectedDetailComponentInfo();
+        if (componentInfo.componentName == "map.item.template") {
+            let mapItemTemplateId = componentInfo.id;
+            mapItemTemplateId = mapItemTemplateId.replace("map.item.template-", "");
+            const ref = ToolPalettesDialogModel.deSerializeRef(mapItemTemplateId);
+            MapItemTemplateViewModel.#map = await MapWorkerClient.getMap();
+            MapItemTemplateViewModel.#mapItemTemplate
+                = MapItemTemplateViewModel.#map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, ref));
+        }
     }
 
     // methods
@@ -279,8 +282,10 @@ class MapItemTemplateViewModel {
             isFromTemplate: false
         };
         const isStartingRef = EntityReference.areEqual(MapItemTemplateViewModel.#mapItemTemplate.ref, newRef);
-        if (!isStartingRef && MapItemTemplateViewModel.#map.mapItemTemplateRefs.some(mitr => EntityReference.areEqual(mitr, newRef))) {
-            this.#showValidationMessage("#map-item-template-name-validation", "The combination of name and version must be unique.");
+        if (!isStartingRef
+            && MapItemTemplateViewModel.#map.mapItemTemplateRefs.some(mitr => EntityReference.areEqual(mitr, newRef))) {
+            this.#showValidationMessage(
+                "#map-item-template-name-validation", "The combination of name and version must be unique.");
             isValid = false;
         }
 
@@ -298,7 +303,8 @@ class MapItemTemplateViewModel {
             isValid = false;
         }
         if (defaultZGroup < -10 || defaultZGroup > 10) {
-            this.#showValidationMessage("#map-item-template-z-group-validation", "Default z-order must be an integer between -10 and 10.");
+            this.#showValidationMessage(
+                "#map-item-template-z-group-validation", "Default z-order must be an integer between -10 and 10.");
             isValid = false;
         }
 

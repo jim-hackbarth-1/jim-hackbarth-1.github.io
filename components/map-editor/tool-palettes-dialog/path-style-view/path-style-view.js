@@ -21,57 +21,56 @@ class PathStyleViewModel {
     // event handlers
     async init(kitElement, kitObjects) {
         this.#kitElement = kitElement;
-        PathStyleViewModel.#dialogModel = kitObjects.find(o => o.alias == "dialogModel")?.object;       
-        PathStyleViewModel.#map = await MapWorkerClient.getMap();
-        PathStyleViewModel.#mapItemTemplate = null;
-        PathStyleViewModel.#pathStyle = null;
-        PathStyleViewModel.#tempPathStyleType = null;
-        PathStyleViewModel.#tempColorStops = null;
-        PathStyleViewModel.#tempImages = null;
-        const parts = PathStyleViewModel.#dialogModel.getSelectedDetailComponentInfo().id.split("-");
-        PathStyleViewModel.#pathStyleNavType = parts[0];
-        switch (PathStyleViewModel.#pathStyleNavType) {
-            case "caption.background":
-                {
-                    const mapItemTemplateRef = ToolPalettesDialogModel.deSerializeRef(parts[1]);
-                    PathStyleViewModel.#mapItemTemplate
-                        = PathStyleViewModel.#map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, mapItemTemplateRef));
-                    PathStyleViewModel.#pathStyle = PathStyleViewModel.#mapItemTemplate.caption.backgroundFill;
-                    PathStyleViewModel.#tempPathStyleType = PathStyleType.ColorFill;
-                }
-                break;
-            case "caption.border":
-                {
-                    const mapItemTemplateRef = ToolPalettesDialogModel.deSerializeRef(parts[1]);
-                    PathStyleViewModel.#mapItemTemplate
-                        = PathStyleViewModel.#map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, mapItemTemplateRef));
-                    PathStyleViewModel.#pathStyle = PathStyleViewModel.#mapItemTemplate.caption.borderStroke;
-                    PathStyleViewModel.#tempPathStyleType = PathStyleType.ColorStroke;
-                }
-                break;
-            case "fill":
-                {
-                    const pathStyleId = parts[1].replaceAll(".", "-");
-                    const mapItemTemplateRef = ToolPalettesDialogModel.deSerializeRef(parts[2]);
-                    PathStyleViewModel.#mapItemTemplate
-                        = PathStyleViewModel.#map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, mapItemTemplateRef));
-                    PathStyleViewModel.#pathStyle = PathStyleViewModel.#mapItemTemplate.fills.find(f => f.id == pathStyleId);
-                }
-                break;
-            case "stroke":
-                {
-                    const pathStyleId = parts[1].replaceAll(".", "-");
-                    const mapItemTemplateRef = ToolPalettesDialogModel.deSerializeRef(parts[2]);
-                    PathStyleViewModel.#mapItemTemplate
-                        = PathStyleViewModel.#map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, mapItemTemplateRef));
-                    PathStyleViewModel.#pathStyle = PathStyleViewModel.#mapItemTemplate.strokes.find(s => s.id == pathStyleId);
-                }
-                break;
+        PathStyleViewModel.#dialogModel = kitObjects.find(o => o.alias == "dialogModel")?.object; 
+        const componentInfo = PathStyleViewModel.#dialogModel.getSelectedDetailComponentInfo();
+        if (componentInfo.componentName == "path.style") {
+            PathStyleViewModel.#map = await MapWorkerClient.getMap();
+            PathStyleViewModel.#mapItemTemplate = null;
+            PathStyleViewModel.#pathStyle = null;
+            PathStyleViewModel.#tempPathStyleType = null;
+            PathStyleViewModel.#tempColorStops = null;
+            PathStyleViewModel.#tempImages = null;
+            const parts = componentInfo.id.split("-");
+            PathStyleViewModel.#pathStyleNavType = parts[0];
+            switch (PathStyleViewModel.#pathStyleNavType) {
+                case "caption.background":
+                    {
+                        const mapItemTemplateRef = ToolPalettesDialogModel.deSerializeRef(parts[1]);
+                        PathStyleViewModel.#mapItemTemplate = PathStyleViewModel.#map.mapItemTemplates.find(
+                            mit => EntityReference.areEqual(mit.ref, mapItemTemplateRef));
+                        PathStyleViewModel.#pathStyle = PathStyleViewModel.#mapItemTemplate.caption.backgroundFill;
+                        PathStyleViewModel.#tempPathStyleType = PathStyleType.ColorFill;
+                    }
+                    break;
+                case "caption.border":
+                    {
+                        const mapItemTemplateRef = ToolPalettesDialogModel.deSerializeRef(parts[1]);
+                        PathStyleViewModel.#mapItemTemplate = PathStyleViewModel.#map.mapItemTemplates.find(
+                            mit => EntityReference.areEqual(mit.ref, mapItemTemplateRef));
+                        PathStyleViewModel.#pathStyle = PathStyleViewModel.#mapItemTemplate.caption.borderStroke;
+                        PathStyleViewModel.#tempPathStyleType = PathStyleType.ColorStroke;
+                    }
+                    break;
+                case "fill":
+                    {
+                        const pathStyleId = parts[1].replaceAll(".", "-");
+                        const mapItemTemplateRef = ToolPalettesDialogModel.deSerializeRef(parts[2]);
+                        PathStyleViewModel.#mapItemTemplate = PathStyleViewModel.#map.mapItemTemplates.find(
+                            mit => EntityReference.areEqual(mit.ref, mapItemTemplateRef));
+                        PathStyleViewModel.#pathStyle = PathStyleViewModel.#mapItemTemplate.fills.find(f => f.id == pathStyleId);
+                    }
+                    break;
+                case "stroke":
+                    {
+                        const pathStyleId = parts[1].replaceAll(".", "-");
+                        const mapItemTemplateRef = ToolPalettesDialogModel.deSerializeRef(parts[2]);
+                        PathStyleViewModel.#mapItemTemplate = PathStyleViewModel.#map.mapItemTemplates.find(
+                            mit => EntityReference.areEqual(mit.ref, mapItemTemplateRef));
+                        PathStyleViewModel.#pathStyle = PathStyleViewModel.#mapItemTemplate.strokes.find(s => s.id == pathStyleId);
+                    }
+                    break;
+            }
         }
-    }
-
-    async onRendered() {
-        this.#loadPathStyleTypes();
     }
 
     // methods
@@ -106,6 +105,36 @@ class PathStyleViewModel {
 
     isFromTemplate() {
         return PathStyleViewModel.#mapItemTemplate.ref.isFromTemplate;
+    }
+
+    getPathStyleTypes() {
+        const isStroke = this.isStroke();
+        let items = [];
+        if (isStroke) {
+            items = [
+                { id: PathStyleType.ColorStroke, name: "Color", isSelectedAttr: null },
+                { id: PathStyleType.LinearGradientStroke, name: "Linear gradient", isSelectedAttr: null },
+                { id: PathStyleType.RadialGradientStroke, name: "Radial gradient", isSelectedAttr: null },
+                { id: PathStyleType.ConicalGradientStroke, name: "Conical gradient", isSelectedAttr: null },
+                { id: PathStyleType.TileStroke, name: "Tile", isSelectedAttr: null },
+                { id: PathStyleType.ImageArrayStroke, name: "Image array", isSelectedAttr: null }
+            ];
+        }
+        else {
+            items = [
+                { id: PathStyleType.ColorFill, name: "Color", isSelectedAttr: null },
+                { id: PathStyleType.LinearGradientFill, name: "Linear gradient", isSelectedAttr: null },
+                { id: PathStyleType.RadialGradientFill, name: "Radial gradient", isSelectedAttr: null },
+                { id: PathStyleType.ConicalGradientFill, name: "Conical gradient", isSelectedAttr: null },
+                { id: PathStyleType.TileFill, name: "Tile", isSelectedAttr: null },
+                { id: PathStyleType.ImageArrayFill, name: "Image array", isSelectedAttr: null }
+            ];
+        }
+        const selectedItem = items.find(i => i.id == this.getPathStyleType());
+        if (selectedItem) {
+            selectedItem.isSelectedAttr = "";
+        }
+        return items;
     }
 
     async savePathStyle() {
@@ -203,7 +232,8 @@ class PathStyleViewModel {
                 break;
             case "fill":
                 {
-                    const index = PathStyleViewModel.#mapItemTemplate.fills.findIndex(s => s.id == PathStyleViewModel.#pathStyle.id);
+                    const index
+                        = PathStyleViewModel.#mapItemTemplate.fills.findIndex(s => s.id == PathStyleViewModel.#pathStyle.id);
                     changes.push({
                         changeType: ChangeType.Delete,
                         changeObjectType: MapItemTemplate.name,
@@ -216,7 +246,8 @@ class PathStyleViewModel {
                 break;
             case "stroke":
                 {
-                    const index = PathStyleViewModel.#mapItemTemplate.strokes.findIndex(s => s.id == PathStyleViewModel.#pathStyle.id);
+                    const index
+                        = PathStyleViewModel.#mapItemTemplate.strokes.findIndex(s => s.id == PathStyleViewModel.#pathStyle.id);
                     changes.push({
                         changeType: ChangeType.Delete,
                         changeObjectType: MapItemTemplate.name,
@@ -240,7 +271,8 @@ class PathStyleViewModel {
 
     getPathStyleType() {
         if (!PathStyleViewModel.#tempPathStyleType) {
-            PathStyleViewModel.#tempPathStyleType = PathStyleViewModel.#pathStyle.getStyleOptionValue(PathStyleOption.PathStyleType);
+            PathStyleViewModel.#tempPathStyleType
+                = PathStyleViewModel.#pathStyle.getStyleOptionValue(PathStyleOption.PathStyleType);
         }
         return PathStyleViewModel.#tempPathStyleType;
     }
@@ -253,7 +285,6 @@ class PathStyleViewModel {
         PathStyleViewModel.#tempPathStyleType = this.#kitElement.querySelector("#path-style-type").value;
         const form = this.#kitElement.querySelector(".detail-content");
         await UIKit.renderer.renderKitElement(form);
-        this.#loadPathStyleTypes();
         const showGradientStart = this.showGradientStart();
         if (showGradientStart) {
             const gradientStart = this.#getDefaultGradientStart();
@@ -273,9 +304,19 @@ class PathStyleViewModel {
         return (opacity ?? 1) * 100;
     }
 
-    getPresentationMode() {
-        const presentationMode = PathStyleViewModel.#pathStyle.getStyleOptionValue(PathStyleOption.PresentationMode);
-        return presentationMode ?? PresentationMode.Normal;
+    getPresentationModes() {
+        const items = [
+            { id: "Normal", name: "Normal", isSelectedAttr: null },
+            { id: "EditViewOnly", name: "Edit view only", isSelectedAttr: null },
+            { id: "PresentationViewOnly", name: "Presentation view only", isSelectedAttr: null },
+        ];
+        const presentationMode
+            = PathStyleViewModel.#pathStyle.getStyleOptionValue(PathStyleOption.PresentationMode) ?? PresentationMode.Normal;
+        const selectedItem = items.find(i => i.id == presentationMode);
+        if (selectedItem) {
+            selectedItem.isSelectedAttr = "";
+        }
+        return items;
     }
 
     isPresentationModeDisabled() {
@@ -452,12 +493,32 @@ class PathStyleViewModel {
         return PathStyleViewModel.#isForCaption() || this.isFromTemplate();
     }
 
-    getEndCap() {
-        return PathStyleViewModel.#pathStyle.getStyleOptionValue(PathStyleOption.Cap) ?? "round";
+    getEndCaps() {
+        const items = [
+            { id: "round", name: "Round", isSelectedAttr: null },
+            { id: "butt", name: "Butt", isSelectedAttr: null },
+            { id: "square", name: "Square", isSelectedAttr: null }
+        ];
+        const endCap = PathStyleViewModel.#pathStyle.getStyleOptionValue(PathStyleOption.Cap) ?? "round";
+        const selectedItem = items.find(i => i.id == endCap);
+        if (selectedItem) {
+            selectedItem.isSelectedAttr = "";
+        }
+        return items;
     }
 
-    getJoin() {
-        return PathStyleViewModel.#pathStyle.getStyleOptionValue(PathStyleOption.Join) ?? "round";
+    getJoins() {
+        const items = [
+            { id: "round", name: "Round", isSelectedAttr: null },
+            { id: "bevel", name: "Bevel", isSelectedAttr: null },
+            { id: "Miter", name: "Miter", isSelectedAttr: null }
+        ];
+        const join = PathStyleViewModel.#pathStyle.getStyleOptionValue(PathStyleOption.Join) ?? "round";
+        const selectedItem = items.find(i => i.id == join);
+        if (selectedItem) {
+            selectedItem.isSelectedAttr = "";
+        }
+        return items;
     }
 
     isOffsetDisabled() {
@@ -825,94 +886,5 @@ class PathStyleViewModel {
             gradientEnd = { x: 50, y: 50 };
         }
         return gradientEnd;
-    }
-
-    #getPathStyleTypes() {
-        const isStroke = this.isStroke();
-        const pathStyleType = this.getPathStyleType();
-        if (isStroke) {
-            return [
-                {
-                    id: PathStyleType.ColorStroke,
-                    name: "Color",
-                    isSelected: pathStyleType == PathStyleType.ColorStroke
-                },
-                {
-                    id: PathStyleType.LinearGradientStroke,
-                    name: "Linear gradient",
-                    isSelected: pathStyleType == PathStyleType.LinearGradientStroke
-                },
-                {
-                    id: PathStyleType.RadialGradientStroke,
-                    name: "Radial gradient",
-                    isSelected: pathStyleType == PathStyleType.RadialGradientStroke
-                },
-                {
-                    id: PathStyleType.ConicalGradientStroke,
-                    name: "Conical gradient",
-                    isSelected: pathStyleType == PathStyleType.ConicalGradientStroke
-                },
-                {
-                    id: PathStyleType.TileStroke,
-                    name: "Tile",
-                    isSelected: pathStyleType == PathStyleType.TileStroke
-                },
-                {
-                    id: PathStyleType.ImageArrayStroke,
-                    name: "Image array",
-                    isSelected: pathStyleType == PathStyleType.ImageArrayStroke
-                }
-            ];
-        }
-        else {
-            return [
-                {
-                    id: PathStyleType.ColorFill,
-                    name: "Color",
-                    isSelected: pathStyleType == PathStyleType.ColorFill
-                },
-                {
-                    id: PathStyleType.LinearGradientFill,
-                    name: "Linear gradient",
-                    isSelected: pathStyleType == PathStyleType.LinearGradientFill
-                },
-                {
-                    id: PathStyleType.RadialGradientFill,
-                    name: "Radial gradient",
-                    isSelected: pathStyleType == PathStyleType.RadialGradientFill
-                },
-                {
-                    id: PathStyleType.ConicalGradientFill,
-                    name: "Conical gradient",
-                    isSelected: pathStyleType == PathStyleType.ConicalGradientFill
-                },
-                {
-                    id: PathStyleType.TileFill,
-                    name: "Tile",
-                    isSelected: pathStyleType == PathStyleType.TileFill
-                },
-                {
-                    id: PathStyleType.ImageArrayFill,
-                    name: "Image array",
-                    isSelected: pathStyleType == PathStyleType.ImageArrayFill
-                }
-            ];
-        }
-    }
-
-    #loadPathStyleTypes() {
-        const select = this.#kitElement.querySelector("#path-style-type");
-        if (select) {
-            const pathStyleTypes = this.#getPathStyleTypes();
-            for (const pathStyleType of pathStyleTypes) {
-                const option = UIKit.document.createElement("option");
-                option.value = pathStyleType.id;
-                option.innerHTML = pathStyleType.name;
-                if (pathStyleType.isSelected) {
-                    option.selected = true;
-                }
-                select.appendChild(option);
-            }
-        }
     }
 }

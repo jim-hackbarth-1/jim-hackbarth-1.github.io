@@ -14,8 +14,10 @@ class HelpModel {
     }
 
     async onRendered() {
-        this.#kitElement.querySelector("#select-theme").value = Preferences.theme;
-        this.#kitElement.querySelector("#select-dark-mode").value = Preferences.darkMode;
+        if (this.#kitElement.innerHTML) {
+            this.#kitElement.querySelector("#select-theme").value = Preferences.theme;
+            this.#kitElement.querySelector("#select-dark-mode").value = Preferences.darkMode;
+        }
     }
 
     // methods

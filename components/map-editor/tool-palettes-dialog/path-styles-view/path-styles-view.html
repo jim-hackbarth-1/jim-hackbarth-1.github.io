@@ -6,16 +6,16 @@
                 <div>%{#model.getPathStylesLabel()}%</div>
                 <div class="detail-heading-label">
                     <label class="map-item-template-name" onclick="#model.editMapItemTemplate()">%{#model.getMapItemTemplateName()}%</label>
-                    <kit-if kit-condition="#model.isFromTemplate()">
+                    <kit kit-if="#model.isFromTemplate()">
                         <label class="from-template-note">(from template)</label>
-                    </kit-if>
+                    </kit>
                 </div>
             </div>
             <div class="detail-heading-field">
                 <button title="%{#model.getAddButtonLabel()}%"
                         class="button dialog-button"
                         kit-element
-                        kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                        kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                         onclick="#model.addPathStyle();">
                     %{#model.getAddButtonLabel()}%
                 </button>
@@ -28,25 +28,25 @@
                 <div class="item-list" 
                      ondragover="#model.allowDrop(event)"
                      ondrop="#model.dropPathStyleItem(event)">
-                    <kit-if kit-condition="%{!#model.hasPathStyles()}%">
+                    <kit kit-if="%{!#model.hasPathStyles()}%">
                         <div class="no-items-message">%{#model.getNoPathStylesLabel()}%</div>
-                    </kit-if>
-                    <kit-array kit-array="#model.getPathStyles()" kit-array-item-alias="pathStyle">
+                    </kit>
+                    <kit kit-array="#model.getPathStyles()" kit-array-item-alias="pathStyle">
                         <div id="%{#pathStyle.id}%"
                              class="tool-button list-item"
                              kit-element
-                             kit-attr-add-draggable="draggable:%{!#model.isFromTemplate()}%"
+                             kit-attr-draggable="draggable:%{!#model.isFromTemplate()}%"
                              ondragstart="#model.dragItem(event)">
-                            <kit-if kit-condition="#pathStyle.thumbnailSrc">
+                            <kit kit-if="#pathStyle.thumbnailSrc">
                                 <div>
-                                    <img height="25" width="25" kit-element kit-attr-add-src="src:%{#pathStyle.thumbnailSrc}%" />
+                                    <img height="25" width="25" kit-element kit-attr-src="src:%{#pathStyle.thumbnailSrc}%" />
                                 </div>
-                            </kit-if>
-                            <kit-if kit-condition="#pathStyle.thumbnailSvgSrc">
+                            </kit>
+                            <kit kit-if="#pathStyle.thumbnailSvgSrc">
                                 <div>
                                     <svg height="25" width="25" viewBox="0 0 100 100">%{#pathStyle.thumbnailSvgSrc}%</svg>
                                 </div>
-                            </kit-if>
+                            </kit>
                             <div class="spacer">
                                 <div>
                                     <label onclick="#model.editPathStyle('%{#pathStyle.id}%')">
@@ -61,25 +61,22 @@
                                 <button title="%{#model.isFromTemplate() ? 'Copy (disabled)' : 'Copy'}%"
                                         class="action-text edit-button"
                                         kit-element
-                                        kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                                        kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                                         onclick="#model.copyPathStyle('%{#pathStyle.id}%');">
-                                    <div class="icon-container">
-                                        <kit-component kit-template-path="/resources/icons/edit-copy.html" kit-model="null">
-                                        </kit-component>
-                                    </div>
+                                    <div class="icon-container" kit-component="no-model:/resources/icons/edit-copy.html"></div>
                                 </button>
                             </div>
                         </div>
-                    </kit-array>
+                    </kit>
                 </div>
             </div>
         </div>
-        <kit-if kit-condition="!#model.isFromTemplate()">
+        <kit kit-if="!#model.isFromTemplate()">
             <div class="form-row">
                 <div class="form-field">
                     <div class="form-note">Drag and re-order items to change rendering order.</div>
                 </div>
             </div>
-        </kit-if>
+        </kit>
     </div>
 </div>

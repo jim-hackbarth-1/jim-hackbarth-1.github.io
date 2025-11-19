@@ -4,36 +4,34 @@
      data-nav-item-state="%{#model.state}%">
     <div class="nav-item"  >
         <div class="icon-container nav-item-state-container expanded-container"
-             onclick="#dialogModel.collapseNavItem(this)">
-            <kit-component kit-template-path="/resources/icons/expanded.html" kit-model="null"></kit-component>
+             onclick="#dialogModel.collapseNavItem(this)"
+             kit-component="no-model:/resources/icons/expanded.html">
         </div>
         <div class="icon-container nav-item-state-container collapsed-container"
-             onclick="#dialogModel.expandNavItem(this)">
-            <kit-component kit-template-path="/resources/icons/collapsed.html" kit-model="null"></kit-component>
+             onclick="#dialogModel.expandNavItem(this)"
+             kit-component="no-model:/resources/icons/collapsed.html">
         </div>
-        <div class="icon-container nav-item-state-container bullet-container">
-            <kit-component kit-template-path="/resources/icons/bullet.html" kit-model="null"></kit-component>
+        <div class="icon-container nav-item-state-container bullet-container"
+             kit-component="no-model:/resources/icons/bullet.html">
         </div>
-        <kit-if kit-condition="#model.thumbnailSrc">
+        <kit kit-if="#model.thumbnailSrc">
             <div class="icon-container thumbnail" onclick="#dialogModel.selectNavItem(this)">
-                <img height="25" width="25" kit-element kit-attr-add-src="src:%{#model.thumbnailSrc}%" />
+                <img height="25" width="25" kit-element kit-attr-src="src:%{#model.thumbnailSrc}%" />
             </div>
-        </kit-if>
-        <kit-if kit-condition="#model.thumbnailSvgSrc">
+        </kit>
+        <kit kit-if="#model.thumbnailSvgSrc">
             <div class="icon-container thumbnail" onclick="#dialogModel.selectNavItem(this)">
                 <svg height="25" width="25" viewBox="0 0 100 100">%{#model.thumbnailSvgSrc}%</svg>
             </div>
-        </kit-if>
+        </kit>
         <div class="nav-item-label-container" onclick="#dialogModel.selectNavItem(this)">
             <span title="%{#model.displayName}%">%{#model.displayName}%</span>
         </div>
     </div>
-    <div class="children-container">
-        <kit-array kit-array="#model.children ?? []" kit-array-item-alias="child">
-            <kit-component kit-object-dialog-model="dialogModel:#dialogModel"
-                           kit-model="#dialogModel.getNavItemModel(#child.id)"
-                           kit-template-path="/components/map-editor/tool-palettes-dialog/nav-node-view/nav-node-view.html">
-            </kit-component>
-        </kit-array>
+    <div class="children-container" kit-array="#model.children ?? []" kit-array-item-alias="child">
+        <kit kit-component="/components/map-editor/tool-palettes-dialog/nav-node-view/nav-node-view.html"
+             kit-model="#dialogModel.getNavItemModel(#child.id)"
+             kit-obj-dialog-model="dialogModel:#dialogModel">
+        </kit>
     </div>
 </div>

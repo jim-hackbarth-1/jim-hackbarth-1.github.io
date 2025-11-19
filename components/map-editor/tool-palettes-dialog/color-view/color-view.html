@@ -5,10 +5,10 @@
                type="color"
                onchange="#model.setValue()"
                kit-element
-               kit-attr-add-value="value:%{#model.getValue()}%"
-               kit-attr-add-disabled="disabled:%{#model.isDisabled() ? '' : null}%" />
+               kit-attr-value="value:%{#model.getValue()}%"
+               kit-attr-disabled="disabled:%{#model.isDisabled() ? '' : null}%" />
         <span kit-element
-              kit-attr-add-style="style:position: absolute; margin: 8px 0 0 30px; color:%{#model.getValueInverse()}%;">
+              kit-attr-style="style:position: absolute; margin: 8px 0 0 30px; color:%{#model.getValueInverse()}%;">
             %{#model.getValue()}%
         </span>
     </label>

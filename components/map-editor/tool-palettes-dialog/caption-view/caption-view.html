@@ -6,9 +6,9 @@
                 <div>%{#model.getTitle()}%</div>
                 <div class="detail-heading-label">
                     <label class="map-item-template-name" onclick="#model.editMapItemTemplate()">%{#model.getMapItemTemplateName()}%</label>
-                    <kit-if kit-condition="#model.isFromTemplate()">
+                    <kit kit-if="#model.isFromTemplate()">
                         <label class="from-template-note">(from template)</label>
-                    </kit-if>
+                    </kit>
                 </div>
             </div>
         </div>
@@ -19,7 +19,7 @@
                         class="button dialog-button"
                         style="width:80px;"
                         kit-element
-                        kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                        kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                         onclick="#model.saveCaption()">
                     Save
                 </button>
@@ -38,7 +38,7 @@
                        placeholder="[Default text]"
                        maxlength="30"
                        kit-element
-                       kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                       kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                        oninput="#model.validate()"
                        onkeydown="#dialogModel.onInputKeyDown(event)">
                 <div id="caption-default-text-validation" class="validation-message"></div>
@@ -51,8 +51,8 @@
                        min="0"
                        max="100"
                        kit-element
-                       kit-attr-add-value="value:%{#model.getOpacity()}%"
-                       kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                       kit-attr-value="value:%{#model.getOpacity()}%"
+                       kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                        oninput="#model.validate()"
                        onkeydown="#dialogModel.onInputKeyDown(event)">
                 <div id="caption-opacity-validation" class="validation-message"></div>
@@ -69,7 +69,7 @@
                        placeholder="[e.g. 12px Arial, sans-serif]"
                        maxlength="60"
                        kit-element
-                       kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                       kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                        oninput="#model.validate()"
                        onkeydown="#dialogModel.onInputKeyDown(event)">
                 <div id="caption-font-validation" class="validation-message"></div>
@@ -77,43 +77,11 @@
             <div class="form-field">
                 <label class="form-label">Font variant caps:</label>
                 <select id="caption-font-variant-caps"
-                        kit-element
-                        kit-attr-add-value="value:%{#model.getFontVariantCaps()}%"
-                        kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%">
-                    <option value="normal"
-                            kit-element
-                            kit-attr-add-selected="selected:%{#model.getFontVariantCaps() == 'normal' ? '' : null}%">
-                        Normal
-                    </option>
-                    <option value="small-caps"
-                            kit-element
-                            kit-attr-add-selected="selected:%{#model.getFontVariantCaps() == 'small-caps' ? '' : null}%">
-                        Small caps
-                    </option>
-                    <option value="all-small-caps"
-                            kit-element
-                            kit-attr-add-selected="selected:%{#model.getFontVariantCaps() == 'all-small-caps' ? '' : null}%">
-                        All small caps
-                    </option>
-                    <option value="petite-caps"
-                            kit-element
-                            kit-attr-add-selected="selected:%{#model.getFontVariantCaps() == 'petite-caps' ? '' : null}%">
-                        Petite caps (smaller than small caps)
-                    </option>
-                    <option value="all-petite-caps"
-                            kit-element
-                            kit-attr-add-selected="selected:%{#model.getFontVariantCaps() == 'all-petite-caps' ? '' : null}%">
-                        All petite caps (smaller than small caps)
-                    </option>
-                    <option value="unicase"
-                            kit-element
-                            kit-attr-add-selected="selected:%{#model.getFontVariantCaps() == 'unicase' ? '' : null}%">
-                        Unicase
-                    </option>
-                    <option value="titling-caps"
-                            kit-element
-                            kit-attr-add-selected="selected:%{#model.getFontVariantCaps() == 'titling-caps' ? '' : null}%">
-                        Titling cap
+                        kit-array="#model.getFontVariantCapsList()"
+                        kit-array-item-alias="cap"
+                        kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%">
+                    <option value="%{#cap.value}%" kit-element kit-attr-selected="selected:%{#cap.isSelectedAttr}%">
+                        %{#cap.displayText}%
                     </option>
                 </select>
                 <div id="caption-font-variant-caps-validation" class="validation-message"></div>
@@ -124,20 +92,20 @@
         <div class="form-row">
             <div class="form-field">
                 <label class="form-label">Color:</label>
-                <kit-component id="caption-color"
-                               kit-template-path="/components/map-editor/tool-palettes-dialog/color-view/color-view.html"
-                               kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
-                               value="%{#model.getColor()}%">
-                </kit-component>
+                <kit id="caption-color"
+                     kit-component="/components/map-editor/tool-palettes-dialog/color-view/color-view.html"
+                     kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                     value="%{#model.getColor()}%">
+                </kit>
                 <div id="caption-color-validation" class="validation-message"></div>
             </div>
             <div class="form-field">
                 <label class="form-label">Outline color:</label>
-                <kit-component id="caption-outline-color"
-                               kit-template-path="/components/map-editor/tool-palettes-dialog/color-view/color-view.html"
-                               kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
-                               value="%{#model.getOutlineColor()}%">
-                </kit-component>
+                <kit id="caption-outline-color"
+                     kit-component="/components/map-editor/tool-palettes-dialog/color-view/color-view.html"
+                     kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                     value="%{#model.getOutlineColor()}%">
+                </kit>
                 <div id="caption-outline-color-validation" class="validation-message"></div>
             </div>
         </div>

@@ -12,68 +12,63 @@
             <div class="form-field">
                 <label class="form-label">Current palette</label>
                 <div id="current-items-container"
+                     kit-array="#model.getSubPalettes()"
+                     kit-array-index-alias="paletteIndex"
                      class="item-list"
                      style="padding:10px;min-height:100px;min-width:50px;"
                      ondragover="#model.allowDrop(event)"
                      ondrop="#model.dropAvailableItem(event)">
-                    <kit-array kit-array="#model.getSubPalettes()"
-                                kit-array-item-index-alias="paletteIndex">
-                        <div>
-                            <kit-array kit-array="#model.getPaletteItems(#paletteIndex)"
-                                        kit-array-item-alias="item">
-                                <button class="tool-button"
-                                        title="%{#item.ref.name}%"
-                                        id="%{#item.refId}%"
-                                        data-location="%{#item.location}%"
-                                        draggable="true"
-                                        ondragstart="#model.dragItem(event)">
-                                    <kit-if kit-condition="#item.thumbnailSrc">
-                                        <img height="25"
-                                                width="25"
-                                                draggable="false"
-                                                kit-element
-                                                kit-attr-add-src="src:%{#item.thumbnailSrc}%" />
-                                    </kit-if>
-                                    <kit-if kit-condition="#item.thumbnailSvgSrc">
-                                        <svg height="25" width="25" viewBox="0 0 100 100">%{#item.thumbnailSvgSrc}%</svg>
-                                    </kit-if>
-                                </button>
-                            </kit-array>
-                        </div>
-                    </kit-array>
+                    <div kit-array="#model.getPaletteItems(%{#paletteIndex}%)" kit-array-item-alias="item">
+                        <button class="tool-button"
+                                title="%{#item.ref.name}%"
+                                id="%{#item.refId}%"
+                                data-location="%{#item.location}%"
+                                draggable="true"
+                                ondragstart="#model.dragItem(event)">
+                            <kit kit-if="#item.thumbnailSrc">
+                                <img height="25"
+                                     width="25"
+                                     draggable="false"
+                                     kit-element
+                                     kit-attr-src="src:%{#item.thumbnailSrc}%" />
+                            </kit>
+                            <kit kit-if="#item.thumbnailSvgSrc">
+                                <svg height="25" width="25" viewBox="0 0 100 100">%{#item.thumbnailSvgSrc}%</svg>
+                            </kit>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="form-field">
                 <label class="form-label">Available items</label>
                 <div id="available-items-container"
+                     kit-array="#model.getAvailableItems()"
+                     kit-array-item-alias="item"
                      class="item-list"
                      style="min-height:100px;min-width:50px;"
                      ondragover="#model.allowDrop(event)"
                      ondrop="#model.dropPaletteItem(event)">
-                    <kit-array kit-array="#model.getAvailableItems()"
-                                kit-array-item-alias="item">
-                        <div draggable="true"
-                                class="tool-button list-item"
-                                title="%{#item.ref.name}%"
-                                id="%{#item.refId}%"
-                                ondragstart="#model.dragItem(event)">
-                            <div>
-                                <kit-if kit-condition="#item.thumbnailSrc">
-                                    <img height="25" width="25" draggable="false" kit-element kit-attr-add-src="src:%{#item.thumbnailSrc}%" />
-                                </kit-if>
-                                <kit-if kit-condition="#item.thumbnailSvgSrc">
-                                    <svg height="25" width="25" viewBox="0 0 100 100">%{#item.thumbnailSvgSrc}%</svg>
-                                </kit-if>
-                            </div>
-                            <div class="spacer">
-                                <label>%{#item.ref.name}%</label>
-                            </div>
-                            <div class="secondary-info">
-                                <div>%{#item.refTypeLabel}%</div>
-                                <div>%{#item.refVersionLabel}%</div>
-                            </div>
+                    <div draggable="true"
+                         class="tool-button list-item"
+                         title="%{#item.ref.name}%"
+                         id="%{#item.refId}%"
+                         ondragstart="#model.dragItem(event)">
+                        <div>
+                            <kit kit-if="#item.thumbnailSrc">
+                                <img height="25" width="25" draggable="false" kit-element kit-attr-src="src:%{#item.thumbnailSrc}%" />
+                            </kit>
+                            <kit kit-if="#item.thumbnailSvgSrc">
+                                <svg height="25" width="25" viewBox="0 0 100 100">%{#item.thumbnailSvgSrc}%</svg>
+                            </kit>
                         </div>
-                    </kit-array>
+                        <div class="spacer">
+                            <label>%{#item.ref.name}%</label>
+                        </div>
+                        <div class="secondary-info">
+                            <div>%{#item.refTypeLabel}%</div>
+                            <div>%{#item.refVersionLabel}%</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

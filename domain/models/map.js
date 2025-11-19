@@ -919,6 +919,9 @@ export class Map {
                 maxLength = length;
             }
         }
+        if (maxLength == 0) {
+            maxLength = 1;
+        }
         return maxLength;
     }
 
@@ -929,6 +932,9 @@ export class Map {
             if (length > maxLength) {
                 maxLength = length;
             }
+        }
+        if (maxLength == 0) {
+            maxLength = 1;
         }
         return maxLength;
     }

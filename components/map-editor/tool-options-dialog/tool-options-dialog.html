@@ -1,20 +1,16 @@
 ﻿
-<kit-if kit-condition="#model?.isVisible()">
+<kit kit-if="#model?.isVisible()">
     <dialog id="tool-options-dialog">
         <link rel="stylesheet" href="/components/map-editor/tool-options-dialog/tool-options-dialog.css" />
         <header>
-            <div class="icon-container">
-                <kit-component kit-template-path="/resources/icons/tool-options.html" kit-model="null"></kit-component>
-            </div>
+            <div class="icon-container" kit-component="no-model:/resources/icons/tool-options.html"></div>
             <div>
                 <h1>Tool options</h1>
             </div>
             <div class="spacer"></div>
             <div>
                 <button title="Close" class="action-text" onclick="#model.closeDialog();">
-                    <div class="icon-container">
-                        <kit-component kit-template-path="/resources/icons/file-close.html" kit-model="null"></kit-component>
-                    </div>
+                    <div class="icon-container" kit-component="no-model:/resources/icons/file-close.html"></div>
                 </button>
             </div>
         </header>
@@ -22,58 +18,55 @@
             <div>
                 <label>Tool options:</label>
             </div>
-            <div id="tool-option-list">
-                <kit-array kit-array="#model.getToolOptions()" kit-array-item-alias="toolOption">
-                    <kit-if kit-condition="#toolOption.typeName == 'StatesToolOption'">
-                        <div class="tool-button" title="%{#toolOption.description ?? #toolOption.label}%">
-                            <label>%{#toolOption.label}%</label>
-                            <kit-array kit-array="#toolOption.states" kit-array-item-alias="toolOptionState">
-                                <label class="radio-button" title="%{#toolOptionState.description}%">
-                                    <input type="radio"
-                                           id="tool-option-radio-%{#toolOption.name}%-%{#toolOptionState.name}%"
-                                           name="%{#toolOption.name}%"
-                                           value="%{#toolOptionState.name}%"
-                                           kit-element
-                                           kit-attr-add-checked="checked:%{#model.isToolOptionStateChecked(
-                                                #toolOption.name, #toolOptionState.name) ? '' : null}%"
-                                           onclick="#model.setStatesToolOption(#toolOption.name, this)" />
-                                    <span class="checkmark"></span>
-                                    <span>%{#toolOptionState.label}%</span>
-                                    <span class="spacer"></span>
-                                    <span class="keyboard-event-info">%{#toolOptionState.getKeyboardInfoLabel()}%</span>
-                                </label>
-                            </kit-array>
-                        </div>
-                    </kit-if>
-                    <kit-if kit-condition="#toolOption.typeName == 'BooleanToolOption'">
-                        <div class="tool-button" title="%{#toolOption.description ?? #toolOption.label}%">
-                            <label>%{#toolOption.label}%</label>
-                            <label class="checkbox">
-                                <input type="checkbox"
-                                       id="tool-option-checkbox-%{#toolOption.name}%"
+            <div id="tool-option-list" kit-array="#model.getToolOptions()" kit-array-item-alias="toolOption">
+                <kit kit-if="#toolOption.typeName == 'StatesToolOption'">
+                    <div class="tool-button" title="%{#toolOption.description ?? #toolOption.label}%">
+                        <label>%{#toolOption.label}%</label>
+                        <kit kit-array="#toolOption.states" kit-array-item-alias="toolOptionState">
+                            <label class="radio-button" title="%{#toolOptionState.description}%">
+                                <input type="radio"
+                                       id="tool-option-radio-%{#toolOption.name}%-%{#toolOptionState.name}%"
+                                       name="%{#toolOption.name}%"
+                                       value="%{#toolOptionState.name}%"
                                        kit-element
-                                       kit-attr-add-checked="checked:%{#model.isToolOptionChecked(#toolOption.name) ? '' : null}%"
-                                       onclick="#model.setBooleanToolOption(#toolOption.name, this)" />
+                                       kit-attr-checked="checked:%{#model.isToolOptionStateChecked(#toolOption.name, #toolOptionState.name) ? '' : null}%"
+                                       onclick="#model.setStatesToolOption(#toolOption.name, this)" />
                                 <span class="checkmark"></span>
-                                <span>Enabled</span>
+                                <span>%{#toolOptionState.label}%</span>
                                 <span class="spacer"></span>
-                                <span class="keyboard-event-info">%{#toolOption.getKeyboardInfoLabel()}%</span>
+                                <span class="keyboard-event-info">%{#toolOptionState.getKeyboardInfoLabel()}%</span>
                             </label>
-                        </div>
-                    </kit-if>
-                    <kit-if kit-condition="#toolOption.typeName == 'ToolOption'">
-                        <div class="tool-button"
-                             title="%{#toolOption.description ?? #toolOption.label}%"
-                             onclick="#model.applyToolOption(#toolOption.name)">
-                            <label class="command">
-                                <label>%{#toolOption.label}%</label>
-                                <span class="spacer"></span>
-                                <span class="keyboard-event-info">%{#toolOption.getKeyboardInfoLabel()}%</span>
-                            </label>
-                        </div>
-                    </kit-if>
-                </kit-array>
+                        </kit>
+                    </div>
+                </kit>
+                <kit kit-if="#toolOption.typeName == 'BooleanToolOption'">
+                    <div class="tool-button" title="%{#toolOption.description ?? #toolOption.label}%">
+                        <label>%{#toolOption.label}%</label>
+                        <label class="checkbox">
+                            <input type="checkbox"
+                                   id="tool-option-checkbox-%{#toolOption.name}%"
+                                   kit-element
+                                   kit-attr-checked="checked:%{#model.isToolOptionChecked(#toolOption.name) ? '' : null}%"
+                                   onclick="#model.setBooleanToolOption(#toolOption.name, this)" />
+                            <span class="checkmark"></span>
+                            <span>Enabled</span>
+                            <span class="spacer"></span>
+                            <span class="keyboard-event-info">%{#toolOption.getKeyboardInfoLabel()}%</span>
+                        </label>
+                    </div>
+                </kit>
+                <kit kit-if="#toolOption.typeName == 'ToolOption'">
+                    <div class="tool-button"
+                         title="%{#toolOption.description ?? #toolOption.label}%"
+                         onclick="#model.applyToolOption(#toolOption.name)">
+                        <label class="command">
+                            <label>%{#toolOption.label}%</label>
+                            <span class="spacer"></span>
+                            <span class="keyboard-event-info">%{#toolOption.getKeyboardInfoLabel()}%</span>
+                        </label>
+                    </div>
+                </kit>
             </div>
         </section>
     </dialog>
-</kit-if>
+</kit>

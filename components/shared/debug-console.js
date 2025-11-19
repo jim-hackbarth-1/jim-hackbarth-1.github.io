@@ -24,28 +24,28 @@ export class DebugConsole {
 
     static #errorHandlerRegistered;
     #handleError(event) {
-        this.error(`Uncaught ${event.error.message}\n ${event.error.stack}`, true);
+        const data = `Uncaught ${event.error.message}\n ${event.error.stack}`;
+        DebugConsole.debugItems.push({ itemType: "error", data: data });
     }
 
     static #promiseRejectionHandlerRegistered;
     #handlePromiseRejection(event) {
-        this.error(`Uncaught (in promise) ${event.reason.message}\n ${event.reason.stack}`, true);
+        const data = `Uncaught (in promise) ${event.reason.message}\n ${event.reason.stack}`;
+        DebugConsole.debugItems.push({ itemType: "error", data: data });
     }
 
     log(data) {
-        console.log(data);
+        console.log.apply(null, arguments);
         DebugConsole.debugItems.push({ itemType: "info", data: data });
     }
 
     warn(data) {
-        console.warn(data);
+        console.warn.apply(null, arguments);
         DebugConsole.debugItems.push({ itemType: "warning", data: data });
     }
 
-    error(data, isUnhandled) {
-        if (!isUnhandled) {
-            console.error(data);
-        }
+    error(data) {
+        console.error.apply(null, arguments);
         DebugConsole.debugItems.push({ itemType: "error", data: data });
     }
 }

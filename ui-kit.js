@@ -1,87 +1,163 @@
 ﻿
+/** Provides a global entry point to UI-KIT capabilities */
 export class UIKit {
 
     static #window;
+    static #document;
+    static #console;
+    static #resourceManager;
+    static #navigator;
+    static #messenger;
+    static #renderer;
+    static #dependencies = [];
+
+    /**
+     * Gets the window object
+     * @returns {Window}
+     */
     static get window() {
         if (!UIKit.#window) {
             UIKit.window = window;
         }
         return this.#window;
     }
+
+    /**
+     * Sets the window object
+     * @param {Window} value - The window
+     */
     static set window(value) {
         this.#window = value;
     }
 
-    static #document;
+    /**
+     * Gets the document object
+     * @returns {Document}
+     */
     static get document() {
         if (!UIKit.#document) {
             UIKit.document = document;
         }
         return this.#document;
     }
+
+    /**
+     * Sets the document object
+     * @param {Document} value - The document
+     */
     static set document(value) {
         this.#document = value;
     }
 
-    static #console;
+    /**
+     * Gets the console object
+     * @returns {Console}
+     */
     static get console() {
         if (!UIKit.#console) {
             UIKit.console = console;
         }
         return this.#console;
     }
+
+    /**
+     * Sets the console object
+     * @param {Console} value - The console
+     */
     static set console(value) {
         this.#console = value;
     }
 
-    static #resourceManager;
+    /**
+     * Gets the resource manager
+     * @returns {KitResourceManager}
+     */
     static get resourceManager() {
         if (!UIKit.#resourceManager) {
             UIKit.resourceManager = new KitResourceManager();
         }
         return this.#resourceManager;
     }
+
+    /**
+     * Sets the resource manager
+     * @param {KitResourceManager} value - The resource manager
+     */
     static set resourceManager(value) {
         this.#resourceManager = value;
     }
 
-    static #navigator;
+    /**
+     * Gets the navigator
+     * @returns {KitNavigator}
+     */
     static get navigator() {
         if (!UIKit.#navigator) {
             UIKit.navigator = new KitNavigator();
         }
         return this.#navigator;
     }
+
+    /**
+     * Sets the navigator
+     * @param {KitNavigator} value - The navigator
+     */
     static set navigator(value) {
         this.#navigator = value;
     }
 
-    static #messenger;
+    /**
+     * Gets the messenger
+     * @returns {KitMessenger}
+     */
     static get messenger() {
         if (!UIKit.#messenger) {
             UIKit.messenger = new KitMessenger();
         }
         return this.#messenger;
     }
+
+    /**
+     * Sets the messenger
+     * @param {KitMessenger} value - The messenger
+     */
     static set messenger(value) {
         this.#messenger = value;
     }
 
-    static #renderer;
+    /**
+     * Gets the renderer
+     * @returns {KitRenderer}
+     */
     static get renderer() {
         if (!UIKit.#renderer) {
             UIKit.renderer = new KitRenderer();
         }
         return this.#renderer;
     }
+
+    /**
+     * Sets the renderer
+     * @param {KitRenderer} value - The renderer
+     */
     static set renderer(value) {
         this.#renderer = value;
     }
 
-    static #dependencies = [];
+    /**
+     * Gets a dependency by key
+     * @param {string} key - The key used to find the dependency
+     * @returns {any}
+     */
     static getDependency(key) {
         return UIKit.#dependencies.find(d => d.key === key)?.value;
     }
+
+    /**
+     * Sets a dependency
+     * @param {string} key - The dependency key
+     * @param {any} value - The dependency
+     */
     static setDependency(key, value) {
         const item = UIKit.#dependencies.find(d => d.key === key);
         if (item) {
@@ -92,6 +168,7 @@ export class UIKit {
         }
     }
 
+    /** Adds UIKit to the global scope, initializes navigation, and performs an initial render of the document body */
     static async initialize() {    
         UIKit.window.UIKit = UIKit;
         await UIKit.navigator.initialize();
@@ -100,24 +177,38 @@ export class UIKit {
 
 }
 
+/** Encapsulates functionality for interacting with network resources */
 export class KitResourceManager {
 
+    /**
+     * Gets content from a network resource
+     * @param {any} input - Resource path
+     * @param {any} init - Options
+     * @returns {Promise}
+     */
     async fetch(input, init) {
         return await fetch(input, init);
     }
 
+    /**
+     * Imports a script module
+     * @param {string} moduleName - The name of the module to import
+     * @returns {any}
+     */
     async import(moduleName) {
         return await import(moduleName);
     }
 
 }
 
+/** Facilitates navigation functionality */
 export class KitNavigator {
 
     static get NavTopic() {
         return "kit-navigation";
     } 
 
+    /** Configures an application to generate navigation events from the browser `popstate` event. */
     async initialize() {
         UIKit.window.addEventListener("popstate", async () => {
             await UIKit.navigator.navigate(UIKit.document.location.href);
@@ -125,6 +216,10 @@ export class KitNavigator {
         await UIKit.messenger.publish(KitNavigator.NavTopic, UIKit.document.location.href);
     }
 
+    /**
+     * Navigates to the specified url
+     * @param {string} url - The destination url
+     */
     async navigate(url) {
         if (url && url !== UIKit.document.location.href) {
             UIKit.window.history.pushState(null, null, url);
@@ -132,6 +227,11 @@ export class KitNavigator {
         await UIKit.messenger.publish(KitNavigator.NavTopic, url);
     }
 
+    /**
+     *  Gets the hash portion of a url
+     * @param {any} url - The url to examine
+     * @returns {string}
+     */
     getHash(url) {
         if (url) {
             return new URL(url).hash;
@@ -140,8 +240,14 @@ export class KitNavigator {
     }
 }
 
+/** Send and receive messages between components */
 export class KitMessenger {
 
+    /**
+     * Publish a message to subscribers of a topic
+     * @param {string} topicName - The name of the topic
+     * @param {any} message - The message to be published
+     */
     async publish(topicName, message) {
         const topic = KitMessenger.#getTopic(topicName);
         for (const subscriber of topic.subscribers) {
@@ -164,6 +270,13 @@ export class KitMessenger {
         }
     }
 
+    /** @type {{key: string, value: any}[]} */
+
+    /**
+     * Subscribe to receive messages published to a topic
+     * @param {string} topicName - The name of the topic
+     * @param {{elementKey: number, id: string, object: any, callback: string}} subscriber - The subscriber
+     */
     subscribe(topicName, subscriber) {
         const topic = KitMessenger.#getTopic(topicName);
         const existingIndex = topic.subscribers.findIndex(s => s.id == subscriber.id);
@@ -187,21 +300,27 @@ export class KitMessenger {
 
 }
 
+/** Renders component html elements */
 export class KitRenderer {
 
+    /** Renders the document body */
     async render() {
         UIKit.document.body.setAttribute("kit-element", "");
         await this.renderKitElement(UIKit.document.body);
     }
 
     static #renderIteration;
+
+    /**
+     * Renders a kit element (must have one of the following attributes: "kit-array", "kit-component", "kit-element", "kit-if")
+     * @param {HTMLElement} kitElement -  The kit element to render
+     */
     async renderKitElement(kitElement) {
-        const tagName = kitElement.tagName.toLowerCase();
         const isKitElement =
-            tagName == "kit-component"
-            || tagName == "kit-if"
-            || tagName == "kit-array"
-            || kitElement.hasAttribute("kit-element");
+            kitElement.hasAttribute("kit-array")
+            || kitElement.hasAttribute("kit-component")
+            || kitElement.hasAttribute("kit-element")
+            || kitElement.hasAttribute("kit-if");
         if (!isKitElement) {
             UIKit.console.warn("element is not a kit element");
             return;
@@ -213,15 +332,29 @@ export class KitRenderer {
         KitRenderer.#pruneInitialAttributes(currentIteration);
     }
 
+    /**
+     * Retrieves an object from a kit element's object store by object key
+     * @param {number} elementKey - The key for the element where the object is stored
+     * @param {number} objectKey - The key for the object within the element's object store
+     */
     getObject(elementKey, objectKey) {
         const objects = UIKit.document.querySelector(`[kit-element-key="${elementKey}"]`)?.kitObjects ?? [];
         return objects.find(o => o.objectKey == objectKey)?.object;
     }
 
+    /**
+     * Retrieves the element key for a kit element
+     * @param {HTMLElement} kitElement - The kit element
+     */
     getKitElementKey(kitElement) {
         return kitElement.getAttribute("kit-element-key");
     }
 
+    /**
+     * Retrieves an object from a kit element's object store by alias
+     * @param {HTMLElement} kitElement - The kit element
+     * @param {string} objectAlias - The alias for the object
+     */
     getKitElementObject(kitElement, objectAlias = "model") {
         const kitObjects = kitElement?.kitObjects ?? [];
         return kitObjects.find(ko => ko.alias = objectAlias)?.object;
@@ -252,54 +385,70 @@ export class KitRenderer {
     }
 
     static async #resolveElement(kitElement) {
+
+        // initialize attributes
         KitRenderer.#initializeAttributes(kitElement);
-        await KitRenderer.#resolveAttributes(kitElement);
-        const elementKey = kitElement.getAttribute("kit-element-key");    
+
+        // resolve attributes
+        await KitRenderer.#resolveArrayItemAttributes(kitElement, kitElement.kitAncestorObjects);
+        kitElement.kitObjects = await KitRenderer.#getArrayItemObjects(kitElement);
+        const arrayAndAncestorObjects = KitRenderer.#combineKitObjects(kitElement.kitObjects, kitElement.kitAncestorObjects);
+        await KitRenderer.#resolveObjectAttributes(kitElement, arrayAndAncestorObjects);
         kitElement.kitObjects = await KitRenderer.#getKitObjects(kitElement);
         const elementAndAncestorObjects
             = KitRenderer.#combineKitObjects(kitElement.kitObjects, kitElement.kitAncestorObjects);
-        const template = await KitRenderer.#getKitElementTemplate(kitElement);       
-        switch (kitElement.tagName.toLowerCase()) {
-            case "kit-component":
-                if (kitElement.hasAttribute("kit-template-path")) {
+        await KitRenderer.#resolveAttributes(kitElement, elementAndAncestorObjects);
+
+        // resolve inner html
+        const elementKey = kitElement.getAttribute("kit-element-key"); 
+        const template = await KitRenderer.#getKitElementTemplate(kitElement);
+        let resolveTemplate = true;
+        if (kitElement.hasAttribute("kit-if")) {
+            resolveTemplate = elementAndAncestorObjects.find(o => o.elementKey == elementKey && o.isIf).object;
+        }
+        if (resolveTemplate) {
+            if (kitElement.hasAttribute("kit-array")) {
+                const array = elementAndAncestorObjects.find(o => o.elementKey == elementKey && o.isArray).object;
+                const arrayAlias = elementAndAncestorObjects.find(o => o.elementKey == elementKey && o.isArray).alias;
+                const hasArrayItemAliasAttr = kitElement.hasAttribute("kit-array-item-alias");
+                let arrayItemAliasAttr = null;
+                if (hasArrayItemAliasAttr) {
+                    arrayItemAliasAttr = kitElement.getAttribute("kit-array-item-alias");
+                }
+                const hasArrayIndexAliasAttr = kitElement.hasAttribute("kit-array-index-alias");
+                let arrayIndexAliasAttr = null;
+                if (hasArrayIndexAliasAttr) {
+                    arrayIndexAliasAttr = kitElement.getAttribute("kit-array-index-alias");
+                }   
+                let tempElement = null;
+                for (let i = 0; i < array.length; i++) {
+                    tempElement = UIKit.document.createElement("temp");
+                    tempElement.innerHTML = template;
+                    for (const tempChild of tempElement.children) {
+                        const child = tempChild.cloneNode(true);
+                        child.setAttribute("kit-element", "");
+                        if (hasArrayItemAliasAttr) {
+                            child.setAttribute("kit-array-item", `${arrayItemAliasAttr}:#${arrayAlias}[${i}]`);
+                        }
+                        if (hasArrayIndexAliasAttr) {
+                            child.setAttribute("kit-array-index", `${arrayIndexAliasAttr}:${i}`);
+                        }
+                        KitRenderer.#initializeElement(child);
+                        kitElement.appendChild(child);
+                    }
+                }
+            }
+            else {
+                if (kitElement.hasAttribute("kit-component")) {
                     kitElement.innerHTML = await KitRenderer.#resolve(template, kitElement.kitObjects);
                 }
                 else {
                     kitElement.innerHTML = await KitRenderer.#resolve(template, elementAndAncestorObjects);
                 }
-                break;
-            case "kit-if":
-                const condition = elementAndAncestorObjects.find(o => o.elementKey == elementKey && o.isCondition).object;
-                if (condition) {
-                    kitElement.innerHTML = await KitRenderer.#resolve(template, elementAndAncestorObjects);
-                }
-                break;
-            case "kit-array":
-                const array = elementAndAncestorObjects.find(o => o.elementKey == elementKey && o.isArray).object;
-                const arrayAlias = elementAndAncestorObjects.find(o => o.elementKey == elementKey && o.isArray).alias;
-                let itemElement = null;
-                let itemAlias = null;
-                let indexAlias = null;
-                for (let i = 0; i < array.length; i++) {
-                    itemElement = UIKit.document.createElement("kit-component");
-                    itemAlias = kitElement.getAttribute("kit-array-item-alias");
-                    if (itemAlias) {
-                        itemElement.setAttribute(`kit-object-${itemAlias}`, `${itemAlias}:#${arrayAlias}[${i}]`);
-                    }
-                    indexAlias = kitElement.getAttribute("kit-array-item-index-alias");
-                    if (indexAlias) {
-                        itemElement.setAttribute(`kit-object-${indexAlias}`, `${indexAlias}:${i}`);
-                    }
-                    itemElement.setAttribute("kit-template-key", kitElement.getAttribute("kit-template-key"));
-                    kitElement.appendChild(itemElement);
-                }
-                break;
-            default:
-                if (template) {
-                    kitElement.innerHTML = await KitRenderer.#resolve(template, elementAndAncestorObjects);
-                }
-                break;
+            }
         }
+
+        // resolve kit child elements
         const topKitChildElements = KitRenderer.#getTopKitChildElements(kitElement);
         const promises = [];
         for (const kitChildElement of topKitChildElements) {
@@ -307,6 +456,8 @@ export class KitRenderer {
             promises.push(KitRenderer.#resolveElement(kitChildElement));
         }
         await Promise.all(promises);
+
+        // notify listeners of element resolution
         await KitRenderer.#notifyOnRendered(kitElement);
     }
 
@@ -328,7 +479,7 @@ export class KitRenderer {
     }
 
     static #getTopKitChildElements(kitElement) {
-        const baseSelector = ":is(kit-component, kit-if, kit-array, [kit-element])";
+        const baseSelector = ":is([kit-array], [kit-component], [kit-element], [kit-if])";
         const allChildKits = [...kitElement.querySelectorAll(`:scope ${baseSelector}`)];
         const nestedChildKits = [...kitElement.querySelectorAll(`:scope ${baseSelector} ${baseSelector}`)];
         return allChildKits.filter(e => !nestedChildKits.includes(e));
@@ -359,15 +510,47 @@ export class KitRenderer {
         }
     }
 
-    static async #resolveAttributes(kitElement) {
+    static async #resolveArrayItemAttributes(kitElement, ancestorObjects) {
+        if (kitElement.hasAttribute("kit-array-item") || kitElement.hasAttribute("kit-array-index")) {
+            let attributeValue = null;
+            const arrayItemAttrs = ["kit-array-item", "kit-array-index"];
+            const attributeNames = kitElement
+                .getAttributeNames()
+                .map(an => an.toLowerCase())
+                .filter(an => arrayItemAttrs.includes(an));
+            for (const attributeName of attributeNames) {
+                attributeValue = await KitRenderer.#resolve(kitElement.getAttribute(attributeName), ancestorObjects);
+                kitElement.setAttribute(attributeName, attributeValue);
+            }
+        }
+    }
+
+    static async #resolveObjectAttributes(kitElement, ancestorObjects) {
+        let attributeValue = null;
+        const objAttrs = ["kit-array", "kit-if", "kit-model"];
+        const attributeNames = kitElement
+            .getAttributeNames()
+            .map(an => an.toLowerCase())
+            .filter(an => objAttrs.includes(an) || an.startsWith("kit-obj-"));
+        for (const attributeName of attributeNames) {
+            attributeValue = await KitRenderer.#resolve(kitElement.getAttribute(attributeName), ancestorObjects);
+            kitElement.setAttribute(attributeName, attributeValue);
+        }
+    }
+
+    static async #resolveAttributes(kitElement, elementAndAncestorObjects) {
         let attributeValue = null;
         let index = -1;
-        const attributeNames = kitElement.getAttributeNames();
+        const objAttrs = ["kit-array", "kit-array-item", "kit-array-index", "kit-if", "kit-model"];
+        const attributeNames = kitElement
+            .getAttributeNames()
+            .map(an => an.toLowerCase())
+            .filter(an => !objAttrs.includes(an) && !an.startsWith("kit-obj-"));
         let addAttributeName = null;
         let addAttributeValue = null;
         for (const attributeName of attributeNames) {
-            attributeValue = await KitRenderer.#resolve(kitElement.getAttribute(attributeName), kitElement.kitAncestorObjects);    
-            if (attributeName.startsWith("kit-attr-add-")) {
+            attributeValue = await KitRenderer.#resolve(kitElement.getAttribute(attributeName), elementAndAncestorObjects);    
+            if (attributeName.startsWith("kit-attr-")) {
                 index = attributeValue.indexOf(":");
                 addAttributeName = attributeValue.substring(0, index);
                 addAttributeValue = attributeValue.substring(index + 1);
@@ -382,66 +565,75 @@ export class KitRenderer {
         }
     }
 
+    static async #getArrayItemObjects(kitElement) {
+        const objects = [];
+        const elementKey = kitElement.getAttribute("kit-element-key");
+        await KitRenderer.#addKitObject(objects, kitElement, elementKey, "kit-array-item");
+        await KitRenderer.#addKitObject(objects, kitElement, elementKey, "kit-array-index");
+        return objects;
+    }
+
     static async #getKitObjects(kitElement) {
         const objects = [];
         const elementKey = kitElement.getAttribute("kit-element-key");
-        let alias = null;
-        let objectKey = null;
-        let object = null;
-        let attributeValue = null;
-        let index = -1;
+        await KitRenderer.#addKitObject(objects, kitElement, elementKey, "kit-array", `array-${elementKey}`);
+        await KitRenderer.#addKitObject(objects, kitElement, elementKey, "kit-array-item");
+        await KitRenderer.#addKitObject(objects, kitElement, elementKey, "kit-array-index");
+        await KitRenderer.#addKitObject(objects, kitElement, elementKey, "kit-if", `if-${elementKey}`);
 
-        const attributeNames = kitElement.getAttributeNames();
-        for (const attributeName of attributeNames) {
-            if (attributeName.startsWith("kit-object-")) {
-                attributeValue = kitElement.getAttribute(attributeName);
-                index = attributeValue.indexOf(":");
-                alias = attributeValue.substring(0, index);
-                object = await KitRenderer.#evaluateJavascript(attributeValue.substring(index + 1));
-                objectKey = KitRenderer.#nextKey();
-                objects.push({ alias: alias, elementKey: elementKey, objectKey: objectKey, object: object });
-            }
+        // kit-model
+        let componentModel = null;
+        if (kitElement.hasAttribute("kit-model")) {
+            await KitRenderer.#addKitObject(objects, kitElement, elementKey, "kit-model", "model");
         }
-        if (kitElement.tagName.toLowerCase() == "kit-component") {
-            alias = "model";
-            let hasModel = false;
-            if (kitElement.hasAttribute("kit-model")) {
-                object = await KitRenderer.#evaluateJavascript(kitElement.getAttribute("kit-model"));
-                hasModel = true;
-            }
-            else {
-                if (kitElement.hasAttribute("kit-template-path")) {
-                    const templatePath = kitElement.getAttribute("kit-template-path");
-                    if (templatePath) {
-                        const modulePath = templatePath.replace(".html", ".js");
-                        const jsModule = await UIKit.resourceManager.import(modulePath);
-                        object = jsModule.createModel();
-                        if (typeof object.init === "function") {
-                            await object.init(kitElement, [...objects]);
-                        }
-                    }
-                    hasModel = true;
+        else {
+            if (kitElement.hasAttribute("kit-component")) {
+                let templatePath = kitElement.getAttribute("kit-component");
+                if (!templatePath.startsWith("no-model:")) {
+                    const modulePath = templatePath.replace(".html", ".js");
+                    const jsModule = await UIKit.resourceManager.import(modulePath);
+                    const object = jsModule.createModel();
+                    const objectKey = KitRenderer.#nextKey();
+                    objects.push({ alias: "model", elementKey: elementKey, objectKey: objectKey, object: object });
+                    componentModel = object;
                 }
             }
-            if (hasModel) {
-                objectKey = KitRenderer.#nextKey();
-                objects.push({ alias: alias, elementKey: elementKey, objectKey: objectKey, object: object });
+        }
+
+        // kit-obj-*
+        const attributeNames = kitElement.getAttributeNames();
+        for (const attributeName of attributeNames) {
+            if (attributeName.startsWith("kit-obj-")) {
+                await KitRenderer.#addKitObject(objects, kitElement, elementKey, attributeName);
             }
         }
-        if (kitElement.tagName.toLowerCase() == "kit-if") {
-            alias = `condition-${KitRenderer.#nextKey()}`;
-            object = await KitRenderer.#evaluateJavascript(kitElement.getAttribute("kit-condition"));
-            objectKey = KitRenderer.#nextKey();
-            objects.push({ alias: alias, elementKey: elementKey, objectKey: objectKey, object: object, isCondition: true });
-        }
-        if (kitElement.tagName.toLowerCase() == "kit-array") {
-            alias = kitElement.getAttribute("kit-array-alias") ?? `array-${elementKey}`;
-            object = await KitRenderer.#evaluateJavascript(kitElement.getAttribute("kit-array"));
-            objectKey = KitRenderer.#nextKey();
-            objects.push({ alias: alias, elementKey: elementKey, objectKey: objectKey, object: object, isArray: true });
-        }
+
         objects.sort((a, b) => b.alias.length - a.alias.length); // longest alias first
+        if (typeof componentModel?.init === "function") {
+            await componentModel.init(kitElement, [...objects]);
+        }
         return objects;
+    }
+
+    static async #addKitObject(objects, kitElement, elementKey, attributeName, alias = null) {
+        if (kitElement.hasAttribute(attributeName)) {
+            let attributeValue = kitElement.getAttribute(attributeName);
+            if (!alias) { 
+                const index = attributeValue.indexOf(":");
+                alias = attributeValue.substring(0, index);
+                attributeValue = attributeValue.substring(index + 1)
+            }
+            const object = await KitRenderer.#evaluateJavascript(attributeValue);
+            const objectKey = KitRenderer.#nextKey();
+            const item = { alias: alias, elementKey: elementKey, objectKey: objectKey, object: object };
+            if (attributeName == "kit-array") {
+                item.isArray = true;
+            }
+            if (attributeName == "kit-if") {
+                item.isIf = true;
+            }
+            objects.push(item);
+        }
     }
 
     static #combineKitObjects(elementObjects, ancestorObjects) {
@@ -461,17 +653,20 @@ export class KitRenderer {
     }
 
     static async #getKitElementTemplate(kitElement) {
-        const kitTemplatePath = kitElement.getAttribute("kit-template-path");
+        let templatePath = kitElement.getAttribute("kit-component");
+        if (templatePath) {
+            templatePath = templatePath.replace("no-model:", "");
+        }
         const kitTemplateKey = kitElement.getAttribute("kit-template-key");
-        let template = KitRenderer.#getTemplate(kitTemplatePath, kitTemplateKey);
-        if (!template && kitTemplatePath) {
-            const response = await UIKit.resourceManager.fetch(kitTemplatePath, { cache: "no-cache" });
+        let template = KitRenderer.#getTemplate(templatePath, kitTemplateKey);
+        if (!template && templatePath) {
+            const response = await UIKit.resourceManager.fetch(templatePath, { cache: "no-cache" });
             template = await response.text();
             const temp = UIKit.document.createElement("temp");
             temp.innerHTML = template;
             KitRenderer.#initializeElement(temp);
             template = KitRenderer.#getTemplate(null, temp.getAttribute("kit-template-key"));
-            KitRenderer.#setTemplate(kitTemplatePath, null, template);
+            KitRenderer.#setTemplate(templatePath, null, template);
         }
         return template;
     }
@@ -494,39 +689,51 @@ export class KitRenderer {
         const escapeEvalEnd = "end-a07118ed-51f3-4d7e-9d44-ad632b102770-end";
         let output = input;
 
-        // resolve aliases (i.e. #model ...)
-        if (!objectMaps) {
-            objectMaps = [];
-        }
-        for (const objectMap of objectMaps) {
-            output = output.replaceAll(`\\#${objectMap.alias}`, escapeAlias);
-            output = output.replaceAll(
-                `#${objectMap.alias}`,
-                `UIKit.renderer.getObject('${objectMap.elementKey}', '${objectMap.objectKey}')`);
-            output = output.replaceAll(escapeAlias, `#${objectMap.alias}`);
-        }
-
-        // resolve evaluation instructions (i.e. %{ ... }%})
-        output = output.replaceAll("\\%{", escapeEvalStart);
-        output = output.replaceAll("\\}%", escapeEvalEnd);
-        const regex = new RegExp(/(?<=%\{).*?(?=\}%)/, "g"); // characters between %{ and }%
-        const matches = [...output.matchAll(regex)];
-        if (matches && matches.length > 0) {
-            for (const match of matches) {
-                const result = await KitRenderer.#evaluateJavascript(match[0]);
-                output = output.replaceAll(`%{${match[0]}}%`, result);
+        try {
+            // resolve aliases (i.e. #model ...)
+            if (!objectMaps) {
+                objectMaps = [];
             }
-        }
-        output = output.replaceAll(escapeEvalEnd, "}%");
-        output = output.replaceAll(escapeEvalStart, "%{");
-        return output;
+            for (const objectMap of objectMaps) {
+                output = output.replaceAll(`\\#${objectMap.alias}`, escapeAlias);
+                output = output.replaceAll(
+                    `#${objectMap.alias}`,
+                    `UIKit.renderer.getObject(${objectMap.elementKey}, ${objectMap.objectKey})`);
+                output = output.replaceAll(escapeAlias, `#${objectMap.alias}`);
+            }
 
+            // resolve evaluation instructions (i.e. %{ ... }%})
+            output = output.replaceAll("\\%{", escapeEvalStart);
+            output = output.replaceAll("\\}%", escapeEvalEnd);
+            const regex = new RegExp(/(?<=%\{).*?(?=\}%)/, "g"); // characters between %{ and }%
+            const matches = [...output.matchAll(regex)];
+            if (matches && matches.length > 0) {
+                for (const match of matches) {
+                    const result = await KitRenderer.#evaluateJavascript(match[0]);
+                    output = output.replaceAll(`%{${match[0]}}%`, result);
+                }
+            }
+            output = output.replaceAll(escapeEvalEnd, "}%");
+            output = output.replaceAll(escapeEvalStart, "%{");
+        }
+        catch (error) {
+            UIKit.console.error(new Error("Error resolving input"), { input: input });
+            throw error;
+        }
+        
+        return output;
     }
 
     static async #evaluateJavascript(js) {
         let result_5212D07346A8495DB3E49C9900B43F6C = null;
+        let error_5212D07346A8495DB3E49C9900B43F6C = null;
         if (js) {
-            eval(`(async () => { result_5212D07346A8495DB3E49C9900B43F6C = ${js}; })()`);
+            eval(`(async () => { try { result_5212D07346A8495DB3E49C9900B43F6C = ${js}; } catch (error) { error_5212D07346A8495DB3E49C9900B43F6C = error; } })()`);
+        }
+        if (error_5212D07346A8495DB3E49C9900B43F6C) {
+            const error = error_5212D07346A8495DB3E49C9900B43F6C
+            error.message = `\nError evaluating javascript: ${js}\n${error.message}`;
+            throw error;
         }
         return await result_5212D07346A8495DB3E49C9900B43F6C;
     }

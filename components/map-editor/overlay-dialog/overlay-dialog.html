@@ -1,20 +1,16 @@
 ﻿
-<kit-if kit-condition="#model?.isVisible()">
+<kit kit-if="#model?.isVisible()">
     <link rel="stylesheet" href="/components/map-editor/overlay-dialog/overlay-dialog.css" />
     <dialog id="overlay-dialog">
         <header>
-            <div class="icon-container">
-                <kit-component kit-template-path="/resources/icons/view-overlay.html" kit-model="null"></kit-component>
-            </div>
+            <div class="icon-container" kit-component="no-model:/resources/icons/view-overlay.html"></div>
             <div>
                 <h1>Overlay</h1>
             </div>
             <div class="spacer"></div>
             <div>
                 <button title="Close" class="action-text" onclick="#model.closeDialog();">
-                    <div class="icon-container">
-                        <kit-component kit-template-path="/resources/icons/file-close.html" kit-model="null"></kit-component>
-                    </div>
+                    <div class="icon-container" kit-component="no-model:/resources/icons/file-close.html"></div>
                 </button>
             </div>
         </header>
@@ -59,4 +55,4 @@
             </div>
         </section>
     </dialog>
-</kit-if>
+</kit>

@@ -33,21 +33,13 @@
     </fieldset>
     <fieldset>
         <legend>Debug console</legend>
-        <div id="debug-console">
-            <kit-array kit-array="#model.getDebugConsoleItems()" kit-array-item-alias="item">
-                <div class="debug-console-item">
-                    <kit-if kit-condition="#item.itemType === 'info'">
-                        <span>&#9432;</span>
-                    </kit-if>
-                    <kit-if kit-condition="#item.itemType === 'warning'">
-                        <span>&#9888;</span>
-                    </kit-if>
-                    <kit-if kit-condition="#item.itemType === 'error'">
-                        <span>&#10539;</span>
-                    </kit-if>
-                    <pre>%{#item.data}%</pre>
-                </div>
-            </kit-array>
+        <div id="debug-console" kit-array="#model.getDebugConsoleItems()" kit-array-item-alias="item">
+            <div class="debug-console-item">
+                <span kit-if="#item.itemType === 'info'">&#9432;</span>
+                <span kit-if="#item.itemType === 'warning'">&#9888;</span>
+                <span kit-if="#item.itemType === 'error'">&#10539;</span>
+                <pre>%{#item.data}%</pre>
+            </div>
         </div>
     </fieldset>
 </section>

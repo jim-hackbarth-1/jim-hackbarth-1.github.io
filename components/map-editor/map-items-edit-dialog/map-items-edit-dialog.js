@@ -54,7 +54,6 @@ class MapItemsEditDialogModel {
             MapItemsEditDialogModel.#mapItemCount = null;
             const section = this.#kitElement.querySelector("#map-items-section");
             await UIKit.renderer.renderKitElement(section);
-            this.#loadTemplates();
         }
     }
 
@@ -66,7 +65,6 @@ class MapItemsEditDialogModel {
     async showDialog() {
         MapItemsEditDialogModel.#isVisible = true;
         await UIKit.renderer.renderKitElement(this.#kitElement);
-        this.#loadTemplates();
     }
 
     closeDialog = () => {
@@ -106,7 +104,6 @@ class MapItemsEditDialogModel {
         MapItemsEditDialogModel.#selectedAction = detailId;
         const details = this.#kitElement.querySelector("#map-items-detail-container");
         await UIKit.renderer.renderKitElement(details);
-        this.#loadTemplates();
     }
 
     async getMapItems() {
@@ -174,7 +171,6 @@ class MapItemsEditDialogModel {
         MapItemsEditDialogModel.#saveCurrentSelections(this.#kitElement.querySelectorAll(".data-list-item-checkbox:checked"));
         const details = this.#kitElement.querySelector("#map-items-detail-container");
         await UIKit.renderer.renderKitElement(details);
-        this.#loadTemplates();
     }
 
     async toggleSelection() {
@@ -184,7 +180,6 @@ class MapItemsEditDialogModel {
         MapItemsEditDialogModel.#saveCurrentSelections(this.#kitElement.querySelectorAll(".data-list-item-checkbox:checked"));
         const details = this.#kitElement.querySelector("#map-items-detail-container");
         await UIKit.renderer.renderKitElement(details);
-        this.#loadTemplates();
     }
 
     toggleDetails(mapItemId) {
@@ -235,7 +230,6 @@ class MapItemsEditDialogModel {
         MapItemsEditDialogModel.#mapItemCount = null;
         const section = this.#kitElement.querySelector("#map-items-section");
         await UIKit.renderer.renderKitElement(section);
-        this.#loadTemplates();
     }
 
     onInputKeyDown(event) {
@@ -479,7 +473,8 @@ class MapItemsEditDialogModel {
         for (let index = layer.mapItemGroups.length - 1; index > -1; index--) {
             const mapItemGroupData = layer.mapItemGroups[index].getData();
             const isChangedGroup = newGroupItems.some(ngi => ngi.mapItemGroupId == mapItemGroupData.id);
-            const mapItemsNotInGroup = mapItemGroupData.mapItems.filter(mi => !newGroupItems.some(ngi => ngi.mapItemData.id == mi.id));
+            const mapItemsNotInGroup
+                = mapItemGroupData.mapItems.filter(mi => !newGroupItems.some(ngi => ngi.mapItemData.id == mi.id));
             if (isChangedGroup) {
                 if (mapItemsNotInGroup.length > 0) {
                     editGroups.push({
@@ -574,7 +569,8 @@ class MapItemsEditDialogModel {
             const isChangedGroup
                 = mapItemGroupData.mapItems.length > 1
                 && newGroupItems.some(ngi => ngi.mapItemGroupId == mapItemGroupData.id);
-            const mapItemsNotInGroup = mapItemGroupData.mapItems.filter(mi => !newGroupItems.some(ngi => ngi.mapItemData.id == mi.id));
+            const mapItemsNotInGroup
+                = mapItemGroupData.mapItems.filter(mi => !newGroupItems.some(ngi => ngi.mapItemData.id == mi.id));
             if (isChangedGroup) {
                 if (mapItemsNotInGroup.length > 0) {
                     editGroups.push({
@@ -674,6 +670,10 @@ class MapItemsEditDialogModel {
             messageType: MapWorkerInputMessageType.UpdateMap,
             changeSet: { changes: changes }
         });
+    }
+
+    getTemplates() {
+        return MapItemsEditDialogModel.#templates;
     }
 
     async updateTemplate() {
@@ -935,18 +935,5 @@ class MapItemsEditDialogModel {
             displayName: "[None]"
         })
         return templates;
-    }
-
-    #loadTemplates() {
-        const select = this.#kitElement.querySelector("#edit-template-select");
-        if (select) {
-            for (const template of MapItemsEditDialogModel.#templates) {
-                const option = UIKit.document.createElement("option");
-                option.value = template.id;
-                option.title = template.name;
-                option.innerHTML = template.displayName;
-                select.appendChild(option);
-            }
-        }
     }
 }

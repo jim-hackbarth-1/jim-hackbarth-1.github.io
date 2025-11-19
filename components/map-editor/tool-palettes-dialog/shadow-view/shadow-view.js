@@ -19,21 +19,24 @@ class ShadowViewModel {
     async init(kitElement, kitObjects) {
         this.#kitElement = kitElement;
         ShadowViewModel.#dialogModel = kitObjects.find(o => o.alias == "dialogModel")?.object;
-        ShadowViewModel.#map = await MapWorkerClient.getMap();
-        const parts = ShadowViewModel.#dialogModel.getSelectedDetailComponentInfo().id.split("-");
-        ShadowViewModel.#shadowType = parts[0];
-        const mapItemTemplateRef = ToolPalettesDialogModel.deSerializeRef(parts[1]);
-        ShadowViewModel.#mapItemTemplate
-            = ShadowViewModel.#map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, mapItemTemplateRef));
-        ShadowViewModel.#shadow = null;
-        if (ShadowViewModel.#shadowType == "shadow") {
-            ShadowViewModel.#shadow = ShadowViewModel.#mapItemTemplate.shadow;
-        }
-        if (ShadowViewModel.#shadowType == "caption.shadow") {
-            ShadowViewModel.#shadow = ShadowViewModel.#mapItemTemplate.caption.shadow;
-        }
-        if (ShadowViewModel.#shadowType == "caption.text.shadow") {
-            ShadowViewModel.#shadow = ShadowViewModel.#mapItemTemplate.caption.textShadow;
+        const componentInfo = ShadowViewModel.#dialogModel.getSelectedDetailComponentInfo();
+        if (componentInfo.componentName == "shadow") {
+            ShadowViewModel.#map = await MapWorkerClient.getMap();
+            const parts = componentInfo.id.split("-");
+            ShadowViewModel.#shadowType = parts[0];
+            const mapItemTemplateRef = ToolPalettesDialogModel.deSerializeRef(parts[1]);
+            ShadowViewModel.#mapItemTemplate
+                = ShadowViewModel.#map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, mapItemTemplateRef));
+            ShadowViewModel.#shadow = null;
+            if (ShadowViewModel.#shadowType == "shadow") {
+                ShadowViewModel.#shadow = ShadowViewModel.#mapItemTemplate.shadow;
+            }
+            if (ShadowViewModel.#shadowType == "caption.shadow") {
+                ShadowViewModel.#shadow = ShadowViewModel.#mapItemTemplate.caption.shadow;
+            }
+            if (ShadowViewModel.#shadowType == "caption.text.shadow") {
+                ShadowViewModel.#shadow = ShadowViewModel.#mapItemTemplate.caption.textShadow;
+            }
         }
     }
 
@@ -117,8 +120,17 @@ class ShadowViewModel {
         return ShadowViewModel.#shadow.offsetY;
     }
 
-    getRenderingOrder() {
-        return ShadowViewModel.#shadow.renderingOrder;
+    getRenderingOrders() {
+        const items = [
+            { id: "BelowStrokes", name: "Below strokes (default)", isSelectedAttr: null },
+            { id: "AboveStrokes", name: "Above strokes", isSelectedAttr: null }
+        ];
+        const renderingOrder = ShadowViewModel.#shadow.renderingOrder;
+        const selectedItem = items.find(i => i.id == renderingOrder);
+        if (selectedItem) {
+            selectedItem.isSelectedAttr = "";
+        }
+        return items;
     }
 
     validate() {
@@ -164,7 +176,8 @@ class ShadowViewModel {
             isValid = false;
         }
         if (offsetX < -100 || offsetX > 100 || offsetY < -100 || offsetY > 100) {
-            this.#showValidationMessage("#shadow-offset-validation", "Offset x and y values must be integers between -100 and 100.");
+            this.#showValidationMessage(
+                "#shadow-offset-validation", "Offset x and y values must be integers between -100 and 100.");
             isValid = false;
         }
 

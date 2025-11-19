@@ -43,17 +43,20 @@ export class EditorModel {
     }
 
     async onRendered() {
-        this.#initializeMenu();
-        this.#initializeKeyEvents();
-        this.#subscribeToTopics();
-        await this.#initializeToolsAndCanvas();
-        this.#initializeMapWorker();
+        if (this.#kitElement.innerHTML) {
+            this.#initializeMenu();
+            this.#initializeKeyEvents();
+            this.#subscribeToTopics();
+            await this.#initializeToolsAndCanvas();
+            this.#initializeMapWorker();
+        }
     }
 
     onMapChanged = async (message) => {
         if (message?.messageType === MapWorkerOutputMessageType.ChangeCursor) {
             this.#setMapCursor(message.data?.cursor);
-            MapWorkerClient.postWorkerMessage({ messageType: MapWorkerInputMessageType.CursorChanged, cursor: message.data?.cursor });
+            const cursorMessage = { messageType: MapWorkerInputMessageType.CursorChanged, cursor: message.data?.cursor };
+            MapWorkerClient.postWorkerMessage(cursorMessage);
         }
         if (message?.messageType === MapWorkerOutputMessageType.ChangeToolOptions) {
             this.#kitElement.querySelector("#menuEditToolOptions").disabled = !this.#hasVisibleToolOption();
@@ -140,12 +143,12 @@ export class EditorModel {
             }  
         }
         else {
-            await this.showDialog("file-save-dialog-component");
+            await this.showDialog("dlg-file-save");
         }
     }
 
     async saveMapAs() {
-        await this.showDialog("file-save-as-dialog-component");
+        await this.showDialog("dlg-file-save-as");
     }
 
     async getCloseDisabledAttr() {
@@ -311,7 +314,8 @@ export class EditorModel {
                                     pathData.bounds = null;
                                     if (pathData.clipPaths) {
                                         for (const clipPathData of pathData.clipPaths) {
-                                            clipPathData.start = { x: clipPathData.start.x + offset, y: clipPathData.start.y + offset };
+                                            clipPathData.start
+                                                = { x: clipPathData.start.x + offset, y: clipPathData.start.y + offset };
                                             pathData.bounds = null
                                         }
                                     }
@@ -419,7 +423,8 @@ export class EditorModel {
             if (paletteType === "MapItemTemplates") {
                 let itemIndex = 0;
                 for (const mapItemTemplateRef of palette) {
-                    const mapItemTemplate = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, mapItemTemplateRef));
+                    const mapItemTemplate
+                        = map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, mapItemTemplateRef));
                     if (mapItemTemplate) {
                         items.push({
                             id: `${paletteType}-${paletteIndex}-${itemIndex}`,
@@ -455,7 +460,8 @@ export class EditorModel {
         if (tool?.toolType == ToolType.EditingTool) {
             await this.#onMapItemTemplateReset();
         }
-        let cursorSrc = `<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100">${tool.cursorSrc}</svg>`;
+        let cursorSrc
+            = `<svg xmlns="http://www.w3.org/2000/svg" height="30" width="30" viewBox="0 0 100 100">${tool.cursorSrc}</svg>`;
         cursorSrc = `data:image/svg+xml;base64,${btoa(cursorSrc)}`;
         this.#toolCursor = `url(${cursorSrc}) ${tool.cursorHotspot.x} ${tool.cursorHotspot.y}, crosshair`;
         this.#setMapCursor();

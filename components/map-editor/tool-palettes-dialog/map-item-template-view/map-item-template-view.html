@@ -3,21 +3,21 @@
     <div class="detail-heading" style="height:100px;">
         <div class="detail-heading-row">
             <div class="icon-container detail-heading-field">
-                <img height="25" width="25" kit-element kit-attr-add-src="src:%{#model.getThumbnailSrc()}%" />
+                <img height="25" width="25" kit-element kit-attr-src="src:%{#model.getThumbnailSrc()}%" />
             </div>
             <div class="detail-heading-field detail-heading-label detail-title-label spacer" title="%{#model.getDisplayName()}%">
                 %{#model.getDisplayName()}%
             </div>
-            <kit-if kit-condition="#model.isBuiltIn()">
+            <kit kit-if="#model.isBuiltIn()">
                 <div class="detail-heading-field detail-heading-note">
                     <span>Built in</span>
                 </div>
-            </kit-if>
-            <kit-if kit-condition="#model.isFromTemplate()">
+            </kit>
+            <kit kit-if="#model.isFromTemplate()">
                 <div class="detail-heading-field detail-heading-note">
                     <span>From template</span>
                 </div>
-            </kit-if>
+            </kit>
         </div>
         <div class="detail-heading-row">
             <div class="detail-heading-field spacer">
@@ -26,7 +26,7 @@
                         class="button dialog-button"
                         style="width:80px;"
                         kit-element
-                        kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                        kit-attr-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
                         onclick="#model.saveMapItemTemplate()">
                     Save
                 </button>
@@ -36,7 +36,7 @@
                         class="button dialog-button"
                         style="width:80px;"
                         kit-element
-                        kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                        kit-attr-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
                         onclick="#model.deleteMapItemTemplate();">
                     Delete
                 </button>
@@ -52,7 +52,7 @@
                        type="text"
                        maxlength="30"
                        kit-element
-                       kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                       kit-attr-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
                        oninput="#model.validate()"
                        onkeydown="#dialogModel.onInputKeyDown(event)">
                 <div id="map-item-template-name-validation" class="validation-message"></div>
@@ -65,8 +65,8 @@
                        min="1"
                        max="1000"
                        kit-element
-                       kit-attr-add-value="value:%{#model.getVersion()}%"
-                       kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                       kit-attr-value="value:%{#model.getVersion()}%"
+                       kit-attr-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
                        oninput="#model.validate()"
                        onkeydown="#dialogModel.onInputKeyDown(event)">
                 <div id="map-item-template-version-validation" class="validation-message"></div>
@@ -81,7 +81,7 @@
                              height="25"
                              width="25"
                              kit-element
-                             kit-attr-add-src="src:%{#model.getThumbnailSrc()}%" />
+                             kit-attr-src="src:%{#model.getThumbnailSrc()}%" />
                     </div>
                     <div class="form-field-group-item">
                         <div>
@@ -90,7 +90,7 @@
                                     class="button dialog-button"
                                     style="width:175px;text-align:left;"
                                     kit-element
-                                    kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                                    kit-attr-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
                                     onclick="#model.browseThumbnail()">
                                 Browse for image ...
                             </button>
@@ -100,7 +100,7 @@
                                     title="Generate from shape selection"
                                     style="width:175px;"
                                     kit-element
-                                    kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                                    kit-attr-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
                                     onchange="#model.generateThumbnail(this)">
                                 <option value="">Generate from shape ...</option>
                                 <option value="path">Generate path shape</option>
@@ -124,8 +124,8 @@
                        max="10"
                        title="Default z-group (rendering order)"
                        kit-element
-                       kit-attr-add-value="value:%{#model.getZGroup()}%"
-                       kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                       kit-attr-value="value:%{#model.getZGroup()}%"
+                       kit-attr-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
                        oninput="#model.validate()"
                        onkeydown="#dialogModel.onInputKeyDown(event)">
                 <div id="map-item-template-z-group-validation" class="validation-message"></div>
@@ -139,7 +139,7 @@
                        type="text"
                        maxlength="100"
                        kit-element
-                       kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                       kit-attr-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
                        oninput="#model.validate()"
                        onkeydown="#dialogModel.onInputKeyDown(event)">
                 <div id="map-item-template-tags-validation" class="validation-message"></div>

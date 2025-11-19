@@ -8,16 +8,16 @@
             <div class="detail-heading-field detail-heading-label detail-title-label spacer" title="%{#model.getDisplayName()}%">
                 %{#model.getDisplayName()}%
             </div>
-            <kit-if kit-condition="#model.isBuiltIn()">
+            <kit kit-if="#model.isBuiltIn()">
                 <div class="detail-heading-field detail-heading-note">
                     <span>Built in</span>
                 </div>
-            </kit-if>
-            <kit-if kit-condition="#model.isFromTemplate()">
+            </kit>
+            <kit kit-if="#model.isFromTemplate()">
                 <div class="detail-heading-field detail-heading-note">
                     <span>From template</span>
                 </div>
-            </kit-if>
+            </kit>
         </div>
         <div class="detail-heading-row">
             <div class="detail-heading-field">
@@ -26,7 +26,7 @@
                         class="button dialog-button"
                         style="width:80px;"
                         kit-element
-                        kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                        kit-attr-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
                         onclick="#model.saveTool()">
                     Save
                 </button>
@@ -37,7 +37,7 @@
                         class="button dialog-button"
                         style="width:80px;"
                         kit-element
-                        kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                        kit-attr-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
                         onclick="#model.deleteTool();">
                     Delete
                 </button>
@@ -53,7 +53,7 @@
                        type="text"
                        maxlength="30"
                        kit-element
-                       kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                       kit-attr-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
                        oninput="#model.validate()"
                        onkeydown="#dialogModel.onInputKeyDown(event)">
                 <div id="tool-name-validation" class="validation-message"></div>
@@ -66,8 +66,8 @@
                        min="1"
                        max="1000"
                        kit-element
-                       kit-attr-add-value="value:%{#model.getVersion()}%"
-                       kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                       kit-attr-value="value:%{#model.getVersion()}%"
+                       kit-attr-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
                        oninput="#model.validate()"
                        onkeydown="#dialogModel.onInputKeyDown(event)">
                 <div id="tool-version-validation" class="validation-message"></div>
@@ -75,18 +75,11 @@
             <div class="form-field">
                 <label class="form-label">Tool type:</label>
                 <select id="tool-type"
-                        kit-element
-                        kit-attr-add-value="value:%{#model.getToolType()}%"
-                        kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%">
-                    <option value="EditingTool"
-                            kit-element
-                            kit-attr-add-selected="selected:%{#model.getToolType() == 'EditingTool' ? '' : null}%">
-                        Editing tool
-                    </option>
-                    <option value="DrawingTool"
-                            kit-element
-                            kit-attr-add-selected="selected:%{#model.getToolType() == 'DrawingTool' ? '' : null}%">
-                        Drawing tool
+                        kit-attr-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                        kit-array="#model.getToolTypes()"
+                        kit-array-item-alias="tool">
+                    <option value="%{#tool.id}%" kit-attr-selected="selected:%{#tool.isSelectedAttr}%">
+                        %{#tool.name}%
                     </option>
                 </select>
             </div>
@@ -96,7 +89,7 @@
                 <label class="form-label">Module source:</label>
                 <textarea id="tool-module-source"
                           kit-element
-                          kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                          kit-attr-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
                           oninput="#model.validate()"
                           onkeydown="#dialogModel.onInputKeyDown(event)"
                           maxlength="200000"
@@ -112,7 +105,7 @@
                 <label class="form-label">Thumbnail svg source:</label>
                 <textarea id="tool-thumbnail-source"
                           kit-element
-                          kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                          kit-attr-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
                           oninput="#model.validate()"
                           onkeydown="#dialogModel.onInputKeyDown(event)"
                           maxlength="1000"
@@ -128,7 +121,7 @@
                 <label class="form-label">Cursor svg source:</label>
                 <textarea id="tool-cursor-source"
                           kit-element
-                          kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                          kit-attr-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
                           oninput="#model.validate()"
                           onkeydown="#dialogModel.onInputKeyDown(event)"
                           maxlength="1000"
@@ -150,8 +143,8 @@
                                min="0"
                                max="100"
                                kit-element
-                               kit-attr-add-value="value:%{#model.getCursorHotspotX()}%"
-                               kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                               kit-attr-value="value:%{#model.getCursorHotspotX()}%"
+                               kit-attr-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
                                oninput="#model.validate()"
                                onkeydown="#dialogModel.onInputKeyDown(event)">
                     </div>
@@ -162,8 +155,8 @@
                                min="0"
                                max="100"
                                kit-element
-                               kit-attr-add-value="value:%{#model.getCursorHotspotY()}%"
-                               kit-attr-add-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
+                               kit-attr-value="value:%{#model.getCursorHotspotY()}%"
+                               kit-attr-disabled="disabled:%{#model.isReadOnly() ? '' : null}%"
                                oninput="#model.validate()"
                                onkeydown="#dialogModel.onInputKeyDown(event)">
                     </div>

@@ -4,14 +4,14 @@
         <img height="25"
              width="25"
              kit-element
-             kit-attr-add-src="src:%{#model.getSrc()}%" />
+             kit-attr-src="src:%{#model.getSrc()}%" />
     </div>
     <div>
         <button title="Browse for image"
                 class="button dialog-button"
                 style="margin-top:1px;"
                 kit-element
-                kit-attr-add-disabled="disabled:%{#model.isDisabled() ? '' : null}%"
+                kit-attr-disabled="disabled:%{#model.isDisabled() ? '' : null}%"
                 onclick="#model.setSrc()">
             Browse for image ...
         </button>

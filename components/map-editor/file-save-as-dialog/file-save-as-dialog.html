@@ -1,20 +1,16 @@
 ﻿
-<kit-if kit-condition="#model?.isVisible()">
+<kit kit-if="#model?.isVisible()">
     <link rel="stylesheet" href="/components/map-editor/file-save-as-dialog/file-save-as-dialog.css" />
     <dialog id="file-save-as-dialog">
         <header>
-            <div class="icon-container">
-                <kit-component kit-template-path="/resources/icons/file-save-as.html" kit-model="null"></kit-component>
-            </div>
+            <div class="icon-container" kit-component="no-model:/resources/icons/file-save-as.html"></div>
             <div>
                 <h1>Save map as</h1>
             </div>
             <div class="spacer"></div>
             <div>
                 <button title="Close" class="action-text" onclick="#model.closeDialog();">
-                    <div class="icon-container">
-                        <kit-component kit-template-path="/resources/icons/file-close.html" kit-model="null"></kit-component>
-                    </div>
+                    <div class="icon-container" kit-component="no-model:/resources/icons/file-close.html"></div>
                 </button>
             </div>
         </header>
@@ -25,7 +21,12 @@
             <div id="file-type-container">
                 <div>
                     <label class="radio-button">
-                        <input id="as-map-radio" type="radio" name="file-type" value="map" checked onclick="#model.setAsMap(true)" />
+                        <input id="as-map-radio" 
+                               type="radio" 
+                               name="file-type" 
+                               value="map" 
+                               checked 
+                               onclick="#model.setAsMap(true)" />
                         <span class="checkmark"></span>
                         <span class="file-type-label">Map (.json)</span>
                     </label>
@@ -38,28 +39,32 @@
                     </label>
                 </div>
             </div>
-            <kit-if id="file-controls-container" kit-condition="true">
-                <kit-if kit-condition="#model.canBrowse()">
+            <kit id="file-controls-container" kit-element>
+                <kit kit-if="#model.canBrowse()">
                     <div>
                         <label>Choose file path:</label>
                     </div>
                     <div id="file-container">
                         <input id="file-name" type="text" placeholder="file name" disabled />
-                        <button id="browse" class="button dialog-button" title="browse" onclick="#model.browse()" autofocus>...</button>
+                        <button id="browse" class="button dialog-button" title="browse" onclick="#model.browse()" autofocus>
+                            ...
+                        </button>
                     </div>
-                </kit-if>
-                <kit-if kit-condition="!#model.canBrowse()">
+                </kit>
+                <kit kit-if="!#model.canBrowse()">
                     <div>
                         <label>Choose file name:</label>
                     </div>
                     <div id="file-container">
                         <input id="file-name" type="text" placeholder="file name" onchange="#model.onFileNameChanged()" />
                     </div>
-                </kit-if>
-            </kit-if>
+                </kit>
+            </kit>
             <div>
-                <button id="button-ok" class="button dialog-button" title="OK" onclick="#model.buttonOkClicked();" disabled>OK</button>
+                <button id="button-ok" class="button dialog-button" title="OK" onclick="#model.buttonOkClicked();" disabled>
+                    OK
+                </button>
             </div>
         </section>
     </dialog>
-</kit-if>
+</kit>

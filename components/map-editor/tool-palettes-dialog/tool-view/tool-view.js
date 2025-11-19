@@ -19,13 +19,16 @@ class ToolViewModel {
 
     // event handlers
     async init(kitElement, kitObjects) {
-        this.#kitElement = kitElement;
         ToolViewModel.#dialogModel = kitObjects.find(o => o.alias == "dialogModel")?.object;
-        let toolId = ToolViewModel.#dialogModel.getSelectedDetailComponentInfo().id;
-        toolId = toolId.replace("tool-", "");
-        const ref = ToolPalettesDialogModel.deSerializeRef(toolId);
-        ToolViewModel.#map = await MapWorkerClient.getMap(); 
-        ToolViewModel.#tool = ToolViewModel.#map.tools.find(t => EntityReference.areEqual(t.ref, ref));
+        const componentInfo = ToolViewModel.#dialogModel.getSelectedDetailComponentInfo();
+        if (componentInfo.componentName == 'tool') {
+            this.#kitElement = kitElement;
+            let toolId = componentInfo.id;
+            toolId = toolId.replace("tool-", "");
+            const ref = ToolPalettesDialogModel.deSerializeRef(toolId);
+            ToolViewModel.#map = await MapWorkerClient.getMap();
+            ToolViewModel.#tool = ToolViewModel.#map.tools.find(t => EntityReference.areEqual(t.ref, ref));
+        }
     }
 
     // methods
@@ -133,8 +136,17 @@ class ToolViewModel {
         return ToolViewModel.#tool.ref.versionId;
     }
 
-    getToolType() {
-        return ToolViewModel.#tool.toolType;
+    getToolTypes() {
+        const items = [
+            { id: "EditingTool", name: "Editing tool", isSelectedAttr: null },
+            { id: "DrawingTool", name: "Drawing tool", isSelectedAttr: null }
+        ];
+        const toolType = ToolViewModel.#tool.toolType;
+        const selectedItem = items.find(i => i.id == toolType);
+        if (selectedItem) {
+            selectedItem.isSelectedAttr = "";
+        }
+        return items;
     }
 
     getModuleSource() {
@@ -246,7 +258,8 @@ class ToolViewModel {
             isValid = false;
         }
         if (cursorHotspotX < 0 || cursorHotspotX > 100 || cursorHotspotY < 0 || cursorHotspotY > 100) {
-            this.#showValidationMessage("#tool-cursor-hotspot-validation", "Cursor hotspot coordinates must be an integer between 0 and 100.");
+            this.#showValidationMessage(
+                "#tool-cursor-hotspot-validation", "Cursor hotspot coordinates must be an integer between 0 and 100.");
             isValid = false;
         }
 

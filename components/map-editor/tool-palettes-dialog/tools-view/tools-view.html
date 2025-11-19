@@ -14,10 +14,10 @@
         <div class="form-row">
             <div class="form-field">
                 <div class="item-list">
-                    <kit-if kit-condition="%{!#model.hasTools()}%">
+                    <kit kit-if="%{!#model.hasTools()}%">
                         <div class="no-items-message">[No tools]</div>
-                    </kit-if>
-                    <kit-array kit-array="#model.getTools()" kit-array-item-alias="tool">
+                    </kit>
+                    <kit kit-array="#model.getTools()" kit-array-item-alias="tool">
                         <div class="tool-button list-item">
                             <div>
                                 <svg height="25" width="25" viewBox="0 0 100 100">%{#tool.thumbnailSvgSrc}%</svg>
@@ -29,7 +29,7 @@
                                 <span>%{#tool.refNote}%</span>
                             </div>
                         </div>
-                    </kit-array>
+                    </kit>
                 </div>
             </div>
         </div>      

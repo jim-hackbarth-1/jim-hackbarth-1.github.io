@@ -21,12 +21,15 @@ class CaptionViewModel {
     async init(kitElement, kitObjects) {
         this.#kitElement = kitElement;
         CaptionViewModel.#dialogModel = kitObjects.find(o => o.alias == "dialogModel")?.object;
-        CaptionViewModel.#map = await MapWorkerClient.getMap();
-        const parts = CaptionViewModel.#dialogModel.getSelectedDetailComponentInfo().id.split("-");
-        const mapItemTemplateRef = ToolPalettesDialogModel.deSerializeRef(parts[1]);
-        CaptionViewModel.#mapItemTemplate
-            = CaptionViewModel.#map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, mapItemTemplateRef));
-        CaptionViewModel.#caption = CaptionViewModel.#mapItemTemplate.caption;
+        const componentInfo = CaptionViewModel.#dialogModel.getSelectedDetailComponentInfo();
+        if (componentInfo.componentName == "caption") {
+            CaptionViewModel.#map = await MapWorkerClient.getMap();
+            const parts = componentInfo.id.split("-");
+            const mapItemTemplateRef = ToolPalettesDialogModel.deSerializeRef(parts[1]);
+            CaptionViewModel.#mapItemTemplate
+                = CaptionViewModel.#map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, mapItemTemplateRef));
+            CaptionViewModel.#caption = CaptionViewModel.#mapItemTemplate.caption;
+        }
     }
 
     // methods
@@ -85,8 +88,21 @@ class CaptionViewModel {
         return CaptionViewModel.#caption.font;
     }
 
-    getFontVariantCaps() {
-        return CaptionViewModel.#caption.fontVariantCaps;
+    getFontVariantCapsList() {
+        const list = [
+            { value: "normal", displayText: "", isSelectedAttr: null },
+            { value: "small-caps", displayText: "Small caps", isSelectedAttr: null },
+            { value: "all-small-caps", displayText: "All small caps", isSelectedAttr: null },
+            { value: "petite-caps", displayText: "Petite caps (smaller than small caps)", isSelectedAttr: null },
+            { value: "all-petite-caps", displayText: "All petite caps (smaller than small caps)", isSelectedAttr: null },
+            { value: "unicase", displayText: "Unicase", isSelectedAttr: null },
+            { value: "titling-caps", displayText: "Titling caps", isSelectedAttr: null }
+        ];
+        const item = list.find(i => i.value == CaptionViewModel.#caption.fontVariantCaps);
+        if (item) {
+            item.isSelectedAttr = "";
+        }
+        return list;
     }
 
     getColor() {

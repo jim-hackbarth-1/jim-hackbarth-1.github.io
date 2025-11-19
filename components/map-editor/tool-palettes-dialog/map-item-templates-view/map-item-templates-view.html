@@ -18,13 +18,13 @@
         <div class="form-row">
             <div class="form-field">
                 <div class="item-list">
-                    <kit-if kit-condition="%{!#model.hasMapItemTemplates()}%">
+                    <kit kit-if="%{!#model.hasMapItemTemplates()}%">
                         <div class="no-items-message">[No map item templates]</div>
-                    </kit-if>
-                    <kit-array kit-array="#model.getMapItemTemplates()" kit-array-item-alias="mapItemTemplate">
+                    </kit>
+                    <kit kit-array="#model.getMapItemTemplates()" kit-array-item-alias="mapItemTemplate">
                         <div class="tool-button list-item">
                             <div>
-                                <img height="25" width="25" kit-element kit-attr-add-src="src:%{#mapItemTemplate.thumbnailSrc}%" />
+                                <img height="25" width="25" kit-element kit-attr-src="src:%{#mapItemTemplate.thumbnailSrc}%" />
                             </div>
                             <div class="spacer">
                                 <div>
@@ -40,14 +40,11 @@
                                 <button title="Copy map item template"
                                         class="action-text edit-button"
                                         onclick="#model.copy('%{#mapItemTemplate.id}%');">
-                                    <div class="icon-container">
-                                        <kit-component kit-template-path="/resources/icons/edit-copy.html" kit-model="null">
-                                        </kit-component>
-                                    </div>
+                                    <div class="icon-container" kit-component="no-model:/resources/icons/edit-copy.html"></div>
                                 </button>
                             </div>
                         </div>
-                    </kit-array>
+                    </kit>
                 </div>
             </div>
         </div>

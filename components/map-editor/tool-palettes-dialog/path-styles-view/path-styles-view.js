@@ -21,12 +21,15 @@ class PathStylesViewModel {
     async init(kitElement, kitObjects) {
         this.#kitElement = kitElement;
         PathStylesViewModel.#dialogModel = kitObjects.find(o => o.alias == "dialogModel")?.object;
-        PathStylesViewModel.#map = await MapWorkerClient.getMap();
-        const parts = PathStylesViewModel.#dialogModel.getSelectedDetailComponentInfo().id.split("-");
-        PathStylesViewModel.#pathStylesType = parts[0];
-        const ref = ToolPalettesDialogModel.deSerializeRef(parts[1]);
-        PathStylesViewModel.#mapItemTemplate
-            = PathStylesViewModel.#map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, ref));
+        const componentInfo = PathStylesViewModel.#dialogModel.getSelectedDetailComponentInfo();
+        if (componentInfo.componentName == "path.styles") {
+            PathStylesViewModel.#map = await MapWorkerClient.getMap();
+            const parts = componentInfo.id.split("-");
+            PathStylesViewModel.#pathStylesType = parts[0];
+            const ref = ToolPalettesDialogModel.deSerializeRef(parts[1]);
+            PathStylesViewModel.#mapItemTemplate
+                = PathStylesViewModel.#map.mapItemTemplates.find(mit => EntityReference.areEqual(mit.ref, ref));
+        }
     }
 
     // methods

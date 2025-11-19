@@ -2,23 +2,23 @@
 <div>
     <div class="detail-heading" style="height:120px;">
         <div class="detail-heading-row">
-            <kit-if kit-condition="#model.getThumbnailSrc()">
+            <kit kit-if="#model.getThumbnailSrc()">
                 <div class="icon-container detail-heading-field">
-                    <img height="25" width="25" kit-element kit-attr-add-src="src:%{#model.getThumbnailSrc()}%" />
+                    <img height="25" width="25" kit-element kit-attr-src="src:%{#model.getThumbnailSrc()}%" />
                 </div>
-            </kit-if>
-            <kit-if kit-condition="#model.getThumbnailSvgSrc()">
+            </kit>
+            <kit kit-if="#model.getThumbnailSvgSrc()">
                 <div class="icon-container detail-heading-field">
                     <svg height="25" width="25" viewBox="0 0 100 100">%{#model.getThumbnailSvgSrc()}%</svg>
                 </div>
-            </kit-if>
+            </kit>
             <div class="detail-heading-field detail-heading-label detail-title-label spacer">
                 <div>%{#model.getTitle()}%</div>
                 <div class="detail-heading-label">
                     <label class="map-item-template-name" onclick="#model.editMapItemTemplate()">%{#model.getMapItemTemplateName()}%</label>
-                    <kit-if kit-condition="#model.isFromTemplate()">
+                    <kit kit-if="#model.isFromTemplate()">
                         <label class="from-template-note">(from template)</label>
-                    </kit-if>
+                    </kit>
                 </div>
             </div>
         </div>
@@ -29,7 +29,7 @@
                         class="button dialog-button"
                         style="width:80px;"
                         kit-element
-                        kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                        kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                         onclick="#model.savePathStyle()">
                     Save
                 </button>
@@ -39,7 +39,7 @@
                         class="button dialog-button"
                         style="width:80px;"
                         kit-element
-                        kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                        kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                         onclick="#model.deletePathStyle();">
                     Delete
                 </button>
@@ -54,9 +54,12 @@
                 <label class="form-label">%{#model.getPathStyleTypeLabel()}% type:</label>
                 <select id="path-style-type"
                         onchange="#model.updatePathStyleType()"
-                        kit-element
-                        kit-attr-add-value="value:%{#model.getPathStyleType()}%"
-                        kit-attr-add-disabled="disabled:%{#model.isPathStyleTypeDisabled() ? '' : null}%">
+                        kit-attr-disabled="disabled:%{#model.isPathStyleTypeDisabled() ? '' : null}%"
+                        kit-array="#model.getPathStyleTypes()"
+                        kit-array-item-alias="pathStyle">
+                    <option value="%{#pathStyle.id}%" kit-element kit-attr-selected="selected:%{#pathStyle.isSelectedAttr}%">
+                        %{#pathStyle.name}%
+                    </option>
                 </select>
             </div>
             <div class="form-field">
@@ -67,8 +70,8 @@
                        min="0"
                        max="100"
                        kit-element
-                       kit-attr-add-value="value:%{#model.getOpacity()}%"
-                       kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                       kit-attr-value="value:%{#model.getOpacity()}%"
+                       kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                        oninput="#model.validate()"
                        onkeydown="#dialogModel.onInputKeyDown(event)">
                 <div id="path-style-opacity-validation" class="validation-message"></div>
@@ -76,23 +79,11 @@
             <div class="form-field">
                 <label class="form-label">Presentation mode:</label>
                 <select id="path-style-presentation-mode"
-                        kit-element
-                        kit-attr-add-value="value:%{#model.getPresentationMode()}%"
-                        kit-attr-add-disabled="disabled:%{#model.isPresentationModeDisabled() ? '' : null}%">
-                    <option value="Normal"
-                            kit-element
-                            kit-attr-add-selected="selected:%{#model.getPresentationMode() == 'Normal' ? '' : null}%">
-                        Normal
-                    </option>
-                    <option value="EditViewOnly"
-                            kit-element
-                            kit-attr-add-selected="selected:%{#model.getPresentationMode() == 'EditViewOnly' ? '' : null}%">
-                        Edit view only
-                    </option>
-                    <option value="PresentationViewOnly"
-                            kit-element
-                            kit-attr-add-selected="selected:%{#model.getPresentationMode() == 'PresentationViewOnly' ? '' : null}%">
-                        Presentation view only
+                        kit-attr-disabled="disabled:%{#model.isPresentationModeDisabled() ? '' : null}%"
+                        kit-array="#model.getPresentationModes()"
+                        kit-array-item-alias="mode">
+                    <option value="%{#mode.id}%" kit-element kit-attr-selected="selected:%{#mode.isSelectedAttr}%">
+                        %{#mode.name}%
                     </option>
                 </select>
                 <div id="path-style-presentation-mode-validation" class="validation-message"></div>
@@ -100,22 +91,22 @@
         </div>
 
         <!-- Color -->
-        <kit-if kit-condition="#model.getPathStyleType() == 'ColorFill' || #model.getPathStyleType() == 'ColorStroke'">
+        <kit kit-if="#model.getPathStyleType() == 'ColorFill' || #model.getPathStyleType() == 'ColorStroke'">
             <div class="form-row">
                 <div class="form-field">
                     <label class="form-label">Color:</label>
-                    <kit-component id="path-style-color"
-                                   kit-template-path="/components/map-editor/tool-palettes-dialog/color-view/color-view.html"
-                                   kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
-                                   value="%{#model.getColor()}%">
-                    </kit-component>
+                    <kit id="path-style-color"
+                         kit-component="/components/map-editor/tool-palettes-dialog/color-view/color-view.html"
+                         kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                         value="%{#model.getColor()}%">
+                    </kit>
                     <div id="path-style-color-validation" class="validation-message"></div>
                 </div>
             </div>
-        </kit-if>
+        </kit>
 
         <!-- GradientStart, GradientEnd -->
-        <kit-if kit-condition="#model.showGradientStart()">
+        <kit kit-if="#model.showGradientStart()">
             <div class="form-row">
                 <div class="form-field">
                     <label class="form-label">Gradient start (%):</label>
@@ -127,8 +118,8 @@
                                    min="0"
                                    max="100"
                                    kit-element
-                                   kit-attr-add-value="value:%{#model.getGradientStartX()}%"
-                                   kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                                   kit-attr-value="value:%{#model.getGradientStartX()}%"
+                                   kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                                    oninput="#model.validate()"
                                    onkeydown="#dialogModel.onInputKeyDown(event)">
                         </div>
@@ -139,15 +130,15 @@
                                    min="0"
                                    max="100"
                                    kit-element
-                                   kit-attr-add-value="value:%{#model.getGradientStartY()}%"
-                                   kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                                   kit-attr-value="value:%{#model.getGradientStartY()}%"
+                                   kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                                    oninput="#model.validate()"
                                    onkeydown="#dialogModel.onInputKeyDown(event)">
                         </div>
                     </div>
                     <div id="path-style-gradient-start-validation" class="validation-message"></div>
                 </div>
-                <kit-if kit-condition="#model.showGradientEnd()">
+                <kit kit-if="#model.showGradientEnd()">
                     <div class="form-field">
                         <label class="form-label">Gradient end (%):</label>
                         <div class="form-field form-field-group">
@@ -158,8 +149,8 @@
                                        min="0"
                                        max="100"
                                        kit-element
-                                       kit-attr-add-value="value:%{#model.getGradientEndX()}%"
-                                       kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                                       kit-attr-value="value:%{#model.getGradientEndX()}%"
+                                       kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                                        oninput="#model.validate()"
                                        onkeydown="#dialogModel.onInputKeyDown(event)">
                             </div>
@@ -170,20 +161,20 @@
                                        min="0"
                                        max="100"
                                        kit-element
-                                       kit-attr-add-value="value:%{#model.getGradientEndY()}%"
-                                       kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                                       kit-attr-value="value:%{#model.getGradientEndY()}%"
+                                       kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                                        oninput="#model.validate()"
                                        onkeydown="#dialogModel.onInputKeyDown(event)">
                             </div>
                         </div>
                         <div id="path-style-gradient-end-validation" class="validation-message"></div>
                     </div>
-                </kit-if>
+                </kit>
             </div>
-        </kit-if>
+        </kit>
 
         <!-- StartRadius, EndRadius -->
-        <kit-if kit-condition="#model.getPathStyleType() == 'RadialGradientFill' || #model.getPathStyleType() == 'RadialGradientStroke'">
+        <kit kit-if="#model.getPathStyleType() == 'RadialGradientFill' || #model.getPathStyleType() == 'RadialGradientStroke'">
             <div class="form-row">
                 <div class="form-field">
                     <label class="form-label">Radius (%):</label>
@@ -195,8 +186,8 @@
                                    min="0"
                                    max="100"
                                    kit-element
-                                   kit-attr-add-value="value:%{#model.getGradientRadiusStart()}%"
-                                   kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                                   kit-attr-value="value:%{#model.getGradientRadiusStart()}%"
+                                   kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                                    oninput="#model.validate()"
                                    onkeydown="#dialogModel.onInputKeyDown(event)">
                         </div>
@@ -207,8 +198,8 @@
                                    min="0"
                                    max="100"
                                    kit-element
-                                   kit-attr-add-value="value:%{#model.getGradientRadiusEnd()}%"
-                                   kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                                   kit-attr-value="value:%{#model.getGradientRadiusEnd()}%"
+                                   kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                                    oninput="#model.validate()"
                                    onkeydown="#dialogModel.onInputKeyDown(event)">
                         </div>
@@ -216,10 +207,10 @@
                     <div id="path-style-gradient-radius-validation" class="validation-message"></div>
                 </div>
             </div>
-        </kit-if>
+        </kit>
 
         <!-- StartAngle -->
-        <kit-if kit-condition="#model.getPathStyleType() == 'ConicalGradientFill' || #model.getPathStyleType() == 'ConicalGradientStroke'">
+        <kit kit-if="#model.getPathStyleType() == 'ConicalGradientFill' || #model.getPathStyleType() == 'ConicalGradientStroke'">
             <div class="form-row">
                 <div class="form-field">
                     <label class="form-label">Start angle (&deg;):</label>
@@ -228,17 +219,17 @@
                            min="0"
                            max="360"
                            kit-element
-                           kit-attr-add-value="value:%{#model.getStartAngle()}%"
-                           kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                           kit-attr-value="value:%{#model.getStartAngle()}%"
+                           kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                            oninput="#model.validate()"
                            onkeydown="#dialogModel.onInputKeyDown(event)">
                     <div id="path-style-start-angle-validation" class="validation-message"></div>
                 </div>
             </div>
-        </kit-if>
+        </kit>
 
         <!-- Color stops -->
-        <kit-if kit-condition="#model.showColorStops()">
+        <kit kit-if="#model.showColorStops()">
             <div class="form-row">
                 <div class="form-field">
                     <label class="form-label">Color stops:</label>
@@ -247,28 +238,28 @@
                             <button title="Add color stop"
                                     class="button dialog-button"
                                     kit-element
-                                    kit-attr-add-disabled="disabled:%{#model.isAddColorStopDisabled() ? '' : null}%"
+                                    kit-attr-disabled="disabled:%{#model.isAddColorStopDisabled() ? '' : null}%"
                                     onclick="#model.addColorStop()">
                                 Add color stop
                             </button>
                             <span class="form-note">(max. 5)</span>
                         </div>
                         <div class="item-list">
-                            <kit-if kit-condition="%{!#model.hasColorStops()}%">
+                            <kit kit-if="%{!#model.hasColorStops()}%">
                                 <div class="no-items-message">[No color stops]</div>
-                            </kit-if>
-                            <kit-array kit-array="#model.getColorStops()"
-                                       kit-array-item-alias="colorStop"
-                                       kit-array-item-index-alias="index">
+                            </kit>
+                            <kit kit-array="#model.getColorStops()"
+                                 kit-array-item-alias="colorStop"
+                                 kit-array-index-alias="index">
                                 <div class="tool-button list-item">
                                     <div>
                                         <label class="form-label">Color:</label>
-                                        <kit-component id="path-style-color-stop-color-%{#index}%"
-                                                       kit-template-path="/components/map-editor/tool-palettes-dialog/color-view/color-view.html"
-                                                       kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
-                                                       kit-object-change-handler="changeHandler:#model.updateColorStopColor"
-                                                       value="%{#colorStop.color}%">
-                                        </kit-component>
+                                        <kit id="path-style-color-stop-color-%{#index}%"
+                                             kit-component="/components/map-editor/tool-palettes-dialog/color-view/color-view.html"
+                                             kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                                             kit-obj-change-handler="changeHandler:#model.updateColorStopColor"
+                                             value="%{#colorStop.color}%">
+                                        </kit>
                                         <div id="path-style-color-stop-color-%{#index}%-validation" class="validation-message"></div>
                                     </div>
                                     <div class="spacer">
@@ -278,8 +269,8 @@
                                                min="0"
                                                max="100"
                                                kit-element
-                                               kit-attr-add-value="value:%{#colorStop.offset}%"
-                                               kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                                               kit-attr-value="value:%{#colorStop.offset}%"
+                                               kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                                                oninput="#model.updateColorStopOffset(this)"
                                                onkeydown="#dialogModel.onInputKeyDown(event)">
                                         <div id="path-style-color-stop-offset-%{#index}%-validation" class="validation-message"></div>
@@ -288,38 +279,35 @@
                                         <button title="Remove color stop"
                                                 class="action-text edit-button"
                                                 kit-element
-                                                kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                                                kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                                                 onclick="#model.removeColorStop(#index);">
-                                            <div class="icon-container">
-                                                <kit-component kit-template-path="/resources/icons/file-close.html" kit-model="null">
-                                                </kit-component>
-                                            </div>
+                                            <div class="icon-container" kit-component="no-model:/resources/icons/file-close.html"></div>
                                         </button>
                                     </div>
                                 </div>
-                            </kit-array>
+                            </kit>
                         </div>
                     </div>
                 </div>
             </div>
-        </kit-if>
+        </kit>
 
         <!-- TileImageSource -->
-        <kit-if kit-condition="#model.getPathStyleType() == 'TileFill' || #model.getPathStyleType() == 'TileStroke'">
+        <kit kit-if="#model.getPathStyleType() == 'TileFill' || #model.getPathStyleType() == 'TileStroke'">
             <div class="form-row">
                 <div class="form-field">
                     <label class="form-label">Image:</label>
-                    <kit-component id="path-style-image"
-                                   kit-template-path="/components/map-editor/tool-palettes-dialog/image-view/image-view.html"
-                                   kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
-                                   src="%{#model.getImage()}%">
-                    </kit-component>
+                    <kit id="path-style-image"
+                         kit-component="/components/map-editor/tool-palettes-dialog/image-view/image-view.html"
+                         kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                         src="%{#model.getImage()}%">
+                    </kit>
                 </div>
             </div>
-        </kit-if>
+        </kit>
 
         <!-- Images array, image offsets -->
-        <kit-if kit-condition="#model.getPathStyleType() == 'ImageArrayFill' || #model.getPathStyleType() == 'ImageArrayStroke'">
+        <kit kit-if="#model.getPathStyleType() == 'ImageArrayFill' || #model.getPathStyleType() == 'ImageArrayStroke'">
             <div class="form-row">
                 <div class="form-field">
                     <label class="form-label">Images:</label>
@@ -328,40 +316,37 @@
                             <button title="Add image"
                                     class="button dialog-button"
                                     kit-element
-                                    kit-attr-add-disabled="disabled:%{#model.isAddImageDisabled() ? '' : null}%"
+                                    kit-attr-disabled="disabled:%{#model.isAddImageDisabled() ? '' : null}%"
                                     onclick="#model.addImage()">
                                 Add image
                             </button>
                             <span class="form-note">(max. 10)</span>
                         </div>
                         <div class="item-list">
-                            <kit-if kit-condition="%{!#model.hasImages()}%">
+                            <kit kit-if="%{!#model.hasImages()}%">
                                 <div class="no-items-message">[No images]</div>
-                            </kit-if>
-                            <kit-array kit-array="#model.getImages()" kit-array-item-alias="image" kit-array-item-index-alias="index">
+                            </kit>
+                            <kit kit-array="#model.getImages()" kit-array-item-alias="image" kit-array-index-alias="index">
                                 <div class="tool-button list-item">
                                     <div class="spacer">
-                                        <kit-component id="path-style-image-%{#index}%"
-                                                       kit-template-path="/components/map-editor/tool-palettes-dialog/image-view/image-view.html"
-                                                       kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
-                                                       kit-object-change-handler="changeHandler:#model.updateImage"
-                                                       src="%{#image}%">
-                                        </kit-component>
+                                        <kit id="path-style-image-%{#index}%"
+                                             kit-component="/components/map-editor/tool-palettes-dialog/image-view/image-view.html"
+                                             kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                                             kit-obj-change-handler="changeHandler:#model.updateImage"
+                                             src="%{#image}%">
+                                        </kit>
                                     </div>
                                     <div>
                                         <button title="Remove image"
                                                 class="action-text edit-button"
                                                 kit-element
-                                                kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                                                kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                                                 onclick="#model.removeImage(#index);">
-                                            <div class="icon-container">
-                                                <kit-component kit-template-path="/resources/icons/file-close.html" kit-model="null">
-                                                </kit-component>
-                                            </div>
+                                            <div class="icon-container" kit-component="no-model:/resources/icons/file-close.html"></div>
                                         </button>
                                     </div>
                                 </div>
-                            </kit-array>
+                            </kit>
                         </div>
                     </div>
                 </div>
@@ -374,17 +359,17 @@
                            placeholder="example: 5, 5"
                            maxlength="200"
                            kit-element
-                           kit-attr-add-value="value:%{#model.getImageArrayOffsets()}%"
-                           kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                           kit-attr-value="value:%{#model.getImageArrayOffsets()}%"
+                           kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                            oninput="#model.validate()"
                            onkeydown="#dialogModel.onInputKeyDown(event)">
                     <div id="path-style-image-offsets-validation" class="validation-message"></div>
                 </div>
             </div>
-        </kit-if>
+        </kit>
 
         <!-- Common stroke fields -->
-        <kit-if kit-condition="#model.isStroke()">
+        <kit kit-if="#model.isStroke()">
             <div class="form-row">
                 <div class="form-field">
                     <label class="form-label">Stroke width:</label>
@@ -394,8 +379,8 @@
                            min="1"
                            max="100"
                            kit-element
-                           kit-attr-add-value="value:%{#model.getWidth()}%"
-                           kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                           kit-attr-value="value:%{#model.getWidth()}%"
+                           kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                            oninput="#model.validate()"
                            onkeydown="#dialogModel.onInputKeyDown(event)">
                     <div id="path-style-width-validation" class="validation-message"></div>
@@ -408,7 +393,7 @@
                            maxlength="30"
                            value="%{#model.getDash()}%"
                            kit-element
-                           kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                           kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                            oninput="#model.validate()"
                            onkeydown="#dialogModel.onInputKeyDown(event)" />
                     <div id="path-style-dash-validation" class="validation-message"></div>
@@ -421,8 +406,8 @@
                            min="0"
                            max="10"
                            kit-element
-                           kit-attr-add-value="value:%{#model.getDashOffset()}%"
-                           kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                           kit-attr-value="value:%{#model.getDashOffset()}%"
+                           kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                            oninput="#model.validate()"
                            onkeydown="#dialogModel.onInputKeyDown(event)" />
                     <div id="path-style-dash-offset-validation" class="validation-message"></div>
@@ -432,23 +417,11 @@
                 <div class="form-field">
                     <label class="form-label">End cap:</label>
                     <select id="path-style-end-cap"
-                            kit-element
-                            kit-attr-add-value="value:%{#model.getEndCap()}%"
-                            kit-attr-add-disabled="disabled:%{#model.isEndCapDisabled() ? '' : null}%">
-                        <option value="round"
-                                kit-element
-                                kit-attr-add-selected="selected:%{#model.getEndCap() == 'round' ? '' : null}%">
-                            Round
-                        </option>
-                        <option value="butt"
-                                kit-element
-                                kit-attr-add-selected="selected:%{#model.getEndCap() == 'butt' ? '' : null}%">
-                            Butt
-                        </option>
-                        <option value="square"
-                                kit-element
-                                kit-attr-add-selected="selected:%{#model.getEndCap() == 'square' ? '' : null}%">
-                            Square
+                            kit-attr-disabled="disabled:%{#model.isEndCapDisabled() ? '' : null}%"
+                            kit-array="#model.getEndCaps()"
+                            kit-array-item-alias="cap">
+                        <option value="%{#cap.id}%" kit-element kit-attr-selected="selected:%{#cap.isSelectedAttr}%">
+                            %{#cap.name}%
                         </option>
                     </select>
                     <div id="path-style-end-cap-validation" class="validation-message"></div>
@@ -456,23 +429,11 @@
                 <div class="form-field">
                     <label class="form-label">Join:</label>
                     <select id="path-style-join"
-                            kit-element
-                            kit-attr-add-value="value:%{#model.getJoin()}%"
-                            kit-attr-add-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%">
-                        <option value="round"
-                                kit-element
-                                kit-attr-add-selected="selected:%{#model.getJoin() == 'round' ? '' : null}%">
-                            Round
-                        </option>
-                        <option value="bevel"
-                                kit-element
-                                kit-attr-add-selected="selected:%{#model.getJoin() == 'bevel' ? '' : null}%">
-                            Bevel
-                        </option>
-                        <option value="miter"
-                                kit-element
-                                kit-attr-add-selected="selected:%{#model.getJoin() == 'miter' ? '' : null}%">
-                            Miter
+                            kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                            kit-array="#model.getJoins()"
+                            kit-array-item-alias="join">
+                        <option value="%{#join.id}%" kit-element kit-attr-selected="selected:%{#join.isSelectedAttr}%">
+                            %{#join.name}%
                         </option>
                     </select>
                     <div id="path-style-join-validation" class="validation-message"></div>
@@ -487,8 +448,8 @@
                                    min="-100"
                                    max="100"
                                    kit-element
-                                   kit-attr-add-value="value:%{#model.getOffsetX()}%"
-                                   kit-attr-add-disabled="disabled:%{#model.isOffsetDisabled() ? '' : null}%"
+                                   kit-attr-value="value:%{#model.getOffsetX()}%"
+                                   kit-attr-disabled="disabled:%{#model.isOffsetDisabled() ? '' : null}%"
                                    oninput="#model.validate()"
                                    onkeydown="#dialogModel.onInputKeyDown(event)">
                         </div>
@@ -499,8 +460,8 @@
                                    min="-100"
                                    max="100"
                                    kit-element
-                                   kit-attr-add-value="value:%{#model.getOffsetY()}%"
-                                   kit-attr-add-disabled="disabled:%{#model.isOffsetDisabled() ? '' : null}%"
+                                   kit-attr-value="value:%{#model.getOffsetY()}%"
+                                   kit-attr-disabled="disabled:%{#model.isOffsetDisabled() ? '' : null}%"
                                    oninput="#model.validate()"
                                    onkeydown="#dialogModel.onInputKeyDown(event)">
                         </div>
@@ -508,7 +469,7 @@
                     <div id="path-style-offset-validation" class="validation-message"></div>
                 </div>
             </div>
-        </kit-if>
+        </kit>
 
     </div>
 </div>

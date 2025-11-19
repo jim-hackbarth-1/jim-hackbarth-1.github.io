@@ -1,20 +1,16 @@
 ﻿
-<kit-if kit-condition="#model?.isVisible()">
+<kit kit-if="#model?.isVisible()">
     <link rel="stylesheet" href="/components/map-editor/file-new-dialog/file-new-dialog.css" />
     <dialog id="file-new-dialog">
         <header>
-            <div class="icon-container">
-                <kit-component kit-template-path="/resources/icons/file-new.html" kit-model="null"></kit-component>
-            </div>
+            <div class="icon-container" kit-component="no-model:/resources/icons/file-new.html"></div>
             <div>
                 <h1>New map</h1>
             </div>
             <div class="spacer"></div>
             <div>
                 <button title="Close" class="action-text" onclick="#model.closeDialog();">
-                    <div class="icon-container">
-                        <kit-component kit-template-path="/resources/icons/file-close.html" kit-model="null"></kit-component>
-                    </div>
+                    <div class="icon-container" kit-component="no-model:/resources/icons/file-close.html"></div>
                 </button>
             </div>
         </header>
@@ -22,31 +18,31 @@
             <div>
                 <label>Choose template:</label>
             </div>
-            <div id="template-list">
-                <kit-array kit-array="#model.getTemplates()" kit-array-item-alias="template">
-                    <div class="template-item tool-button" title="%{#template.ref.name}%">
-                        <label class="radio-button">
-                            <input type="radio" 
-                                   name="template" 
-                                   onclick="#model.templateSelected(#template.ref)" />
-                            <span class="checkmark"></span>
-                            <span>
-                                <img style="border:1px solid var(--color-outline);border-radius:3px;height:30px;width:30px;" 
-                                     kit-element 
-                                     kit-attr-add-src="src:%{#template.thumbnailSrc}%" />
-                            </span>
-                            <span style="padding-left:5px;">
-                                <span>%{#template.ref.name}%</span>
-                                <br />
-                                <span style="font-size: x-small;margin-left:2px;">%{#template.description}%</span>
-                            </span>
-                        </label>
-                    </div>
-                </kit-array>
+            <div id="template-list" kit-array="#model.getTemplates()" kit-array-item-alias="template">
+                <div class="template-item tool-button" title="%{#template.ref.name}%">
+                    <label class="radio-button">
+                        <input type="radio"
+                               name="template"
+                               onclick="#model.templateSelected(#template.ref)" />
+                        <span class="checkmark"></span>
+                        <span>
+                            <img style="border:1px solid var(--color-outline);border-radius:3px;height:30px;width:30px;"
+                                 kit-element
+                                 kit-attr-src="src:%{#template.thumbnailSrc}%" />
+                        </span>
+                        <span style="padding-left:5px;">
+                            <span>%{#template.ref.name}%</span>
+                            <br />
+                            <span style="font-size: x-small;margin-left:2px;">%{#template.description}%</span>
+                        </span>
+                    </label>
+                </div>
             </div>
             <div>
-                <button id="button-ok" class="button dialog-button" title="OK" onclick="#model.buttonOkClicked();" disabled>OK</button>
+                <button id="button-ok" class="button dialog-button" title="OK" onclick="#model.buttonOkClicked();" disabled>
+                    OK
+                </button>
             </div>
         </section>
     </dialog>
-</kit-if>
+</kit>

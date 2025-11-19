@@ -1,20 +1,21 @@
 ﻿
-<kit-if kit-condition="!#model.isPresentationView()">
+<kit kit-if="!#model.isPresentationView()">
     <header class="heading-component surface-primary">
         <link rel="stylesheet" href="/components/heading/heading.css" />
         <div>
-            <button id="nav-toggle-button" class="action-text" onclick="#model.toggleNav()" title="Toggle navigation panel">
-                <kit-component kit-template-path="/resources/icons/nav-toggle.html" kit-model="null"></kit-component>
+            <button id="nav-toggle-button" 
+                    class="action-text" 
+                    onclick="#model.toggleNav()" 
+                    title="Toggle navigation panel"
+                    kit-component="no-model:/resources/icons/nav-toggle.html">
             </button>
         </div>
         <div>
-            <div id="logo-container" title="Atlas Cooperative">
-                <kit-component kit-template-path="/resources/icons/logo.html" kit-model="null"></kit-component>
-            </div>
+            <div id="logo-container" title="Atlas Cooperative" kit-component="no-model:/resources/icons/logo.html"></div>
         </div>
         <div id="title-container">
             <h1 title="Atlas Cooperative">Atlas Cooperative</h1>
         </div>
         <div id="spacer"></div>
     </header>
-</kit-if>
+</kit>

@@ -1,23 +1,20 @@
 ﻿
-<kit-if kit-condition="!#model.isPresentationView()">
+<kit kit-if="!#model.isPresentationView()">
     <link rel="stylesheet" href="/components/navigation/navigation.css" />
     <nav class="navigation-component surface-primary">
-        <ul>
-            <kit-array kit-array="#model.getNavItems()" kit-array-item-alias="navItem">
-                <li id="%{#navItem.id}%">
-                    <div class="selected-link-indicator"></div>
-                    <div>
-                        <a href="#%{#navItem.id}%" title="%{#navItem.label}%" class="action-text">
-                            <div class="link-content">
-                                <div class="icon-container">
-                                    <kit-component kit-template-path="/resources/icons/%{#navItem.id}%.html" kit-model="null"></kit-component>
-                                </div>
-                                <div class="link-text">%{#navItem.label}%</div>
+        <ul kit-array="#model.getNavItems()" kit-array-item-alias="navItem">
+            <li id="%{#navItem.id}%">
+                <div class="selected-link-indicator"></div>
+                <div>
+                    <a href="#%{#navItem.id}%" title="%{#navItem.label}%" class="action-text">
+                        <div class="link-content">
+                            <div class="icon-container" kit-component="no-model:/resources/icons/%{#navItem.id}%.html">
                             </div>
-                        </a>
-                    </div>
-                </li>
-            </kit-array>
+                            <div class="link-text">%{#navItem.label}%</div>
+                        </div>
+                    </a>
+                </div>
+            </li>
         </ul>
     </nav>
-</kit-if>
+</kit>

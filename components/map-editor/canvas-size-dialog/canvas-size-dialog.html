@@ -1,20 +1,16 @@
 ﻿
-<kit-if kit-condition="#model?.isVisible()">
+<kit kit-if="#model?.isVisible()">
     <link rel="stylesheet" href="/components/map-editor/canvas-size-dialog/canvas-size-dialog.css" />
     <dialog id="canvas-size-dialog">
         <header>
-            <div class="icon-container">
-                <kit-component kit-template-path="/resources/icons/view-resize-canvas.html" kit-model="null"></kit-component>
-            </div>
+            <div class="icon-container" kit-component="no-model:/resources/icons/view-resize-canvas.html"></div>
             <div>
                 <h1>Canvas size</h1>
             </div>
             <div class="spacer"></div>
             <div>
                 <button title="Close" class="dialog-close-button" onclick="#model.closeDialog();">
-                    <div class="icon-container">
-                        <kit-component kit-template-path="/resources/icons/file-close.html" kit-model="null"></kit-component>
-                    </div>
+                    <div class="icon-container" kit-component="no-model:/resources/icons/file-close.html"></div>
                 </button>
             </div>
         </header>
@@ -46,4 +42,4 @@
             </div>
         </section>
     </dialog>
-</kit-if>
+</kit>

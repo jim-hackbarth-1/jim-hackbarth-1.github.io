@@ -1,5 +1,5 @@
 ﻿
-<kit-if kit-condition="!#model.isPresentationView()">
+<kit kit-if="!#model.isPresentationView()">
     <style>
         .css-not-loaded {
             display: none;
@@ -7,23 +7,24 @@
     </style>
     <link rel="stylesheet" href="/components/content/content.css" onload="#model.onCssLoaded()" />
     <section class="content-component css-not-loaded">
-        <div id="loading-indicator-container" style="width:100%;height:100px;">
-            <kit-component kit-template-path="/components/loading-indicator/loading-indicator.html"></kit-component>
+        <div id="loading-indicator-container"
+             style="width:100%;height:100px;"
+             kit-component="/components/loading-indicator/loading-indicator.html">
         </div>
-        <kit-if kit-condition="!#model.routeName || #model.routeName.startsWith('#home')">
-            <kit-component kit-template-path="/components/home/home.html" kit-model="null"></kit-component>
-        </kit-if>
-        <kit-if kit-condition="#model.routeName.startsWith('#editor')">
-            <kit-component kit-template-path="/components/map-editor/editor/editor.html"></kit-component>
-        </kit-if>
-        <kit-if kit-condition="#model.routeName.startsWith('#catalog')">
-            <kit-component kit-template-path="/components/catalog/catalog.html" kit-model="null"></kit-component>
-        </kit-if>
-        <kit-if kit-condition="#model.routeName.startsWith('#account')">
-            <kit-component kit-template-path="/components/account/account.html" kit-model="null"></kit-component>
-        </kit-if>
-        <kit-if kit-condition="#model.routeName.startsWith('#help')">
-            <kit-component kit-template-path="/components/help/help.html"></kit-component>
-        </kit-if>
+        <kit kit-if="!#model.routeName || #model.routeName.startsWith('#home')" 
+             kit-component="no-model:/components/home/home.html">
+        </kit>
+        <kit kit-if="#model.routeName.startsWith('#editor')" 
+             kit-component="/components/map-editor/editor/editor.html">
+        </kit>
+        <kit kit-if="#model.routeName.startsWith('#catalog')"
+             kit-component="no-model:/components/catalog/catalog.html">
+        </kit>
+        <kit kit-if="#model.routeName.startsWith('#account')" 
+             kit-component="no-model:/components/account/account.html">
+        </kit>
+        <kit kit-if="#model.routeName.startsWith('#help')" 
+             kit-component="/components/help/help.html">
+        </kit>
     </section>
-</kit-if>
+</kit>

@@ -19,15 +19,16 @@ class ColorViewModel {
     async setValue() {
         const value = this.#kitElement.querySelector("input").value;
         this.#kitElement.setAttribute("value", value);
-        const container = this.#kitElement.querySelector("div[data-color-container]");
-        await UIKit.renderer.renderElement(container);
+        const span = this.#kitElement.querySelector("span");
+        span.style["color"] = this.getValueInverse();
+        span.innerHTML = value;
         if (this.#changeHandler) {
             this.#changeHandler(this.#kitElement);
         }
     }
 
     getValueInverse() {
-        const value = this.getValue(2);
+        const value = this.getValue();
         return ColorViewModel.#invertColor(value);
     }
 

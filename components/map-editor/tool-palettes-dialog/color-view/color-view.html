@@ -1,16 +1,15 @@
 ﻿
-<div style="display: flex; height: 25px; width:120px;" kit-element data-color-container>
+<div style="display: flex; height: 25px; width:120px;" data-color-container>
     <label style="position: relative; font-weight: normal;">
-        <input id="debug-2"
-               style="position: absolute;"
+        <input style="position: absolute;"
                type="color"
                onchange="#model.setValue()"
                kit-element
-               kit-attr-value="value:%{#model.getValue(1)}%"
+               kit-attr-value="value:%{#model.getValue()}%"
                kit-attr-disabled="disabled:%{#model.isDisabled() ? '' : null}%" />
         <span kit-element
               kit-attr-style="style:position: absolute; margin: 8px 0 0 30px; color:%{#model.getValueInverse()}%;">
-            %{#model.getValue(3)}%
+            %{#model.getValue()}%
         </span>
     </label>
 </div>

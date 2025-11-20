@@ -442,6 +442,9 @@ export class KitRenderer {
             }
         }
 
+        // clear kit attributes
+        KitRenderer.#clearKitAttributes(element);
+
         // resolve kit child elements
         const topKitChildElements = KitRenderer.#getTopKitChildElements(element);
         const promises = [];
@@ -678,6 +681,25 @@ export class KitRenderer {
             KitRenderer.#setTemplate(templatePath, null, template);
         }
         return template;
+    }
+
+    static #clearKitAttributes(element) {
+        const kitIdAttrs = ["kit-array", "kit-component", "kit-element", "kit-if"];
+        const kitObjAttrs = ["kit-array-item", "kit-array-item-alias", "kit-array-index", "kit-array-index-alias", "kit-model"];
+        let attributeNames = element
+            .getAttributeNames()
+            .map(an => an.toLowerCase())
+            .filter(an => kitIdAttrs.includes(an));
+        for (const attributeName of attributeNames) {
+            element.setAttribute(attributeName, "");
+        }
+        attributeNames = element
+            .getAttributeNames()
+            .map(an => an.toLowerCase())
+            .filter(an => kitObjAttrs.includes(an) || an.startsWith("kit-obj-") || an.startsWith("kit-attr-"));
+        for (const attributeName of attributeNames) {
+            element.removeAttribute(attributeName);
+        }
     }
 
     static async #notifyOnRendered(element) {

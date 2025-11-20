@@ -52,7 +52,7 @@ export class ToolPalettesDialogModel {
                 case "tool-insert":
                     {
                         const toolsElement = this.#kitElement.querySelector("[data-nav-item-id='tools']");
-                        await UIKit.renderer.renderKitElement(toolsElement.parentElement);
+                        await UIKit.renderer.renderElement(toolsElement.parentElement);
                         const newToolId = `tool-${ToolPalettesDialogModel.serializeRef(changeInfo.itemValue.ref)}`;
                         await this.selectNavItemByRefId(newToolId);
                     }
@@ -61,14 +61,14 @@ export class ToolPalettesDialogModel {
                     {
                         const updatedToolId = `tool-${ToolPalettesDialogModel.serializeRef(changeInfo.toolRef)}`;
                         const toolElement = this.#kitElement.querySelector(`[data-nav-item-id="${updatedToolId}"]`);
-                        await UIKit.renderer.renderKitElement(toolElement.parentElement);
+                        await UIKit.renderer.renderElement(toolElement.parentElement);
                         await this.selectNavItemByRefId(updatedToolId);
                     }
                     break;
                 case "tool-delete":
                     {
                         const toolsElement = this.#kitElement.querySelector("[data-nav-item-id='tools']");
-                        await UIKit.renderer.renderKitElement(toolsElement.parentElement);
+                        await UIKit.renderer.renderElement(toolsElement.parentElement);
                         await this.selectNavItemByRefId("tools");
                         const prevElement = this.#kitElement.querySelector("[data-nav-item-id='palette.map.item.templates']");
                         prevElement.scrollIntoView({ block: "nearest", behavior: "smooth" });
@@ -77,7 +77,7 @@ export class ToolPalettesDialogModel {
                 case "map.item.template-insert":
                     {
                         const mapItemTemplatesElement = this.#kitElement.querySelector("[data-nav-item-id='map.item.templates']");
-                        await UIKit.renderer.renderKitElement(mapItemTemplatesElement.parentElement);
+                        await UIKit.renderer.renderElement(mapItemTemplatesElement.parentElement);
                         const newMapItemTemplateId
                             = `map.item.template-${ToolPalettesDialogModel.serializeRef(changeInfo.itemValue.ref)}`;
                         await this.selectNavItemByRefId(newMapItemTemplateId);
@@ -89,14 +89,14 @@ export class ToolPalettesDialogModel {
                             = `map.item.template-${ToolPalettesDialogModel.serializeRef(changeInfo.mapItemTemplateRef)}`;
                         const mapItemTemplateElement
                             = this.#kitElement.querySelector(`[data-nav-item-id="${updatedMapItemTemplateId}"]`);
-                        await UIKit.renderer.renderKitElement(mapItemTemplateElement.parentElement);
+                        await UIKit.renderer.renderElement(mapItemTemplateElement.parentElement);
                         await this.selectNavItemByRefId(updatedMapItemTemplateId);
                     }
                     break;
                 case "map.item.template-delete":
                     {
                         const mapItemTemplatesElement = this.#kitElement.querySelector("[data-nav-item-id='map.item.templates']");
-                        await UIKit.renderer.renderKitElement(mapItemTemplatesElement.parentElement);
+                        await UIKit.renderer.renderElement(mapItemTemplatesElement.parentElement);
                         await this.selectNavItemByRefId("map.item.templates");
                         const prevElement = this.#kitElement.querySelector("[data-nav-item-id='tools']");
                         prevElement.scrollIntoView({ block: "nearest", behavior: "smooth" });
@@ -106,7 +106,7 @@ export class ToolPalettesDialogModel {
                     {
                         const serialRef = ToolPalettesDialogModel.serializeRef(changeInfo.mapItemTemplateRef);
                         const fillsElement = this.#kitElement.querySelector(`[data-nav-item-id='fills-${serialRef}']`);
-                        await UIKit.renderer.renderKitElement(fillsElement.parentElement);
+                        await UIKit.renderer.renderElement(fillsElement.parentElement);
                         await this.selectNavItemByRefId(`fills-${serialRef}`);
                     }
                     break;
@@ -114,7 +114,7 @@ export class ToolPalettesDialogModel {
                     {
                         const serialRef = ToolPalettesDialogModel.serializeRef(changeInfo.mapItemTemplateRef);
                         const fillsElement = this.#kitElement.querySelector(`[data-nav-item-id='fills-${serialRef}']`);
-                        await UIKit.renderer.renderKitElement(fillsElement.parentElement);
+                        await UIKit.renderer.renderElement(fillsElement.parentElement);
                         const pathStyleId = changeInfo.pathStyle.id.replaceAll("-", ".");
                         await this.selectNavItemByRefId(`fill-${pathStyleId}-${serialRef}`);
                     }
@@ -123,7 +123,7 @@ export class ToolPalettesDialogModel {
                     {
                         const serialRef = ToolPalettesDialogModel.serializeRef(changeInfo.mapItemTemplateRef);
                         const fillsElement = this.#kitElement.querySelector(`[data-nav-item-id='fills-${serialRef}']`);
-                        await UIKit.renderer.renderKitElement(fillsElement.parentElement);
+                        await UIKit.renderer.renderElement(fillsElement.parentElement);
                         await this.selectNavItemByRefId(`fills-${serialRef}`);
                     }
                     break;
@@ -131,7 +131,7 @@ export class ToolPalettesDialogModel {
                     {
                         const serialRef = ToolPalettesDialogModel.serializeRef(changeInfo.mapItemTemplateRef);
                         const strokesElement = this.#kitElement.querySelector(`[data-nav-item-id='strokes-${serialRef}']`);
-                        await UIKit.renderer.renderKitElement(strokesElement.parentElement);
+                        await UIKit.renderer.renderElement(strokesElement.parentElement);
                         await this.selectNavItemByRefId(`strokes-${serialRef}`);
                     }
                     break;
@@ -139,7 +139,7 @@ export class ToolPalettesDialogModel {
                     {
                         const serialRef = ToolPalettesDialogModel.serializeRef(changeInfo.mapItemTemplateRef);
                         const strokesElement = this.#kitElement.querySelector(`[data-nav-item-id='strokes-${serialRef}']`);
-                        await UIKit.renderer.renderKitElement(strokesElement.parentElement);
+                        await UIKit.renderer.renderElement(strokesElement.parentElement);
                         const pathStyleId = changeInfo.pathStyle.id.replaceAll("-", ".");
                         await this.selectNavItemByRefId(`stroke-${pathStyleId}-${serialRef}`);
                     }
@@ -148,7 +148,7 @@ export class ToolPalettesDialogModel {
                     {
                         const serialRef = ToolPalettesDialogModel.serializeRef(changeInfo.mapItemTemplateRef);
                         const strokesElement = this.#kitElement.querySelector(`[data-nav-item-id='strokes-${serialRef}']`);
-                        await UIKit.renderer.renderKitElement(strokesElement.parentElement);
+                        await UIKit.renderer.renderElement(strokesElement.parentElement);
                         await this.selectNavItemByRefId(`strokes-${serialRef}`);
                     }
                     break;
@@ -162,7 +162,7 @@ export class ToolPalettesDialogModel {
                             navId = `stroke-${serialId}-${serialRef}`;
                             pathStyleElement = this.#kitElement.querySelector(`[data-nav-item-id='${navId}']`);
                         }
-                        await UIKit.renderer.renderKitElement(pathStyleElement.parentElement);
+                        await UIKit.renderer.renderElement(pathStyleElement.parentElement);
                         await this.selectNavItemByRefId(navId);
                     }
                     break;
@@ -170,7 +170,7 @@ export class ToolPalettesDialogModel {
                     {
                         const serialRef = ToolPalettesDialogModel.serializeRef(changeInfo.mapItemTemplateRef);
                         const captionElement = this.#kitElement.querySelector(`[data-nav-item-id='caption-${serialRef}']`);
-                        await UIKit.renderer.renderKitElement(captionElement.parentElement);
+                        await UIKit.renderer.renderElement(captionElement.parentElement);
                         await this.selectNavItemByRefId(`caption.background-${serialRef}`);
                     }
                     break;
@@ -178,7 +178,7 @@ export class ToolPalettesDialogModel {
                     {
                         const serialRef = ToolPalettesDialogModel.serializeRef(changeInfo.mapItemTemplateRef);
                         const captionElement = this.#kitElement.querySelector(`[data-nav-item-id='caption-${serialRef}']`);
-                        await UIKit.renderer.renderKitElement(captionElement.parentElement);
+                        await UIKit.renderer.renderElement(captionElement.parentElement);
                         await this.selectNavItemByRefId(`caption-${serialRef}`);
                     }
                     break;
@@ -186,7 +186,7 @@ export class ToolPalettesDialogModel {
                     {
                         const serialRef = ToolPalettesDialogModel.serializeRef(changeInfo.mapItemTemplateRef);
                         const captionElement = this.#kitElement.querySelector(`[data-nav-item-id='caption-${serialRef}']`);
-                        await UIKit.renderer.renderKitElement(captionElement.parentElement);
+                        await UIKit.renderer.renderElement(captionElement.parentElement);
                         await this.selectNavItemByRefId(`caption.border-${serialRef}`);
                     }
                     break;
@@ -194,13 +194,13 @@ export class ToolPalettesDialogModel {
                     {
                         const serialRef = ToolPalettesDialogModel.serializeRef(changeInfo.mapItemTemplateRef);
                         const captionElement = this.#kitElement.querySelector(`[data-nav-item-id='caption-${serialRef}']`);
-                        await UIKit.renderer.renderKitElement(captionElement.parentElement);
+                        await UIKit.renderer.renderElement(captionElement.parentElement);
                         await this.selectNavItemByRefId(`caption-${serialRef}`);
                     }
                     break;
             }
             const detailContainer = this.#kitElement.querySelector("#detail-section");
-            await UIKit.renderer.renderKitElement(detailContainer);
+            await UIKit.renderer.renderElement(detailContainer);
         }
     }
 
@@ -212,7 +212,7 @@ export class ToolPalettesDialogModel {
     async showDialog() {
         ToolPalettesDialogModel.#isVisible = true;
         ToolPalettesDialogModel.#map = await MapWorkerClient.getMap(); 
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
         const navElement = this.#kitElement.querySelector("[data-nav-item-id='palette.editing.tools']");
         await this.selectNavItem(navElement);
     }
@@ -363,7 +363,7 @@ export class ToolPalettesDialogModel {
         this.expandNavItem(navItemContainer, false);
         navItemContainer.firstElementChild.scrollIntoView({ block: "nearest", behavior: "smooth" });
         const detailSection = this.#kitElement.querySelector("#detail-section");
-        await UIKit.renderer.renderKitElement(detailSection);
+        await UIKit.renderer.renderElement(detailSection);
     }
 
     async selectNavItemByRefId(refId) {
@@ -425,7 +425,7 @@ export class ToolPalettesDialogModel {
 
     #onCloseDialog = async () => {
         ToolPalettesDialogModel.#isVisible = false;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     #slideNavigation = (slideOpen) => {

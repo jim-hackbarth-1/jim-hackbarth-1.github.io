@@ -104,7 +104,7 @@ export class EditorModel {
                         || change.changeObjectType == Tool.name
                         || change.changeObjectType == MapItemTemplate.name) {
                         const toolPaletteElement = this.#kitElement.querySelector("#tool-palette-content");
-                        await UIKit.renderer.renderKitElement(toolPaletteElement);
+                        await UIKit.renderer.renderElement(toolPaletteElement);
                     }
                 }
             }
@@ -159,7 +159,7 @@ export class EditorModel {
     async closeMap() {
         FileManager.fileHandle = null;
         await MapWorkerClient.setMap(null);
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     async getSelectAllInViewDisabledAttr() {
@@ -862,7 +862,7 @@ export class EditorModel {
 
         // display
         await MapWorkerClient.setMap(new Map(mapData));
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     #setMapCursor(cursorName) {

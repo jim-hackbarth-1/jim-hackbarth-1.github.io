@@ -89,7 +89,7 @@ class FileNewDialogModel {
 
     async showDialog() {
         FileNewDialogModel.#isVisible = true;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     closeDialog() {
@@ -130,6 +130,6 @@ class FileNewDialogModel {
 
     #onCloseDialog = async () => {
         FileNewDialogModel.#isVisible = false;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 }

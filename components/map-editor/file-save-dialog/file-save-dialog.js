@@ -32,7 +32,7 @@ class FileSaveDialogModel {
 
     async showDialog() {
         FileSaveDialogModel.#isVisible = true;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     closeDialog() {
@@ -96,6 +96,6 @@ class FileSaveDialogModel {
 
     #onCloseDialog = async () => {
         FileSaveDialogModel.#isVisible = false;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 }

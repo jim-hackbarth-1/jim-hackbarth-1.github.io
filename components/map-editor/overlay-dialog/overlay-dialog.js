@@ -35,7 +35,7 @@ class OverlayDialogModel {
 
     async showDialog() {
         OverlayDialogModel.#isVisible = true;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     closeDialog() {
@@ -75,6 +75,6 @@ class OverlayDialogModel {
 
     #onCloseDialog = async () => {
         OverlayDialogModel.#isVisible = false;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 }

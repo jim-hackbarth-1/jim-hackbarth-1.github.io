@@ -12,22 +12,22 @@ class ColorViewModel {
     }
 
     // methods
-    getValue() {
+    getValue(debug) {
         return this.#kitElement.getAttribute("value");
     }
 
     async setValue() {
         const value = this.#kitElement.querySelector("input").value;
         this.#kitElement.setAttribute("value", value);
-        const container = this.#kitElement.querySelector("div[kit-element]");
-        await UIKit.renderer.renderKitElement(container);
+        const container = this.#kitElement.querySelector("div[data-color-container]");
+        await UIKit.renderer.renderElement(container);
         if (this.#changeHandler) {
             this.#changeHandler(this.#kitElement);
         }
     }
 
     getValueInverse() {
-        const value = this.getValue();
+        const value = this.getValue(2);
         return ColorViewModel.#invertColor(value);
     }
 

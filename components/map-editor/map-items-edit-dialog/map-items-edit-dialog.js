@@ -53,7 +53,7 @@ class MapItemsEditDialogModel {
         if (MapItemsEditDialogModel.#isVisible) {
             MapItemsEditDialogModel.#mapItemCount = null;
             const section = this.#kitElement.querySelector("#map-items-section");
-            await UIKit.renderer.renderKitElement(section);
+            await UIKit.renderer.renderElement(section);
         }
     }
 
@@ -64,7 +64,7 @@ class MapItemsEditDialogModel {
 
     async showDialog() {
         MapItemsEditDialogModel.#isVisible = true;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     closeDialog = () => {
@@ -103,7 +103,7 @@ class MapItemsEditDialogModel {
 
         MapItemsEditDialogModel.#selectedAction = detailId;
         const details = this.#kitElement.querySelector("#map-items-detail-container");
-        await UIKit.renderer.renderKitElement(details);
+        await UIKit.renderer.renderElement(details);
     }
 
     async getMapItems() {
@@ -170,7 +170,7 @@ class MapItemsEditDialogModel {
         }
         MapItemsEditDialogModel.#saveCurrentSelections(this.#kitElement.querySelectorAll(".data-list-item-checkbox:checked"));
         const details = this.#kitElement.querySelector("#map-items-detail-container");
-        await UIKit.renderer.renderKitElement(details);
+        await UIKit.renderer.renderElement(details);
     }
 
     async toggleSelection() {
@@ -179,7 +179,7 @@ class MapItemsEditDialogModel {
         checkAll.checked = (checkboxes.length == 0);
         MapItemsEditDialogModel.#saveCurrentSelections(this.#kitElement.querySelectorAll(".data-list-item-checkbox:checked"));
         const details = this.#kitElement.querySelector("#map-items-detail-container");
-        await UIKit.renderer.renderKitElement(details);
+        await UIKit.renderer.renderElement(details);
     }
 
     toggleDetails(mapItemId) {
@@ -229,7 +229,7 @@ class MapItemsEditDialogModel {
         };
         MapItemsEditDialogModel.#mapItemCount = null;
         const section = this.#kitElement.querySelector("#map-items-section");
-        await UIKit.renderer.renderKitElement(section);
+        await UIKit.renderer.renderElement(section);
     }
 
     onInputKeyDown(event) {
@@ -767,7 +767,7 @@ class MapItemsEditDialogModel {
 
     #onCloseDialog = async () => {
         MapItemsEditDialogModel.#isVisible = false;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     #slideActions = (slideOpen) => {

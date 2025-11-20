@@ -35,7 +35,7 @@ class FileOpenDialogModel {
 
     async showDialog() {
         FileOpenDialogModel.#isVisible = true;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     closeDialog() {
@@ -112,7 +112,7 @@ class FileOpenDialogModel {
 
     #onCloseDialog = async () => {
         FileOpenDialogModel.#isVisible = false;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     static #hasFileSystemAccess() {

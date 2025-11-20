@@ -34,7 +34,7 @@ class FileSaveAsDialogModel {
 
     async showDialog() {
         FileSaveAsDialogModel.#isVisible = true;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     closeDialog() {
@@ -47,7 +47,7 @@ class FileSaveAsDialogModel {
         this.#kitElement.querySelector("#file-name").value = "";
         this.#kitElement.querySelector("#button-ok").disabled = true;
         const kitElement = this.#kitElement.querySelector("#file-controls-container");
-        await UIKit.renderer.renderKitElement(kitElement);
+        await UIKit.renderer.renderElement(kitElement);
     }
 
     canBrowse() {
@@ -106,7 +106,7 @@ class FileSaveAsDialogModel {
 
     #onCloseDialog = async () => {
         FileSaveAsDialogModel.#isVisible = false;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     static #hasFileSystemAccess() {

@@ -32,7 +32,7 @@ class ContentModel {
 
     async onNavigation(url) {
         this.routeName = UIKit.navigator.getHash(url) ?? "";
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     // methods

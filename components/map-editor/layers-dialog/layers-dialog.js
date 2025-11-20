@@ -36,7 +36,7 @@ class LayersDialogModel {
     async onMapUpdated(message) {
         if (LayersDialogModel.#isVisible) {
             const layersElement = this.#kitElement.querySelector("#layer-list");
-            await UIKit.renderer.renderKitElement(layersElement);
+            await UIKit.renderer.renderElement(layersElement);
         }
     }
 
@@ -47,7 +47,7 @@ class LayersDialogModel {
 
     async showDialog() {
         LayersDialogModel.#isVisible = true;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     closeDialog() {
@@ -307,7 +307,7 @@ class LayersDialogModel {
 
     #onCloseDialog = async () => {
         LayersDialogModel.#isVisible = false;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     static #mapLayer(layer, activeLayerName) {

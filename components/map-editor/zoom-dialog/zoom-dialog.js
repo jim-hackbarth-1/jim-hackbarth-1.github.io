@@ -35,7 +35,7 @@ class ZoomDialogModel {
 
     async showDialog() {
         ZoomDialogModel.#isVisible = true;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     closeDialog() {
@@ -197,7 +197,7 @@ class ZoomDialogModel {
 
     #onCloseDialog = async () => {
         ZoomDialogModel.#isVisible = false;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     #displayCurrentZoom() {

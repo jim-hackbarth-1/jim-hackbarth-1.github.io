@@ -34,7 +34,7 @@ class CanvasSizeDialogModel {
 
     async showDialog() {
         CanvasSizeDialogModel.#isVisible = true;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     closeDialog = () => {
@@ -56,7 +56,7 @@ class CanvasSizeDialogModel {
 
     #onCloseDialog = async () => {
         CanvasSizeDialogModel.#isVisible = false;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     async #updateCanvasSize() {

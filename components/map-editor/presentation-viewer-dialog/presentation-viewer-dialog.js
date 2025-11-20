@@ -30,7 +30,7 @@ class PresentationViewerDialogModel {
 
     async showDialog() {
         PresentationViewerDialogModel.#isVisible = true;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     closeDialog() {
@@ -70,7 +70,7 @@ class PresentationViewerDialogModel {
 
     #onCloseDialog = async () => {
         PresentationViewerDialogModel.#isVisible = false;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     async #startListeningForMessages() {

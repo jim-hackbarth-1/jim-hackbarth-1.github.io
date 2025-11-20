@@ -284,7 +284,7 @@ class PathStyleViewModel {
     async updatePathStyleType() {
         PathStyleViewModel.#tempPathStyleType = this.#kitElement.querySelector("#path-style-type").value;
         const form = this.#kitElement.querySelector(".detail-content");
-        await UIKit.renderer.renderKitElement(form);
+        await UIKit.renderer.renderElement(form);
         const showGradientStart = this.showGradientStart();
         if (showGradientStart) {
             const gradientStart = this.#getDefaultGradientStart();
@@ -396,7 +396,7 @@ class PathStyleViewModel {
         const color = defaultColors[colorStops.length];
         PathStyleViewModel.#tempColorStops.push({ offset: offset, color: color });
         const colorStopsContainer = this.#kitElement.querySelector("#path-style-color-stops-container");
-        await UIKit.renderer.renderKitElement(colorStopsContainer);
+        await UIKit.renderer.renderElement(colorStopsContainer);
     }
 
     hasColorStops() {
@@ -425,7 +425,7 @@ class PathStyleViewModel {
     async removeColorStop(index) {
         PathStyleViewModel.#tempColorStops.splice(index, 1);
         const colorStopsContainer = this.#kitElement.querySelector("#path-style-color-stops-container");
-        await UIKit.renderer.renderKitElement(colorStopsContainer);
+        await UIKit.renderer.renderElement(colorStopsContainer);
     }
 
     getImage() {
@@ -444,7 +444,7 @@ class PathStyleViewModel {
     async addImage() {
         PathStyleViewModel.#tempImages.push(null);
         const imagesContainer = this.#kitElement.querySelector("#path-style-images-container");
-        await UIKit.renderer.renderKitElement(imagesContainer);
+        await UIKit.renderer.renderElement(imagesContainer);
     }
 
     hasImages() {
@@ -464,7 +464,7 @@ class PathStyleViewModel {
     async removeImage(index) {
         PathStyleViewModel.#tempImages.splice(index, 1);
         const imagesContainer = this.#kitElement.querySelector("#path-style-images-container");
-        await UIKit.renderer.renderKitElement(imagesContainer);
+        await UIKit.renderer.renderElement(imagesContainer);
     }
 
     getImageArrayOffsets() {

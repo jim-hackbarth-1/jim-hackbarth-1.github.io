@@ -32,7 +32,7 @@ class ToolOptionsDialogModel {
 
     async showDialog() {
         ToolOptionsDialogModel.#isVisible = true;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     closeDialog() {
@@ -74,7 +74,7 @@ class ToolOptionsDialogModel {
 
     #onCloseDialog = async () => {
         ToolOptionsDialogModel.#isVisible = false;
-        await UIKit.renderer.renderKitElement(this.#kitElement);
+        await UIKit.renderer.renderElement(this.#kitElement);
     }
 
     #initializeKeyEvents() {

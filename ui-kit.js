@@ -244,10 +244,10 @@ export class KitNavigator {
 export class KitMessenger {
 
     /**
-     * Publish a message to subscribers of a topic
-     * @param {string} topicName - The name of the topic
-     * @param {any} message - The message to be published
-     */
+        * Publish a message to subscribers of a topic
+        * @param {string} topicName - The name of the topic
+        * @param {any} message - The message to be published
+        */
     async publish(topicName, message) {
         const topic = KitMessenger.#getTopic(topicName);
         for (const subscriber of topic.subscribers) {
@@ -270,13 +270,11 @@ export class KitMessenger {
         }
     }
 
-    /** @type {{key: string, value: any}[]} */
-
     /**
-     * Subscribe to receive messages published to a topic
-     * @param {string} topicName - The name of the topic
-     * @param {{elementKey: number, id: string, object: any, callback: string}} subscriber - The subscriber
-     */
+        * Subscribe to receive messages published to a topic
+        * @param {string} topicName - The name of the topic
+        * @param {{elementKey: number, id: string, object: any, callback: string}} subscriber - The subscriber
+        */
     subscribe(topicName, subscriber) {
         const topic = KitMessenger.#getTopic(topicName);
         const existingIndex = topic.subscribers.findIndex(s => s.id == subscriber.id);

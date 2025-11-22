@@ -38,7 +38,10 @@ body {
     color: var(--color-background-on);
 }
 
-kit:not([kit-element-key]) {
+[kit-array]:not([kit-element-key]),
+[kit-component]:not([kit-element-key]),
+[kit-element]:not([kit-element-key]),
+[kit-if]:not([kit-element-key]),{
     display: none;
 }
 

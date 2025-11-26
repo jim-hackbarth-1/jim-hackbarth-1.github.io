@@ -438,7 +438,7 @@ class MapItemsEditDialogModel {
                     layerName: layer.name,
                     mapItemGroupId: mapItemGroupId,
                     mapItemId: mapItemId
-                })
+                });
             }
         }
         MapWorkerClient.postWorkerMessage({

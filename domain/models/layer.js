@@ -521,6 +521,7 @@ export class Layer {
                 }
             }
         }
+        let hasZChanges = false;
         if (mapItems.some(mi => mi.z == 0)) {
             let max = 0;
             for (const mapItem of mapItems) {
@@ -535,8 +536,12 @@ export class Layer {
                     }
                     max += 32;
                     mapItem.adjustZ(max);
+                    hasZChanges = true;
                 }
             }
+        }
+        if (hasZChanges) {
+            this.#onChange(new ChangeSet());
         }
         function sort(mapItem1, mapItem2) {
             if (mapItem1.z < mapItem2.z) {
@@ -570,6 +575,8 @@ export class Layer {
                                 pathId: path.id,
                                 pathStart: path.start,
                                 pathBounds: path.bounds,
+                                zGroup: mapItem.zGroup,
+                                z: mapItem.z,
                                 renderedLocations: []
                             });
                             if (path.clipPaths) {

@@ -626,10 +626,10 @@ export class Layer {
         if (info1.zGroup < info2.zGroup) {
             return false;
         }
-        if (info1.z > info2.z) {
+        if (info1.z > info2.z && info2.z != 0) {
             return true;
         }
-        if (info1.z < info2.z) {
+        if (info1.z < info2.z || info2.z == 0) {
             return false;
         }
         if (info1.pathId > info2.pathId) {

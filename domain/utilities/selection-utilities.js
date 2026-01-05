@@ -296,7 +296,13 @@ export class SelectionUtilities {
             let snapDx = 0;
             let snapDy = 0;
             if (snapToOverlay) {
-                const selectionBounds = mapWorker.geometryUtilities.getPathBounds(start, selection.startingPathData.transits);
+                const largestSelection = this.#findLargestSelectionInGroup(mapWorker, selection);
+                const largestSelectionStart = {
+                    x: largestSelection.startingPathData.start.x + dx,
+                    y: largestSelection.startingPathData.start.y + dy
+                }
+                const selectionBounds = mapWorker.geometryUtilities.getPathBounds(
+                    largestSelectionStart, largestSelection.startingPathData.transits);
                 const topLeft = { x: selectionBounds.x, y: selectionBounds.y };
                 const snapPoint = mapWorker.map.overlay.getNearestOverlayPoint(topLeft);
                 snapDx = topLeft.x - snapPoint.x;
@@ -512,6 +518,21 @@ export class SelectionUtilities {
             }
             mapItemSelection.mapItem.captionLocation = location;
         }
+    }
+
+    #findLargestSelectionInGroup(mapWorker, selection) {
+        const layer = mapWorker.map.getActiveLayer();
+        const mapItemGroup = layer.mapItemGroups.find(mig => mig.id == selection.mapItemGroupId);
+        let mapItemId = selection.mapItemId;
+        let maxArea = 0;
+        for (const mapItem of mapItemGroup.mapItems) {
+            let area = mapItem.bounds.height * mapItem.bounds.width;
+            if (area > maxArea) {
+                maxArea = area;
+                mapItemId = mapItem.id;
+            }
+        }
+        return this.selectionStartData.find(s => s.mapItemId == mapItemId);
     }
 
     #getMapItemSelections(mapWorker, selectionStartData) {

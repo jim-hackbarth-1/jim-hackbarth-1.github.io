@@ -618,6 +618,7 @@ export class Path {
 
     renderShadow(context, map, options, shadow, hasFills, aboveStrokes) {
         if (this.#isViewable(map, options)) {
+            context.setLineDash([]);
             if (aboveStrokes) {
                 this.#renderShadowAboveStrokes(context, shadow, hasFills);
                 return;

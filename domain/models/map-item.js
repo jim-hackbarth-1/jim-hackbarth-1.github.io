@@ -317,7 +317,7 @@ export class MapItem {
         }
     }
 
-    async renderCaption(context, map, options) {
+    async renderCaption(context, map, options, isActiveLayer) {
         if (this.isHidden && options.presentationView) {
             return;
         }
@@ -329,11 +329,13 @@ export class MapItem {
             };
             await caption.render(context, map, this.captionText, location, options);
         }
-        if (this.isHidden == false) {
-            this.#renderShownBadge(context);
-        }
-        if (this.isHidden == true) {
-            this.#renderHiddenBadge(context);
+        if (isActiveLayer && !options.presentationView) {
+            if (this.isHidden == false) {
+                this.#renderShownBadge(context);
+            }
+            if (this.isHidden == true) {
+                this.#renderHiddenBadge(context);
+            }
         }
     }
 

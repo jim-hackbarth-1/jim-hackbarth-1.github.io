@@ -211,10 +211,11 @@ export class Layer {
     async renderCaptions(context, map, options) {
         if (this.isHidden != true) {
             const zGroups = this.#getZOrderGroups();
+            const isActiveLayer = (this.name == map.activeLayer);
             for (const zGroup of zGroups) {
                 const mapItems = this.#getMapItemsByZGroup(zGroup);
                 for (const mapItem of mapItems) {
-                    await mapItem.renderCaption(context, map, options);
+                    await mapItem.renderCaption(context, map, options, isActiveLayer);
                 }
             }
         }

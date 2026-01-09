@@ -525,8 +525,10 @@ export class Map {
         for (const layer of this.layers) {
             await layer.render(context, this, options, maxStrokeLength, maxFillsLength, quickRender);
         }
-        for (const layer of this.layers) {
-            layer.renderSelections(context, this);
+        if (!options.presentationView) {
+            for (const layer of this.layers) {
+                layer.renderSelections(context, this);
+            }
         }
         this.overlay.render(context, this, options);
         if (!options.hideCaptions) {

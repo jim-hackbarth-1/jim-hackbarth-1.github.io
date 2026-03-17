@@ -442,6 +442,9 @@ export class SetUtilities {
             unionOfClipPaths = this.getUnionAll(array1, array2);
         }
         for (const path of pathInfosOut) {
+            if (pathInfoA.rotationAngle) {
+                path.rotationAngle = pathInfoA.rotationAngle;
+            }
             for (const clipPath of unionOfClipPaths) {
                 if (this.geometryUtilities.isPath1ContainedInPath2(clipPath, path)) {
                     path.clipPaths.push(clipPath);

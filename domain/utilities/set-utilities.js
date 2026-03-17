@@ -147,6 +147,12 @@ export class SetUtilities {
         // get transits into
         const transitsInfoA = this.#getTransitsIntersectionInfo(pathInfoA, boundsB, pathInfoB, closedPath);
         const transitsInfoB = this.#getTransitsIntersectionInfo(pathInfoB, boundsA, pathInfoA, true);
+        if (!closedPath) {
+            for (const transitInfoB of transitsInfoB) {
+                transitInfoB.isIntersecting = false;
+                transitInfoB.isShared = false;
+            }
+        }
 
         // mark shared transits
         this.#markSharedTransitInfos(transitsInfoA, transitsInfoB);

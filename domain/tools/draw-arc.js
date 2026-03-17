@@ -192,9 +192,11 @@ class DrawArcTool {
                     radii: radii,
                     rotationAngle: 0,
                     sweepFlag: sweepFlag
-                },
-                { x: -end.x, y: 0 }
+                }
             ];
+            if (this.#mapWorker.activeMapItemTemplate.fills.length > 0) {
+                transits.push({ x: -end.x, y: 0 });
+            }
             const bounds = this.#mapWorker.geometryUtilities.getPathBounds(start, transits);
             if (!this.#isBiggerThanMinSize(bounds)) {
                 await this.#mapWorker.renderMap();

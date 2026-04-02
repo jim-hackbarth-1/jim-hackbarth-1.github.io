@@ -14,15 +14,17 @@ export function getTemplate() {
         {
             "options": [
                 { "key": "PathStyleType", "value": "ColorStroke" },
-                { "key": "Color", "value": "#8b4513" },
+                { "key": "Color", "value": "#3e1f09" },
                 { "key": "Opacity", "value": 0.5 },
-                { "key": "Width", "value": 10 }
+                { "key": "Width", "value": 10 },
+                { "key": "Dash", "value": [1, 3] },
+                { "key": "Cap", "value": "butt" }
             ]
         },
         {
             "options": [
-                { "key": "PathStyleType", "value": "TileStroke" },
-                { "key": "TileImageSource", "value": landBorderTileSource },
+                { "key": "PathStyleType", "value": "ColorStroke" },
+                { "key": "Color", "value": "#e6cb9f" },
                 { "key": "Width", "value": 10 }
             ]
         },
@@ -84,10 +86,10 @@ export function getTemplate() {
         }
     };
     const landShadow = {
-        "blur": 5,
-        "color": "#562606",
+        "blur": 3,
+        "color": "#63310d",
         "offsetX": 0,
-        "offsetY": 0,
+        "offsetY": 3,
         "renderingOrder": "AboveStrokes"
     }
 

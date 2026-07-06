@@ -1,0 +1,4 @@
+{
+  "issuer": "https://jim-hackbarth-1.github.io",
+  "jwks_uri": "https://jim-hackbarth-1.github.io/.well-known/jwks.json"
+}

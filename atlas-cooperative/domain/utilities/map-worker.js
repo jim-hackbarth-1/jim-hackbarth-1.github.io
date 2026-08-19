@@ -175,6 +175,8 @@ export class MapWorker {
     }
 
     postMessage(message) {
+        console.log('postMessage');
+        console.log(message);
         if (this.messagePort) {
             this.messagePort.postMessage(message);
         }

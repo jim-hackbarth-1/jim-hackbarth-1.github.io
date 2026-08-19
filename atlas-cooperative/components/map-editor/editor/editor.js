@@ -918,7 +918,7 @@ export class EditorModel {
     }
 
     static #getBaseUrl() {
-        return `${UIKit.window.location.protocol}//${UIKit.window.location.host}`;
+        return `${UIKit.window.location.protocol}//${UIKit.window.location.host}/atlas-cooperative`;
     }
 
     static #mapToJson(map) {

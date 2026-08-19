@@ -1,6 +1,6 @@
 ﻿
 <kit kit-if="!#model.isPresentationView()">
-    <link rel="stylesheet" href="/components/navigation/navigation.css" />
+    <link rel="stylesheet" href="./components/navigation/navigation.css" />
     <nav class="navigation-component surface-primary">
         <ul kit-array="#model.getNavItems()" kit-array-item-alias="navItem">
             <li id="%{#navItem.id}%">
@@ -8,7 +8,7 @@
                 <div>
                     <a href="#%{#navItem.id}%" title="%{#navItem.label}%" class="action-text">
                         <div class="link-content">
-                            <div class="icon-container" kit-component="no-model:/resources/icons/%{#navItem.id}%.html">
+                            <div class="icon-container" kit-component="no-model:./resources/icons/%{#navItem.id}%.html">
                             </div>
                             <div class="link-text">%{#navItem.label}%</div>
                         </div>

@@ -53,8 +53,6 @@ export class EditorModel {
     }
 
     onMapChanged = async (message) => {
-        console.log("on map changed");
-        console.log(message);
         if (message?.messageType === MapWorkerOutputMessageType.ChangeCursor) {
             this.#setMapCursor(message.data?.cursor);
             const cursorMessage = { messageType: MapWorkerInputMessageType.CursorChanged, cursor: message.data?.cursor };
@@ -918,7 +916,11 @@ export class EditorModel {
     }
 
     static #getBaseUrl() {
-        return `${UIKit.window.location.protocol}//${UIKit.window.location.host}/atlas-cooperative`;
+        //return `${UIKit.window.location.protocol}//${UIKit.window.location.host}`;
+        let pathname = `${UIKit.window.location.protocol}//${UIKit.window.location.host}${UIKit.window.location.pathname}`;
+        pathname = pathname.replace("index.html", "").replace(/\/$/, "");
+        console.log(pathname);
+        return pathname;
     }
 
     static #mapToJson(map) {

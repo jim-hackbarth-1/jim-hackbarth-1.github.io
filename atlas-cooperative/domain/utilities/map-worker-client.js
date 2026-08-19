@@ -29,6 +29,7 @@ export class MapWorkerClient {
 
     // methods
     static initializeWorker(appDocument, canvas, mapChangeListener, baseUrl) {
+        console.log('initializeWorker1');
         this.#currentCanvasSize = { height: canvas.height, width: canvas.width };
         MapWorkerClient.#addDocumentEventHandlers(appDocument);
         MapWorkerClient.#addCanvasEventHandlers(canvas);
@@ -42,6 +43,8 @@ export class MapWorkerClient {
             canvas: offscreenCanvas,
             baseUrl: baseUrl
         };
+        console.log('initializeWorker2');
+        console.log(message);
         MapWorkerClient.#mapWorker.postMessage(message, [offscreenCanvas, MapWorkerClient.#channel.port2]);
     }
 

@@ -11,7 +11,7 @@
 /* font */
 @font-face {
     font-family: "Ubuntu Sans Mono";
-    src: url("x/resources/fonts/UbuntuSansMono-VariableFont_wght.ttf");
+    src: url("../../../resources/fonts/UbuntuSansMono-VariableFont_wght.ttf");
 }
 :scope {
     --font-family: "Ubuntu Sans Mono", Arial, sans-serif;

@@ -34,7 +34,7 @@ export class MapWorkerClient {
         MapWorkerClient.#addDocumentEventHandlers(appDocument);
         MapWorkerClient.#addCanvasEventHandlers(canvas);
         MapWorkerClient.#mapChangeListener = mapChangeListener;
-        MapWorkerClient.#mapWorker = new Worker("../../domain/utilities/map-worker.js", { type: "module" }); 
+        MapWorkerClient.#mapWorker = new Worker("./domain/utilities/map-worker.js", { type: "module" }); 
         MapWorkerClient.#channel = new MessageChannel();
         MapWorkerClient.#channel.port1.onmessage = MapWorkerClient.handleWorkerMessage;
         const offscreenCanvas = canvas.transferControlToOffscreen();

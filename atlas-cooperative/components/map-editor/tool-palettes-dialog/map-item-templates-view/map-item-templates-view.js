@@ -92,6 +92,7 @@ class MapItemTemplatesViewModel {
                 itemValue: mapItemTemplate.ref.getData()
             }
         ];
+        console.log(changes);
         MapWorkerClient.postWorkerMessage({
             messageType: MapWorkerInputMessageType.UpdateMap,
             changeSet: { changes: changes }

@@ -53,6 +53,8 @@ export class EditorModel {
     }
 
     onMapChanged = async (message) => {
+        console.log("on map changed");
+        console.log(message);
         if (message?.messageType === MapWorkerOutputMessageType.ChangeCursor) {
             this.#setMapCursor(message.data?.cursor);
             const cursorMessage = { messageType: MapWorkerInputMessageType.CursorChanged, cursor: message.data?.cursor };

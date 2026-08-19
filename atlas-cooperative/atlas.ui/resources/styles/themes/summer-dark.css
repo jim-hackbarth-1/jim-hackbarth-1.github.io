@@ -1,0 +1,36 @@
+﻿
+:scope {
+    --summer-dark-primary: rgb(183 229 182);
+    --summer-dark-primary-on: rgb(15 56 24);
+    --summer-dark-primary-container: rgb(156 201 156);
+    --summer-dark-primary-container-on: rgb(45 85 50);
+    --summer-dark-secondary: rgb(185 204 182);
+    --summer-dark-secondary-on: rgb(37 52 37);
+    --summer-dark-secondary-container: rgb(59 75 58);
+    --summer-dark-secondary-container-on: rgb(168 186 165);
+    --summer-dark-tertiary: rgb(167 227 247);
+    --summer-dark-tertiary-on: rgb(0 54 65);
+    --summer-dark-tertiary-container: rgb(139 199 218);
+    --summer-dark-tertiary-container-on: rgb(9 84 101);
+    --summer-dark-alert: rgb(255 180 171);
+    --summer-dark-alert-on: rgb(105 0 5);
+    --summer-dark-alert-container: rgb(147 0 10);
+    --summer-dark-alert-container-on: rgb(255 218 214);
+    --summer-dark-surface: rgb(18 20 17);
+    --summer-dark-surface-on: rgb(226 227 221);
+    --summer-dark-surface-container: rgb(30 32 29);
+    --summer-dark-surface-container-on: rgb(226 227 221);
+    --summer-dark-background: rgb(18 20 17);
+    --summer-dark-background-on: rgb(226 227 221);
+    --summer-dark-outline: rgb(140 147 137);
+    --summer-dark-shadow: rgb(0 0 0);
+    --summer-dark-primary-container-on-variant-1: var(--summer-dark-tertiary);
+    --summer-dark-primary-container-on-variant-2: hsl(from var(--summer-dark-primary-container-on) h s 90%);
+    --summer-dark-primary-container-on-disabled: rgb(from var(--summer-dark-primary-container-on) r g b / 25%);
+    --summer-dark-secondary-container-on-variant-1: var(--summer-dark-alert);
+    --summer-dark-secondary-container-on-variant-2: hsl(from var(--summer-dark-secondary-container-on) h s 10%);
+    --summer-dark-secondary-container-on-disabled: rgb(from var(--summer-dark-secondary-container-on) r g b / 25%);
+    --summer-dark-tertiary-container-on-variant-1: var(--summer-dark-primary);
+    --summer-dark-tertiary-container-on-variant-2: hsl(from var(--summer-dark-tertiary-container-on) h s 10%);
+    --summer-dark-tertiary-container-on-disabled: rgb(from var(--summer-dark-tertiary-container-on) r g b / 25%);
+}

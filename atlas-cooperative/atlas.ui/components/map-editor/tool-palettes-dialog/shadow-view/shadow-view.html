@@ -1,0 +1,109 @@
+﻿
+<div>
+    <div class="detail-heading" style="height:120px;">
+        <div class="detail-heading-row">
+            <div class="detail-heading-field detail-heading-label detail-title-label spacer">
+                <div>%{#model.getTitle()}%</div>
+                <div class="detail-heading-label">
+                    <label class="map-item-template-name" onclick="#model.editMapItemTemplate()">%{#model.getMapItemTemplateName()}%</label>
+                    <kit kit-if="#model.isFromTemplate()">
+                        <label class="from-template-note">(from template)</label>
+                    </kit>
+                </div>
+            </div>
+        </div>
+        <div class="detail-heading-row">
+            <div class="detail-heading-field">
+                <button id="save-button"
+                        title="Save"
+                        class="button dialog-button"
+                        style="width:80px;"
+                        kit-element
+                        kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                        onclick="#model.saveShadow()">
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="detail-content" style="top:120px;">
+
+        <!-- Blur and Offset -->
+        <div class="form-row">
+            <div class="form-field">
+                <label class="form-label">Blur:</label>
+                <input id="shadow-blur"
+                       type="number"
+                       style="width:100%"
+                       min="0"
+                       max="100"
+                       kit-element
+                       kit-attr-value="value:%{#model.getBlur()}%"
+                       kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                       oninput="#model.validate()"
+                       onkeydown="#dialogModel.onInputKeyDown(event)">
+                <div id="shadow-blur-validation" class="validation-message"></div>
+            </div>
+            <div class="form-field">
+                <label class="form-label">Offset:</label>
+                <div class="form-field form-field-group">
+                    <div class="form-field-group-item">
+                        <label class="inline-form-label">x:</label>
+                        <input id="shadow-offset-x"
+                               type="number"
+                               min="-100"
+                               max="100"
+                               kit-element
+                               kit-attr-value="value:%{#model.getOffsetX()}%"
+                               kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                               oninput="#model.validate()"
+                               onkeydown="#dialogModel.onInputKeyDown(event)">
+                    </div>
+                    <div class="form-field-group-item">
+                        <label class="inline-form-label">y:</label>
+                        <input id="shadow-offset-y"
+                               type="number"
+                               min="-100"
+                               max="100"
+                               kit-element
+                               kit-attr-value="value:%{#model.getOffsetY()}%"
+                               kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                               oninput="#model.validate()"
+                               onkeydown="#dialogModel.onInputKeyDown(event)">
+                    </div>
+                </div>
+                <div id="shadow-offset-validation" class="validation-message"></div>
+            </div>
+        </div>
+
+        <!-- Color -->
+        <div class="form-row">
+            <div class="form-field">
+                <label class="form-label">Color:</label>
+                <kit id="shadow-color"
+                     kit-component="/components/map-editor/tool-palettes-dialog/color-view/color-view.html"
+                     kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                     value="%{#model.getColor()}%">
+                </kit>
+                <div id="shadow-color-validation" class="validation-message"></div>
+            </div>
+        </div>
+
+        <!-- Rendering order -->
+        <div class="form-row">
+            <div class="form-field">
+                <label class="form-label">Rendering order:</label>
+                <select id="shadow-rendering-order"
+                        kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
+                        kit-array="#model.getRenderingOrders()"
+                        kit-array-item-alias ="order">
+                    <option value="%{#order.id}%" kit-attr-selected="selected:%{#order.isSelectedAttr}%">
+                        %{#order.name}%
+                    </option>
+                </select>
+                <div id="shadow-rendering-order-validation" class="validation-message"></div>
+            </div>
+        </div>
+
+    </div>
+</div>

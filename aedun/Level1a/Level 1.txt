@@ -1,0 +1,77 @@
+Level 1
+Starts on Level 2 (A4)
+
+A1
+Dungeon with grates over cells in floor.
+Ladder down to lower level.
+
+A2
+Guardroom.
+2 Guards (Aaron and Walter), 1 Cultist (Bastian), 1 Mastiff
+Personal items, treasure, keys to A3 and to cells
+
+A3
+Storage room w/ boxes, crates, chests behind portcullis (key on guard in A2)
+Characters items
+Treasure horde #1
+4 zircons (transparent pale blue-green), 50 gp each
+4th lvl spell scroll (Stoneskin, DC 14 to be able to cast)
+Potion of superior healing
+Potion of diminuation
+3400 cp, 1100 sp, 40 gp
+
+A4
+8 guards - 10 guards (coming and going from outside)
+Loud talking, laughing
+More training outside
+
+A5
+Guardroom
+4 guards (Clemens, Volker, Dagobert, Ullrich), 1 acolyte (Adele)
+Personal items, treasure, keys to A3 and to cells
+
+A6
+Dungeon with grates over cells in floor.
+Ladder down to lower level.
+
+A7
+Chapel (dedicated to Ayat). Secret door behind tapestry leads to A8
+arrow slits look ouside to walled courtyard where guards are training/patrolling
+Precious gems embedded into holy symbol on altar
+
+A8
+Secret room behind tapestry. No light.
+Stairs down.
+
+A9
+Well
+Windlass with metal bucket on end of rope over 20' deep well.
+A little wider at the bottom, hides secret cavern.
+
+A10
+Guardroom
+5 guards (Eckart, Till, Falk, Sepp, Gerhold)
+Personal items, treasure, keys to A3 and to cells
+
+A11
+Dungeon with grates over cells in floor.
+Ladder down to lower level.
+
+A12
+Latrine, reeks
+
+A13
+Courtroom
+Wood wainscotting. 
+arrow slits look ouside to walled courtyard where guards are training/patrolling
+5 guards (Harald, Poldi, Ingomar, Ottmar, Jakob), 2 acolytes (Norbert, Zenzi), 1 cultist (Karlmann)
+
+A14
+Barracks
+
+A16
+Kitchen
+
+
+
+

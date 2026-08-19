@@ -1,0 +1,45 @@
+﻿
+<section class="help-component">
+    <link rel="stylesheet" href="/components/help/help.css" />
+    <fieldset>
+        <legend>Preferences</legend>
+        <div class="field-container">
+            <div>
+                <label>Theme:</label>
+            </div>
+            <div>
+                <select id="select-theme" onchange="#model.setTheme()">
+                    <option value="northern-seasons">Change with seasons</option>
+                    <option value="southern-seasons">Change with seasons, southern hemisphere</option>
+                    <option value="spring">Spring</option>
+                    <option value="summer">Summer</option>
+                    <option value="fall">Fall</option>
+                    <option value="winter">Winter</option>
+                </select>
+            </div>
+        </div>
+        <div class="field-container">
+            <div>
+                <label>Dark mode:</label>
+            </div>
+            <div>
+                <select id="select-dark-mode" onchange="#model.setTheme()">
+                    <option value="time-of-day">Change with time of day (dark mode 7pm - 5am)</option>
+                    <option value="dark">Dark mode</option>
+                    <option value="light">Light mode</option>
+                </select>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset>
+        <legend>Debug console</legend>
+        <div id="debug-console" kit-array="#model.getDebugConsoleItems()" kit-array-item-alias="item">
+            <div class="debug-console-item">
+                <span kit-if="#item.itemType === 'info'">&#9432;</span>
+                <span kit-if="#item.itemType === 'warning'">&#9888;</span>
+                <span kit-if="#item.itemType === 'error'">&#10539;</span>
+                <pre>%{#item.data}%</pre>
+            </div>
+        </div>
+    </fieldset>
+</section>

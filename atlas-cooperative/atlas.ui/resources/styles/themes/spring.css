@@ -1,0 +1,36 @@
+﻿
+:scope {
+    --spring-primary: rgb(120 81 121);
+    --spring-primary-on: rgb(255 255 255);
+    --spring-primary-container: rgb(201 156 201);
+    --spring-primary-container-on: rgb(86 50 88);
+    --spring-secondary: rgb(107 89 106);
+    --spring-secondary-on: rgb(255 255 255);
+    --spring-secondary-container: rgb(238 214 235);
+    --spring-secondary-container-on: rgb(110 91 109);
+    --spring-tertiary: rgb(137 77 83);
+    --spring-tertiary-on: rgb(255 255 255);
+    --spring-tertiary-container: rgb(224 151 157);
+    --spring-tertiary-container-on: rgb(100 47 53);
+    --spring-alert: rgb(186 26 26);
+    --spring-alert-on: rgb(255 255 255);
+    --spring-alert-container: rgb(255 218 214);
+    --spring-alert-container-on: rgb(147 0 10);
+    --spring-surface: rgb(255 247 250);
+    --spring-surface-on: rgb(30 26 29);
+    --spring-surface-container: rgb(244 236 240);
+    --spring-surface-container-on: rgb(19 16 19);
+    --spring-background: rgb(255 247 250);
+    --spring-background-on: rgb(30 26 29);
+    --spring-outline: rgb(126 116 124);
+    --spring-shadow: rgb(0 0 0);
+    --spring-primary-container-on-variant-1: var(--spring-tertiary);
+    --spring-primary-container-on-variant-2: hsl(from var(--spring-primary-container-on) h s 90%);
+    --spring-primary-container-on-disabled: rgb(from var(--spring-primary-container-on) r g b / 25%);
+    --spring-secondary-container-on-variant-1: var(--spring-alert);
+    --spring-secondary-container-on-variant-2: hsl(from var(--spring-secondary-container-on) h s 10%);
+    --spring-secondary-container-on-disabled: rgb(from var(--spring-secondary-container-on) r g b / 25%);
+    --spring-tertiary-container-on-variant-1: var(--spring-primary);
+    --spring-tertiary-container-on-variant-2: hsl(from var(--spring-tertiary-container-on) h s 10%);
+    --spring-tertiary-container-on-disabled: rgb(from var(--spring-tertiary-container-on) r g b / 25%);
+}

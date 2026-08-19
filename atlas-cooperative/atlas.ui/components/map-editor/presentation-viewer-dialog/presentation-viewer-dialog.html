@@ -1,0 +1,40 @@
+﻿
+<kit kit-if="#model?.isVisible()">
+    <link rel="stylesheet" href="/components/map-editor/presentation-viewer-dialog/presentation-viewer-dialog.css" />
+    <dialog id="presentation-viewer-dialog">
+        <header>
+            <div class="icon-container" kit-component="no-model:/resources/icons/view-read-only-viewer.html"></div>
+            <div>
+                <h1>Presentation viewer</h1>
+            </div>
+            <div class="spacer"></div>
+            <div>
+                <button title="Close" class="action-text" onclick="#model.closeDialog();">
+                    <div class="icon-container" kit-component="no-model:/resources/icons/file-close.html"></div>
+                </button>
+            </div>
+        </header>
+        <section>
+            <div class="controls-container">
+                <button id="button-open-viewer-window" class="button dialog-button" onclick="#model.openViewerWindow()" autofocus>
+                    Open viewer window
+                </button>
+            </div>
+            <div class="controls-container">
+                <button id="button-flip-map" class="button dialog-button" onclick="#model.flipMap()">
+                    Flip map
+                </button>
+            </div>
+            <div class="controls-container">
+                <button id="button-toggle-captions" class="button dialog-button" onclick="#model.toggleCaptions()">
+                    Toggle captions
+                </button>
+            </div>
+            <div class="controls-container">
+                <button id="button-refresh" class="button dialog-button" onclick="#model.refresh()">
+                    Refresh
+                </button>
+            </div>
+        </section>
+    </dialog>
+</kit>

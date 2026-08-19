@@ -1,0 +1,36 @@
+﻿
+:scope {
+    --spring-dark-primary: rgb(231 183 230);
+    --spring-dark-primary-on: rgb(69 35 73);
+    --spring-dark-primary-container: rgb(201 156 201);
+    --spring-dark-primary-container-on: rgb(86 50 88);
+    --spring-dark-secondary: rgb(215 191 212);
+    --spring-dark-secondary-on: rgb(59 43 59);
+    --spring-dark-secondary-container: rgb(82 65 82);
+    --spring-dark-secondary-container-on: rgb(197 174 194);
+    --spring-dark-tertiary: rgb(255 178 184);
+    --spring-dark-tertiary-on: rgb(82 32 39);
+    --spring-dark-tertiary-container: rgb(224 151 157);
+    --spring-dark-tertiary-container-on: rgb(100 47 53);
+    --spring-dark-alert: rgb(255 180 171);
+    --spring-dark-alert-on: rgb(105 0 5);
+    --spring-dark-alert-container: rgb(147 0 10);
+    --spring-dark-alert-container-on: rgb(255 218 214);
+    --spring-dark-surface: rgb(22 18 21);
+    --spring-dark-surface-on: rgb(233 224 228);
+    --spring-dark-surface-container: rgb(34 30 33);
+    --spring-dark-surface-container-on: rgb(233 224 228);
+    --spring-dark-background: rgb(22 18 21);
+    --spring-dark-background-on: rgb(233 224 228);
+    --spring-dark-outline: rgb(153 141 150);
+    --spring-dark-shadow: rgb(0 0 0);
+    --spring-dark-primary-container-on-variant-1: var(--spring-dark-tertiary);
+    --spring-dark-primary-container-on-variant-2: hsl(from var(--spring-dark-primary-container-on) h s 90%);
+    --spring-dark-primary-container-on-disabled: rgb(from var(--spring-dark-primary-container-on) r g b / 25%);
+    --spring-dark-secondary-container-on-variant-1: var(--spring-dark-alert);
+    --spring-dark-secondary-container-on-variant-2: hsl(from var(--spring-dark-secondary-container-on) h s 10%);
+    --spring-dark-secondary-container-on-disabled: rgb(from var(--spring-dark-secondary-container-on) r g b / 25%);
+    --spring-dark-tertiary-container-on-variant-1: var(--spring-dark-primary);
+    --spring-dark-tertiary-container-on-variant-2: hsl(from var(--spring-dark-tertiary-container-on) h s 10%);
+    --spring-dark-tertiary-container-on-disabled: rgb(from var(--spring-dark-tertiary-container-on) r g b / 25%);
+}

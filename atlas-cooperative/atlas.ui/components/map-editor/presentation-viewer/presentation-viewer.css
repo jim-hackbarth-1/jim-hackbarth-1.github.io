@@ -1,0 +1,10 @@
+﻿
+#full-screen-button, #presentation-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.hidden {
+    display: none;
+}

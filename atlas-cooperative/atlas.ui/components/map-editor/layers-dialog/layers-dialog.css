@@ -1,0 +1,134 @@
+﻿
+@scope (#layers-dialog) {
+    :scope {
+        height: 475px;
+        width: 350px;
+    }
+
+    @media (max-width: 350px), (max-height: 575px) {
+        :scope {
+            position: absolute;
+            transform: unset;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-height: 100%;
+            max-width: 100%;
+            height: 100%;
+            width: 100%;
+        }
+    }
+
+    .controls-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #layer-list {
+        height: 300px;
+        overflow-y: auto;
+        padding: 2px;
+        border: 1px solid var(--color-outline);
+        border-radius: 3px;
+        background-color: var(--color-surface-container);
+        margin-top:-6px;
+    }
+
+    .layer-item {
+        display: flex;
+        min-height: 50px
+    }
+
+    .edit-button:hover {
+        border-radius: 3px;
+        border: 1px solid var(--color-primary-on);
+    }
+
+    .edit-button:hover .icon {
+        stroke: var(--color-primary-on) !important;
+    }
+
+    .active-layer {
+        background-color: var(--color-primary-container);
+        color: var(--color-primary-container-on);
+        border: 1px solid var(--color-primary-container-on);
+        border-radius: 3px;
+    }
+
+    .active-layer span {
+        font-size: smaller;
+        margin: 2px;
+    }
+
+    .layer-item div {
+        padding: 0;
+        margin: 0;
+    }
+
+    .layer-name-container {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        max-width: 100px;
+    }
+
+    .layer-item-spacer {
+        flex-grow: 4;
+    }
+
+    .edit-container {
+        background-color: var(--color-surface);
+        color: var(--color-surface-on);
+        border: 1px solid var(--color-surface-on);
+        border-radius: 3px;
+    }
+
+    .edit-container > div {
+        display: flex;
+        font-size: x-small;
+        min-height: 25px;
+        padding: 4px;
+    }
+
+    .validation-message {
+        color: var(--color-alert-container-on);
+    }
+
+    .validation-message.is-valid {
+        display:none;
+    }
+
+    .edit-container label {
+        margin-right: 4px;
+    }
+
+    .edit-container input[type=text] {
+        height: 20px;
+        width: 140px;
+    }
+
+    .edit-container .checkbox .checkmark {
+        background-color: var(--color-surface-container);
+        box-shadow: var(--color-tertiary-container) 1px 1px 3px 0 inset, var(--color-tertiary-container) -1px -1px 3px 0 inset;
+    }
+
+    .edit-container .checkmark[disabled] {
+        background-color: rgba(0, 0, 0, 0.25);
+        box-shadow: var(--color-tertiary-container) 1px 1px 3px 0 inset, var(--color-tertiary-container) -1px -1px 3px 0 inset;
+    }
+
+    .edit-container button {
+        margin-left: 4px;
+        width: 50px;
+        font-size: x-small;
+    }
+
+    .edit-container.hide-edit {
+        display: none;
+    }
+
+    .layer-note {
+        font-size: smaller;
+    }
+}

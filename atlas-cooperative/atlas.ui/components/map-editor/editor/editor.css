@@ -1,0 +1,320 @@
+﻿
+@scope (.editor-component) {
+    :scope {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+    }
+
+    .button-content {
+        display: flex;
+        white-space: nowrap;
+        align-items: center;
+        padding: 2px;
+    }
+
+    .spacer {
+        flex-grow: 4;
+    }
+    /* menu - start */
+    .action-text {
+        color: var(--color-secondary-container-on);
+    }
+
+    .action-text .icon {
+        stroke: var(--color-secondary-container-on);
+    }
+
+    .action-text .icon-text {
+        stroke: var(--color-secondary-container-on);
+        fill: var(--color-secondary-container-on);
+    }
+
+    .action-text[disabled] {
+        color: var(--color-secondary-container-on-disabled);
+    }
+
+    .action-text[disabled] .icon {
+        stroke: var(--color-secondary-container-on-disabled);
+    }
+
+    .action-text[disabled] .icon-text {
+        stroke: var(--color-secondary-container-on-disabled);
+        fill: var(--color-secondary-container-on-disabled);
+    }
+
+    .action-text:not([disabled]):hover {
+        color: var(--color-secondary-container-on-variant-2);
+    }
+
+    .action-text:not([disabled]):hover .icon {
+        stroke: var(--color-secondary-container-on-variant-2);
+    }
+
+    .action-text:not([disabled]):hover .icon-text {
+        stroke: var(--color-secondary-container-on-variant-2);
+        fill: var(--color-secondary-container-on-variant-2);
+    }
+
+    #menu, #toolbar {
+        display: flex;
+        flex-direction: row;
+        background-color: var(--color-secondary-container);
+    }
+
+    #menu, #toolbar {
+        border-bottom: 1px solid var(--color-outline);
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        min-width: 160px;
+        margin-left: 8px;
+        padding-right: 5px;
+        border-bottom: 1px solid var(--color-outline);
+        border-left: 1px solid var(--color-outline);
+        border-right: 1px solid var(--color-outline);
+        z-index: 1;
+        background-color: var(--color-secondary-container);
+    }
+
+    .dropdown-content button {
+        display: flex;
+        padding: 3px;
+    }
+
+    .dropdown-content a {
+        margin: 10px;
+        display: block;
+    }
+
+    .dropdown-content hr {
+        border: none;
+        height: 1px;
+        margin-left: 10px;
+        margin-right: 10px;
+        background-color: var(--color-outline);
+    }
+
+    .top-menu-item {
+        padding: 10px;
+    }
+
+    .button-text {
+        padding-left: 10px;
+    }
+
+    .show {
+        display: block;
+    }
+    /* menu - end */
+    /* toolbar - start */
+    #toolbar {
+        padding-left: 5px;
+        flex-wrap: wrap;
+    }
+
+    #toolbar .toolbar-group {
+        padding-right: 5px;
+    }
+
+    #toolbar .group-divider {
+        border-right: 1px dotted var(--color-outline);
+        width: 1px;
+        height: 15px;
+        margin-right: -10px;
+        display: inline-block;
+    }
+
+    #divActiveLayer {
+        padding-bottom: 5px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        max-width: 100px;
+    }
+    /* toolbar - end */
+    /* tools - start */
+    #tools-and-map {
+        display: flex;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    #tools {
+        flex: 0 0 var(--editor-tool-width);
+        background-color: var(--color-surface-container);
+        border-right: 1px solid var(--color-outline);
+        display: none;
+        margin-left: var(--editor-tool-left);
+        transition: margin-left 0.5s;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    #pinned-icon {
+        transform: rotate(90deg);
+    }
+
+    #pinned-icon.pinned {
+        transform: unset;
+    }
+
+    #manage-tool-palettes-button {
+        padding-right: 5px;
+    }
+
+    #tools.has-map {
+        display: block;
+    }
+
+    #tools header {
+        display: flex;
+        padding: 5px;
+        border-top: 1px solid var(--color-outline);
+    }
+
+    #tools-header {
+        background-color: var(--color-secondary-container);
+        font-weight: bolder;
+        border-bottom: 3px double var(--color-outline);
+    }
+
+    .tool-types {
+        padding-bottom: 20px;
+    }
+
+    .tool-types header {
+        background-color: var(--color-secondary-container);
+        border-bottom: 1px solid var(--color-outline);
+    }
+
+    .tool-types section {
+        padding-right: 1px;
+    }
+
+    .tool-palette {
+        display: flex;
+    }
+
+    .tool-button {
+        background-color: var(--color-secondary-container);
+        padding: 4px;
+        border-radius: 3px;
+        border: 1px solid var(--color-outline);
+        margin: 1px 0 0 1px;
+        cursor: pointer;
+        color: var(--color-secondary-container-on);
+    }
+
+    .tool-button label {
+        cursor: pointer;
+    }
+
+    .tool-button .icon {
+        stroke: var(--color-secondary-container-on);
+        stroke-width: 4px;
+    }
+
+    .tool-button .icon-text {
+        stroke: var(--color-secondary-container-on);
+        fill: var(--color-secondary-container-on);
+    }
+
+    .tool-button:hover {
+        color: var(--color-primary-on);
+        background-color: var(--color-primary);
+        box-shadow: var(--color-primary-on) 1px 1px 3px 0 inset, var(--color-primary-on) -1px -1px 3px 0 inset;
+    }
+
+    .tool-button:hover .icon {
+        stroke: var(--color-primary-on);
+    }
+
+    .tool-button:hover .icon-text {
+        stroke: var(--color-primary-container-on-variant-2);
+        fill: var(--color-primary-container-on-variant-2);
+    }
+
+    .tool-button.active {
+        color: var(--color-tertiary-container-on);
+        background-color: var(--color-tertiary-container);
+        box-shadow: var(--color-tertiary-container-on) 1px 1px 3px 0 inset, var(--color-tertiary-container-on) -1px -1px 3px 0 inset;
+    }
+
+    .tool-button.active .icon {
+        stroke: var(--color-tertiary-container-on);
+    }
+
+    .tool-button.active .icon-text {
+        stroke: var(--color-tertiary-container-on);
+        fill: var(--color-tertiary-container-on);
+    }
+
+    .image-thumbnail {
+        height: 25px;
+        width: 25px;
+        border: 1px solid var(--color-outline);
+        border-radius: 3px;
+        background-position: center;
+    }
+    /* tools - end */
+    /* canvas - start */
+    #map-container {
+        display: flex;
+        height: 100%;
+        width: 100%;
+        overflow: auto;
+    }
+
+    #map-canvas {
+        display: none;
+        border: 1px solid var(--color-outline);
+        touch-action: none;
+    }
+
+    @media (max-width: 768px), (max-height: 500px) {
+        #map-canvas {
+            margin-top: 40px;
+            margin-left: 40px;
+        }
+    }
+
+    #no-map {
+        display: block;
+        margin-top: 40px;
+        margin-left: 40px;
+    }
+
+    #map-container.has-map #map-canvas {
+        display: block;
+    }
+
+    #map-container.has-map #no-map {
+        display: none;
+    }
+    /* canvas - end */
+    /* map saved notification */
+    #map-saved-notification {
+        position: absolute;
+        top: 0;
+        left: 220px;
+        border: 1px solid var(--color-outline);
+        border-radius: 3px;
+        padding: 5px;
+        margin: 2px;
+        color: var(--color-tertiary-container-on);
+        background-color: var(--color-tertiary-container);
+    }
+
+    .hidden {
+        opacity: 0;
+        transition: opacity 1.0s ease-out, overlay 1.0s ease-out allow-discrete, display 1.0s ease-out allow-discrete;
+    }
+    /* map saved notification - end*/
+}

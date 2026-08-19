@@ -1,0 +1,37 @@
+﻿
+@scope (.help-component) {
+    :scope {
+        padding: 10px;
+    }
+
+    fieldset {
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+    }
+
+    legend {
+        font-size: larger;
+        margin-left: 10px;
+        padding: 5px;
+    }
+
+    .field-container {
+        padding: 5px 15px 5px 15px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    #debug-console {
+        border: 1px solid var(--color-outline);
+        border-radius: 3px;
+        margin: 5px 15px 5px 15px;
+    }
+
+    .debug-console-item {
+        padding: 5px;
+        border-bottom: 1px dotted var(--color-outline);
+    }
+}

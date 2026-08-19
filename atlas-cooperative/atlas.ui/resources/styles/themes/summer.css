@@ -1,0 +1,36 @@
+﻿
+:scope {
+    --summer-primary: rgb(63 104 66);
+    --summer-primary-on: rgb(255 255 255);
+    --summer-primary-container: rgb(156 201 156);
+    --summer-primary-container-on: rgb(45 85 50);
+    --summer-secondary: rgb(82 99 81);
+    --summer-secondary-on: rgb(255 255 255);
+    --summer-secondary-container: rgb(213 232 209);
+    --summer-secondary-container-on: rgb(88 105 87);
+    --summer-tertiary: rgb(38 102 119);
+    --summer-tertiary-on: rgb(255 255 255);
+    --summer-tertiary-container: rgb(139 199 218);
+    --summer-tertiary-container-on: rgb(9 84 101);
+    --summer-alert: rgb(186 26 26);
+    --summer-alert-on: rgb(255 255 255);
+    --summer-alert-container: rgb(255 218 214);
+    --summer-alert-container-on: rgb(147 0 10);
+    --summer-surface: rgb(249 250 244);
+    --summer-surface-on: rgb(26 28 25);
+    --summer-surface-container: rgb(237 238 233);
+    --summer-surface-container-on: rgb(26 28 25);
+    --summer-background: rgb(249 250 244);
+    --summer-background-on: rgb(26 28 25);
+    --summer-outline: rgb(114 121 112);
+    --summer-shadow: rgb(0 0 0);
+    --summer-primary-container-on-variant-1: var(--summer-tertiary);
+    --summer-primary-container-on-variant-2: hsl(from var(--summer-primary-container-on) h s 90%);
+    --summer-primary-container-on-disabled: rgb(from var(--summer-primary-container-on) r g b / 25%);
+    --summer-secondary-container-on-variant-1: var(--summer-alert);
+    --summer-secondary-container-on-variant-2: hsl(from var(--summer-secondary-container-on) h s 10%);
+    --summer-secondary-container-on-disabled: rgb(from var(--summer-secondary-container-on) r g b / 25%);
+    --summer-tertiary-container-on-variant-1: var(--summer-primary);
+    --summer-tertiary-container-on-variant-2: hsl(from var(--summer-tertiary-container-on) h s 10%);
+    --summer-tertiary-container-on-disabled: rgb(from var(--summer-tertiary-container-on) r g b / 25%);
+}

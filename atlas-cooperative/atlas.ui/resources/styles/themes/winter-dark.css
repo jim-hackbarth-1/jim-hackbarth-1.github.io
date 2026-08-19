@@ -1,0 +1,36 @@
+﻿
+:scope {
+    --winter-dark-primary: rgb(195 194 241);
+    --winter-dark-primary-on: rgb(44 45 82);
+    --winter-dark-primary-container: rgb(156 156 201);
+    --winter-dark-primary-container-on: rgb(50 51 89);
+    --winter-dark-secondary: rgb(198 196 217);
+    --winter-dark-secondary-on: rgb(47 47 63);
+    --winter-dark-secondary-container: rgb(69 69 86);
+    --winter-dark-secondary-container-on: rgb(181 179 199);
+    --winter-dark-tertiary: rgb(236 183 218);
+    --winter-dark-tertiary-on: rgb(72 36 63);
+    --winter-dark-tertiary-container: rgb(194 145 178);
+    --winter-dark-tertiary-container-on: rgb(79 42 70);
+    --winter-dark-alert: rgb(255 180 171);
+    --winter-dark-alert-on: rgb(105 0 5);
+    --winter-dark-alert-container: rgb(147 0 10);
+    --winter-dark-alert-container-on: rgb(255 218 214);
+    --winter-dark-surface: rgb(19 19 22);
+    --winter-dark-surface-on: rgb(229 225 229);
+    --winter-dark-surface-container: rgb(32 31 34);
+    --winter-dark-surface-container-on: rgb(229 225 229);
+    --winter-dark-background: rgb(19 19 22);
+    --winter-dark-background-on: rgb(229 225 229);
+    --winter-dark-outline: rgb(145 143 153);
+    --winter-dark-shadow: rgb(0 0 0);
+    --winter-dark-primary-container-on-variant-1: var(--winter-dark-tertiary);
+    --winter-dark-primary-container-on-variant-2: hsl(from var(--winter-dark-primary-container-on) h s 90%);
+    --winter-dark-primary-container-on-disabled: rgb(from var(--winter-dark-primary-container-on) r g b / 25%);
+    --winter-dark-secondary-container-on-variant-1: var(--winter-dark-alert);
+    --winter-dark-secondary-container-on-variant-2: hsl(from var(--winter-dark-secondary-container-on) h s 10%);
+    --winter-dark-secondary-container-on-disabled: rgb(from var(--winter-dark-secondary-container-on) r g b / 25%);
+    --winter-dark-tertiary-container-on-variant-1: var(--winter-dark-primary);
+    --winter-dark-tertiary-container-on-variant-2: hsl(from var(--winter-dark-tertiary-container-on) h s 10%);
+    --winter-dark-tertiary-container-on-disabled: rgb(from var(--winter-dark-tertiary-container-on) r g b / 25%);
+}

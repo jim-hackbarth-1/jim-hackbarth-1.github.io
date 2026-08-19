@@ -1,0 +1,30 @@
+﻿
+<kit kit-if="!#model.isPresentationView()">
+    <style>
+        .css-not-loaded {
+            display: none;
+        }
+    </style>
+    <link rel="stylesheet" href="/components/content/content.css" onload="#model.onCssLoaded()" />
+    <section class="content-component css-not-loaded">
+        <div id="loading-indicator-container"
+             style="width:100%;height:100px;"
+             kit-component="/components/loading-indicator/loading-indicator.html">
+        </div>
+        <kit kit-if="!#model.routeName || #model.routeName.startsWith('#home')" 
+             kit-component="no-model:/components/home/home.html">
+        </kit>
+        <kit kit-if="#model.routeName.startsWith('#editor')" 
+             kit-component="/components/map-editor/editor/editor.html">
+        </kit>
+        <kit kit-if="#model.routeName.startsWith('#catalog')"
+             kit-component="no-model:/components/catalog/catalog.html">
+        </kit>
+        <kit kit-if="#model.routeName.startsWith('#account')" 
+             kit-component="no-model:/components/account/account.html">
+        </kit>
+        <kit kit-if="#model.routeName.startsWith('#help')" 
+             kit-component="/components/help/help.html">
+        </kit>
+    </section>
+</kit>

@@ -1,0 +1,189 @@
+Level 2
+Starts in A4.
+
+A1
+Dungeon
+6 Cells, each with a barred opening in the ceiling, a door in the bars, a damp pad of straw, and a latrine hole.
+Their is a trapdoor in the ceiling of the central corridor with a ladder leading up to level 1.
+Dim light.  The northeast cell has a secret door (a removable stone) leading to area 2.
+Prisoners: Oren (from lvl 0) Unconscious, broken rib, concussed
+
+A2
+Well
+The water is about 10' deep.
+The passages leading into and out of this area are small (you have to crawl).
+20' above is a windlass with a bucket and a rope, the walls slope slightly in and are slick (very difficult climb).
+
+A3
+Crypt
+The eastern wall contains an altar on which burns a small brazier and a few large candles, dimly lighting the eastern 30' or so of the room.  The rest of the room is dark.
+Lined along the western wall are large urns. Some contain ashes, others contain embalming fluids. There is also a large chest holding bundles of herbs, incense, and candles.  A secret door (covered by a loose stone) behind one of the urns, leads to A2.
+The north and south walls have niches containing sarcophogi, each with the embalmed body of a deceased devotee of Ayat.
+The altar contains a secret compartment with a poisoned needle trap (DC 15, 2d8 dmg) and containing treasure horde #2.
+2 chrysophrase (transparent green), 50 gp each
+3 Potions of healing
+Potion of Climbing
+2000 cp, 1600 sp, 70 gp
+
+A4
+Dungeon
+6 Cells, each with a barred opening in the ceiling, a door in the bars, a damp pad of straw, and a latrine hole.
+There is a trapdoor in the ceiling of the central corridor with a ladder leading up to level 1.
+Dim light.
+This is the starting point of the adventure.
+Other prisoner: Damelon (minor scrapes, unkempt now) (from lvl 0) 
+Tells the players (if they take him with) that their gear is in storage in A3 (lvl 1)
+
+A5
+Dungeon
+6 Cells, each with a barred opening in the ceiling, a door in the bars, a damp pad of straw, and a latrine hole.
+There is a trapdoor in the ceiling of the central corridor with a ladder leading up to level 1.
+Dim light.
+Other prisoner: Bannock (sober now), Henna (battered, sprained ankle) (from lvl 0)
+
+A6
+Small room with stairs up to level 1.
+
+A7
+Temple
+Floor is red marble with red veins.
+Pillars are polished black granite.
+There is a raised platform on the east side of the room with.
+The center of the platform is inscribed with a circle surrounded by arcane symbols.
+Standing in the circle and reciting the phrase "Ayat Sib Incatat" creates a Shield spell enclosing the circle that lasts until the user leaves the circle or becomes unconscious.
+1 Acolyte (Manfred), 1 animated armor
+personal treasure
+
+A8
+Study
+1st level spell scroll (Jump)
+2nd level spell scroll (Darkness) DC 12 to cast
+
+A9
+Bedroom
+
+A10
+Bath
+
+A11
+Latrine
+
+A12
+Guardroom
+4 guards (Eckart, Sepp, Bastian, Till), 2 mastiffs
+After 2 rounds, cultist and additional mastiffs from A13 arrive
+
+A13
+Robing room
+2 mastiffs, 1 cultist (Bianka)
+After 2 round, guards and additional mastifss from A12 arrive
+Treasure:
+Cloth of gold vestments (x2, 25gp each)
+Small gold bracelet (25 gp)
+Pair of engraved bone dice (x2, 25 gp each)
+1900 cp, 1100 sp, 90 gp (from offerings)
+
+A14
+Workshop
+
+A15
+Storage room
+Large crank with coiled chain around drum on north wall by portcullis (opens portcullis)
+Table on middle of south wall holds 2 large lamb shanks tied together with rope.
+Throwing the lamb shanks through the portcullis bars into A16 causes the wolf spiders to reveal themselves.
+If the party waits for the spiders to take the lamb shanks they don't attack when entering A16
+
+A16
+Giant wolf spider lair
+(See A15 as well)
+2 giant wolf spiders, 1 insect swarm (swarm of baby giant spiders)
+The insect swarm attacks when spider #2 is bloodied. They emerge from a silk enclosure attached to the body of the spider.
+
+A17
+Empty cavern
+
+A18
+Cavern
+1 Thug (Valeska), 2 guards (Ingomar, Volker), 2 mastiffs
+The thug and 2 guards are using this chamber as a treasure chamber to hold treasures they have either stolen from the cultists or taken from prisoners.
+They believe there may be a vein of ore in this chamber and have been digging along the south wall.
+Treasure:
+Gold locket w/ painted portrait (25 gp)
+Copper chalice w/ silver filigree (25 gp)
+2100 cp, 900 sp, 90 gp
+
+A19
+Empty cavern
+
+A20
+Guard cavern
+1 thug (Aaron), 1 acolyte (Janina), 1 cultist (Walter), 1 guard (Gerhold), 1 mastiff, 1 poison snake
+Poison snake is hidden in robes of cultist, first attack as reaction to melee attack on cultist
+
+A21
+Empty cavern
+
+A22
+Empty cavern
+
+A23
+Empty cavern
+
+A24
+Giant rat lair
+1 giant rat, 4 rat swarms
+
+A25
+The passage leading to this area is a steep slope covered with loose stones and pebbles.
+At the bottom can be seen a body partially buried under stones wearing metal armor (appears to be plate).
+There is also a large wooden beam lying horizontally across the floor.
+Hidden under the pebbles at the top of the passage is a snare trap.
+When triggered, the snare trap closes around the triggering person's legs.
+A small boulder is released and begins to roll down the slope pulling the victim along.
+At the bottom of the slope the wooden beam rotates up revealing large iron spikes lying pointed up the slope.
+DC 15 to detect, 2d10 damage.
+
+A26
+Guard cavern
+1 scarecrow, 1 animated armor, 1 cultist (Ottmar)
+The cultist speaks a code phrase "Expair Gescimini Daeminium!" to activate the scarecrow and animated armor.
+The scarecrow appears as a suite of leather armor stuffed with straw.
+The scarecrow is lying on a table in the center of the room. The cultist is busy repairing the leather.
+The animated armor emerges after 1 round from the north passage when activated.
+
+A27
+Kennel chamber
+1 death dog, 4 mastiffs, 1 cultist (Falk)
+
+A28
+At the beginning of the passage leading to this area, an arrow pointing towards A28 has been chalked onto the wall.
+The last 5' section of this area is a pit.  Chalked onto the wall over the pit is an arrow pointing down.
+The 5' section adjacent to the pit is a wooden platform concealed to appear as a section of the passage floor.
+Standing on this section to peer into the pit triggers the platform to tip into the pit.
+DC 15 to detect, 2d8 damage (People on back half of platform have a DC 15 acrobatics check to avoid falling into the pit)
+
+A29
+Empty cavern
+
+A30
+Empty cavern
+
+A31
+This cavern emerges out into a shallow ravine.
+1 cult fanatic (Walter),  1 acolyte (Ursel)
+
+A32
+A large dented iron chest sits near the back wall of the shallow alcove on the western side of this chamber.
+Attempting to open the chest triggers a collapsing beam trap, dropping heavy rocks into the space around the chest.
+DC 12 to detect, 2d6 damage
+
+
+
+
+
+
+
+
+
+
+

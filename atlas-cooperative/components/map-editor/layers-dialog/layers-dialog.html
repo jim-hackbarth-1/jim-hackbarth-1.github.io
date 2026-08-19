@@ -1,16 +1,16 @@
 ﻿
 <kit kit-if="#model?.isVisible()">
-    <link rel="stylesheet" href="/components/map-editor/layers-dialog/layers-dialog.css" />
+    <link rel="stylesheet" href="./components/map-editor/layers-dialog/layers-dialog.css" />
     <dialog id="layers-dialog">
         <header>
-            <div class="icon-container" kit-component="no-model:/resources/icons/view-layers.html"></div>
+            <div class="icon-container" kit-component="no-model:./resources/icons/view-layers.html"></div>
             <div>
                 <h1>Layers</h1>
             </div>
             <div class="spacer"></div>
             <div>
                 <button title="Close" class="action-text" onclick="#model.closeDialog();">
-                    <div class="icon-container" kit-component="no-model:/resources/icons/file-close.html"></div>
+                    <div class="icon-container" kit-component="no-model:./resources/icons/file-close.html"></div>
                 </button>
             </div>
         </header>
@@ -52,7 +52,7 @@
                             <kit kit-if="#layer.isHidden">
                                 <div title="Hidden" 
                                      class="icon-container" 
-                                     kit-component="no-model:/resources/icons/layer-hidden.html">
+                                     kit-component="no-model:./resources/icons/layer-hidden.html">
                                 </div>
                             </kit>
                             <div class="edit-container hide-edit" style="margin-top:4px;padding:4px;">
@@ -105,7 +105,7 @@
                             <button title="Edit layer"
                                     class="action-text edit-button"
                                     onclick="#model.toggleEdit('%{#layer.name}%')">
-                                <div class="icon-container" kit-component="no-model:/resources/icons/edit.html"></div>
+                                <div class="icon-container" kit-component="no-model:./resources/icons/edit.html"></div>
                             </button>
                         </div>
                     </div>

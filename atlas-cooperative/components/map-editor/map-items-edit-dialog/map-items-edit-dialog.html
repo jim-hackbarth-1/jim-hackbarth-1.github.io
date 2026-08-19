@@ -1,16 +1,16 @@
 ﻿
 <kit kit-if="#model?.isVisible()">
-    <link rel="stylesheet" href="/components/map-editor/map-items-edit-dialog/map-items-edit-dialog.css" />
+    <link rel="stylesheet" href="./components/map-editor/map-items-edit-dialog/map-items-edit-dialog.css" />
     <dialog id="map-items-edit-dialog">
         <header>
-            <div class="icon-container" kit-component="no-model:/resources/icons/edit-map-items-edit.html"></div>
+            <div class="icon-container" kit-component="no-model:./resources/icons/edit-map-items-edit.html"></div>
             <div>
                 <h1>Edit map items</h1>
             </div>
             <div class="spacer"></div>
             <div>
                 <button title="Close" class="dialog-close-button" onclick="#model.closeDialog();">
-                    <div class="icon-container" kit-component="no-model:/resources/icons/file-close.html"></div>
+                    <div class="icon-container" kit-component="no-model:./resources/icons/file-close.html"></div>
                 </button>
             </div>
         </header>
@@ -21,7 +21,7 @@
                         <button class="action-text" 
                                 onclick="#model.toggleActionsPanel()" 
                                 title="Toggle actions panel"
-                                kit-component="no-model:/resources/icons/nav-toggle.html">
+                                kit-component="no-model:./resources/icons/nav-toggle.html">
                         </button>
                         <label id="map-items-edit-actions-label">Actions</label>
                     </div>
@@ -29,7 +29,7 @@
                         <li class="action-text %{#model.isSelectedActionClass('map-items-edit-detail-find')}%" 
                             onclick="#model.selectAction('map-items-edit-detail-find', this)">
                             <div class="selected-action-indicator"></div>
-                            <div class="icon-container" title="Find map items" kit-component="no-model:/resources/icons/find.html">
+                            <div class="icon-container" title="Find map items" kit-component="no-model:./resources/icons/find.html">
                             </div>
                             <div class="action-item-label">Find map items</div>
                         </li>
@@ -40,7 +40,7 @@
                             <div class="selected-action-indicator"></div>
                             <div class="icon-container" 
                                  title="Select / unselect" 
-                                 kit-component="no-model:/resources/icons/edit-select-all-in-view.html">
+                                 kit-component="no-model:./resources/icons/edit-select-all-in-view.html">
                             </div>
                             <div class="action-item-label">Select / unselect</div>
                         </li>
@@ -51,7 +51,7 @@
                             <div class="selected-action-indicator"></div>
                             <div class="icon-container" 
                                  title="Edit captions" 
-                                 kit-component="no-model:/resources/icons/caption-edit.html">
+                                 kit-component="no-model:./resources/icons/caption-edit.html">
                             </div>
                             <div class="action-item-label">Edit captions</div>
                         </li>
@@ -62,7 +62,7 @@
                             <div class="selected-action-indicator"></div>
                             <div class="icon-container" 
                                  title="Rendering order"
-                                 kit-component="no-model:/resources/icons/rendering-order.html">
+                                 kit-component="no-model:./resources/icons/rendering-order.html">
                             </div>
                             <div class="action-item-label">Rendering order</div>
                         </li>
@@ -71,7 +71,7 @@
                             kit-attr-disabled="disabled:%{#model.getNoMapItemsDisabledAttr()}%"
                             onclick="#model.selectAction('map-items-edit-detail-grouping', this)">
                             <div class="selected-action-indicator"></div>
-                            <div class="icon-container" title="Grouping" kit-component="no-model:/resources/icons/grouping.html">
+                            <div class="icon-container" title="Grouping" kit-component="no-model:./resources/icons/grouping.html">
                             </div>
                             <div class="action-item-label">Grouping</div>
                         </li>
@@ -82,7 +82,7 @@
                             <div class="selected-action-indicator"></div>
                             <div class="icon-container" 
                                  title="Presentation view"
-                                 kit-component="no-model:/resources/icons/view-read-only-viewer.html">
+                                 kit-component="no-model:./resources/icons/view-read-only-viewer.html">
                             </div>
                             <div class="action-item-label">Presentation view</div>
                         </li>
@@ -93,7 +93,7 @@
                             <div class="selected-action-indicator"></div>
                             <div class="icon-container" 
                                  title="Map item template"
-                                 kit-component="no-model:/resources/icons/map-item-template.html">
+                                 kit-component="no-model:./resources/icons/map-item-template.html">
                             </div>
                             <div class="action-item-label">Map item template</div>
                         </li>
@@ -104,7 +104,7 @@
                             <div class="selected-action-indicator"></div>
                             <div class="icon-container" 
                                  title="Delete map items"
-                                 kit-component="no-model:/resources/icons/edit-delete.html">
+                                 kit-component="no-model:./resources/icons/edit-delete.html">
                             </div>
                             <div class="action-item-label">Delete map items</div>
                         </li>
@@ -159,13 +159,13 @@
                                                 <kit kit-if="#mapItem.isHidden">
                                                     <div class="icon-container" 
                                                          title="Hidden"
-                                                         kit-component="no-model:/resources/icons/hidden.html">
+                                                         kit-component="no-model:./resources/icons/hidden.html">
                                                     </div>
                                                 </kit>
                                                 <kit kit-if="#mapItem.isShown">
                                                     <div class="icon-container" 
                                                          title="Shown"
-                                                         kit-component="no-model:/resources/icons/shown.html">
+                                                         kit-component="no-model:./resources/icons/shown.html">
                                                     </div>
                                                 </kit>
                                             </div>
@@ -347,7 +347,7 @@
                                                 onclick="#model.updateZOrder('SendToBack')">
                                             <div class="button-control-group">
                                                 <div class="icon-container" 
-                                                     kit-component="no-model:/resources/icons/send-to-back.html">
+                                                     kit-component="no-model:./resources/icons/send-to-back.html">
                                                 </div>
                                             </div>
                                         </button>
@@ -362,7 +362,7 @@
                                                 onclick="#model.updateZOrder('SendBack')">
                                             <div class="button-control-group">
                                                 <div class="icon-container" 
-                                                     kit-component="no-model:/resources/icons/send-back.html">
+                                                     kit-component="no-model:./resources/icons/send-back.html">
                                                 </div>
                                             </div>
                                         </button>
@@ -377,7 +377,7 @@
                                                 onclick="#model.updateZOrder('BringForward')">
                                             <div class="button-control-group">
                                                 <div class="icon-container"
-                                                     kit-component="no-model:/resources/icons/bring-forward.html">
+                                                     kit-component="no-model:./resources/icons/bring-forward.html">
                                                 </div>
                                             </div>
                                         </button>
@@ -392,7 +392,7 @@
                                                 onclick="#model.updateZOrder('BringToFront')">
                                             <div class="button-control-group">
                                                 <div class="icon-container"
-                                                     kit-component="no-model:/resources/icons/bring-to-front.html">
+                                                     kit-component="no-model:./resources/icons/bring-to-front.html">
                                                 </div>
                                             </div>
                                         </button>

@@ -1,16 +1,16 @@
 ﻿
 <kit kit-if="#model?.isVisible()">
-    <link rel="stylesheet" href="/components/map-editor/file-new-dialog/file-new-dialog.css" />
+    <link rel="stylesheet" href="./components/map-editor/file-new-dialog/file-new-dialog.css" />
     <dialog id="file-new-dialog">
         <header>
-            <div class="icon-container" kit-component="no-model:/resources/icons/file-new.html"></div>
+            <div class="icon-container" kit-component="no-model:./resources/icons/file-new.html"></div>
             <div>
                 <h1>New map</h1>
             </div>
             <div class="spacer"></div>
             <div>
                 <button title="Close" class="action-text" onclick="#model.closeDialog();">
-                    <div class="icon-container" kit-component="no-model:/resources/icons/file-close.html"></div>
+                    <div class="icon-container" kit-component="no-model:./resources/icons/file-close.html"></div>
                 </button>
             </div>
         </header>

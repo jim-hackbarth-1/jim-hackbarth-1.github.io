@@ -96,7 +96,7 @@
                 <div class="form-field">
                     <label class="form-label">Color:</label>
                     <kit id="path-style-color"
-                         kit-component="/components/map-editor/tool-palettes-dialog/color-view/color-view.html"
+                         kit-component="./components/map-editor/tool-palettes-dialog/color-view/color-view.html"
                          kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                          value="%{#model.getColor()}%">
                     </kit>
@@ -255,7 +255,7 @@
                                     <div>
                                         <label class="form-label">Color:</label>
                                         <kit id="path-style-color-stop-color-%{#index}%"
-                                             kit-component="/components/map-editor/tool-palettes-dialog/color-view/color-view.html"
+                                             kit-component="./components/map-editor/tool-palettes-dialog/color-view/color-view.html"
                                              kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                                              kit-obj-change-handler="changeHandler:#model.updateColorStopColor"
                                              value="%{#colorStop.color}%">
@@ -281,7 +281,7 @@
                                                 kit-element
                                                 kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                                                 onclick="#model.removeColorStop(#index);">
-                                            <div class="icon-container" kit-component="no-model:/resources/icons/file-close.html"></div>
+                                            <div class="icon-container" kit-component="no-model:./resources/icons/file-close.html"></div>
                                         </button>
                                     </div>
                                 </div>
@@ -298,7 +298,7 @@
                 <div class="form-field">
                     <label class="form-label">Image:</label>
                     <kit id="path-style-image"
-                         kit-component="/components/map-editor/tool-palettes-dialog/image-view/image-view.html"
+                         kit-component="./components/map-editor/tool-palettes-dialog/image-view/image-view.html"
                          kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                          src="%{#model.getImage()}%">
                     </kit>
@@ -330,7 +330,7 @@
                                 <div class="tool-button list-item">
                                     <div class="spacer">
                                         <kit id="path-style-image-%{#index}%"
-                                             kit-component="/components/map-editor/tool-palettes-dialog/image-view/image-view.html"
+                                             kit-component="./components/map-editor/tool-palettes-dialog/image-view/image-view.html"
                                              kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                                              kit-obj-change-handler="changeHandler:#model.updateImage"
                                              src="%{#image}%">
@@ -342,7 +342,7 @@
                                                 kit-element
                                                 kit-attr-disabled="disabled:%{#model.isFromTemplate() ? '' : null}%"
                                                 onclick="#model.removeImage(#index);">
-                                            <div class="icon-container" kit-component="no-model:/resources/icons/file-close.html"></div>
+                                            <div class="icon-container" kit-component="no-model:./resources/icons/file-close.html"></div>
                                         </button>
                                     </div>
                                 </div>

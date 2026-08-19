@@ -121,6 +121,8 @@ export class MapWorker {
 
     // methods
     async handleClientMessage(message) {
+        console.log('handleClientMessage');
+        console.log(message);
         try {
             const messageType = message?.data?.messageType;
             switch (messageType) {

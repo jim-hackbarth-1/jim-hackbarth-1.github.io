@@ -41,7 +41,7 @@ body {
 [kit-array]:not([kit-element-key]),
 [kit-component]:not([kit-element-key]),
 [kit-element]:not([kit-element-key]),
-[kit-if]:not([kit-element-key]),{
+[kit-if]:not([kit-element-key]){
     display: none;
 }
 

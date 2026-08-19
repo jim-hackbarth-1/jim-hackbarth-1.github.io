@@ -61,7 +61,6 @@ class MapItemTemplatesViewModel {
     }
 
     addMapItemTemplate() {
-        console.log('here1');
         const thumbnailSrc = MapItemTemplate.defaultThumbnailSrc;
         const map = MapItemTemplatesViewModel.#map;
         const name = MapItemTemplatesViewModel.#getNewRefName("New map item template", map.mapItemTemplateRefs);
@@ -92,12 +91,10 @@ class MapItemTemplatesViewModel {
                 itemValue: mapItemTemplate.ref.getData()
             }
         ];
-        console.log(changes);
         MapWorkerClient.postWorkerMessage({
             messageType: MapWorkerInputMessageType.UpdateMap,
             changeSet: { changes: changes }
         });
-        console.log('here2');
     }
 
     async editMapItemTemplate(id) {

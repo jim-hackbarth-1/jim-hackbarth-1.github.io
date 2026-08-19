@@ -121,8 +121,6 @@ export class MapWorker {
 
     // methods
     async handleClientMessage(message) {
-        console.log('handleClientMessage');
-        console.log(message);
         try {
             const messageType = message?.data?.messageType;
             switch (messageType) {
@@ -175,8 +173,6 @@ export class MapWorker {
     }
 
     postMessage(message) {
-        console.log('postMessage');
-        console.log(message);
         if (this.messagePort) {
             this.messagePort.postMessage(message);
         }

@@ -916,11 +916,8 @@ export class EditorModel {
     }
 
     static #getBaseUrl() {
-        //return `${UIKit.window.location.protocol}//${UIKit.window.location.host}`;
         let pathname = `${UIKit.window.location.protocol}//${UIKit.window.location.host}${UIKit.window.location.pathname}`;
-        pathname = pathname.replace("index.html", "").replace(/\/$/, "");
-        console.log(pathname);
-        return pathname;
+        return pathname.replace("index.html", "").replace(/\/$/, "");
     }
 
     static #mapToJson(map) {

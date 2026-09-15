@@ -9,6 +9,7 @@ export class DialogHelper {
         UIKit.window.addEventListener("resize", this.#windowOnResize);
         this.#dialog.addEventListener("click", this.#dialogOnClick);
         this.#header.addEventListener("mousedown", this.#headerOnMouseDown);
+        this.#header.addEventListener("touchstart", this.#headerOnMouseDown);
         this.#dialog.showModal();
     }
 
@@ -54,6 +55,8 @@ export class DialogHelper {
         this.#yStart = event.clientY;
         UIKit.document.addEventListener("mousemove", this.#documentOnMouseMove);
         UIKit.document.addEventListener("mouseup", this.#documentOnMouseUp);
+        UIKit.document.addEventListener("touchmove", this.#documentOnMouseMove);
+        UIKit.document.addEventListener("touchend", this.#documentOnMouseUp);
     }
 
     #documentOnMouseMove = (event) => {
@@ -69,6 +72,8 @@ export class DialogHelper {
     #documentOnMouseUp = (event) => {
         UIKit.document.removeEventListener("mouseup", this.#documentOnMouseUp);
         UIKit.document.removeEventListener("mousemove", this.#documentOnMouseMove);
+        UIKit.document.removeEventListener("touchend", this.#documentOnMouseUp);
+        UIKit.document.removeEventListener("touchmove", this.#documentOnMouseMove);
     }
 
     #removeEventHandlers = () => {
@@ -77,5 +82,8 @@ export class DialogHelper {
         this.#header.removeEventListener("mousedown", this.#headerOnMouseDown);
         UIKit.document.removeEventListener("mouseup", this.#documentOnMouseUp);
         UIKit.document.removeEventListener("mousemove", this.#documentOnMouseMove);
+        this.#header.removeEventListener("touchstart", this.#headerOnMouseDown);
+        UIKit.document.removeEventListener("touchend", this.#documentOnMouseUp);
+        UIKit.document.removeEventListener("touchmove", this.#documentOnMouseMove);
     }
 }

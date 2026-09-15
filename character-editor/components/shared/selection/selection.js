@@ -23,6 +23,7 @@ class SelectionModel {
             const details = UIKit.document.documentElement.querySelectorAll("#editor-content > details");
             for (const detail of details) {
                 detail.addEventListener("mousedown", (event) => this.hideExpandedSections());
+                detail.addEventListener("touchstart", (event) => this.hideExpandedSections());
             }
             UIKit.document.documentElement
                 .querySelector("#print-view-component")
@@ -30,6 +31,12 @@ class SelectionModel {
             UIKit.document.documentElement
                 .querySelector("#heading-component")
                 .addEventListener("mousedown", (event) => this.hideExpandedSections());
+            UIKit.document.documentElement
+                .querySelector("#print-view-component")
+                .addEventListener("touchstart", (event) => this.hideExpandedSections());
+            UIKit.document.documentElement
+                .querySelector("#heading-component")
+                .addEventListener("touchstart", (event) => this.hideExpandedSections());
             SelectionModel.#hideSectionExpandedRegistered = true;
         }
         const sectionExpanded = this.#kitElement.querySelector(".selection-expanded");

@@ -17,6 +17,7 @@
         flex-grow: 4;
         margin: 0;
         overflow: auto; 
+        position:relative;
     }
 
     #resizer {
@@ -26,6 +27,22 @@
         background-color:  #C2B08E;
         border-color: darkred;
         cursor: ew-resize;
+    }
+
+    #mobile-resizer {
+        position: absolute;
+        right: 0;
+        top: 0;
+        max-height: 30px;
+        min-width: 30px;
+        background-color: #C2B08E;
+        border-left: 2px solid darkred;
+        border-bottom: 2px solid darkred;
+        cursor: pointer;
+    }
+
+    #mobile-resizer .icon {       
+        stroke:darkred;       
     }
 
     summary {

@@ -26,6 +26,16 @@
         width: 60px;
     }
 
+    #title-container {
+        overflow: hidden;
+    }
+
+    #title-container h1 {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
     #version-note {
         margin: 0 0 5px 2px;
         color: saddlebrown;
@@ -75,6 +85,10 @@
 
     #action-menu button .menu-item .icon-container {
         margin: 2px 2px 8px 2px;
+    }
+
+    #action-menu button:not([disabled]) {
+        color: black;
     }
 
     #action-menu button:not([disabled]):hover {

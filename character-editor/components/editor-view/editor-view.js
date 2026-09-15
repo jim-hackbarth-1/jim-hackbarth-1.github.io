@@ -36,13 +36,11 @@ export class EditorViewModel {
     static #resizeEndEventHandlerRegistered;
     async onRendered() {
         if (!EditorViewModel.#resizeEventHandlerRegistered) {
-            UIKit.document.addEventListener("mousemove", (event) => EditorViewModel.resize(event));
-            UIKit.document.addEventListener("touchmove", (event) => EditorViewModel.resize(event));
+            UIKit.document.addEventListener("pointermove", (event) => EditorViewModel.resize(event));
             EditorViewModel.#resizeEventHandlerRegistered = true;
         }
         if (!EditorViewModel.#resizeEndEventHandlerRegistered) {
-            UIKit.document.addEventListener("mouseup", (event) => EditorViewModel.resizeEnd(event));
-            UIKit.document.addEventListener("touchend", (event) => EditorViewModel.resizeEnd(event));
+            UIKit.document.addEventListener("pointerup", (event) => EditorViewModel.resizeEnd(event));
             EditorViewModel.#resizeEndEventHandlerRegistered = true;
         }
     }

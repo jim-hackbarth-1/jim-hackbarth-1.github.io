@@ -44,11 +44,10 @@
             </div>
         </details>
         <div id="mobile-resizer"
-             onmousedown="#model.resizeStart(event)"
-             touchstart="#model.resizeStart(event)"
+             onpointerdown="#model.resizeStart(event)"
              kit-component="no-model:./resources/icons/resize.html">
         </div>
     </div>
-    <div id="resizer" onmousedown="#model.resizeStart(event)"></div>
+    <div id="resizer" onpointerdown="#model.resizeStart(event)"></div>
     <kit id="dlg-file-save-2" kit-component="./components/file-save-dialog/file-save-dialog.html"></kit>
 </section>

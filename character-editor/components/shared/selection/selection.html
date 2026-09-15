@@ -2,16 +2,14 @@
 <section class="selection">
     <div class="selection-title"><label>%{#model.getTitle()}%</label></div>
     <div class="selection-collapsed" 
-         ontouchstart="#model.toggleDropDown(event)"
-         onmousedown="#model.toggleDropDown(event)">
+         onpointerdown="#model.toggleDropDown(event)">
         <div class="collapsed-option-label"><label>%{#model.getCollapsedDisplayValue()}%</label></div>
         <div class="toggle-button" 
              kit-component="no-model:./resources/icons/down-arrow.html">
         </div>
     </div>
     <div class="selection-expanded" 
-         onmousedown="event.stopPropagation();" 
-         ontouchstart="event.stopPropagation();" 
+         onpointerdown="event.stopPropagation();"
          kit-array="#model.getOptions()" 
          kit-array-item-alias="option">
         <div class="option"
@@ -41,15 +39,13 @@
                 <div>
                     <div class="toggle-button toggle-button-expand"
                          title="Show Detail"
-                         onmousedown="#model.toggleDetail(event, '%{#option.value}%')"
-                         ontouchstart="#model.toggleDetail(event, '%{#option.value}%')"
+                         onpointerdown="#model.toggleDetail(event, '%{#option.value}%')"
                          kit-if="#option.hasDetail"
                          kit-component="no-model:./resources/icons/expand.html">
                     </div>
                     <div class="toggle-button toggle-button-collapse"
                          title="Hide Detail"
-                         onmousedown="#model.toggleDetail(event, '%{#option.value}%')"
-                         ontouchstart="#model.toggleDetail(event, '%{#option.value}%')"
+                         onpointerdown="#model.toggleDetail(event, '%{#option.value}%')"
                          kit-if="#option.hasDetail"
                          kit-component="no-model:./resources/icons/collapse.html">
                     </div>

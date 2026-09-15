@@ -1,0 +1,104 @@
+
+.selection .selection-title {
+    display:flex;
+}
+
+.selection .selection-title label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.selection .toggle-button {
+    height: 20px;
+    width: 20px;
+    border: none;
+    background-color: transparent;
+    float: right;
+}
+
+.selection .selection-collapsed {
+    border: 1px solid black;
+    border-radius: 3px;
+    background-color: #FFF8EB;
+    cursor: pointer;
+    padding: 5px;
+    display:flex;
+}
+
+.selection .collapsed-option-label {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.selection .collapsed-option-label label {
+    cursor:pointer;
+}
+
+.selection .selection-expanded {
+    border: 1px solid black;
+    background-color: #FFF8EB;
+    cursor: pointer;
+}
+
+.selection .option {
+    border-top: 1px dotted saddlebrown;
+}
+
+.selection .option:hover {
+    background-color: #D6C29C;
+}
+
+.selection .option-summary {
+    padding: 5px;
+    display:flex;
+}
+
+.selection .option-label {
+    flex: 1;
+    overflow: hidden;
+}
+
+.selection .option-label > div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.selection .option-note {
+    color: saddlebrown;
+    font-size: small;
+}
+
+.selection .option-disabled {
+    color: dimgray;
+    font-size: small;
+    font-style: italic;
+}
+
+.selection .toggle-button-expand svg,
+.selection .toggle-button-collapse svg {
+    border: 1px dotted saddlebrown;
+}
+
+.selection .toggle-button-collapse {
+    display: none;
+}
+
+.selection .option.expanded .toggle-button-collapse {
+    display: block;
+}
+
+.selection .option.expanded .toggle-button-expand {
+    display: none;
+}
+
+.selection .option.expanded .option-detail {
+    display: block;
+    background-color: #C2B08E;
+    padding: 5px;
+    cursor: default;
+    border-top: 1px dotted saddlebrown;
+}

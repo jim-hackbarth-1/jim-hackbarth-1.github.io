@@ -1,0 +1,49 @@
+
+<section id="editor-view-component">
+    <link rel="stylesheet" href="./components/editor-view/editor-view.css" />
+    <div id="editor-content">
+        <details id="details-sources" open>
+            <summary>Sources</summary>
+            <div>
+                <kit kit-component="./components/domain-components/sources/sources.html"></kit>
+                <button class="button" onclick="#model.nextDetailsSection('details-race');">Next</button>
+            </div>
+        </details>
+        <details id="details-race">
+            <summary>Race</summary>
+            <div>
+                <kit kit-component="./components/domain-components/race/race.html"></kit>
+                <button class="button" onclick="#model.nextDetailsSection('details-class-and-level');">Next</button>
+            </div>
+        </details>
+        <details id="details-class-and-level">
+            <summary>Class + Level</summary>
+            <div>
+                <kit kit-component="./components/domain-components/class-and-level/class-and-level.html"></kit>
+                <button class="button" onclick="#model.nextDetailsSection('details-ability-scores');">Next</button>
+            </div>
+        </details>
+        <details id="details-ability-scores">
+            <summary>Ability scores</summary>
+            <div>[not yet implemented]</div>
+        </details>
+        <details id="details-alignment-and-background">
+            <summary>Alignment + Background</summary>
+            <div>[not yet implemented]</div>
+        </details>
+        <details id="details-equipment">
+            <summary>Equipment</summary>
+            <div>[not yet implemented]</div>
+        </details>
+        <details id="details-name-and-description">
+            <summary>Name + Description</summary>
+            <div>
+                <kit kit-component="./components/domain-components/name-and-description/name-and-description.html"></kit>
+                <button class="button" onclick="#model.print();">Print</button>
+                <button class="button" onclick="#model.save();">Save</button>
+            </div>
+        </details>
+    </div>
+    <div id="resizer" onmousedown="#model.resizeStart(event)"></div>
+    <kit id="dlg-file-save-2" kit-component="./components/file-save-dialog/file-save-dialog.html"></kit>
+</section>

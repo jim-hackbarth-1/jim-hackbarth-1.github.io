@@ -1,0 +1,25 @@
+@scope (#domain-class-and-level-component) {
+    :scope {
+    }
+
+    .class-content {
+        margin-left: 5px;
+        margin-right: 5px;
+        margin-bottom: 20px;
+        border-bottom: 3px double saddlebrown;
+    }
+
+    .class-content .toggle-button {
+        margin-left:0;
+    }
+
+    .class-content > div,
+    .option-control {
+        margin-bottom: 10px;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+}

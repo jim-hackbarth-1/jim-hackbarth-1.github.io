@@ -1,0 +1,72 @@
+
+<section id="domain-class-and-level-component">
+    <link rel="stylesheet" href="./components/domain-components/class-and-level/class-and-level.css" />
+    <div id="classes-content">
+        <div id="classes-array"
+             kit-array="#model.getCharacterClasses()"
+             kit-array-item-alias="classInfo">
+            <div class="class-content">
+                <div>
+                    <button class="button toggle-button" onclick="#model.removeCharacterClass('%{#classInfo.index}%')">Remove Class</button>
+                </div>
+                <div id="class-row-%{#classInfo.index}%" kit-element>
+                    <kit kit-component="./components/shared/selection/selection.html"
+                         kit-obj-selection-model="selectionModel:#model.getClasses('%{#classInfo.index}%')"
+                         kit-obj-get-detail-handler="getDetailHandler:#model.getClassHtml"
+                         kit-obj-change-handler="changeHandler:#model.updateClass">
+                    </kit>
+                </div>
+                <div id="level-row-%{#classInfo.index}%" kit-element>
+                    <kit kit-component="./components/shared/selection/selection.html"
+                         kit-obj-selection-model="selectionModel:#model.getLevels('%{#classInfo.index}%')"
+                         kit-obj-change-handler="changeHandler:#model.updateLevel">
+                    </kit>
+                </div>
+                <div id="class-options-row-%{#classInfo.index}%" kit-if="#model.hasClassOptions('%{#classInfo.index}%')">
+                    <div kit-array="#model.getClassOptions('%{#classInfo.index}%')"
+                         kit-array-item-alias="option">
+                        <div class="option-control">
+                            <kit kit-component="./components/shared/selection/selection.html"
+                                 kit-obj-selection-model="selectionModel:#option"
+                                 kit-obj-get-detail-handler="getDetailHandler:#model.getClassOptionHtml"
+                                 kit-obj-change-handler="changeHandler:#model.updateClassOption">
+                            </kit>
+                        </div>
+                    </div>
+                </div>
+                <div id="sub-class-row-%{#classInfo.index}%" kit-if="#model.hasSubClasses('%{#classInfo.index}%')">
+                    <kit kit-component="./components/shared/selection/selection.html"
+                         kit-obj-selection-model="selectionModel:#model.getSubClasses('%{#classInfo.index}%')"
+                         kit-obj-get-detail-handler="getDetailHandler:#model.getSubClassHtml"
+                         kit-obj-change-handler="changeHandler:#model.updateSubClass">
+                    </kit>
+                </div>
+                <div id="sub-class-options-row-%{#classInfo.index}%" kit-if="#model.hasSubClassOptions('%{#classInfo.index}%')">
+                    <div kit-array="#model.getSubClassOptions('%{#classInfo.index}%')"
+                         kit-array-item-alias="option">
+                        <div class="option-control">
+                            <kit kit-component="./components/shared/selection/selection.html"
+                                 kit-obj-selection-model="selectionModel:#option"
+                                 kit-obj-get-detail-handler="getDetailHandler:#model.getSubClassOptionHtml"
+                                 kit-obj-change-handler="changeHandler:#model.updateSubClassOption">
+                            </kit>
+                        </div>
+                    </div>
+                </div>
+                <div id="level-boons-row-%{#classInfo.index}%" kit-if="#model.hasLevelBoons('%{#classInfo.index}%')">
+                    <div kit-array="#model.getLevelBoons('%{#classInfo.index}%')"
+                         kit-array-item-alias="option">
+                        <div class="option-control">
+                            <kit kit-component="./components/shared/level-boon-selection/level-boon-selection.html"
+                                 kit-obj-selection-model="selectionModel:#option">
+                            </kit>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <button id="add-class-button" class="button" onclick="#model.addCharacterClass();">Add Class</button>
+        </div>
+    </div>
+</section>

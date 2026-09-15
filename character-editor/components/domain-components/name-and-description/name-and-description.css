@@ -1,0 +1,13 @@
+
+@scope (#domain-name-and-description-component) {
+    :scope {
+    }
+
+    .input-row {
+        display:flex;
+    }
+
+    .input-row input[type=text] {
+        width:100%;
+    }
+}

@@ -1,0 +1,13 @@
+
+@scope (#print-view-component) {
+    :scope {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        overflow: auto;
+        background-color: #FFF8EB;
+        left: var(--editor-view-default-width);
+        scrollbar-color: black #FFF8EB;
+    }
+}

@@ -1,0 +1,56 @@
+
+<section class="selection">
+    <div class="selection-title"><label>%{#model.getTitle()}%</label></div>
+    <div class="selection-collapsed" onmousedown="#model.toggleDropDown(event)">
+        <div class="collapsed-option-label"><label>%{#model.getCollapsedDisplayValue()}%</label></div>
+        <div class="toggle-button" 
+             kit-component="no-model:./resources/icons/down-arrow.html">
+        </div>
+    </div>
+    <div class="selection-expanded" 
+         onmousedown="event.stopPropagation();" 
+         kit-array="#model.getOptions()" 
+         kit-array-item-alias="option">
+        <div class="option"
+             id="option-%{#option.value}%"
+             value="%{#option.value}%"
+             title="%{#option.text}%">
+            <div class="option-summary">
+                <div class="option-checkbox" kit-if="!#option.hideCheckbox">
+                    <label class="checkbox"
+                           kit-element
+                           kit-attr-disabled="disabled:%{#option.isDisabled ? '' : null}%">
+                        <input type="checkbox"
+                               kit-element
+                               data-option-value="%{#option.value}%"
+                               kit-attr-checked="checked:%{#option.isSelected ? '' : null}%"
+                               kit-attr-disabled="disabled:%{#option.isDisabled ? '' : null}%"
+                               onclick="#model.onCheckboxClick(event, '%{#option.value}%')"/>
+                        <span class="checkmark"></span>
+                    </label>
+                </div>
+                <div class="option-label"
+                     onclick="#model.onOptionClick(event, '%{#option.value}%')">
+                    <div>%{#option.text}%</div>
+                    <div class="option-note">%{#option.noteText ?? ""}%</div>
+                    <div class="option-disabled">%{#option.disabledReason ?? ""}%</div>
+                </div>
+                <div>
+                    <div class="toggle-button toggle-button-expand"
+                         title="Show Detail"
+                         onmousedown="#model.toggleDetail(event, '%{#option.value}%')"
+                         kit-if="#option.hasDetail"
+                         kit-component="no-model:./resources/icons/expand.html">
+                    </div>
+                    <div class="toggle-button toggle-button-collapse"
+                         title="Hide Detail"
+                         onmousedown="#model.toggleDetail(event, '%{#option.value}%')"
+                         kit-if="#option.hasDetail"
+                         kit-component="no-model:./resources/icons/collapse.html">
+                    </div>
+                </div>
+            </div>
+            <div class="option-detail hidden"></div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,11 @@
+﻿
+<section id="content-component">
+    <link rel="stylesheet" href="./components/content/content.css" />
+    <kit kit-if="#model.hasCharacter()">
+        <kit kit-component="./components/editor-view/editor-view.html"></kit>
+        <kit kit-component="./components/print-view/print-view.html"></kit>
+    </kit>
+    <kit kit-if="!#model.hasCharacter()">
+        <div id="no-character">[no character]</div>
+    </kit>
+</section>

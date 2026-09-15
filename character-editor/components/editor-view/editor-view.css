@@ -1,0 +1,82 @@
+
+@scope (#editor-view-component) {
+    :scope {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        overflow: auto;
+        display: flex;
+        background-color: black;
+        width: var(--editor-view-default-width);
+        scrollbar-color: black #C2B08E;
+        container-type: inline-size;
+    }
+
+    #editor-content {
+        flex-grow: 4;
+        margin: 0;
+        overflow: auto; 
+    }
+
+    #resizer {
+        min-width: 8px;
+        border-left: 2px solid black;
+        border-right: 2px solid black;
+        background-color:  #C2B08E;
+        border-color: darkred;
+        cursor: ew-resize;
+    }
+
+    summary {
+        background-color: black;
+        color: #FFF8EB;
+        padding: 5px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        cursor: pointer;
+        user-select: none;
+        font-size:larger;
+    }
+
+    details[open] > summary {
+        color: darkorange
+    }
+
+    details[open] > summary:hover,
+    summary:hover {
+        color: orange;
+    }
+    
+    summary::marker {
+        cursor:pointer;
+    }
+
+    details > div {
+        padding: 5px 5px 5px 20px;
+        border-top: 2px solid darkred;
+        background-color: #D6C29C;
+        overflow-y: auto;
+    }
+
+    .no-wrap {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .button {
+        background-color: saddlebrown;
+        color: white;
+        border-color: black;
+        margin-top:5px;
+        margin-left:5px;
+        width:120px;
+    }
+
+    .button:not([disabled]):hover,
+    .button:focus {
+        box-shadow: black 1px 1px 3px 0 inset, black -1px -1px 3px 0 inset;
+    }
+}

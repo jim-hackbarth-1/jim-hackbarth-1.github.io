@@ -1,0 +1,20 @@
+
+<section id="domain-sources-component">
+    <link rel="stylesheet" href="./components/domain-components/sources/sources.css" />
+    <div id="sources-container" kit-array="#model.getSources()" kit-array-item-alias="source">
+        <div class="source-item">
+            <div class="checkbox-container">
+                <label class="checkbox">
+                    <input type="checkbox"
+                           data-source-name="%{#source.name}%"
+                           kit-element
+                           kit-attr-checked="checked:%{#source.isCheckedAttr}%"
+                           onclick="#model.updateSources()" />
+                    <span class="checkmark"></span>
+                </label>
+            </div>
+            <div class="no-wrap">%{#source.title}%</div>
+            <div class="spacer"></div>
+        </div>
+    </div>
+</section>

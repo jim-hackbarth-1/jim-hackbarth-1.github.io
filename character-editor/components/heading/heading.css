@@ -1,0 +1,88 @@
+
+@scope (#heading-component) {
+    :scope {
+        position: absolute;
+        width: 100vw;
+        height: 60px;
+        top: 0;
+        left: 0;
+        display: flex;
+        align-items: center;
+        background-color: #C2B08E;
+    }
+
+    #menu-button {
+        height: 30px;
+        width: 30px;
+        margin: 10px 2px 2px 2px;
+    }
+
+    #menu-button:hover .icon {
+        stroke:darkred;
+    }
+
+    #logo-container {
+        height: 60px;
+        width: 60px;
+    }
+
+    #version-note {
+        margin: 0 0 5px 2px;
+        color: saddlebrown;
+    }
+
+    #character-saved-notification {
+        border: 1px solid darkred;
+        border-radius: 3px;
+        padding: 5px;
+        margin: 2px;
+        color: darkred;
+        background-color: #FFF8EB;
+    }
+
+    .hidden {
+        opacity: 0;
+        transition: opacity 1.0s ease-out, overlay 1.0s ease-out allow-discrete, display 1.0s ease-out allow-discrete;
+    }
+
+    #action-menu {
+        display: none;
+        position: absolute;
+        border: 1px solid darkred;
+        z-index: 1;
+        background-color: #DEC9A2;
+        top: 60px;
+        left: 4px;
+        padding-right: 5px;
+    }
+
+    #action-menu button {
+        display: flex;
+        padding: 3px;
+        font-family: var(--font-family);
+    }
+
+    #action-menu button[disabled] .menu-item .icon-container .icon {
+        stroke: dimgray;
+    }
+
+    #action-menu button .menu-item {
+        display: flex;
+        white-space: nowrap;
+        align-items: center;
+        padding: 2px;
+    }
+
+    #action-menu button .menu-item .icon-container {
+        margin: 2px 2px 8px 2px;
+    }
+
+    #action-menu button:not([disabled]):hover {
+        color: darkred;
+    }
+
+    #action-menu button:not([disabled]):hover .menu-item .icon-container .icon {
+        stroke: darkred;
+    }
+    
+}

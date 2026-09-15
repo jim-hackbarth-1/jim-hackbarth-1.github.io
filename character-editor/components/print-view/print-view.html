@@ -1,0 +1,279 @@
+
+<section id="print-view-component">
+    <link rel="stylesheet" href="./components/print-view/print-view.css" />
+    <div id="print-content">
+        <!-- in-line style for printing with pagination -->
+        <style>
+
+            .page-content {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .row {
+                display: flex;
+            }
+
+            .cell {
+                min-width: 50px;
+                min-height: 50px;
+                margin: 5px;
+                padding: 5px;
+                position: relative;
+                border: 1px solid black;
+                overflow:hidden;
+            }
+
+            .no-border {
+                border:none;
+                margin:0;
+            }
+
+            #logo-container-print {
+                display: none;
+            }
+
+            .corner {
+                height: 25px;
+                width: 25px;
+                margin: 0;
+                padding: 0;
+                stroke: black;
+                fill: black;
+                position: absolute;
+            }
+
+            .top-left {
+                top: 0;
+                left: 0;
+            }
+
+            .bottom-right {
+                bottom: 0;
+                right: 0;
+            }
+
+            .no-wrap {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+
+            .field-value {
+                padding-left:5px;
+            }
+
+            ul {
+                margin-left:20px;
+            }
+
+            @media print {
+
+                .page-content {
+                    margin: 0;
+                    font-size:smaller;
+                }
+
+                #name-heading {
+                    margin-top:5px;
+                }
+
+                #logo-container-print {
+                    display: block;
+                    min-width: 60px;
+                    min-height: 60px;
+                    max-height: 60px;
+                    max-width: 60px;
+                }
+
+                #page-1 {
+                    page-break-after: always;
+                }
+
+            }
+
+        </style>
+        <div id="page-1" class="page-content">
+            <div class="row">
+                <div id="logo-container-print" class="cell no-border" title="DnD Character Editor" kit-component="no-model:./resources/icons/logo.html"></div>
+                <div class="cell no-border"><h1 id="name-heading" class="no-wrap">&nbsp;</h1></div>
+            </div>
+            <div class="row">
+                <div class="cell" style="flex:1;">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div>portrait</div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+                <div class="cell" style="flex:1;">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div>
+                        <div id="classes">
+                            <div class="row no-wrap">class 1 / lvl</div>
+                            <div class="row no-wrap">class 2 / lvl</div>
+                            <div class="row no-wrap">...</div>
+                        </div>
+                        <div class="row">
+                            <label>Race:</label>
+                            <div id="race" class="field-value no-wrap"></div>
+                        </div>
+                        <div class="row">
+                            <label>Size:</label>
+                            <div id="size" class="field-value no-wrap"></div>
+                        </div>
+                        <div>height/weight</div>
+                        <div>gender</div>
+                        <div>age</div>
+                    </div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+                <div class="cell" style="flex:2;">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div>
+                        <ul>
+                            <li>alignment</li>
+                            <li>background</li>
+                            <li>trait</li>
+                            <li>ideal</li>
+                            <li>bond</li>
+                            <li>flaw</li>
+                        </ul>
+                    </div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="cell" style="flex:1;">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div>str (bonus/save)</div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+                <div class="cell" style="flex:1;">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div>int (bonus/save)</div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+                <div class="cell" style="flex:1;">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div>wis (bonus/save)</div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+                <div class="cell" style="flex:1;">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div>dex (bonus/save)</div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+                <div class="cell" style="flex:1;">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div>con (bonus/save)</div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+                <div class="cell" style="flex:1;">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div>cha (bonus/save)</div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="cell" style="flex:1;">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div>initiative</div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+                <div class="cell" style="flex:1;">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div>
+                        <div class="row">
+                            <label>Speed:</label>
+                            <div id="speed" class="field-value no-wrap"></div>
+                        </div>
+                    </div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+                <div class="cell" style="flex:1;">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div>ac</div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+                <div class="cell" style="flex:1;">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div>hp (max and hd)</div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="cell" style="flex:1;">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div>skills</div>
+                    <div>
+                        <ul>
+                            <li>acrobatics</li>
+                            <li>animal handling</li>
+                            <li>arcana</li>
+                            <li>athletics</li>
+                            <li>deception</li>
+                            <li>history</li>
+                            <li>insight</li>
+                            <li>intimidation</li>
+                            <li>investigation</li>
+                            <li>medicine</li>
+                            <li>nature</li>
+                            <li>perception</li>
+                            <li>performance</li>
+                            <li>persuasion</li>
+                            <li>religion</li>
+                            <li>sleight of hand</li>
+                            <li>stealth</li>
+                            <li>survival</li>
+                        </ul>
+                    </div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+                <div class="cell" style="flex:3;">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div>attacks</div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+            </div>
+            <div id="features-and-equipment-row" class="row">
+                <div class="cell" style="flex:1;">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div>features</div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+                <div class="cell" style="flex:1;">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div>equipment</div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+            </div>
+        </div>
+        <div class="page-content">
+            <div class="row">
+                <div class="cell" style="flex:1;">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div>more features fjdslkf fdjlkf fdjkl fdjkl</div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+                <div class="cell" style="flex:1;">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div>more equip</div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="cell" style="flex-grow:1;">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div>spells</div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="cell" style="flex-grow:1;">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div>appearance/history/notes</div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

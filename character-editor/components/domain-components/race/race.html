@@ -1,0 +1,44 @@
+
+<section id="domain-race-component">
+    <link rel="stylesheet" href="./components/domain-components/race/race.css" />
+    <div id="race-content">
+        <div id="race-row" kit-element>
+            <kit kit-component="./components/shared/selection/selection.html"
+                 kit-obj-selection-model="selectionModel:#model.getRaces()"
+                 kit-obj-get-detail-handler="getDetailHandler:#model.getRaceHtml"
+                 kit-obj-change-handler="changeHandler:#model.updateRace">
+            </kit>
+        </div>
+        <div id="race-options-row" kit-if="#model.hasRaceOptions()">
+            <div kit-array="#model.getRaceOptions()"
+                 kit-array-item-alias="option">
+                <div class="option-control">
+                    <kit kit-component="./components/shared/selection/selection.html"
+                         kit-obj-selection-model="selectionModel:#option"
+                         kit-obj-get-detail-handler="getDetailHandler:#model.getRaceOptionHtml"
+                         kit-obj-change-handler="changeHandler:#model.updateRaceOption">
+                    </kit>
+                </div>
+            </div>
+        </div>
+        <div id="sub-race-row" kit-if="#model.hasSubRaces()">
+            <kit kit-component="./components/shared/selection/selection.html"
+                 kit-obj-selection-model="selectionModel:#model.getSubRaces()"
+                 kit-obj-get-detail-handler="getDetailHandler:#model.getSubRaceHtml"
+                 kit-obj-change-handler="changeHandler:#model.updateSubRace">
+            </kit>
+        </div>
+        <div id="sub-race-options-row" kit-if="#model.hasSubRaceOptions()">
+            <div kit-array="#model.getSubRaceOptions()"
+                 kit-array-item-alias="option">
+                <div class="option-control">
+                    <kit kit-component="./components/shared/selection/selection.html"
+                         kit-obj-selection-model="selectionModel:#option"
+                         kit-obj-get-detail-handler="getDetailHandler:#model.getOptionHtml"
+                         kit-obj-change-handler="changeHandler:#model.updateOption">
+                    </kit>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

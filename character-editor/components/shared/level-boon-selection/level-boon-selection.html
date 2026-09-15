@@ -1,0 +1,74 @@
+<section class="level-boon-selection">
+    <div class="selection-title"><label>%{#model.getTitle()}%</label></div>
+    <div class="selection-content">
+        <div class="radio-row">
+            <div class="radio-container">
+                <label class="radio-button">
+                    <input type="radio"
+                           class="data-radio-ability-scores"
+                           kit-element
+                           name="#model.getRadioGroupName()"
+                           value="ability-scores"
+                           kit-attr-checked="checked:%{#model.isAbilityScoresChecked ? '' : null}%"
+                           onclick="#model.onAbilityScoresRadioClick()" />
+                    <span class="checkmark"></span>
+                </label>
+            </div>
+            <div class="radio-label">
+                <label>Ability score improvement</label>
+            </div>
+        </div>
+        <div id="ability-scores-container" class="details-section">
+            <div class="selection-container">
+                <kit kit-component="./components/shared/selection/selection.html"
+                     kit-obj-selection-model="selectionModel:#model.getAbilityScores(1)"
+                     kit-obj-change-handler="changeHandler:#model.updateAbilityScore">
+                </kit>
+            </div>
+            <div class="selection-container">
+                <kit kit-component="./components/shared/selection/selection.html"
+                     kit-obj-selection-model="selectionModel:#model.getAbilityScores(2)"
+                     kit-obj-change-handler="changeHandler:#model.updateAbilityScore">
+                </kit>
+            </div>
+        </div>
+        <div class="radio-row">
+            <div class="radio-container">
+                <label class="radio-button">
+                    <input type="radio"
+                           class="data-radio-feat"
+                           kit-element
+                           name="#model.getRadioGroupName()"
+                           value="feat"
+                           kit-attr-checked="checked:%{#model.isAbilityScoresChecked ? null : ''}%"
+                           onclick="#model.onFeatRadioClick()" />
+                    <span class="checkmark"></span>
+                </label>
+            </div>
+            <div class="radio-label">
+                <label>Feat</label>
+            </div>
+        </div>
+        <div id="feats-container" class="details-section">
+            <div class="selection-container">
+                <kit kit-component="./components/shared/selection/selection.html"
+                     kit-obj-selection-model="selectionModel:#model.getFeats()"
+                     kit-obj-get-detail-handler="getDetailHandler:#model.getFeatHtml"
+                     kit-obj-change-handler="changeHandler:#model.updateFeat">
+                </kit>
+            </div>
+            <div kit-if="#model.hasFeatOptions()">
+                <div kit-array="#model.getFeatOptions()"
+                     kit-array-item-alias="option">
+                    <div>
+                        <kit kit-component="./components/shared/selection/selection.html"
+                             kit-obj-selection-model="selectionModel:#option"
+                             kit-obj-get-detail-handler="getDetailHandler:#model.getFeatOptionHtml"
+                             kit-obj-change-handler="changeHandler:#model.updateFeatOption">
+                        </kit>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

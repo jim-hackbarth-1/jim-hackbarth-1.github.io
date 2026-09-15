@@ -1,0 +1,63 @@
+
+@import "./resources/styles/button.css";
+@import "./resources/styles/dialog.css";
+@import "./resources/styles/input-checkbox.css";
+@import "./resources/styles/input-file.css";
+@import "./resources/styles/input-radio.css";
+@import "./resources/styles/input-text.css";
+@import "./resources/styles/level-boon-selection.css";
+@import "./resources/styles/selection.css";
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* font */
+@font-face {
+    font-family: "IM Fell DW Pica SC";
+    src: url("./resources/fonts/IMFellDWPicaSC-Regular.ttf");
+}
+
+:scope {
+    --font-family: "IM Fell DW Pica SC", Arial, sans-serif;
+    --editor-view-default-width: 250px;
+}
+
+body {
+    font-family: var(--font-family);
+    color: black;
+}
+
+[kit-array]:not([kit-element-key]),
+[kit-component]:not([kit-element-key]),
+[kit-element]:not([kit-element-key]),
+[kit-if]:not([kit-element-key]) {
+    display: none;
+}
+
+.icon-container {
+    height: 20px;
+    width: 20px;
+}
+
+.icon {
+    fill: none;
+    stroke: black;
+    stroke-width: 8px;
+}
+
+.icon-text {
+    fill: black;
+    stroke-width: 2px;
+}
+
+.action-text {
+    text-decoration: none;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+    outline: none;
+}

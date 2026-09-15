@@ -1,0 +1,38 @@
+
+.level-boon-selection .selection-content {
+    border:1px dotted saddlebrown;
+    padding:5px;
+}
+
+.level-boon-selection .selection-content > div,
+.level-boon-selection .selection-container {
+    margin-bottom: 10px;
+}
+
+.level-boon-selection .selection-title {
+    display: flex;
+}
+
+.level-boon-selection .selection-title label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.level-boon-selection .radio-row {
+    display:flex;
+}
+
+.level-boon-selection .radio-row > div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.level-boon-selection .radio-row > .radio-label {
+    flex: 1;
+}
+
+.level-boon-selection .details-section {
+    margin-left:30px;
+}

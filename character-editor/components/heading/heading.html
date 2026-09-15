@@ -1,0 +1,59 @@
+﻿
+<header id="heading-component">
+    <link rel="stylesheet" href="./components/heading/heading.css" />
+    <div>
+        <button id="menu-button"
+                title="Action Menu"
+                class="action-text"
+                onclick="#model.toggleMenu(event)"
+                kit-component="no-model:./resources/icons/menu-toggle.html">
+        </button>
+        <div id="action-menu">
+            <button title="New character" class="action-text" onclick="#model.newCharacter()">
+                <div class="menu-item">
+                    <div class="icon-container" kit-component="no-model:./resources/icons/new-character.html"></div>
+                    <div>New</div>
+                </div>
+            </button>
+            <button title="Open character" class="action-text" onclick="#model.showDialog('dlg-file-open')">
+                <div class="menu-item">
+                    <div class="icon-container" kit-component="no-model:./resources/icons/edit-character.html"></div>
+                    <div>Open ...</div>
+                </div>
+            </button>
+            <button id="save-button" title="Save character" class="action-text" onclick="#model.saveCharacter()">
+                <div class="menu-item">
+                    <div class="icon-container" kit-component="no-model:./resources/icons/save-character.html"></div>
+                    <div>Save ...</div>
+                </div>
+            </button>
+            <button id="print-button" title="Print character" class="action-text" onclick="#model.printCharacter()">
+                <div class="menu-item">
+                    <div class="icon-container" kit-component="no-model:./resources/icons/print-character.html"></div>
+                    <div>Print ...</div>
+                </div>
+            </button>
+            <button id="close-button" title="Close character" class="action-text" onclick="#model.closeCharacter()">
+                <div class="menu-item">
+                    <div class="icon-container" kit-component="no-model:./resources/icons/file-close.html"></div>
+                    <div>Close</div>
+                </div>
+            </button>
+        </div>
+    </div>
+    <div>
+        <div id="logo-container" title="DnD Character Editor" kit-component="no-model:./resources/icons/logo.html"></div>
+    </div>
+    <div>
+        <h1 title="DnD Character Editor">DnD Character Editor</h1>
+    </div>
+    <div id="version-note">(5e)</div>
+    <div id="character-saved-notification" class="hidden">
+        Saved
+    </div>
+    <div id="spacer"></div>
+
+    <!-- dialogs -->
+    <kit id="dlg-file-open" kit-component="./components/file-open-dialog/file-open-dialog.html"></kit>
+    <kit id="dlg-file-save" kit-component="./components/file-save-dialog/file-save-dialog.html"></kit>
+</header>

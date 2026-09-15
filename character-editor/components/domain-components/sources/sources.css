@@ -1,0 +1,38 @@
+
+@scope (#domain-sources-component) {
+    :scope {
+
+    }
+
+    #sources-container {
+        border: 1px solid black;
+        border-radius: 5px;
+        background-color: #998B70;
+        margin-left:5px;
+    }
+
+    .source-item {
+        display: flex;
+        border: 1px solid black;
+        border-radius: 5px;
+        margin:2px;
+        padding: 5px;
+        background-color: #C2B08E;
+    }
+
+    input[disabled] ~ .checkmark {
+        background-color: silver;
+        color:dimgray;
+        cursor: default;
+    }
+
+    input[disabled] ~ .checkmark::after {
+        background-color: dimgray;
+    }
+
+    .no-wrap {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+}

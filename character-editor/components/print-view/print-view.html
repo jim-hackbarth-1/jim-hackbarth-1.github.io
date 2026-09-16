@@ -90,6 +90,10 @@
                     page-break-after: always;
                 }
 
+                #test-div {
+                    page-break-inside: avoid;
+                }
+
             }
 
         </style>
@@ -240,7 +244,7 @@
                     <div>features</div>
                     <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                 </div>
-                <div class="cell" style="flex:1;">
+                <div id="test-div" class="cell" style="flex:1;">
                     <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
                     <div>equipment</div>
                     <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>

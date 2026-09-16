@@ -69,12 +69,13 @@ class FileSaveDialogModel {
     }
 
     async buttonOkClicked() {
-        this.closeDialog();
         if (this.hasFileSystemAccess()) {
+            this.closeDialog();
             HeadingModel.FileHandle = FileSaveDialogModel.#fileHandle;
             await HeadingModel.saveCharacterWithFileHandle();
         }
         else {
+            const json = JSON.stringify(Character.currentCharacter);
             const blob = new Blob([json], { type: "text/plain" });
             const anchor = UIKit.document.createElement("a");
             anchor.href = URL.createObjectURL(blob);
@@ -84,6 +85,7 @@ class FileSaveDialogModel {
             }
             anchor.download = fileName;
             anchor.click();
+            this.closeDialog();
         }
     }
 

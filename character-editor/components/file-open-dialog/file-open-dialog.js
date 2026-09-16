@@ -66,7 +66,7 @@ class FileOpenDialogModel {
             this.#kitElement.querySelector("#button-ok").disabled = false;
         }
         else {
-            const clickEvent = new MouseEvent('click', {
+            const clickEvent = new PointerEvent('click', {
                 clientX: event.clientX,
                 clientY: event.clientY
             });
@@ -83,7 +83,7 @@ class FileOpenDialogModel {
             Character.currentCharacter = new Character(JSON.parse(json));
         }
         else {
-            Character.currentCharacter = new Character(JSON.parse(message.fileContents));
+            Character.currentCharacter = new Character(JSON.parse(FileOpenDialogModel.#fileContents));
         }
         const contentElement = UIKit.document.documentElement.querySelector("#content-component");
         await UIKit.renderer.renderElement(contentElement);

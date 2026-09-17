@@ -24,8 +24,11 @@
             </div>
         </details>
         <details id="details-ability-scores">
-            <summary>Ability scores</summary>
-            <div>[not yet implemented]</div>
+            <summary>Ability scores + Hit points</summary>
+            <div>
+                <kit kit-component="./components/domain-components/ability-scores-and-hit-points/ability-scores-and-hit-points.html"></kit>
+                <button class="button" onclick="#model.nextDetailsSection('details-alignment-and-background');">Next</button>
+            </div>
         </details>
         <details id="details-alignment-and-background">
             <summary>Alignment + Background</summary>

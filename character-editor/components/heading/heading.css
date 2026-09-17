@@ -34,11 +34,7 @@
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-    }
-
-    #version-note {
-        margin: 0 0 5px 2px;
-        color: saddlebrown;
+        font-size: 32px;
     }
 
     #character-saved-notification {
@@ -97,6 +93,12 @@
 
     #action-menu button:not([disabled]):hover .menu-item .icon-container .icon {
         stroke: darkred;
+    }
+
+    @media (max-width: 600px) {
+        #title-container h1 {
+            font-size: 24px;
+        }
     }
     
 }

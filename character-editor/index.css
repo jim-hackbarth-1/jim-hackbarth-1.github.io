@@ -3,6 +3,7 @@
 @import "./resources/styles/dialog.css";
 @import "./resources/styles/input-checkbox.css";
 @import "./resources/styles/input-file.css";
+@import "./resources/styles/input-number.css";
 @import "./resources/styles/input-radio.css";
 @import "./resources/styles/input-text.css";
 @import "./resources/styles/level-boon-selection.css";
@@ -22,7 +23,7 @@
 
 :scope {
     --font-family: "IM Fell DW Pica SC", Arial, sans-serif;
-    --editor-view-default-width: 250px;
+    --editor-view-default-width: 260px;
 }
 
 body {

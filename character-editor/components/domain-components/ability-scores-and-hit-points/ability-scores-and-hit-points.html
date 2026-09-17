@@ -1,0 +1,239 @@
+
+<section id="domain-ability-scores-and-hit-points-component">
+    <link rel="stylesheet" href="./components/domain-components/ability-scores-and-hit-points/ability-scores-and-hit-points.css" />
+    <div id="ability-scores-and-hit-points-content">
+        <div id="ability-scores-content">
+            <div id="ability-scores-summary" class="summary">
+                <div class="summary-label no-wrap">Ability scores</div>
+                <div>
+                    <div id="expand-ability-scores"
+                         title="Show Detail"
+                         class="toggle-button toggle-button-expand"
+                         onpointerdown="#model.toggleDetail(event, 'ability-scores-detail')"
+                         kit-component="no-model:./resources/icons/expand.html">
+                    </div>
+                    <div id="collapse-ability-scores"
+                         title="Hide Detail"
+                         class="toggle-button toggle-button-collapse hidden"
+                         onpointerdown="#model.toggleDetail(event, 'ability-scores-detail')"
+                         kit-component="no-model:./resources/icons/collapse.html">
+                    </div>
+                </div>
+            </div>
+            <div id="ability-scores-detail" class="detail hidden">
+                <div>
+                    <div class="info-row">
+                        <div class="checkbox-container">
+                            <label class="checkbox">
+                                <input type="checkbox"
+                                       kit-element />
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="no-wrap">Use points system</div>
+                    </div>
+                    <div class="info-row">
+                        <div id="points-remaining" class="no-wrap">Points remaining: [pts]</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="no-wrap">Minimum base score: [min base]</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="no-wrap">Maximum base score: [max base]</div>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>Ability score</td>
+                            <td>Base score</td>
+                            <td>Modified score</td>
+                            <td>Modifiers</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Strength</td>
+                            <td><input type="number" /></td>
+                            <td>[value]</td>
+                            <td class="ability-modifiers">
+                                <ul>
+                                    <li>modifier 1</li>
+                                    <li>modifier 2</li>
+                                    <li>modifier 3</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Intelligence</td>
+                            <td><input type="number" /></td>
+                            <td>[value]</td>
+                            <td class="ability-modifiers">
+                                <ul>
+                                    <li>modifier 1</li>
+                                    <li>modifier 2</li>
+                                    <li>modifier 3</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Wisdom</td>
+                            <td><input type="number" /></td>
+                            <td>[value]</td>
+                            <td class="ability-modifiers">
+                                <ul>
+                                    <li>modifier 1</li>
+                                    <li>modifier 2</li>
+                                    <li>modifier 3</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Dexterity</td>
+                            <td><input type="number" /></td>
+                            <td>[value]</td>
+                            <td class="ability-modifiers">
+                                <ul>
+                                    <li>modifier 1</li>
+                                    <li>modifier 2</li>
+                                    <li>modifier 3</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Constitution</td>
+                            <td><input type="number" /></td>
+                            <td>[value]</td>
+                            <td class="ability-modifiers">
+                                <ul>
+                                    <li>modifier 1</li>
+                                    <li>modifier 2</li>
+                                    <li>modifier 3</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Charisma</td>
+                            <td><input type="number" /></td>
+                            <td>[value]</td>
+                            <td class="ability-modifiers">
+                                <ul>
+                                    <li>modifier 1</li>
+                                    <li>modifier 2</li>
+                                    <li>modifier 3</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="hit-points-content">
+            <div id="hit-points-summary" class="summary">
+                <div class="summary-label no-wrap">Hit points: [z]</div>
+                <div>
+                    <div id="expand-hit-points"
+                         title="Show Detail"
+                         class="toggle-button toggle-button-expand"
+                         onpointerdown="#model.toggleDetail(event, 'hit-points-detail')"
+                         kit-component="no-model:./resources/icons/expand.html">
+                    </div>
+                    <div id="collapse-hit-points"
+                         title="Hide Detail"
+                         class="toggle-button toggle-button-collapse hidden"
+                         onpointerdown="#model.toggleDetail(event, 'hit-points-detail')"
+                         kit-component="no-model:./resources/icons/collapse.html">
+                    </div>
+                </div>
+            </div>
+            <div id="hit-points-detail" class="detail hidden">
+                <table>
+                    <tr>
+                        <td>
+                            <div class="hit-point-class-and-level">[class 1, lvl 1]</div>
+                        </td>
+                        <td>
+                            <div>
+                                <input type="number" />
+                            </div>
+                            <div class="hit-die">
+                                Dx
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <div class="hit-point-modifier">+ [x]</div>
+                                <div class="modifier-note">Con modifier</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="hit-point-total">= [y]</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="hit-point-class-and-level">[class 1, lvl 2]</div>
+                        </td>
+                        <td>
+                            <div>
+                                <input type="number" />
+                            </div>
+                            <div class="hit-die">
+                                Dx
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <div class="hit-point-modifier">+ [x]</div>
+                                <div class="modifier-note">Con modifier</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="hit-point-total">= [y]</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="hit-point-class-and-level">[class 1, lvl 3]</div>
+                        </td>
+                        <td>
+                            <div>
+                                <input type="number" />
+                            </div>
+                            <div class="hit-die">
+                                Dx
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <div class="hit-point-modifier">+ [x]</div>
+                                <div class="modifier-note">Con modifier</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="hit-point-total">= [y]</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>[feature 1]</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td class="hit-point-total">= [y]</td>
+                    </tr>
+                    <tr>
+                        <td>[feature 2]</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td class="hit-point-total">= [y]</td>
+                    </tr>
+                    <tr>
+                        <td>Total</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td class="hit-point-total">= [z]</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>

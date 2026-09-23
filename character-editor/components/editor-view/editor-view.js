@@ -124,11 +124,31 @@ export class EditorViewModel {
                             feat.updateFeatures(character);
                         }
                     }
+                    if (levelBoon.abilityScore1) {
+                        character.addFeature({
+                            name: `${characterClass.name}-${levelBoon.level}-ability-score-modifier-1`,
+                            title: `${cls.title} Level ${levelBoon.level} ability score improvement`,
+                            modifier: `ability-score:${levelBoon.abilityScore1}`,
+                            modifierValue: 1,
+                            sourcePropertyName: "levelBoon",
+                            sourcePropertyValue: `${characterClass.name}-${levelBoon.level}-ability-score-modifier-1`
+                        });
+                    }
+                    if (levelBoon.abilityScore2) {
+                        character.addFeature({
+                            name: `${characterClass.name}-${levelBoon.level}-ability-score-modifier-2`,
+                            title: `${cls.title} Level ${levelBoon.level} ability score improvement`,
+                            modifier: `ability-score:${levelBoon.abilityScore2}`,
+                            modifierValue: 1,
+                            sourcePropertyName: "levelBoon",
+                            sourcePropertyValue: `${characterClass.name}-${levelBoon.level}-ability-score-modifier-2`
+                        });
+                    }
                 }
             }
         }
         
-        // TODO: same for background, spells, equipment
+        // TODO: same for background, equipment
 
         Character.currentCharacter = character;
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateTopic, message);

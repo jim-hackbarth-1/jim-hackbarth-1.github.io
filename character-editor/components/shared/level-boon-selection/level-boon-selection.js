@@ -21,6 +21,13 @@ class LevelBoonSelectionModel {
         this.#initializeDetails();
     }
 
+    hasSelectionModel() {
+        if (this.#selectionModel) {
+            return true;
+        }
+        return false;
+    }
+
     getTitle() {
         return `Level ${this.#selectionModel.level} ability score improvement or feat:`;
     }
@@ -150,6 +157,7 @@ class LevelBoonSelectionModel {
         const classIndex = this.#selectionModel.classIndex;
         const levelBoon = {
             level: this.#selectionModel.level,
+            hitPoints: this.#selectionModel.hitPoints,
             abilityScore1: this.#selectionModel.abilityScore1,
             abilityScore2: this.#selectionModel.abilityScore2,
         };
@@ -179,6 +187,7 @@ class LevelBoonSelectionModel {
         const classIndex = this.#selectionModel.classIndex;
         const levelBoon = {
             level: this.#selectionModel.level,
+            hitPoints: this.#selectionModel.hitPoints,
             feat: feat
         };
         if (this.#selectionModel.feat == levelBoon.feat) {
@@ -222,11 +231,14 @@ class LevelBoonSelectionModel {
     }
 
     #initializeDetails() {
-        if (this.#selectionModel.feat) {
+        if (this.#selectionModel?.feat) {
             this.#kitElement.querySelector(".data-radio-feat").click();
         }
         else {
-            this.#kitElement.querySelector(".data-radio-ability-scores").click();
+            const element = this.#kitElement.querySelector(".data-radio-ability-scores");
+            if (element) {
+                element.click();
+            } 
         }
     }
 

@@ -41,7 +41,7 @@
         border: 1px solid darkred;
         border-radius: 3px;
         padding: 5px;
-        margin: 2px;
+        margin:2px 2px 2px 12px;
         color: darkred;
         background-color: #FFF8EB;
     }

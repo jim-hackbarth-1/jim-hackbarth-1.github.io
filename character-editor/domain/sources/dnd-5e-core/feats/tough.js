@@ -18,7 +18,7 @@ export class Tough {
             <h3>Tough</h3>
             <hr/>
             <div class="content">
-                [Tough content here]
+                <p>Your hit point maximum increases by an amount equal to twice your level when you gain this feat. Whenever you gain a level thereafter, your hit point maximum increases by an additional 2 hit points.</p>
             </div>
         </div>
         `;
@@ -37,7 +37,17 @@ export class Tough {
     }
 
     static updateFeatures(character) {
-
+        const features = [{
+            name: "tough-hit-point-modifier",
+            title: Tough.title,
+            modifier: "hit-points",
+            modifierValue: Number(character.level) * 2
+        }];
+        for (const feature of features) {
+            feature.sourcePropertyName = "feat";
+            feature.sourcePropertyValue = "tough";
+            character.addFeature(feature);
+        }
     }
 
 }

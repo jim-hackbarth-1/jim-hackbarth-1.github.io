@@ -13,13 +13,16 @@ export class Fighter {
         return "dnd-5e-core/classes/fighter.html";
     }
 
+    static get hitDieSize() {
+        return 10;
+    }
+
     static getMulticlassEligibility(character) {
-        if (
-            Number(character.abilityScores.strength) >= 13
-            || Number(character.abilityScores.dexterity) >= 13
-        ) {
+        const strength = Number(character.getAbilityScore("strength"));
+        const dexterity = Number(character.getAbilityScore("dexterity"));
+        if (strength >= 13 || dexterity >= 13) {
             return {
-                isEligible: isEligible,
+                isEligible: true,
                 ineligibilityReason: null
             };
         }

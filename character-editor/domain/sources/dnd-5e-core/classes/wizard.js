@@ -13,10 +13,15 @@ export class Wizard {
         return "dnd-5e-core/classes/wizard.html";
     }
 
+    static get hitDieSize() {
+        return 6;
+    }
+
     static getMulticlassEligibility(character) {
-        if (Number(character.abilityScores.intelligence) >= 13) {
+        const intelligence = Number(character.getAbilityScore("intelligence"));
+        if (intelligence >= 13) {
             return {
-                isEligible: isEligible,
+                isEligible: true,
                 ineligibilityReason: null
             };
         }

@@ -13,13 +13,16 @@ export class Paladin {
         return "dnd-5e-core/classes/paladin.html";
     }
 
+    static get hitDieSize() {
+        return 10;
+    }
+
     static getMulticlassEligibility(character) {
-        if (
-            Number(character.abilityScores.strength) >= 13
-            && Number(character.abilityScores.charisma) >= 13
-        ) {
+        const strength = Number(character.getAbilityScore("strength"));
+        const charisma = Number(character.getAbilityScore("charisma"));
+        if (strength >= 13 && charisma >= 13) {
             return {
-                isEligible: isEligible,
+                isEligible: true,
                 ineligibilityReason: null
             };
         }

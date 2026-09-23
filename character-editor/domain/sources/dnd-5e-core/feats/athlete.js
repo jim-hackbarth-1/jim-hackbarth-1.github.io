@@ -65,7 +65,25 @@ export class Athlete {
     }
 
     static updateFeatures(character) {
-
+        let abilityScore = null;
+        const abilityScoreOption = character.options.find(o => o.name == "athlete-ability-score-increase");
+        if (abilityScoreOption) {
+            abilityScore = abilityScoreOption.values[0];
+        }
+        const features = [];
+        if (abilityScore) {
+            features.push({
+                name: "athlete-ability-score-modifier",
+                title: Athlete.title,
+                modifier: `ability-score:${abilityScore}`,
+                modifierValue: 1
+            });
+        }
+        for (const feature of features) {
+            feature.sourcePropertyName = "feat";
+            feature.sourcePropertyValue = "athlete";
+            character.addFeature(feature);
+        }
     }
 
 }

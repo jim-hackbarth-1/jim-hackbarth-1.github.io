@@ -57,6 +57,10 @@
         margin-left: 30px;
     }
 
+    #points-remaining > span {
+        color:darkred;
+    }
+
     table {
         border: 1px solid saddlebrown;
         border-collapse: collapse;
@@ -85,23 +89,71 @@
         font-style:italic;
     }
 
+    .ability-score-name {
+        margin-top: 5px;
+    }
+
+    input[type=number] {
+        width: 50px;
+    }
+
+    .modified-ability-score {
+        font-weight: bold;
+        font-size: larger;
+        color:darkred;
+        border:1px solid black;
+        padding:4px;
+        border-radius:3px;
+        text-align:center;
+        width:50px;
+    }
+
+    .modified-max-note,
     .modifier-note {
         font-size: small;
         color: saddlebrown;
         font-style: italic;
     }
 
+    #hit-points-table {
+        display:table;
+        border:1px solid saddlebrown;
+    }
+
     .hit-point-class-and-level {
-        margin-top:5px;
+        margin-top: 5px;
     }
 
     .hit-point-modifier {
-        margin-top: 5px;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
     }
 
     .hit-point-total {
         width: 100%;
         margin-top: 5px;
+    }
+
+    .hit-point-row {
+        display:table-row;
+    }
+
+    .hit-point-row > div {
+        display: table-cell;
+        text-align:left;
+        padding:5px;
+    }
+
+    .hit-point-row .hit-point-total {
+        flex:1;
+    }
+
+    .hit-points-total,
+    .hit-points-total-label {
+        color: darkred;
+        font-size:larger;
+    }
+
+    .hit-points-total {
+        
     }
 }

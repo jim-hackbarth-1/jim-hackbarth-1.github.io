@@ -13,10 +13,15 @@ export class Barbarian {
         return "dnd-5e-core/classes/barbarian.html";
     }
 
+    static get hitDieSize() {
+        return 12;
+    }
+
     static getMulticlassEligibility(character) {
-        if (Number(character.abilityScores.strength) >= 13) {
+        const strength = Number(character.getAbilityScore("strength"));
+        if (strength >= 13) {
             return {
-                isEligible: isEligible,
+                isEligible: true,
                 ineligibilityReason: null
             };
         }

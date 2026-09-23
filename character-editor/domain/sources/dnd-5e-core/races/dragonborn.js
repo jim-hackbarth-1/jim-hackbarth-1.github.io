@@ -44,89 +44,72 @@ export class Dragonborn {
     }
 
     static updateFeatures(character) {
-        //const features = [
-        //    {
-        //        name: "dragonborn-ability-score-modifier-strength",
-        //        featureType: "ability-score-modifier",
-        //        abilityScore: "strength",
-        //        modifier: 2
-        //    },
-        //    {
-        //        name: "dragonborn-ability-score-modifier-charisma",
-        //        featureType: "ability-score-modifier",
-        //        abilityScore: "charisma",
-        //        modifier: 1
-        //    },
-        //    {
-        //        name: "dragonborn-language-common",
-        //        featureType: "language",
-        //        title: "Common"
-        //    },
-        //    {
-        //        name: "dragonborn-language-draconic",
-        //        featureType: "language",
-        //        title: "Draconic"
-        //    }
-        //];
-        //for (const feature of features) {
-        //    feature.sourcePropertyName = "race";
-        //    feature.sourcePropertyValue = "dragonborn";
-        //    character.addFeature(feature);
-        //}
+        const features = [
+            {
+                name: "dragonborn-ability-score-modifier-strength",
+                title: Dragonborn.title,
+                modifier: "ability-score:strength",
+                modifierValue: 2
+            },
+            {
+                name: "dragonborn-ability-score-modifier-charisma",
+                title: Dragonborn.title,
+                modifier: "ability-score:charisma",
+                modifierValue: 1
+            },
+            {
+                name: "dragonborn-language-common",
+                modifier: "language",
+                text: "Common"
+            },
+            {
+                name: "dragonborn-language-draconic",
+                modifier: "language",
+                text: "Draconic"
+            }
+        ];
+        let draconicAncestry = null;
+        const draconicAncestryOption = character.options.find(o => o.name == "dragonborn-draconic-ancestry");
+        if (draconicAncestryOption) {
+            draconicAncestry = draconicAncestryOption.values[0];
+        }
+        if (draconicAncestry) {
+            const draconicAncestryTitle = Dragonborn.#draconicAncestries.find(da => da.value == draconicAncestry)?.text;
+            const breathWeaponSaveAbility = (["green", "silver", "white"].includes(draconicAncestry)) ? "constitution" : "dexterity";
+            const breathWeaponDamageDice = Dragonborn.#getBreathWeaponDamageDice(character);
+            const breathWeaponDamageAndResistanceType = Dragonborn.#getBreathWeaponAndResistanceType(draconicAncestry);
+            const breathWeaponDamageArea = (["gold", "green", "red", "silver", "white"].includes(draconicAncestry)) ? "15 ft cone" : "5 by 30 ft line";
+            features.push({
+                name: "dragonborn-draconic-ancestry",
+                title: "Draconic Ancestry",
+                text: draconicAncestryTitle
+            });
+            features.push({
+                name: "dragonborn-draconic-ancestry-breath-weapon",
+                title: "Breath Weapon",
+                featureType: "attack",
+                // saveDC: "8",
+                // saveModifierAbility: "constitution",
+                // addProficiency: true,
+                // saveAbility: breathWeaponSaveAbility,
+                // damageDice: breathWeaponDamageDice,
+                // damageDieSize: 6,
+                // damageType: breathWeaponDamageAndResistanceType,
+                // damageArea: breathWeaponDamageArea,
+                // restRequirement: "Use again after short or long rest."
+            });
+            features.push({
+                name: "dragonborn-draconic-ancestry-damage-resistance",
+                title: "Damage resistance",
+                text: breathWeaponDamageAndResistanceType
+            })
+        }
+        for (const feature of features) {
+           feature.sourcePropertyName = "race";
+           feature.sourcePropertyValue = "dragonborn";
+           character.addFeature(feature);
+        }
     }
-
-    //static updateOptionFeatures(character, option) {
-    //    character.removeFeature("dragonborn-draconic-ancestry");
-    //    character.removeFeature("dragonborn-draconic-ancestry-breath-weapon");
-    //    character.removeFeature("dragonborn-draconic-ancestry-damage-resistance");
-    //    let draconicAncestry = null;
-    //    if (option?.name == "dragonborn-draconic-ancestry") {
-    //        draconicAncestry = option.value;
-    //    }
-    //    if (!draconicAncestry) {
-    //        return;
-    //    }
-    //    const draconicAncestryTitle = Dragonborn.#draconicAncestries.find(da => da.value == draconicAncestry)?.text;
-    //    const breathWeaponSaveAbility = (["green", "silver", "white"].includes(draconicAncestry)) ? "constitution" : "dexterity";
-    //    const breathWeaponDamageDice = Dragonborn.#getBreathWeaponDamageDice(character);
-    //    const breathWeaponDamageAndResistanceType = Dragonborn.#getBreathWeaponAndResistanceType(draconicAncestry);
-    //    const breathWeaponDamageArea = (["gold", "green", "red", "silver", "white"].includes(draconicAncestry)) ? "15 ft cone" : "5 by 30 ft line";
-    //    const features = [];
-    //    features.push({
-    //        name: "dragonborn-draconic-ancestry",
-    //        title: "Draconic Ancestry",
-    //        sourceOptionName: "dragonborn-draconic-ancestry",
-    //        featureType: "race",
-    //        value: draconicAncestry,
-    //        text: draconicAncestryTitle
-    //    });
-    //    features.push({
-    //        name: "dragonborn-draconic-ancestry-breath-weapon",
-    //        title: "Breath Weapon",
-    //        sourceOptionName: "dragonborn-draconic-ancestry",
-    //        featureType: "attack",
-    //        saveDC: "8",
-    //        saveModifierAbility: "constitution",
-    //        addProficiency: true,
-    //        saveAbility: breathWeaponSaveAbility,
-    //        damageDice: breathWeaponDamageDice,
-    //        damageDieSize: 6,
-    //        damageType: breathWeaponDamageAndResistanceType,
-    //        damageArea: breathWeaponDamageArea,
-    //        restRequirement: "Use again after short or long rest."
-    //    });
-    //    features.push({
-    //        name: "dragonborn-draconic-ancestry-damage-resistance",
-    //        sourceOptionName: "dragonborn-draconic-ancestry",
-    //        featureType: "damage-resistance",
-    //        resistanceType: breathWeaponDamageAndResistanceType
-    //    })
-    //    for (const feature of features) {
-    //        feature.sourcePropertyName = "race";
-    //        feature.sourcePropertyValue = "dragonborn";
-    //        character.addFeature(feature);
-    //    }
-    //}
 
     static #draconicAncestries = [
         { value: "black", text: "Black" },
@@ -155,9 +138,9 @@ export class Dragonborn {
         return damageDice;
     }
 
-    static #getBreathWeaponAndResistanceType(draconicAncestryValue) {
+    static #getBreathWeaponAndResistanceType(draconicAncestry) {
         let breathWeaponDamageAndResistanceType = null;
-        switch (draconicAncestryValue) {
+        switch (draconicAncestry) {
             case "black":
                 breathWeaponDamageAndResistanceType = "acid";
                 break;

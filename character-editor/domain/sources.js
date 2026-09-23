@@ -224,17 +224,22 @@ export class Sources {
         if (cls && characterClass.level < cls.subClassLevel) {
             Sources.updateCharacterSubClass(character, index, null);
         }
-        const levels = [4, 8, 12, 16, 19];
-        const levelBoons = [];
-        for (const lvl of levels) {     
-            if (level < lvl) {
+        const levelBoons =[];
+        for (let i = 1; i <= 20; i++) {
+            if (level < i) {
                 character.options = character.options.filter(
-                    o => o.sourcePropertyName != `feat:class-${index}-level-${lvl}`);
+                    o => o.sourcePropertyName != `feat:class-${index}-level-${i}`);
             }
             else {
-                let levelBoon = characterClass.levelBoons.find(lb => lb.level == lvl);
+                let levelBoon = characterClass.levelBoons.find(lb => lb.level == i);
                 if (!levelBoon) {
-                    levelBoon = { level: lvl };
+                    const defaultHitPoints = Math.ceil((Number(cls.hitDieSize) + 1) / 2);
+                    const levelBoonIndex = Sources.#getNextLevelBoonIndex(character);
+                    levelBoon = {
+                        level: i,
+                        hitPoints: defaultHitPoints,
+                        index: levelBoonIndex
+                    };
                 }
                 levelBoons.push(levelBoon);
             }
@@ -259,6 +264,7 @@ export class Sources {
             character.options = character.options.filter(
                 o => o.sourcePropertyName != `feat:class-${index}-level-${levelBoon.level}`);
         }
+        currentLevelBoon.hitPoints = levelBoon.hitPoints;
         currentLevelBoon.abilityScore1 = levelBoon.abilityScore1;
         currentLevelBoon.abilityScore2 = levelBoon.abilityScore2;
         currentLevelBoon.feat = levelBoon.feat;
@@ -267,6 +273,20 @@ export class Sources {
     static updateCharacterOption(character, option) {
         character.removeOption(option.name);
         character.addOption(option);
+    }
+
+    static updateCharacterUseAbilityScorePointsSystem(character) {
+        character.useAbilityScorePointsSystem = !character.useAbilityScorePointsSystem;
+        const min = character.useAbilityScorePointsSystem ? 8 : 3;
+        const max = character.useAbilityScorePointsSystem ? 15 : 18;
+        for (const abilityScore of character.abilityScores) {
+            if (abilityScore.baseScore < min) {
+                abilityScore.baseScore = min;
+            }
+            if (abilityScore.baseScore > max) {
+                abilityScore.baseScore = max;
+            }
+        }
     }
 
     static async #getHtml(basePath, path) {
@@ -279,5 +299,18 @@ export class Sources {
             throw new Error(`Response status: ${response.status}`);
         }
         return await response.text();
+    }
+
+    static #getNextLevelBoonIndex(character) {
+        let lastIndex = -1;
+        for (const characterClass of character.classes) {
+            for (const levelBoon of characterClass.levelBoons) {
+                const index = Number(levelBoon.index);
+                if (index > lastIndex) {
+                    lastIndex = index;
+                }
+            }
+        }
+        return lastIndex + 1;
     }
 }

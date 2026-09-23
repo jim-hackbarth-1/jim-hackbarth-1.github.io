@@ -26,111 +26,186 @@
                         <div class="checkbox-container">
                             <label class="checkbox">
                                 <input type="checkbox"
-                                       kit-element />
+                                       kit-element
+                                       kit-attr-checked="checked:%{#model.useAbilityScorePointsSystem() ? '' : null}%"
+                                       onclick="#model.togglePointsSystem() "/>
                                 <span class="checkmark"></span>
                             </label>
                         </div>
                         <div class="no-wrap">Use points system</div>
                     </div>
-                    <div class="info-row">
-                        <div id="points-remaining" class="no-wrap">Points remaining: [pts]</div>
+                    <div id="points-remaining-row" kit-if="#model.useAbilityScorePointsSystem()" class="info-row">
+                        <div id="points-remaining" class="no-wrap">Points remaining: <span>%{#model.getPointsRemaining()}%</span></div>
                     </div>
-                    <div class="info-row">
-                        <div class="no-wrap">Minimum base score: [min base]</div>
+                    <div id="min-base-score-row" kit-element class="info-row">
+                        <div class="no-wrap">Minimum base score: %{#model.getMinBaseScore()}%</div>
                     </div>
-                    <div class="info-row">
-                        <div class="no-wrap">Maximum base score: [max base]</div>
+                    <div id="max-base-score-row" kit-element class="info-row">
+                        <div class="no-wrap">Maximum base score: %{#model.getMaxBaseScore()}%</div>
                     </div>
                 </div>
                 <table>
                     <thead>
                         <tr>
-                            <td>Ability score</td>
+                            <td>Ability</td>
                             <td>Base score</td>
                             <td>Modified score</td>
                             <td>Modifiers</td>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Strength</td>
-                            <td><input type="number" /></td>
-                            <td>[value]</td>
+                        <tr id="strength-row">
+                            <td>
+                                <div class="ability-score-name">Strength</div>
+                            </td>
+                            <td>
+                                <div class="base-score-container" kit-element>
+                                    <input type="number"
+                                           kit-element
+                                           kit-attr-min="min:%{#model.getMinBaseScore()}%"
+                                           kit-attr-max="max:%{#model.getMaxBaseScore()}%"
+                                           kit-attr-value="value:%{#model.getBaseAbilityScore('strength')}%"
+                                           onchange="#model.updateBaseAbilityScore(event, 'strength')" />
+                                </div>
+                            </td>
+                            <td>
+                                <div class="modified-ability-score" kit-element>%{#model.getModifiedAbilityScore('strength')}%</div>
+                                <div class="modified-max-note" kit-element>Max: %{#model.getModifiedAbilityScoreMax('strength')}% <b>*</b></div>
+                            </td>
                             <td class="ability-modifiers">
-                                <ul>
-                                    <li>modifier 1</li>
-                                    <li>modifier 2</li>
-                                    <li>modifier 3</li>
+                                <ul kit-array="#model.getAbilityScoreModifiers('strength')" kit-array-item-alias="modifier">
+                                    <li>%{#modifier.title}% +%{#modifier.modifierValue}%</li>
                                 </ul>
                             </td>
                         </tr>
-                        <tr>
-                            <td>Intelligence</td>
-                            <td><input type="number" /></td>
-                            <td>[value]</td>
+                        <tr id="intelligence-row">
+                            <td>
+                                <div class="ability-score-name">Intelligence</div>
+                            </td>
+                            <td>
+                                <div class="base-score-container" kit-element>
+                                    <input type="number"
+                                           kit-element
+                                           kit-attr-min="min:%{#model.getMinBaseScore()}%"
+                                           kit-attr-max="max:%{#model.getMaxBaseScore()}%"
+                                           kit-attr-value="value:%{#model.getBaseAbilityScore('intelligence')}%"
+                                           onchange="#model.updateBaseAbilityScore(event, 'intelligence')" />
+                                </div>
+                            </td>
+                            <td>
+                                <div class="modified-ability-score" kit-element>%{#model.getModifiedAbilityScore('intelligence')}%</div>
+                                <div class="modified-max-note" kit-element>Max: %{#model.getModifiedAbilityScoreMax('intelligence')}% <b>*</b></div>
+                            </td>
                             <td class="ability-modifiers">
-                                <ul>
-                                    <li>modifier 1</li>
-                                    <li>modifier 2</li>
-                                    <li>modifier 3</li>
+                                <ul kit-array="#model.getAbilityScoreModifiers('intelligence')" kit-array-item-alias="modifier">
+                                    <li>%{#modifier.title}% +%{#modifier.modifierValue}%</li>
                                 </ul>
                             </td>
                         </tr>
-                        <tr>
-                            <td>Wisdom</td>
-                            <td><input type="number" /></td>
-                            <td>[value]</td>
+                        <tr id="wisdom-row">
+                            <td>
+                                <div class="ability-score-name">Wisdom</div>
+                            </td>
+                            <td>
+                                <div class="base-score-container" kit-element>
+                                    <input type="number"
+                                           kit-element
+                                           kit-attr-min="min:%{#model.getMinBaseScore()}%"
+                                           kit-attr-max="max:%{#model.getMaxBaseScore()}%"
+                                           kit-attr-value="value:%{#model.getBaseAbilityScore('wisdom')}%"
+                                           onchange="#model.updateBaseAbilityScore(event, 'wisdom')" />
+                                </div>
+                            </td>
+                            <td>
+                                <div class="modified-ability-score" kit-element>%{#model.getModifiedAbilityScore('wisdom')}%</div>
+                                <div class="modified-max-note" kit-element>Max: %{#model.getModifiedAbilityScoreMax('wisdom')}% <b>*</b></div>
+                            </td>
                             <td class="ability-modifiers">
-                                <ul>
-                                    <li>modifier 1</li>
-                                    <li>modifier 2</li>
-                                    <li>modifier 3</li>
+                                <ul kit-array="#model.getAbilityScoreModifiers('wisdom')" kit-array-item-alias="modifier">
+                                    <li>%{#modifier.title}% +%{#modifier.modifierValue}%</li>
                                 </ul>
                             </td>
                         </tr>
-                        <tr>
-                            <td>Dexterity</td>
-                            <td><input type="number" /></td>
-                            <td>[value]</td>
+                        <tr id="dexterity-row">
+                            <td>
+                                <div class="ability-score-name">Dexterity</div>
+                            </td>
+                            <td>
+                                <div class="base-score-container" kit-element>
+                                    <input type="number"
+                                           kit-element
+                                           kit-attr-min="min:%{#model.getMinBaseScore()}%"
+                                           kit-attr-max="max:%{#model.getMaxBaseScore()}%"
+                                           kit-attr-value="value:%{#model.getBaseAbilityScore('dexterity')}%"
+                                           onchange="#model.updateBaseAbilityScore(event, 'dexterity')" />
+                                </div>
+                            </td>
+                            <td>
+                                <div class="modified-ability-score" kit-element>%{#model.getModifiedAbilityScore('dexterity')}%</div>
+                                <div class="modified-max-note" kit-element>Max: %{#model.getModifiedAbilityScoreMax('dexterity')}% <b>*</b></div>
+                            </td>
                             <td class="ability-modifiers">
-                                <ul>
-                                    <li>modifier 1</li>
-                                    <li>modifier 2</li>
-                                    <li>modifier 3</li>
+                                <ul kit-array="#model.getAbilityScoreModifiers('dexterity')" kit-array-item-alias="modifier">
+                                    <li>%{#modifier.title}% +%{#modifier.modifierValue}%</li>
                                 </ul>
                             </td>
                         </tr>
-                        <tr>
-                            <td>Constitution</td>
-                            <td><input type="number" /></td>
-                            <td>[value]</td>
+                        <tr id="constitution-row">
+                            <td>
+                                <div class="ability-score-name">Constitution</div>
+                            </td>
+                            <td>
+                                <div class="base-score-container" kit-element>
+                                    <input type="number"
+                                           kit-element
+                                           kit-attr-min="min:%{#model.getMinBaseScore()}%"
+                                           kit-attr-max="max:%{#model.getMaxBaseScore()}%"
+                                           kit-attr-value="value:%{#model.getBaseAbilityScore('constitution')}%"
+                                           onchange="#model.updateBaseAbilityScore(event, 'constitution')" />
+                                </div>
+                            </td>
+                            <td>
+                                <div class="modified-ability-score" kit-element>%{#model.getModifiedAbilityScore('constitution')}%</div>
+                                <div class="modified-max-note" kit-element>Max: %{#model.getModifiedAbilityScoreMax('constitution')}% <b>*</b></div>
+                            </td>
                             <td class="ability-modifiers">
-                                <ul>
-                                    <li>modifier 1</li>
-                                    <li>modifier 2</li>
-                                    <li>modifier 3</li>
+                                <ul kit-array="#model.getAbilityScoreModifiers('constitution')" kit-array-item-alias="modifier">
+                                    <li>%{#modifier.title}% +%{#modifier.modifierValue}%</li>
                                 </ul>
                             </td>
                         </tr>
-                        <tr>
-                            <td>Charisma</td>
-                            <td><input type="number" /></td>
-                            <td>[value]</td>
+                        <tr id="charisma-row">
+                            <td>
+                                <div class="ability-score-name">Charisma</div>
+                            </td>
+                            <td>
+                                <div class="base-score-container" kit-element>
+                                    <input type="number"
+                                           kit-element
+                                           kit-attr-min="min:%{#model.getMinBaseScore()}%"
+                                           kit-attr-max="max:%{#model.getMaxBaseScore()}%"
+                                           kit-attr-value="value:%{#model.getBaseAbilityScore('charisma')}%"
+                                           onchange="#model.updateBaseAbilityScore(event, 'charisma')" />
+                                </div>
+                            </td>
+                            <td>
+                                <div class="modified-ability-score" kit-element>%{#model.getModifiedAbilityScore('charisma')}%</div>
+                                <div class="modified-max-note" kit-element>Max: %{#model.getModifiedAbilityScoreMax('charisma')}% <b>*</b></div>
+                            </td>
                             <td class="ability-modifiers">
-                                <ul>
-                                    <li>modifier 1</li>
-                                    <li>modifier 2</li>
-                                    <li>modifier 3</li>
+                                <ul kit-array="#model.getAbilityScoreModifiers('charisma')" kit-array-item-alias="modifier">
+                                    <li>%{#modifier.title}% +%{#modifier.modifierValue}%</li>
                                 </ul>
                             </td>
                         </tr>
                     </tbody>
                 </table>
+                <div class="modified-max-note no-wrap"><b>*</b> Not including equipment modifiers</div>
             </div>
         </div>
         <div id="hit-points-content">
             <div id="hit-points-summary" class="summary">
-                <div class="summary-label no-wrap">Hit points: [z]</div>
+                <div class="summary-label no-wrap">Hit points</div>
                 <div>
                     <div id="expand-hit-points"
                          title="Show Detail"
@@ -147,92 +222,42 @@
                 </div>
             </div>
             <div id="hit-points-detail" class="detail hidden">
-                <table>
-                    <tr>
-                        <td>
-                            <div class="hit-point-class-and-level">[class 1, lvl 1]</div>
-                        </td>
-                        <td>
-                            <div>
-                                <input type="number" />
+                <div id="hit-points-table"
+                     kit-array="#model.getHitPointRows()"
+                     kit-array-item-alias="row">
+                    <div class="hit-point-row">
+                        <div>
+                            <div kit-if="#row.class" class="hit-point-class-and-level no-wrap">%{#row.class}%, Level %{#row.level}%</div>
+                            <div kit-if="#row.feature" class="no-wrap">%{#row.feature}%</div>
+                        </div>
+                        <div>
+                            <div kit-if="#row.class">
+                                <div>
+                                    <input type="number"
+                                           kit-element
+                                           data-class-index="%{#row.classIndex}%"
+                                           data-level="%{#row.level}%"
+                                           min="1"
+                                           kit-attr-max="max:%{#row.hitDieSize}%"
+                                           kit-attr-value="value:%{#row.hitPoints}%"
+                                           onchange="#model.updateHitPoints(event)"/>
+                                </div>
+                                <div class="hit-die">
+                                    D%{#row.hitDieSize}%
+                                </div>
                             </div>
-                            <div class="hit-die">
-                                Dx
+                            <div kit-if="#row.feature">&nbsp;</div>
+                        </div>
+                        <div>
+                            <div kit-if="#row.class">
+                                <div class="hit-point-modifier">%{#row.conModifierAtLevel}%</div>
+                                <div class="modifier-note no-wrap">Con modifier</div>
                             </div>
-                        </td>
-                        <td>
-                            <div>
-                                <div class="hit-point-modifier">+ [x]</div>
-                                <div class="modifier-note">Con modifier</div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="hit-point-total">= [y]</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="hit-point-class-and-level">[class 1, lvl 2]</div>
-                        </td>
-                        <td>
-                            <div>
-                                <input type="number" />
-                            </div>
-                            <div class="hit-die">
-                                Dx
-                            </div>
-                        </td>
-                        <td>
-                            <div>
-                                <div class="hit-point-modifier">+ [x]</div>
-                                <div class="modifier-note">Con modifier</div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="hit-point-total">= [y]</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="hit-point-class-and-level">[class 1, lvl 3]</div>
-                        </td>
-                        <td>
-                            <div>
-                                <input type="number" />
-                            </div>
-                            <div class="hit-die">
-                                Dx
-                            </div>
-                        </td>
-                        <td>
-                            <div>
-                                <div class="hit-point-modifier">+ [x]</div>
-                                <div class="modifier-note">Con modifier</div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="hit-point-total">= [y]</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>[feature 1]</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td class="hit-point-total">= [y]</td>
-                    </tr>
-                    <tr>
-                        <td>[feature 2]</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td class="hit-point-total">= [y]</td>
-                    </tr>
-                    <tr>
-                        <td>Total</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td class="hit-point-total">= [z]</td>
-                    </tr>
-                </table>
+                            <div kit-if="#row.feature">&nbsp;</div>
+                        </div>
+                        <div class="hit-point-total no-wrap">%{#row.modifiedHitPoints}%</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

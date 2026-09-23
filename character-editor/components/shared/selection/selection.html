@@ -1,5 +1,5 @@
 
-<section class="selection">
+<section class="selection" kit-if="#model?.hasSelectionModel()">
     <div class="selection-title"><label>%{#model.getTitle()}%</label></div>
     <div class="selection-collapsed" 
          onpointerdown="#model.toggleDropDown(event)">

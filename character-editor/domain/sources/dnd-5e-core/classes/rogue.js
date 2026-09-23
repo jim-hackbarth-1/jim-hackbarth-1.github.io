@@ -13,10 +13,15 @@ export class Rogue {
         return "dnd-5e-core/classes/rogue.html";
     }
 
+    static get hitDieSize() {
+        return 8;
+    }
+
     static getMulticlassEligibility(character) {
-        if (Number(character.abilityScores.dexterity) >= 13) {
+        const dexterity = Number(character.getAbilityScore("dexterity"));
+        if (dexterity >= 13) {
             return {
-                isEligible: isEligible,
+                isEligible: true,
                 ineligibilityReason: null
             };
         }

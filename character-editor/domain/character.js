@@ -26,12 +26,8 @@ export class Character {
         this.race = data?.race;
         this.subRace = data?.subRace;
         this.classes = data?.classes;
-        this.#strength = data?.abilityScores?.strength;
-        this.#intelligence = data?.abilityScores?.intelligence;
-        this.#wisdom = data?.abilityScores?.wisdom;
-        this.#dexterity = data?.abilityScores?.dexterity;
-        this.#constitution = data?.abilityScores?.constitution;
-        this.#charisma = data?.abilityScores?.charisma;
+        this.abilityScores = data?.abilityScores;
+        this.useAbilityScorePointsSystem = data?.useAbilityScorePointsSystem;
         this.options = data?.options;
         this.features = data?.features;
     }
@@ -85,21 +81,42 @@ export class Character {
         this.#classes = temp;
     }
 
-    #strength;
-    #intelligence;
-    #wisdom;
-    #dexterity;
-    #constitution;
-    #charisma;
+    #abilityScores;
     get abilityScores() {
-        return {
-            strength: this.#strength,
-            intelligence: this.#intelligence,
-            wisdom: this.#wisdom,
-            dexterity: this.#dexterity,
-            constitution: this.#constitution,
-            charisma: this.#charisma
-        };
+        return this.#abilityScores;
+    }
+    set abilityScores(abilityScores) {
+        if (abilityScores == null) {
+            abilityScores = [];
+        }
+        const temp = [
+            { name: "strength", title: "Strength" },
+            { name: "intelligence", title: "Intelligence" },
+            { name: "wisdom", title: "Wisdom" },
+            { name: "dexterity", title: "Dexterity" },
+            { name: "constitution", title: "Constitution" },
+            { name: "charisma", title: "Charisma" }
+        ];
+        for (const abilityScore of temp) {
+            abilityScore.baseScore = 8;
+            abilityScore.modifiedMaximum = 20;
+        }
+        for (const abilityScoreIn of abilityScores) {
+            const abilityScore = temp.find(a => a.name == abilityScoreIn.name);
+            if (abilityScore) {
+                abilityScore.baseScore = abilityScoreIn.baseScore;
+                abilityScore.modifiedMaximum = abilityScoreIn.modifiedMaximum;
+            }
+        }
+        this.#abilityScores = temp;
+    }
+
+    #useAbilityScorePointsSystem;
+    get useAbilityScorePointsSystem() {
+        return this.#useAbilityScorePointsSystem;
+    }
+    set useAbilityScorePointsSystem(useAbilityScorePointsSystem) {
+        this.#useAbilityScorePointsSystem = useAbilityScorePointsSystem;
     }
 
     #options;
@@ -171,6 +188,81 @@ export class Character {
         return level;
     }
 
+    getAbilityScore(ability) {
+        const abilityScoreItem = this.abilityScores.find(a => a.name == ability);
+        const baseScore = abilityScoreItem.baseScore;
+        const nonEquipmentModifier = this.features
+            .filter(f => f.modifier == `ability-score:${ability}` && f.sourcePropertyName != "equipment")
+            .map(f => f.modifierValue)
+            .reduce((a, b) => a + b, 0);
+        let abilityScore = Number(baseScore) + Number(nonEquipmentModifier);
+        const max = Number(abilityScoreItem.modifiedMaximum);
+        if (abilityScore > max) {
+            abilityScore = max;
+        }
+        const equipmentModifier = this.features
+            .filter(f => f.modifier == `ability-score:${ability}` && f.sourcePropertyName == "equipment")
+            .map(f => f.modifierValue)
+            .reduce((a, b) => a + b, 0);
+        abilityScore += Number(equipmentModifier);
+        return abilityScore;
+    }
+
+    getConModifierAtLevel(levelBoonIndex) {
+        const sourceProperties = ["race", "subRace", "class", "subClass", "background"];
+        const features = this.features.filter(f =>
+            f.modifier == "ability-score:constitution"
+            && sourceProperties.includes(f.sourcePropertyName));
+        const feats = [];
+        for (const characterClass of this.classes) {
+            for (const levelBoon of characterClass.levelBoons) {
+                if (levelBoon.index <= levelBoonIndex) {
+                    const sourcePropertyValues = [
+                        `${characterClass.name}-${levelBoon.level}-ability-score-modifier-1`,
+                        `${characterClass.name}-${levelBoon.level}-ability-score-modifier-2`
+                    ];
+                    const abilityScoreImprovementFeatures = this.features.filter(f =>
+                        f.modifier == "ability-score:constitution"
+                        && sourcePropertyValues.includes(f.sourcePropertyValue));
+                    for (const feature of abilityScoreImprovementFeatures) {
+                        features.push(feature);
+                    }
+                    if (levelBoon.feat) {
+                        feats.push(levelBoon.feat);
+                    }
+                }
+            }
+        }
+        const featFeatures = this.features.filter(f =>
+            f.modifier == "ability-score:constitution"
+            && f.sourcePropertyName == "feat"
+            && feats.includes(f.sourcePropertyValue));
+        for (const feature of featFeatures) {
+            features.push(feature);
+        }
+        return features.map(f => Number(f.modifierValue)).reduce((a, b) => a + b, 0);
+    }
+
+    getHitPoints() {
+        let totalHp = 0;
+        const conBase = this.abilityScores.find(a => a.name == "constitution").baseScore;
+        for (const characterClass of this.classes) {
+            for (const levelBoon of characterClass.levelBoons) {
+                const conModifierAtLevel = this.getConModifierAtLevel(levelBoon.index);
+                const conAtLevel = Number(conBase) + Number(conModifierAtLevel);
+                const hpModAtLevel = Math.floor((Number(conAtLevel) - 10) / 2);
+                totalHp += (Number(levelBoon.hitPoints) + Number(hpModAtLevel));
+            }
+        }
+        const featFeatures = this.features.filter(f =>
+            f.modifier == "hit-points"
+            && f.sourcePropertyName == "feat");
+        for (const feature of featFeatures) {
+            totalHp += Number(feature.modifierValue);
+        }
+        return totalHp;
+    }
+
     toJSON() {
         return {
             sources: this.sources,
@@ -178,7 +270,8 @@ export class Character {
             race: this.race,
             subRace: this.subRace,
             classes: this.classes,
-            abilityScores: this.abilityScore,
+            abilityScores: this.abilityScores,
+            useAbilityScorePointsSystem: this.useAbilityScorePointsSystem,
             options: this.options,
             features: this.features
         }

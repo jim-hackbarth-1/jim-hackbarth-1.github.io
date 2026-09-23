@@ -13,10 +13,15 @@ export class Bard {
         return "dnd-5e-core/classes/bard.html";
     }
 
+    static get hitDieSize() {
+        return 8;
+    }
+
     static getMulticlassEligibility(character) {
-        if (Number(character.abilityScores.charisma) >= 13) {
+        const charisma = Number(character.getAbilityScore("charisma"));
+        if (charisma >= 13) {
             return {
-                isEligible: isEligible,
+                isEligible: true,
                 ineligibilityReason: null
             };
         }

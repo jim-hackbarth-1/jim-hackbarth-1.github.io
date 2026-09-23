@@ -21,12 +21,12 @@
                 padding: 5px;
                 position: relative;
                 border: 1px solid black;
-                overflow:hidden;
+                overflow: hidden;
             }
 
             .no-border {
-                border:none;
-                margin:0;
+                border: none;
+                margin: 0;
             }
 
             #logo-container-print {
@@ -60,22 +60,33 @@
             }
 
             .field-value {
-                padding-left:5px;
+                padding-left: 5px;
             }
 
             ul {
-                margin-left:20px;
+                margin-left: 20px;
+            }
+
+            .ability-score-cell,
+            .stats-cell {
+                text-align: center;
+            }
+
+            .ability-score-cell .ability-score,
+            #hit-points-max {
+                font-size: larger;
+                font-weight: bold;
             }
 
             @media print {
 
                 .page-content {
                     margin: 0;
-                    font-size:smaller;
+                    font-size: smaller;
                 }
 
                 #name-heading {
-                    margin-top:5px;
+                    margin-top: 5px;
                 }
 
                 #logo-container-print {
@@ -86,16 +97,19 @@
                     max-width: 60px;
                 }
 
-                #page-1 {
-                    page-break-after: always;
+                .ability-score-cell .ability-score,
+                #hit-points-max {
+                    font-size: unset;
                 }
 
-                #test-div {
+                #page-1 {
+                    /*page-break-after: always;*/
+                }
+
+                .test-div {
                     page-break-inside: avoid;
                 }
-
             }
-
         </style>
         <div id="page-1" class="page-content">
             <div class="row">
@@ -148,32 +162,50 @@
             <div class="row">
                 <div class="cell" style="flex:1;">
                     <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div>str (bonus/save)</div>
+                    <div class="ability-score-cell">
+                        <div id="strength" class="ability-score no-wrap">str</div>
+                        <div id="strength-modifier" class="no-wrap">mod</div>
+                    </div>
                     <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                 </div>
                 <div class="cell" style="flex:1;">
                     <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div>int (bonus/save)</div>
+                    <div class="ability-score-cell">
+                        <div id="intelligence" class="ability-score no-wrap">int</div>
+                        <div id="intelligence-modifier" class="no-wrap">mod</div>
+                    </div>
                     <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                 </div>
                 <div class="cell" style="flex:1;">
                     <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div>wis (bonus/save)</div>
+                    <div class="ability-score-cell">
+                        <div id="wisdom" class="ability-score no-wrap">wis</div>
+                        <div id="wisdom-modifier" class="no-wrap">mod</div>
+                    </div>
                     <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                 </div>
                 <div class="cell" style="flex:1;">
                     <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div>dex (bonus/save)</div>
+                    <div class="ability-score-cell">
+                        <div id="dexterity" class="ability-score no-wrap">dex</div>
+                        <div id="dexterity-modifier" class="no-wrap">mod</div>
+                    </div>
                     <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                 </div>
                 <div class="cell" style="flex:1;">
                     <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div>con (bonus/save)</div>
+                    <div class="ability-score-cell">
+                        <div id="constitution" class="ability-score no-wrap">con</div>
+                        <div id="constitution-modifier" class="no-wrap">mod</div>
+                    </div>
                     <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                 </div>
                 <div class="cell" style="flex:1;">
                     <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div>cha (bonus/save)</div>
+                    <div class="ability-score-cell">
+                        <div id="charisma" class="ability-score no-wrap">cha</div>
+                        <div id="charisma-modifier" class="no-wrap">mod</div>
+                    </div>
                     <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                 </div>
             </div>
@@ -200,7 +232,10 @@
                 </div>
                 <div class="cell" style="flex:1;">
                     <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div>hp (max and hd)</div>
+                    <div class="stats-cell">
+                        <div id="hit-points-max" class="no-wrap">hp</div>
+                        <div id="hit-dice" class="no-wrap">hd</div>
+                    </div>
                     <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                 </div>
             </div>
@@ -239,29 +274,90 @@
                 </div>
             </div>
             <div id="features-and-equipment-row" class="row">
-                <div class="cell" style="flex:1;">
-                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div>features</div>
-                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                <div style="flex: 1; margin: 5px;">
+                    <div>Features</div>
+                    <div class="cell test-div">
+                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                        <div>feature 1</div>
+                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                    </div>
+                    <div class="cell test-div">
+                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                        <div>feature 2</div>
+                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                    </div>
+                    <div class="cell test-div">
+                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                        <div>feature 3</div>
+                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                    </div>
+                    <div class="cell test-div">
+                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                        <div>feature 4</div>
+                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                    </div>
+                    <div class="cell test-div">
+                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                        <div>
+                            <div>feature 5</div>
+                            <div>xxx</div>
+                            <div>xxx</div>
+                            <div>xxx</div>
+                            <div>xxx</div>
+                            <div>xxx</div>
+                            <div>xxx</div>
+                            <div>xxx</div>
+                            <div>xxx</div>
+                            <div>xxx</div>
+                            <div>xxx</div>
+                        </div>
+                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                    </div>
+                    <div class="cell test-div">
+                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                        <div>feature 6</div>
+                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                    </div>
+                    <div class="cell test-div">
+                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                        <div>feature 7</div>
+                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                    </div>
+                    <div class="cell test-div">
+                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                        <div>feature 8</div>
+                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                    </div>
                 </div>
-                <div id="test-div" class="cell" style="flex:1;">
-                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div>equipment</div>
-                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
-                </div>
-            </div>
-        </div>
-        <div class="page-content">
-            <div class="row">
-                <div class="cell" style="flex:1;">
-                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div>more features fjdslkf fdjlkf fdjkl fdjkl</div>
-                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
-                </div>
-                <div class="cell" style="flex:1;">
-                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div>more equip</div>
-                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                <div style="flex: 1; margin: 5px;">
+                    <div>Equipment</div>
+                    <div class="cell test-div">
+                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                        <div>equipment 1</div>
+                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                    </div>
+                    <div class="cell test-div">
+                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                        <div>equipment 2</div>
+                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                    </div>
+                    <div class="cell test-div">
+                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                        <div>
+                            <div>equipment 3</div>
+                            <div>xxx</div>
+                            <div>xxx</div>
+                            <div>xxx</div>
+                            <div>xxx</div>
+                            <div>xxx</div>
+                            <div>xxx</div>
+                            <div>xxx</div>
+                            <div>xxx</div>
+                            <div>xxx</div>
+                            <div>xxx</div>
+                        </div>
+                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -278,6 +374,6 @@
                     <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                 </div>
             </div>
-        </div>
+        </div> 
     </div>
 </section>

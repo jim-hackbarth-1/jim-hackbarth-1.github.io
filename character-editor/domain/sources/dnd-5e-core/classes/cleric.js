@@ -13,10 +13,15 @@ export class Cleric {
         return "dnd-5e-core/classes/cleric.html";
     }
 
+    static get hitDieSize() {
+        return 8;
+    }
+
     static getMulticlassEligibility(character) {
-        if (Number(character.abilityScores.wisdom) >= 13) {
+        const wisdom = Number(character.getAbilityScore("wisdom"));
+        if (wisdom >= 13) {
             return {
-                isEligible: isEligible,
+                isEligible: true,
                 ineligibilityReason: null
             };
         }

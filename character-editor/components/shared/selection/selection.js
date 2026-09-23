@@ -36,12 +36,19 @@ class SelectionModel {
         if (sectionExpanded) {
             sectionExpanded.classList.add("hidden");
         }
-        if (this.#selectionModel.maxSelections == 1) {
+        if (this.#selectionModel?.maxSelections == 1) {
             const checkboxes = this.#kitElement.querySelectorAll(".option-checkbox");
             for (const checkbox of checkboxes) {
                 checkbox.classList.add("hidden");
             }
         }
+    }
+
+    hasSelectionModel() {
+        if (this.#selectionModel) {
+            return true;
+        }
+        return false;
     }
 
     hideExpandedSections() {

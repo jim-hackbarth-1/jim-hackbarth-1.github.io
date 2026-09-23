@@ -68,5 +68,41 @@ class PrintViewModel {
             }
         }
         this.#kitElement.querySelector("#classes").innerHTML = classesHtml;
+
+        // abilities
+        for (const abilityScore of character.abilityScores) {
+            const name = abilityScore.name;
+            const title = abilityScore.title;
+            const score = character.getAbilityScore(name);
+            this.#kitElement.querySelector(`#${name}`).innerText = `${title}: ${score}`;
+            const modifier = this.#getAbilityScoreModifier(score);
+            let modifierLabel = `(+${modifier} modifier)`;
+            if (modifier < 0) {
+                modifierLabel = `(${modifier} modifier)`;
+            }
+            if (modifier == 0) {
+                modifierLabel = `(No modifier)`;
+            }
+            this.#kitElement.querySelector(`#${name}-modifier`).innerText = modifierLabel;
+        }
+
+        // hit points and hit dice
+        const hitPoints = `Hit Points: ${character.getHitPoints()}`;
+        const hitDice = [];
+        for (const characterClass of character.classes) {
+            const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.name);
+            const hitDieSize = cls?.hitDieSize;
+            const level = characterClass?.level;
+            if (hitDieSize && level) {
+                hitDice.push(`${level}D${hitDieSize}`);
+            }
+        }
+        const hitDiceLabel = `(Hit Dice: ${hitDice.join(", ")})`;
+        this.#kitElement.querySelector("#hit-points-max").innerText = hitPoints;
+        this.#kitElement.querySelector("#hit-dice").innerText = hitDiceLabel;
+    }
+
+    #getAbilityScoreModifier(abilityScore) {
+        return Math.floor((Number(abilityScore) - 10) / 2);
     }
 }

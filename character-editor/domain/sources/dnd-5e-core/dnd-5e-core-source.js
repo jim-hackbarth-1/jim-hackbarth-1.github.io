@@ -121,6 +121,21 @@ import { Tough } from "./feats/tough.js";
 import { WarCaster } from "./feats/war-caster.js";
 import { WeaponMaster } from "./feats/weapon-master.js";
 
+// backgrounds
+import { Acolyte } from "./backgrounds/acolyte.js";
+import { Charlatan } from "./backgrounds/charlatan.js";
+import { Criminal } from "./backgrounds/criminal.js";
+import { Entertainer } from "./backgrounds/entertainer.js";
+import { FolkHero } from "./backgrounds/folk-hero.js";
+import { GuildArtisan } from "./backgrounds/guild-artisan.js";
+import { Hermit } from "./backgrounds/hermit.js";
+import { Noble } from "./backgrounds/noble.js";
+import { Outlander } from "./backgrounds/outlander.js";
+import { Sage } from "./backgrounds/sage.js";
+import { Sailor } from "./backgrounds/sailor.js";
+import { Soldier } from "./backgrounds/soldier.js";
+import { Urchin } from "./backgrounds/urchin.js";
+
 
 export class DnD5ESource {
 
@@ -272,6 +287,25 @@ export class DnD5ESource {
     ];
     static getFeats() {
         return DnD5ESource.#feats;
+    }
+
+    static #backgrounds = [
+        Acolyte,
+        Charlatan,
+        Criminal,
+        Entertainer,
+        FolkHero,
+        GuildArtisan,
+        Hermit,
+        Noble,
+        Outlander,
+        Sage,
+        Sailor,
+        Soldier,
+        Urchin
+    ];
+    static getBackgrounds() {
+        return DnD5ESource.#backgrounds;
     }
 
 }

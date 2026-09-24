@@ -61,7 +61,6 @@ class DomainAbilityScoresAndHitPointsModel {
         if (charismaUpdated) {
             await this.#renderAbilityScoreRow("charisma");
         }
-        //hit-points-table
         await UIKit.renderer.renderElement(this.#kitElement.querySelector("#hit-points-table"));
     }
 

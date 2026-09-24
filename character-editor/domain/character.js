@@ -28,6 +28,12 @@ export class Character {
         this.classes = data?.classes;
         this.abilityScores = data?.abilityScores;
         this.useAbilityScorePointsSystem = data?.useAbilityScorePointsSystem;
+        this.alignment = data?.alignment;
+        this.background = data?.background;
+        this.traits = data?.traits,
+        this.ideal = data?.ideal,
+        this.bond = data?.bond,
+        this.flaw = data?.flaw,
         this.options = data?.options;
         this.features = data?.features;
     }
@@ -117,6 +123,54 @@ export class Character {
     }
     set useAbilityScorePointsSystem(useAbilityScorePointsSystem) {
         this.#useAbilityScorePointsSystem = useAbilityScorePointsSystem;
+    }
+
+    #alignment;
+    get alignment() {
+        return this.#alignment;
+    }
+    set alignment(alignment) {
+        this.#alignment = alignment;
+    }
+
+    #background;
+    get background() {
+        return this.#background;
+    }
+    set background(background) {
+        this.#background = background;
+    }
+
+    #traits;
+    get traits() {
+        return this.#traits;
+    }
+    set traits(traits) {
+        this.#traits = traits ?? [];
+    }
+
+    #ideal;
+    get ideal() {
+        return this.#ideal;
+    }
+    set ideal(ideal) {
+        this.#ideal = ideal;
+    }
+
+    #bond;
+    get bond() {
+        return this.#bond;
+    }
+    set bond(bond) {
+        this.#bond = bond;
+    }
+
+    #flaw;
+    get flaw() {
+        return this.#flaw;
+    }
+    set flaw(flaw) {
+        this.#flaw = flaw;
     }
 
     #options;
@@ -272,6 +326,12 @@ export class Character {
             classes: this.classes,
             abilityScores: this.abilityScores,
             useAbilityScorePointsSystem: this.useAbilityScorePointsSystem,
+            alignment: this.alignment,
+            background: this.background,
+            traits: this.traits,
+            ideal: this.ideal,
+            bond: this.bond,
+            flaw: this.flaw,
             options: this.options,
             features: this.features
         }

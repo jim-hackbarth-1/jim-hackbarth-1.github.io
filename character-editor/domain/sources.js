@@ -152,6 +152,49 @@ export class Sources {
         return html ?? "";
     }
 
+    static #allAlignments = [
+        { name: "lawful-good", title: "Lawful Good", html: "[content here]" },
+        { name: "neutral-good", title: "Neutral Good", html: "[content here]" },
+        { name: "chaotic-good", title: "Chaotic Good", html: "[content here]" },
+        { name: "lawful-neutral", title: "Lawful Neutral", html: "[content here]" },
+        { name: "neutral", title: "Neutral", html: "[content here]" },
+        { name: "chaotic-neutral", title: "Chaotic Neutral", html: "[content here]" },
+        { name: "lawful-evil", title: "Lawful Evil", html: "[content here]" },
+        { name: "neutral-evil", title: "Neutral Evil", html: "[content here]" },
+        { name: "chaotic-evil", title: "Chaotic Evil", html: "[content here]" }
+    ];
+    static getAlignments() {
+        return Sources.#allAlignments;
+    }
+
+    static #allBackgrounds;
+    static getBackgrounds(sources) {
+        if (!Sources.#allBackgrounds) {
+            const allBackgrounds = [];
+            for (const source of Sources.getSources()) {
+                if (source.getBackgrounds) {
+                    const backgrounds = source.getBackgrounds();
+                    for (const background of backgrounds) {
+                        background.source = source;
+                        allBackgrounds.push(background);
+                    }
+                }
+            }
+            Sources.#allBackgrounds = allBackgrounds;
+        }
+        return Sources.#allBackgrounds.filter(b => sources.includes(b.source.name));
+    }
+
+    static async getBackgroundHtml(sources, background) {
+        const basePath = "./domain/sources";
+        const backgroundModel = Sources.getBackgrounds(sources).find(b => b.name == background);
+        if (backgroundModel.html) {
+            return backgroundModel.html;
+        }
+        const html = await Sources.#getHtml(basePath, backgroundModel.htmlPath)
+        return html ?? "";
+    }
+
     static updateCharacterSources(character, sources) {
         if (character.race && !Sources.getRaces(sources).some(r => r.name == character.race)) {
             Sources.updateCharacterRace(character, null);
@@ -176,8 +219,11 @@ export class Sources {
                 Sources.removeCharacterClass(character, i);
             }
         }
+        if (character.background && !Sources.getBackgrounds(sources).some(b => b.name == character.background)) {
+            Sources.updateCharacterBackground(character, null);
+        }
 
-        // TODO: background, spells, equipment
+        // TODO: spells, equipment
         character.sources = sources;
     }
 
@@ -289,6 +335,59 @@ export class Sources {
             if (abilityScore.baseScore > max) {
                 abilityScore.baseScore = max;
             }
+        }
+    }
+
+    static updateCharacterAlignment(character, alignment) {
+        if (character.alignment != alignment) {
+            character.options = character.options.filter(o => o.sourcePropertyName != "alignment");
+            character.alignment = alignment;
+        }
+    }
+
+    static updateCharacterBackground(character, background) {
+        if (character.background != background) {
+            character.options = character.options.filter(o => o.sourcePropertyName != "background");
+            character.background = background;
+            Sources.updateCharacterTraits(character, []);
+            Sources.updateCharacterIdeal(character, null);
+            Sources.updateCharacterBond(character, null);
+            Sources.updateCharacterFlaw(character, null);
+        }
+    }
+
+    static updateCharacterTraits(character, traits) {
+        let hasChange =
+            (character.traits.length != traits.length)
+        if (!hasChange) {
+            for (let i = 0; i < traits.length; i++) {
+                if (character.traits[i] != traits[i]) {
+                    hasChange = true;
+                    break;
+                }
+            }
+        }
+        if (hasChange) {
+            character.options = character.options.filter(o => o.sourcePropertyName != "trait");
+            character.traits = traits;
+        }
+    }
+
+    static updateCharacterIdeal(character, ideal) {
+        if (character.ideal != ideal) {
+            character.ideal = ideal;
+        }
+    }
+
+    static updateCharacterBond(character, bond) {
+        if (character.bond != bond) {
+            character.bond = bond;
+        }
+    }
+
+    static updateCharacterFlaw(character, flaw) {
+        if (character.flaw != flaw) {
+            character.flaw = flaw;
         }
     }
 

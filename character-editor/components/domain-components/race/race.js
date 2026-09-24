@@ -37,15 +37,11 @@ class DomainRaceModel {
         if (sourcesUpdated || raceUpdated) {
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#race-row"));
         }
-        if (!message.option || message.option?.sourcePropertyName == "race") {
-            await UIKit.renderer.renderElement(this.#kitElement.querySelector("#race-options-row"));
-        }
+        await UIKit.renderer.renderElement(this.#kitElement.querySelector("#race-options-row"));
         if (sourcesUpdated || raceUpdated || subRaceUpdated) {
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#sub-race-row"));
         }
-        if (!message.option || message.option?.sourcePropertyName == "subRace") {
-            await UIKit.renderer.renderElement(this.#kitElement.querySelector("#sub-race-options-row"));
-        }
+        await UIKit.renderer.renderElement(this.#kitElement.querySelector("#sub-race-options-row"));
     }
 
     getRaces() {

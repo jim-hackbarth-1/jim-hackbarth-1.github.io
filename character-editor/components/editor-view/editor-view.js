@@ -147,8 +147,15 @@ export class EditorViewModel {
                 }
             }
         }
+
+        if (character.background) {
+            const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background);
+            if (background.updateFeatures) {
+                background.updateFeatures(character);
+            }
+        }
         
-        // TODO: same for background, equipment
+        // TODO: same for equipment
 
         Character.currentCharacter = character;
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateTopic, message);

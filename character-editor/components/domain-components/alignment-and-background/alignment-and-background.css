@@ -1,0 +1,18 @@
+
+@scope (#domain-alignment-and-background-component) {
+    :scope {
+    }
+
+    #alignment-and-background-content {
+        padding: 5px;
+    }
+
+    #alignment-and-background-content > div,
+    .option-control {
+        margin-bottom: 10px;
+    }
+
+    .hidden {
+        display: none;
+    }
+}

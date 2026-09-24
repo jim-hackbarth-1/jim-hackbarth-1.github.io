@@ -77,4 +77,8 @@ export class LandsOfAedunSource {
         return [];
     }
 
+    static getBackgrounds() {
+        return [];
+    }
+
 }

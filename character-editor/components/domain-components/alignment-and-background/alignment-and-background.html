@@ -1,0 +1,60 @@
+
+<section id="domain-alignment-and-background-component">
+    <link rel="stylesheet" href="./components/domain-components/alignment-and-background/alignment-and-background.css" />
+    <div id="alignment-and-background-content">
+        <div id="alignment-row" kit-element>
+            <kit kit-component="./components/shared/selection/selection.html"
+                 kit-obj-selection-model="selectionModel:#model.getAlignments()"
+                 kit-obj-get-detail-handler="getDetailHandler:#model.getAlignmentHtml"
+                 kit-obj-change-handler="changeHandler:#model.updateAlignment">
+            </kit>
+        </div>
+        <div id="background-row" kit-element>
+            <kit kit-component="./components/shared/selection/selection.html"
+                 kit-obj-selection-model="selectionModel:#model.getBackgrounds()"
+                 kit-obj-get-detail-handler="getDetailHandler:#model.getBackgroundHtml"
+                 kit-obj-change-handler="changeHandler:#model.updateBackground">
+            </kit>
+        </div>
+        <div id="traits-row" kit-if="#model.hasBackground()">
+            <kit kit-component="./components/shared/selection/selection.html"
+                 kit-obj-selection-model="selectionModel:#model.getTraits()"
+                 kit-obj-get-detail-handler="getDetailHandler:#model.getTraitHtml"
+                 kit-obj-change-handler="changeHandler:#model.updateTraits">
+            </kit>
+        </div>
+        <div id="ideal-row" kit-if="#model.hasBackground()">
+            <kit kit-component="./components/shared/selection/selection.html"
+                 kit-obj-selection-model="selectionModel:#model.getIdeals()"
+                 kit-obj-get-detail-handler="getDetailHandler:#model.getIdealHtml"
+                 kit-obj-change-handler="changeHandler:#model.updateIdeal">
+            </kit>
+        </div>
+        <div id="bond-row" kit-if="#model.hasBackground()">
+            <kit kit-component="./components/shared/selection/selection.html"
+                 kit-obj-selection-model="selectionModel:#model.getBonds()"
+                 kit-obj-get-detail-handler="getDetailHandler:#model.getBondHtml"
+                 kit-obj-change-handler="changeHandler:#model.updateBond">
+            </kit>
+        </div>
+        <div id="flaw-row" kit-if="#model.hasBackground()">
+            <kit kit-component="./components/shared/selection/selection.html"
+                 kit-obj-selection-model="selectionModel:#model.getFlaws()"
+                 kit-obj-get-detail-handler="getDetailHandler:#model.getFlawHtml"
+                 kit-obj-change-handler="changeHandler:#model.updateFlaw">
+            </kit>
+        </div>
+        <div id="background-options-row" kit-if="#model.hasBackgroundOptions()">
+            <div kit-array="#model.getBackgroundOptions()"
+                 kit-array-item-alias="option">
+                <div class="option-control">
+                    <kit kit-component="./components/shared/selection/selection.html"
+                         kit-obj-selection-model="selectionModel:#option"
+                         kit-obj-get-detail-handler="getDetailHandler:#model.getBackgroundOptionHtml"
+                         kit-obj-change-handler="changeHandler:#model.updateBackgroundOption">
+                    </kit>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

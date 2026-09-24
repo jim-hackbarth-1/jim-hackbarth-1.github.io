@@ -18,7 +18,7 @@
                 min-width: 50px;
                 min-height: 50px;
                 margin: 5px;
-                padding: 5px;
+                padding: 5px 10px 5px 10px;
                 position: relative;
                 border: 1px solid black;
                 overflow: hidden;
@@ -117,7 +117,7 @@
                 <div class="cell no-border"><h1 id="name-heading" class="no-wrap">&nbsp;</h1></div>
             </div>
             <div class="row">
-                <div class="cell" style="flex:1;">
+                <div class="cell">
                     <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
                     <div>portrait</div>
                     <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
@@ -144,17 +144,15 @@
                     </div>
                     <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                 </div>
-                <div class="cell" style="flex:2;">
+                <div class="cell" style="flex:1;">
                     <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
                     <div>
-                        <ul>
-                            <li>alignment</li>
-                            <li>background</li>
-                            <li>trait</li>
-                            <li>ideal</li>
-                            <li>bond</li>
-                            <li>flaw</li>
-                        </ul>
+                        <div id="alignment" class="no-wrap">alignment</div>
+                        <div id="background" class="no-wrap">background</div>
+                        <div id="traits" class="no-wrap">traits</div>
+                        <div id="ideal" class="no-wrap">ideal</div>
+                        <div id="bond" class="no-wrap">bond</div>
+                        <div id="flaw" class="no-wrap">flaw</div>
                     </div>
                     <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                 </div>
@@ -240,7 +238,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="cell" style="flex:1;">
+                <div class="cell">
                     <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
                     <div>skills</div>
                     <div>
@@ -267,9 +265,23 @@
                     </div>
                     <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                 </div>
-                <div class="cell" style="flex:3;">
+                <div class="cell" style="flex:1;">
                     <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
                     <div>attacks</div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+                <div class="cell">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div>spell slots:</div>
+                    <div>Level 1: x</div>
+                    <div>Level 2: x</div>
+                    <div>Level 3: x</div>
+                    <div>Level 4: x</div>
+                    <div>Level 5: x</div>
+                    <div>Level 6: x</div>
+                    <div>Level 7: x</div>
+                    <div>Level 8: x</div>
+                    <div>Level 9: x</div>
                     <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                 </div>
             </div>

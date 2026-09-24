@@ -61,10 +61,19 @@ class PrintViewModel {
 
         // classes
         let classesHtml = "";
-        for (const cls of character.classes) {
-            if (cls.name && cls.level) {
-                const classModel = Sources.getClasses(character.sources).find(c => c.name == cls.name);
-                classesHtml += `<div class="row no-wrap">${classModel.title}, Level ${cls.level}</div>`;
+        const characterClasses = character.classes.filter(c => c.name && c.level);
+        if (characterClasses.length > 0) {
+            if (characterClasses.length == 1) {
+                const primaryClass = Sources.getClasses(character.sources).find(c => c.name == characterClasses[0].name);
+                classesHtml += `<div class="row no-wrap">${primaryClass.title}, Level ${characterClasses[0].level}</div>`;
+            }
+            if (characterClasses.length > 1) {
+                classesHtml = "<div class='no-wrap'>Classes:</div><ul>";
+                for (const cls of characterClasses) {
+                    const classModel = Sources.getClasses(character.sources).find(c => c.name == cls.name);
+                    classesHtml += `<div class="row no-wrap">${classModel.title}, Level ${cls.level}</div>`;
+                }
+                classesHtml += "</ul>";
             }
         }
         this.#kitElement.querySelector("#classes").innerHTML = classesHtml;
@@ -100,6 +109,54 @@ class PrintViewModel {
         const hitDiceLabel = `(Hit Dice: ${hitDice.join(", ")})`;
         this.#kitElement.querySelector("#hit-points-max").innerText = hitPoints;
         this.#kitElement.querySelector("#hit-dice").innerText = hitDiceLabel;
+
+        // alignment
+        let alignment = "Alignment:"
+        if (character.alignment) {
+            alignment = `Alignment: ${Sources.getAlignments().find(a => a.name == character.alignment)?.title ?? ""}`;
+        }
+        this.#kitElement.querySelector("#alignment").innerText = alignment;
+
+        // background
+        let background = "Background:"
+        let backgroundModel = null;
+        if (character.background) {
+            backgroundModel = Sources.getBackgrounds(character.sources).find(b => b.name == character.background);
+            background = `Background: ${backgroundModel?.title ?? ""}`;
+        }
+        this.#kitElement.querySelector("#background").innerText = background;
+
+        // traits
+        let traitsHtml = "<div class='no-wrap'>Traits:</div><ul>";
+        if (backgroundModel) {
+            for (const trait of character.traits) {
+                const traitTitle = backgroundModel.getTraits().find(t => t.name == trait)?.title;
+                traitsHtml += `<li class="no-wrap">${traitTitle}</li>`;
+            }
+        }
+        traitsHtml += "</ul>";
+        this.#kitElement.querySelector("#traits").innerHTML = traitsHtml;
+
+        // ideal
+        let ideal = "Ideal:";
+        if (character.ideal && backgroundModel) {
+            ideal = `Ideal: ${backgroundModel.getIdeals().find(i => i.name == character.ideal)?.title ?? ""}`;
+        }
+        this.#kitElement.querySelector("#ideal").innerText = ideal;
+
+        // bond
+        let bond = "Bond:";
+        if (character.bond && backgroundModel) {
+            bond = `Bond: ${backgroundModel.getBonds().find(b => b.name == character.bond)?.title ?? ""}`;
+        }
+        this.#kitElement.querySelector("#bond").innerText = bond;
+
+        // flaw
+        let flaw = "Flaw:";
+        if (character.flaw && backgroundModel) {
+            flaw = `Flaw: ${backgroundModel.getFlaws().find(f => f.name == character.flaw)?.title ?? ""}`;
+        }
+        this.#kitElement.querySelector("#flaw").innerText = flaw;
     }
 
     #getAbilityScoreModifier(abilityScore) {

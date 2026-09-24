@@ -178,7 +178,7 @@ class DomainAbilityScoresAndHitPointsModel {
             const characterClass = character.classes[i];
             const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.name);
             for (const levelBoon of characterClass.levelBoons) {
-                const conModifierAtLevel = character.getConModifierAtLevel(levelBoon.index);
+                const conModifierAtLevel = character.getConModifierForHitPoints(levelBoon.index);
 
                 const conAtLevel = Number(conBase) + Number(conModifierAtLevel);
                 const hpModAtLevel = Math.floor((Number(conAtLevel) - 10) / 2);

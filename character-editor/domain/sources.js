@@ -233,7 +233,10 @@ export class Sources {
             else {
                 let levelBoon = characterClass.levelBoons.find(lb => lb.level == i);
                 if (!levelBoon) {
-                    const defaultHitPoints = Math.ceil((Number(cls.hitDieSize) + 1) / 2);
+                    let defaultHitPoints = Math.ceil((Number(cls.hitDieSize) + 1) / 2);
+                    if (classIndex == 0 && i == 1) {
+                        defaultHitPoints = Number(cls.hitDieSize);
+                    }
                     const levelBoonIndex = Sources.#getNextLevelBoonIndex(character);
                     levelBoon = {
                         level: i,

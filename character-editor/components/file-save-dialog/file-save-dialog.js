@@ -9,6 +9,8 @@ export function createModel() {
 
 class FileSaveDialogModel {
 
+    #defaultFileName;
+
     // event handlers
     async init(kitElement) {
         this.#kitElement = kitElement;
@@ -23,6 +25,11 @@ class FileSaveDialogModel {
             const header = this.#kitElement.querySelector("header");
             this.#dialogHelper = new DialogHelper();
             this.#dialogHelper.show(dialog, header, this.#onCloseDialog);
+            this.#defaultFileName = this.#getDefaultFileName();
+            if (!this.hasFileSystemAccess()) {
+                this.#kitElement.querySelector("#file-name").value = this.#defaultFileName ?? "";
+                this.onFileNameChanged();
+            }        
         }
     }
 
@@ -43,6 +50,7 @@ class FileSaveDialogModel {
     async browse() {
         try {
             FileSaveDialogModel.#fileHandle = await UIKit.window.showSaveFilePicker({
+                suggestedName: this.#defaultFileName ?? "",
                 types: [
                     {
                         description: "Json Files",
@@ -106,4 +114,17 @@ class FileSaveDialogModel {
         FileSaveDialogModel.#isVisible = false;
         await UIKit.renderer.renderElement(this.#kitElement);
     }
+
+    #getDefaultFileName() {
+        let name = Character.currentCharacter.name
+            .replace(/ /g, "_")
+            .replace(/\W/g, '')
+            .replace(/_/g, "-");
+        if (!name) {
+            name = "character";
+        }
+        name += ".json";
+        return name;
+    }
+
 }

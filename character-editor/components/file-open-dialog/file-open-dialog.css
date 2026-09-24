@@ -38,5 +38,12 @@
 
     #browse {
         margin-left: 5px;
+        margin-top: 0;
+        width: 50px;
+    }
+
+    #button-ok {
+        width: 50px;
+        margin-left: 0;
     }
 }

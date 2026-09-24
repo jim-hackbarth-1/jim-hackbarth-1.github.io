@@ -139,7 +139,24 @@ export class DomainClassAndLevelModel {
             isDisabled: otherClassNames.includes(c.name),
             disabledReason: otherClassNames.includes(c.name) ? "Disabled: Selected for other class" : ""
         }));
+
         if (index > 0) {
+
+            // check primary class multiclass eligibility
+            const primaryClass = classes.find(c => c.name == character.classes[0].name);
+            if (primaryClass.getMulticlassEligibility) {
+                const primaryMultiClassEligibility = primaryClass.getMulticlassEligibility(character);
+                if (!primaryMultiClassEligibility?.isEligible) {
+                    for (const option of options) {
+                        if (!option.isDisabled) {
+                            option.isDisabled = true;
+                            option.disabledReason = `Disabled: ${primaryMultiClassEligibility?.ineligibilityReason ?? "Ineligible for multiclassing"}`;
+                        }
+                    }
+                }
+            }
+
+            // check secondary class multiclass eligibility
             for (const option of options) {
                 if (!option.isDisabled) {
                     const cls = classes.find(c => c.name == option.value);

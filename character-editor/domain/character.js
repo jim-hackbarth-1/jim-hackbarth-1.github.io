@@ -208,7 +208,7 @@ export class Character {
         return abilityScore;
     }
 
-    getConModifierAtLevel(levelBoonIndex) {
+    getConModifierForHitPoints(levelBoonIndex) {
         const sourceProperties = ["race", "subRace", "class", "subClass", "background"];
         const features = this.features.filter(f =>
             f.modifier == "ability-score:constitution"
@@ -248,7 +248,7 @@ export class Character {
         const conBase = this.abilityScores.find(a => a.name == "constitution").baseScore;
         for (const characterClass of this.classes) {
             for (const levelBoon of characterClass.levelBoons) {
-                const conModifierAtLevel = this.getConModifierAtLevel(levelBoon.index);
+                const conModifierAtLevel = this.getConModifierForHitPoints(levelBoon.index);
                 const conAtLevel = Number(conBase) + Number(conModifierAtLevel);
                 const hpModAtLevel = Math.floor((Number(conAtLevel) - 10) / 2);
                 totalHp += (Number(levelBoon.hitPoints) + Number(hpModAtLevel));

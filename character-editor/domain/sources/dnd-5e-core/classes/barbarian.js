@@ -39,34 +39,56 @@ export class Barbarian {
         return 3;
     }
 
-    static addOptionsAndFeatures(character) {
-
-    }
-
     static getOptions(character) {
 
         const options = [];
 
         // skill proficiences
-        let optionName = "barbarian-skill-proficiencies";
-        let optionValues = [...Barbarian.#skillProficiencies];
-        optionValues.unshift({ value: null, text: "Choose skill proficiencies ...", hideCheckbox: true });
-        let selections = character.options.find(o => o.name == optionName)?.values ?? [];
-        for (const optionValue of optionValues) {
-            optionValue.isSelected = selections.includes(optionValue.value);
+        if (character.classes[0].name == "barbarian") {
+            let optionName = "barbarian-skill-proficiencies";
+            let optionValues = [...Barbarian.#skillProficiencies];
+            optionValues.unshift({ value: null, text: "Choose skill proficiencies ...", hideCheckbox: true });
+            let selections = character.options.find(o => o.name == optionName)?.values ?? [];
+            for (const optionValue of optionValues) {
+                optionValue.isSelected = selections.includes(optionValue.value);
+            }
+            options.push({
+                name: optionName,
+                title: "Skill Proficiencies (choose two)",
+                maxSelections: 2,
+                optionValues: optionValues
+            });
         }
-        options.push({
-            name: optionName,
-            title: "Skill Proficiencies (choose two)",
-            maxSelections: 2,
-            optionValues: optionValues
-        });
 
         return options;
     }
 
     static updateFeatures(character) {
 
+        const features = [];
+        const proficiencyBonus = character.getProficiencyBonus();
+
+        // saving throw proficiencies
+        if (character.classes[0].name == "barbarian") {
+            features.push({
+                name: "barbarian-saving-throw-proficiency-strength",
+                title: "Strength",
+                modifier: "saving-throw-proficiency:strength",
+                modifierValue: proficiencyBonus
+            });
+            features.push({
+                name: "barbarian-saving-throw-proficiency-constitution",
+                title: "Constitution",
+                modifier: "saving-throw-proficiency:constitution",
+                modifierValue: proficiencyBonus
+            });
+        }
+
+        for (const feature of features) {
+            feature.sourcePropertyName = "class";
+            feature.sourcePropertyValue = "barbarian";
+            character.addFeature(feature);
+        }
     }
 
     //static updateOptionFeatures(character, option) {

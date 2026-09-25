@@ -61,6 +61,7 @@ class PrintViewModel {
 
         // classes
         let classesHtml = "";
+        const profiencyBonus = character.getProficiencyBonus();
         const characterClasses = character.classes.filter(c => c.name && c.level);
         if (characterClasses.length > 0) {
             if (characterClasses.length == 1) {
@@ -75,6 +76,7 @@ class PrintViewModel {
                 }
                 classesHtml += "</ul>";
             }
+            classesHtml += `<div id="profiency-bonus" class="row no-wrap">(Profiency bonus: +${profiencyBonus})</div>`;
         }
         this.#kitElement.querySelector("#classes").innerHTML = classesHtml;
 
@@ -93,6 +95,8 @@ class PrintViewModel {
                 modifierLabel = `(No modifier)`;
             }
             this.#kitElement.querySelector(`#${name}-modifier`).innerText = modifierLabel;
+            this.#kitElement.querySelector(`#${name}-saving-throw-modifier`).innerText
+                = this.#getSavingThrowModifier(character, modifier, name);
         }
 
         // hit points and hit dice
@@ -161,5 +165,21 @@ class PrintViewModel {
 
     #getAbilityScoreModifier(abilityScore) {
         return Math.floor((Number(abilityScore) - 10) / 2);
+    }
+
+    #getSavingThrowModifier(character, abilityModifier, ability) {
+        let label = "";
+        const savingThrowModifier = character.features
+            .filter(f => f.modifier == `saving-throw-proficiency:${ability}`)
+            .map(f => f.modifierValue)
+            .reduce((a, b) => a + b, 0);
+        if (savingThrowModifier > 0) {
+            const total = Number(abilityModifier) + Number(savingThrowModifier);
+            label = `(+${total} saving throws)`;
+            if (total < 0) {
+                label = `(${total} saving throws)`;
+            }
+        }
+        return label;
     }
 }

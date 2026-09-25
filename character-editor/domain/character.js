@@ -317,6 +317,24 @@ export class Character {
         return totalHp;
     }
 
+    getProficiencyBonus() {
+        const level = this.level;
+        let bonus = 2;
+        if (level >= 5) {
+            bonus = 3;
+        }
+        if (level >= 9) {
+            bonus = 4;
+        }
+        if (level >= 13) {
+            bonus = 5;
+        }
+        if (level >= 17) {
+            bonus = 6;
+        }
+        return bonus;
+    }
+
     toJSON() {
         return {
             sources: this.sources,

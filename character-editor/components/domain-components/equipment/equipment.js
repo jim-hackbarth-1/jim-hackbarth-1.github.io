@@ -31,6 +31,7 @@ class DomainEquipmentModel {
     }
 
     async onCharacterUpdate(message) {
+        DomainEquipmentModel.#character = Character.currentCharacter;
         // const oldCharacter = DomainRaceModel.#character;
         // const currentCharacter = Character.currentCharacter;
         // const sourcesUpdated = !Utilities.areArraysEqual(oldCharacter.sources, currentCharacter.sources);  
@@ -91,6 +92,7 @@ class DomainEquipmentModel {
         if (DomainEquipmentModel.#equipmentCategory) {
             equipment = Sources.getEquipment(DomainEquipmentModel.#character.sources, DomainEquipmentModel.#equipmentCategory);
         }
+        console.log(equipment);
         if (equipment.length == 0) {
             equipment.push({ properties: ["[No equipment]"] });
         }

@@ -5,20 +5,137 @@
 
     #ability-scores-and-hit-points-content {
         padding: 5px;
-        display: flex;
-        flex-wrap: wrap;
+        /*display: flex;
+        flex-wrap: wrap;*/
     }
 
     #ability-scores-content,
     #hit-points-content {
         margin-bottom: 20px;
         margin-right: 10px;
-        flex: 1;
+        /*flex: 1;*/
     }
 
     #ability-scores-detail {
+        padding: 5px;
+    }
+
+    #ability-score-table,
+    #hit-points-table {
         border: 1px solid saddlebrown;
         padding: 5px;
+        overflow: auto;
+    }
+
+    .ability-score-row,
+    .hit-point-row {
+        display: flex;
+    }
+
+    .ability-score-heading {
+        font-weight:bold;
+    }
+
+    .ability-score-row > div,
+    .hit-point-row > div
+    {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        
+    }
+
+    .ability-score-row > div {
+        padding: 5px;
+    }
+
+    .hit-point-row > div {
+        padding: 2px;
+    }
+
+    .ability-cell {
+        width:100px;
+        min-width:100px;
+    }
+
+    .ability-base-score-cell {
+        width: 90px;
+        min-width: 90px;
+    }
+
+    .ability-modified-score-cell {
+        width: 120px;
+        min-width:80px;
+    }
+
+    .class-and-level-cell {
+        width: 140px;
+        min-width: 140px;
+        margin-top:5px;
+    }
+
+    .hit-points-base-cell {
+        width: 60px;
+        min-width: 60px;
+    }
+
+    .hit-points-modifier-cell {
+        width: 40px;
+        min-width: 40px;
+        margin-top: 5px;
+    }
+
+    .hit-points-modifier-cell > b {
+        color:saddlebrown;
+        font-weight:bold;
+    }
+
+    .hit-point-total-cell {
+        width: 40px;
+        min-width: 40px;
+        font-weight: bold;
+        margin-top: 5px;
+    }
+
+    .hit-point-total-row {
+        font-size:larger;
+        color:darkred;
+    }
+
+    .hit-point-total-row > div {
+        padding-top:10px;
+        border-top: 1px dotted saddlebrown;
+    }
+
+    .feature-cell {
+        width: 240px;
+        min-width: 240px;
+        margin-top: 5px;
+    }
+
+    .info-icon {
+        margin: 8px 0 0 2px;
+        cursor: pointer;
+        width: 20px;
+        height: 20px;
+    }
+
+    .info-icon .icon{
+        stroke:darkred;
+        stroke-width:4px;
+    }
+
+    .info-icon .icon-text {
+        fill: darkred;
+    }
+
+    .ability-modifiers-row {
+        margin:0 5px 0 5px;
+        padding:5px;
+        border:1px dotted saddlebrown;
+        color:saddlebrown;
+        font-size:smaller;
+        font-style:italic;
     }
 
     .summary {
@@ -70,27 +187,6 @@
         color:darkred;
     }
 
-    table {
-        border-collapse: collapse;
-    }
-
-    td {
-        white-space:nowrap;
-        padding: 5px;
-        text-align: left;
-        vertical-align:top;
-    }
-
-    thead tr {
-        font-weight:bold;
-    }
-
-    .ability-modifiers {
-        font-size:small;
-        font-style:italic;
-        width:100%;
-    }
-
     .hit-die {
         font-size:small;
         color:saddlebrown;
@@ -114,54 +210,14 @@
         border-radius:3px;
         text-align:center;
         width:50px;
+        min-width:50px;
     }
 
     .modified-max-note,
-    .modifier-note {
+    .con-modifier-note {
         font-size: small;
         color: saddlebrown;
         font-style: italic;
     }
 
-    #hit-points-table {
-        display:table;
-        border:1px solid saddlebrown;
-    }
-
-    .hit-point-class-and-level {
-        margin-top: 5px;
-    }
-
-    .hit-point-modifier {
-        margin-bottom: 8px;
-    }
-
-    .hit-point-total {
-        width: 100%;
-        margin-top: 5px;
-    }
-
-    .hit-point-row {
-        display:table-row;
-    }
-
-    .hit-point-row > div {
-        display: table-cell;
-        text-align:left;
-        padding:5px;
-    }
-
-    .hit-point-row .hit-point-total {
-        flex:1;
-    }
-
-    .hit-points-total,
-    .hit-points-total-label {
-        color: darkred;
-        font-size:larger;
-    }
-
-    .hit-points-total {
-        
-    }
 }

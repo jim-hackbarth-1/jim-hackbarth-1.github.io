@@ -29,37 +29,22 @@ class DomainAbilityScoresAndHitPointsModel {
         const currentCharacter = Character.currentCharacter;
         const useAbilityScorePointsSystemUpdated
             = (oldCharacter.useAbilityScorePointsSystem != currentCharacter.useAbilityScorePointsSystem);
-        const strengthUpdated = this.#hasAbilityScoreUpdate(oldCharacter, currentCharacter, "strength");
-        const intelligenceUpdated = this.#hasAbilityScoreUpdate(oldCharacter, currentCharacter, "intelligence");
-        const wisdomUpdated = this.#hasAbilityScoreUpdate(oldCharacter, currentCharacter, "wisdom");
-        const dexterityUpdated = this.#hasAbilityScoreUpdate(oldCharacter, currentCharacter, "dexterity");
-        const constitutionUpdated = this.#hasAbilityScoreUpdate(oldCharacter, currentCharacter, "constitution");
-        const charismaUpdated = this.#hasAbilityScoreUpdate(oldCharacter, currentCharacter, "charisma");
-
+        const abilities = ["strength", "intelligence", "wisdom", "dexterity", "constitution", "charisma"];
+        let hasAbilityScoreUpdate = false;
+        for (const ability of abilities) {
+            if (this.#hasAbilityScoreUpdate(oldCharacter, currentCharacter, ability)) {
+                hasAbilityScoreUpdate = true;
+                break;
+            }
+        }
         DomainAbilityScoresAndHitPointsModel.#character = currentCharacter;
-
         if (useAbilityScorePointsSystemUpdated) {
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#points-remaining-row"));
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#min-base-score-row"));
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#max-base-score-row"));
         }
-        if (strengthUpdated) {
-            await this.#renderAbilityScoreRow("strength");
-        }
-        if (intelligenceUpdated) {
-            await this.#renderAbilityScoreRow("intelligence");
-        }
-        if (wisdomUpdated) {
-            await this.#renderAbilityScoreRow("wisdom");
-        }
-        if (dexterityUpdated) {
-            await this.#renderAbilityScoreRow("dexterity");
-        }
-        if (constitutionUpdated) {
-            await this.#renderAbilityScoreRow("constitution");
-        }
-        if (charismaUpdated) {
-            await this.#renderAbilityScoreRow("charisma");
+        if (hasAbilityScoreUpdate) {
+            await UIKit.renderer.renderElement(this.#kitElement.querySelector("#ability-score-table"));
         }
         await UIKit.renderer.renderElement(this.#kitElement.querySelector("#hit-points-table"));
     }
@@ -130,9 +115,27 @@ class DomainAbilityScoresAndHitPointsModel {
         return 18;
     }
 
-    getBaseAbilityScore(ability) {
+    getAbilityScoresInfo() {
         const character = DomainAbilityScoresAndHitPointsModel.#character;
-        return this.#getBaseAbilityScore(character, ability);
+        const minBaseScore = this.getMinBaseScore();
+        const maxBaseScore = this.getMaxBaseScore();
+        const abilityScores = [
+            { name: "strength", title: "Strength" },
+            { name: "intelligence", title: "Intelligence" },
+            { name: "wisdom", title: "Wisdom" },
+            { name: "dexterity", title: "Dexterity" },
+            { name: "constitution", title: "Constitution" },
+            { name: "charisma", title: "Charisma" }
+        ];
+        for (const abilityScore of abilityScores) {
+            abilityScore.baseScore = Number(character.abilityScores.find(a => a.name == abilityScore.name)?.baseScore);
+            abilityScore.minBaseScore = minBaseScore;
+            abilityScore.maxBaseScore = maxBaseScore;
+            abilityScore.modifiedScore = character.getAbilityScore(abilityScore.name);
+            abilityScore.modifiedMaxScore = character.abilityScores.find(a => a.name == abilityScore.name)?.modifiedMaximum;
+            abilityScore.modifiers = character.features.filter(f => f.modifier == `ability-score:${abilityScore.name}`);
+        }
+        return abilityScores;
     }
 
     async updateBaseAbilityScore(event, ability) {
@@ -160,19 +163,9 @@ class DomainAbilityScoresAndHitPointsModel {
         }
     }
 
-    getModifiedAbilityScore(ability) {
-        const character = DomainAbilityScoresAndHitPointsModel.#character;
-        return character.getAbilityScore(ability);
-    }
-
-    getModifiedAbilityScoreMax(ability) {
-        const character = DomainAbilityScoresAndHitPointsModel.#character;
-        return this.#getModifiedMaxAbilityScore(character, ability);
-    }
-
-    getAbilityScoreModifiers(ability) {
-        const character = DomainAbilityScoresAndHitPointsModel.#character;
-        return this.#getAbilityScoreModifiers(character, ability);
+    toggleModifiers(event, ability) {
+        const modifiersRow = this.#kitElement.querySelector(`#ability-modifiers-row-${ability}`);
+        modifiersRow.classList.toggle("hidden");
     }
 
     getHitPointRows() {
@@ -216,8 +209,8 @@ class DomainAbilityScoresAndHitPointsModel {
             });
         }
         rows.push({
-            feature: "<span class='hit-points-total-label'>Total:</span>",
-            modifiedHitPoints: `<span class="hit-points-total">= ${character.getHitPoints()}</span>`
+            isTotal: true,
+            totalHitPoints: character.getHitPoints()
         })
         return rows;
     }
@@ -251,40 +244,20 @@ class DomainAbilityScoresAndHitPointsModel {
 
     #hasAbilityScoreUpdate(oldCharacter, currentCharacter, ability) {
 
-        const oldBaseScore = this.#getBaseAbilityScore(oldCharacter, ability);
-        const currentBaseScore = this.#getBaseAbilityScore(currentCharacter, ability);
+        const oldBaseScore = Number(oldCharacter.abilityScores.find(a => a.name == ability)?.baseScore);
+        const currentBaseScore = Number(currentCharacter.abilityScores.find(a => a.name == ability)?.baseScore);
         const baseScoreUpdated = (oldBaseScore != currentBaseScore);
 
-        const oldModifiedMax = this.#getModifiedMaxAbilityScore(oldCharacter, ability);
-        const currentModifiedMax = this.#getModifiedMaxAbilityScore(currentCharacter, ability);
+        const oldModifiedMax = oldCharacter.abilityScores.find(a => a.name == ability)?.modifiedMaximum;
+        const currentModifiedMax = currentCharacter.abilityScores.find(a => a.name == ability)?.modifiedMaximum;
         const modifiedMaxUpdated = (oldModifiedMax != currentModifiedMax);
 
-        const oldAbilityScoreModifiers = this.#getAbilityScoreModifiers(oldCharacter, ability);
-        const currentAbilityScoreModifiers = this.#getAbilityScoreModifiers(currentCharacter, ability);
+        const oldAbilityScoreModifiers = oldCharacter.features.filter(f => f.modifier == `ability-score:${ability}`);
+        const currentAbilityScoreModifiers = currentCharacter.features.filter(f => f.modifier == `ability-score:${ability}`);
         const abilityScoreModifiersUpdated
             = !Utilities.areArraysEqual(oldAbilityScoreModifiers, currentAbilityScoreModifiers, ["title", "modifierValue"]);
 
         return baseScoreUpdated || modifiedMaxUpdated || abilityScoreModifiersUpdated;
     }
 
-    async #renderAbilityScoreRow(ability) {
-        const rowElement = this.#kitElement.querySelector(`#${ability}-row`);
-        await UIKit.renderer.renderElement(rowElement.querySelector(".base-score-container"));
-        await UIKit.renderer.renderElement(rowElement.querySelector(".modified-ability-score"));
-        await UIKit.renderer.renderElement(rowElement.querySelector(".modified-max-note"));
-        await UIKit.renderer.renderElement(rowElement.querySelector("ul"));
-        await UIKit.renderer.renderElement(this.#kitElement.querySelector("#points-remaining-row"));
-    }
-
-    #getBaseAbilityScore(character, ability) {
-        return Number(character.abilityScores.find(a => a.name == ability)?.baseScore);
-    }
-
-    #getModifiedMaxAbilityScore(character, ability) {
-        return character.abilityScores.find(a => a.name == ability)?.modifiedMaximum;
-    }
-
-    #getAbilityScoreModifiers(character, ability) {
-        return character.features.filter(f => f.modifier == `ability-score:${ability}`);
-    }
 }

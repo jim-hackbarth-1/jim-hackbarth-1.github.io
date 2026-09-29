@@ -28,7 +28,7 @@
                                 <input type="checkbox"
                                        kit-element
                                        kit-attr-checked="checked:%{#model.useAbilityScorePointsSystem() ? '' : null}%"
-                                       onclick="#model.togglePointsSystem() "/>
+                                       onclick="#model.togglePointsSystem() " />
                                 <span class="checkmark"></span>
                             </label>
                         </div>
@@ -44,162 +44,44 @@
                         <div class="no-wrap">Maximum base score: %{#model.getMaxBaseScore()}%</div>
                     </div>
                 </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <td>Ability</td>
-                            <td>Base score</td>
-                            <td>Modified score</td>
-                            <td>Modifiers</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr id="strength-row">
-                            <td>
-                                <div class="ability-score-name">Strength</div>
-                            </td>
-                            <td>
-                                <div class="base-score-container" kit-element>
-                                    <input type="number"
-                                           kit-element
-                                           kit-attr-min="min:%{#model.getMinBaseScore()}%"
-                                           kit-attr-max="max:%{#model.getMaxBaseScore()}%"
-                                           kit-attr-value="value:%{#model.getBaseAbilityScore('strength')}%"
-                                           onchange="#model.updateBaseAbilityScore(event, 'strength')" />
+                <div id="ability-score-table" kit-element>
+                    <div class="ability-score-row ability-score-heading">
+                        <div class="ability-cell">Ability</div>
+                        <div class="ability-base-score-cell">Base score</div>
+                        <div class="ability-modified-score-cell">Modified score</div>
+                    </div>
+                    <div kit-array="#model?.getAbilityScoresInfo() ?? []" kit-array-item-alias="abilityInfo">
+                        <div class="ability-score-row">
+                            <div class="ability-cell ability-score-name">%{#abilityInfo.title}%</div>
+                            <div class="ability-base-score-cell">
+                                <input type="number" kit-element
+                                       kit-attr-min="min:%{#abilityInfo.minBaseScore}%"
+                                       kit-attr-max="max:%{#abilityInfo.maxBaseScore}%"
+                                       kit-attr-value="value:%{#abilityInfo.baseScore}%"
+                                       onchange="#model.updateBaseAbilityScore(event, '%{#abilityInfo.name}%')" />
+                            </div>
+                            <div class="ability-modified-score-cell">
+                                <div style="display:flex;">
+                                    <div class="modified-ability-score">%{#abilityInfo.modifiedScore}%</div>
+                                    <div kit-if="#abilityInfo.modifiers.length > 0">
+                                        <div class="info-icon" 
+                                             title="Show modifiers"
+                                             onpointerdown="#model.toggleModifiers(event, #abilityInfo.name)"
+                                             kit-component="no-model:./resources/icons/info.html">
+                                        </div>
+                                    </div>
                                 </div>
-                            </td>
-                            <td>
-                                <div class="modified-ability-score" kit-element>%{#model.getModifiedAbilityScore('strength')}%</div>
-                                <div class="modified-max-note" kit-element>Max: %{#model.getModifiedAbilityScoreMax('strength')}% <b>*</b></div>
-                            </td>
-                            <td class="ability-modifiers">
-                                <ul kit-array="#model.getAbilityScoreModifiers('strength')" kit-array-item-alias="modifier">
-                                    <li>%{#modifier.title}% +%{#modifier.modifierValue}%</li>
-                                </ul>
-                            </td>
-                        </tr>
-                        <tr id="intelligence-row">
-                            <td>
-                                <div class="ability-score-name">Intelligence</div>
-                            </td>
-                            <td>
-                                <div class="base-score-container" kit-element>
-                                    <input type="number"
-                                           kit-element
-                                           kit-attr-min="min:%{#model.getMinBaseScore()}%"
-                                           kit-attr-max="max:%{#model.getMaxBaseScore()}%"
-                                           kit-attr-value="value:%{#model.getBaseAbilityScore('intelligence')}%"
-                                           onchange="#model.updateBaseAbilityScore(event, 'intelligence')" />
-                                </div>
-                            </td>
-                            <td>
-                                <div class="modified-ability-score" kit-element>%{#model.getModifiedAbilityScore('intelligence')}%</div>
-                                <div class="modified-max-note" kit-element>Max: %{#model.getModifiedAbilityScoreMax('intelligence')}% <b>*</b></div>
-                            </td>
-                            <td class="ability-modifiers">
-                                <ul kit-array="#model.getAbilityScoreModifiers('intelligence')" kit-array-item-alias="modifier">
-                                    <li>%{#modifier.title}% +%{#modifier.modifierValue}%</li>
-                                </ul>
-                            </td>
-                        </tr>
-                        <tr id="wisdom-row">
-                            <td>
-                                <div class="ability-score-name">Wisdom</div>
-                            </td>
-                            <td>
-                                <div class="base-score-container" kit-element>
-                                    <input type="number"
-                                           kit-element
-                                           kit-attr-min="min:%{#model.getMinBaseScore()}%"
-                                           kit-attr-max="max:%{#model.getMaxBaseScore()}%"
-                                           kit-attr-value="value:%{#model.getBaseAbilityScore('wisdom')}%"
-                                           onchange="#model.updateBaseAbilityScore(event, 'wisdom')" />
-                                </div>
-                            </td>
-                            <td>
-                                <div class="modified-ability-score" kit-element>%{#model.getModifiedAbilityScore('wisdom')}%</div>
-                                <div class="modified-max-note" kit-element>Max: %{#model.getModifiedAbilityScoreMax('wisdom')}% <b>*</b></div>
-                            </td>
-                            <td class="ability-modifiers">
-                                <ul kit-array="#model.getAbilityScoreModifiers('wisdom')" kit-array-item-alias="modifier">
-                                    <li>%{#modifier.title}% +%{#modifier.modifierValue}%</li>
-                                </ul>
-                            </td>
-                        </tr>
-                        <tr id="dexterity-row">
-                            <td>
-                                <div class="ability-score-name">Dexterity</div>
-                            </td>
-                            <td>
-                                <div class="base-score-container" kit-element>
-                                    <input type="number"
-                                           kit-element
-                                           kit-attr-min="min:%{#model.getMinBaseScore()}%"
-                                           kit-attr-max="max:%{#model.getMaxBaseScore()}%"
-                                           kit-attr-value="value:%{#model.getBaseAbilityScore('dexterity')}%"
-                                           onchange="#model.updateBaseAbilityScore(event, 'dexterity')" />
-                                </div>
-                            </td>
-                            <td>
-                                <div class="modified-ability-score" kit-element>%{#model.getModifiedAbilityScore('dexterity')}%</div>
-                                <div class="modified-max-note" kit-element>Max: %{#model.getModifiedAbilityScoreMax('dexterity')}% <b>*</b></div>
-                            </td>
-                            <td class="ability-modifiers">
-                                <ul kit-array="#model.getAbilityScoreModifiers('dexterity')" kit-array-item-alias="modifier">
-                                    <li>%{#modifier.title}% +%{#modifier.modifierValue}%</li>
-                                </ul>
-                            </td>
-                        </tr>
-                        <tr id="constitution-row">
-                            <td>
-                                <div class="ability-score-name">Constitution</div>
-                            </td>
-                            <td>
-                                <div class="base-score-container" kit-element>
-                                    <input type="number"
-                                           kit-element
-                                           kit-attr-min="min:%{#model.getMinBaseScore()}%"
-                                           kit-attr-max="max:%{#model.getMaxBaseScore()}%"
-                                           kit-attr-value="value:%{#model.getBaseAbilityScore('constitution')}%"
-                                           onchange="#model.updateBaseAbilityScore(event, 'constitution')" />
-                                </div>
-                            </td>
-                            <td>
-                                <div class="modified-ability-score" kit-element>%{#model.getModifiedAbilityScore('constitution')}%</div>
-                                <div class="modified-max-note" kit-element>Max: %{#model.getModifiedAbilityScoreMax('constitution')}% <b>*</b></div>
-                            </td>
-                            <td class="ability-modifiers">
-                                <ul kit-array="#model.getAbilityScoreModifiers('constitution')" kit-array-item-alias="modifier">
-                                    <li>%{#modifier.title}% +%{#modifier.modifierValue}%</li>
-                                </ul>
-                            </td>
-                        </tr>
-                        <tr id="charisma-row">
-                            <td>
-                                <div class="ability-score-name">Charisma</div>
-                            </td>
-                            <td>
-                                <div class="base-score-container" kit-element>
-                                    <input type="number"
-                                           kit-element
-                                           kit-attr-min="min:%{#model.getMinBaseScore()}%"
-                                           kit-attr-max="max:%{#model.getMaxBaseScore()}%"
-                                           kit-attr-value="value:%{#model.getBaseAbilityScore('charisma')}%"
-                                           onchange="#model.updateBaseAbilityScore(event, 'charisma')" />
-                                </div>
-                            </td>
-                            <td>
-                                <div class="modified-ability-score" kit-element>%{#model.getModifiedAbilityScore('charisma')}%</div>
-                                <div class="modified-max-note" kit-element>Max: %{#model.getModifiedAbilityScoreMax('charisma')}% <b>*</b></div>
-                            </td>
-                            <td class="ability-modifiers">
-                                <ul kit-array="#model.getAbilityScoreModifiers('charisma')" kit-array-item-alias="modifier">
-                                    <li>%{#modifier.title}% +%{#modifier.modifierValue}%</li>
-                                </ul>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                                <div class="modified-max-note">Max: %{#abilityInfo.modifiedMaxScore}% <b>*</b></div>
+                            </div>
+                        </div>
+                        <div id="ability-modifiers-row-%{#abilityInfo.name}%" class="ability-modifiers-row hidden">
+                            <div style="font-weight:bold;" class="no-wrap">Modifiers:</div>
+                            <div kit-array="#abilityInfo.modifiers" kit-array-item-alias="modifier">
+                                <div class="no-wrap">%{#modifier.title}% +%{#modifier.modifierValue}%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="modified-max-note no-wrap"><b>*</b> Not including equipment modifiers</div>
             </div>
         </div>
@@ -225,39 +107,36 @@
                 <div id="hit-points-table"
                      kit-array="#model.getHitPointRows()"
                      kit-array-item-alias="row">
-                    <div class="hit-point-row">
-                        <div>
-                            <div kit-if="#row.class" class="hit-point-class-and-level no-wrap">%{#row.class}%, Level %{#row.level}%</div>
-                            <div kit-if="#row.feature" class="no-wrap">%{#row.feature}%</div>
-                        </div>
-                        <div>
-                            <div kit-if="#row.class">
-                                <div>
-                                    <input type="number"
-                                           kit-element
-                                           data-class-index="%{#row.classIndex}%"
-                                           data-level="%{#row.level}%"
-                                           min="1"
-                                           kit-attr-max="max:%{#row.hitDieSize}%"
-                                           kit-attr-value="value:%{#row.hitPoints}%"
-                                           onchange="#model.updateHitPoints(event)"/>
-                                </div>
-                                <div class="hit-die">
-                                    D%{#row.hitDieSize}%
-                                </div>
+                    <div kit-if="#row.class" class="hit-point-row">
+                        <div class="class-and-level-cell">%{#row.class}%, Level %{#row.level}%</div>
+                        <div class="hit-points-base-cell">
+                            <div>
+                                <input type="number"
+                                       kit-element
+                                       data-class-index="%{#row.classIndex}%"
+                                       data-level="%{#row.level}%"
+                                       min="1"
+                                       kit-attr-max="max:%{#row.hitDieSize}%"
+                                       kit-attr-value="value:%{#row.hitPoints}%"
+                                       onchange="#model.updateHitPoints(event)" />
                             </div>
-                            <div kit-if="#row.feature">&nbsp;</div>
-                        </div>
-                        <div>
-                            <div kit-if="#row.class">
-                                <div class="hit-point-modifier">%{#row.conModifierAtLevel}%</div>
-                                <div class="modifier-note no-wrap">Con modifier</div>
+                            <div class="hit-die">
+                                D%{#row.hitDieSize}%
                             </div>
-                            <div kit-if="#row.feature">&nbsp;</div>
                         </div>
-                        <div class="hit-point-total no-wrap">%{#row.modifiedHitPoints}%</div>
+                        <div class="hit-points-modifier-cell">%{#row.conModifierAtLevel}%<b>*</b></div>
+                        <div class="hit-point-total-cell">%{#row.modifiedHitPoints}%</div>
+                    </div>
+                    <div kit-if="#row.feature" class="hit-point-row">
+                        <div class="feature-cell">%{#row.feature}%</div>
+                        <div class="hit-point-total-cell">%{#row.modifiedHitPoints}%</div>
+                    </div>
+                    <div kit-if="#row.isTotal" class="hit-point-row hit-point-total-row">
+                        <div class="feature-cell">Total:</div>
+                        <div class="hit-point-total-cell">= %{#row.totalHitPoints}%</div>
                     </div>
                 </div>
+                <div class="con-modifier-note no-wrap"><b>*</b> Constitution modifier at level</div>
             </div>
         </div>
     </div>

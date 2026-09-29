@@ -52,8 +52,12 @@ export class EditorViewModel {
         }
     }
 
-    resizeStart(event) {
+    resizeStart(event, mobileResizer) {
         if (event.button === 0) {
+            if (mobileResizer && UIKit.window.screen.width <= 600) {
+                this.#toggleFixedWidth();
+                return;
+            }
             EditorViewModel.#editorViewElement = UIKit.document.documentElement.querySelector("#editor-view-component");
             EditorViewModel.#printViewElement = UIKit.document.documentElement.querySelector("#print-view-component")
             const style = getComputedStyle(EditorViewModel.#editorViewElement);
@@ -194,6 +198,21 @@ export class EditorViewModel {
             const dialogElement = this.#kitElement.querySelector("#dlg-file-save-2");
             const dialogModel = UIKit.renderer.getKitElementObject(dialogElement, "model");
             dialogModel.showDialog();
+        }
+    }
+
+    #toggleFixedWidth() {
+        const editorViewElement = UIKit.document.documentElement.querySelector("#editor-view-component");
+        const printViewElement = UIKit.document.documentElement.querySelector("#print-view-component")
+        const style = getComputedStyle(editorViewElement);
+        let width = Number(style.getPropertyValue("width").replace("px", ""));
+        if (width > 38) {
+            editorViewElement.style.setProperty("width", "38px");
+            printViewElement.style.setProperty("left", "38px");
+        }
+        else {
+            editorViewElement.style.setProperty("width", `${UIKit.window.screen.width}px`);
+            printViewElement.style.setProperty("left", `${UIKit.window.screen.width}px`);
         }
     }
 

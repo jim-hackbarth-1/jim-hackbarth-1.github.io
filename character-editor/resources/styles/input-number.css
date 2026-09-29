@@ -5,4 +5,5 @@ input[type="number"] {
     height: 35px;
     padding: 0 5px 0 5px;
     width: 75px;
+    font-size:16px;
 }

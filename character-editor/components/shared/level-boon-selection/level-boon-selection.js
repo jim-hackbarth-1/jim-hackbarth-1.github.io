@@ -11,10 +11,16 @@ class LevelBoonSelectionModel {
 
     #kitElement;
     #selectionModel;
+    #levelBoon;
 
     async init(kitElement, kitObjects) {
         this.#kitElement = kitElement;
         this.#selectionModel = kitObjects.find(o => o.alias == "selectionModel")?.object;
+        const character = Character.currentCharacter;
+        if (this.#selectionModel) {
+            this.#levelBoon = character.classes[this.#selectionModel.classIndex].levelBoons
+                .find(lb => lb.level == this.#selectionModel.level);
+        }
     }
 
     async onRendered() {
@@ -41,13 +47,14 @@ class LevelBoonSelectionModel {
     }
 
     onAbilityScoresRadioClick() {
-        this.#kitElement.querySelector("#ability-scores-container").classList.remove("hidden");
-        this.#kitElement.querySelector("#feats-container").classList.add("hidden");
+        this.#kitElement.querySelector(".ability-scores-container").classList.remove("hidden");
+        this.#kitElement.querySelector(".feats-container").classList.add("hidden");
     }
 
-    onFeatRadioClick() {
-        this.#kitElement.querySelector("#ability-scores-container").classList.add("hidden");
-        this.#kitElement.querySelector("#feats-container").classList.remove("hidden");
+    async onFeatRadioClick() {
+        this.#kitElement.querySelector(".ability-scores-container").classList.add("hidden");
+        await UIKit.renderer.renderElement(this.#kitElement.querySelector(".feats-container"));
+        this.#kitElement.querySelector(".feats-container").classList.remove("hidden");
     }
 
     getAbilityScores(controlIndex) {
@@ -87,10 +94,10 @@ class LevelBoonSelectionModel {
         ];
         for (const option of options) {
             if (controlIndex == 2) {
-                option.isSelected = (this.#selectionModel.abilityScore2 == option.value);
+                option.isSelected = (this.#levelBoon.abilityScore2 == option.value);
             }
             else {
-                option.isSelected = (this.#selectionModel.abilityScore1 == option.value);
+                option.isSelected = (this.#levelBoon.abilityScore1 == option.value);
             }
         }
         selectionModel.options = options;
@@ -122,7 +129,7 @@ class LevelBoonSelectionModel {
             value: f.name ?? "",
             text: f.title ?? "",
             noteText: f.source.name ?? "",
-            isSelected: (this.#selectionModel.feat == f.name),
+            isSelected: (this.#levelBoon.feat == f.name),
             hasDetail: true,
             isDisabled: (f.prerequisites?.prerequisitesMet == false),
             disabledReason: f.prerequisites?.text
@@ -157,19 +164,19 @@ class LevelBoonSelectionModel {
         const classIndex = this.#selectionModel.classIndex;
         const levelBoon = {
             level: this.#selectionModel.level,
-            hitPoints: this.#selectionModel.hitPoints,
-            abilityScore1: this.#selectionModel.abilityScore1,
-            abilityScore2: this.#selectionModel.abilityScore2,
+            hitPoints: this.#levelBoon.hitPoints,
+            abilityScore1: this.#levelBoon.abilityScore1,
+            abilityScore2: this.#levelBoon.abilityScore2,
         };
         if (selectionModelName == "ability-score-2") {
             levelBoon.abilityScore2 = abilityScore;
-            if (this.#selectionModel.abilityScore2 == abilityScore) {
+            if (this.#levelBoon.abilityScore2 == abilityScore) {
                 return;
             }
         }
         else {
             levelBoon.abilityScore1 = abilityScore;
-            if (this.#selectionModel.abilityScore1 == abilityScore) {
+            if (this.#levelBoon.abilityScore1 == abilityScore) {
                 return;
             }
         }
@@ -187,10 +194,10 @@ class LevelBoonSelectionModel {
         const classIndex = this.#selectionModel.classIndex;
         const levelBoon = {
             level: this.#selectionModel.level,
-            hitPoints: this.#selectionModel.hitPoints,
+            hitPoints: this.#levelBoon.hitPoints,
             feat: feat
         };
-        if (this.#selectionModel.feat == levelBoon.feat) {
+        if (this.#levelBoon.feat == levelBoon.feat) {
             return;
         }
         const character = Character.currentCharacter;
@@ -231,7 +238,7 @@ class LevelBoonSelectionModel {
     }
 
     #initializeDetails() {
-        if (this.#selectionModel?.feat) {
+        if (this.#levelBoon?.feat) {
             this.#kitElement.querySelector(".data-radio-feat").click();
         }
         else {
@@ -247,8 +254,8 @@ class LevelBoonSelectionModel {
         if (!this.#featOptions) {
             const character = DomainClassAndLevelModel.character;
             let displayOptions = [];
-            if (this.#selectionModel.feat) {
-                const feat = Sources.getFeats(character.sources).find(f => f.name == this.#selectionModel.feat);
+            if (this.#levelBoon.feat) {
+                const feat = Sources.getFeats(character.sources).find(f => f.name == this.#levelBoon.feat);
                 if (feat.getOptions) {
                     const featOptions = feat.getOptions(character, this.#selectionModel.classIndex, this.#selectionModel.level);
                     displayOptions = this.#getDisplayOptions(featOptions);

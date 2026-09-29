@@ -25,63 +25,12 @@ export class DomainClassAndLevelModel {
     }
 
     async onCharacterUpdate(message) {
-
         DomainClassAndLevelModel.character = Character.currentCharacter;
         this.#classOptions = null;
         this.#subClasses = null;
         this.#subClassOptions = null;
         this.#levelBoons = null;
         await UIKit.renderer.renderElement(this.#kitElement.querySelector("#classes-array"));
-
-        // const oldCharacter = DomainClassAndLevelModel.character;
-        // const currentCharacter = Character.currentCharacter;
-        // const sourcesUpdated = !Utilities.areArraysEqual(oldCharacter.sources, currentCharacter.sources);
-        // const classesUpdated = !Utilities.areArraysEqual(oldCharacter.classes, currentCharacter.classes, ["name", "level"]);
-        // const classUpdates = [];
-        // if (!sourcesUpdated && !classesUpdated && message.option) {
-        //     const sourcePropName = message.option.sourcePropertyName;
-        //     const sourcePropValue = message.option.sourcePropertyValue;
-        //     for (let i = 0; i < oldCharacter.classes.length; i++) {
-        //         const oldClass = oldCharacter.classes[i];
-        //         const newClass = currentCharacter.classes[i];
-        //         const classUpdate = {
-        //             classIndex: i,
-        //             subClassUpdated: (oldClass.subClass != newClass.subClass),
-        //             classOptionUpdated: (!message.option || (sourcePropName == "class" && sourcePropValue == oldClass.name)),
-        //             subClassOptionUpdated: (!message.option || (sourcePropName == "subClass" && sourcePropValue == oldClass.subClass)),
-        //             levelBoonsUpdated: !Utilities.areArraysEqual(
-        //                 oldClass.levelBoons, newClass.levelBoons, ["level", "abilityScore1", "abilityScore2", "feat"])
-        //         };
-        //         if (sourcePropName.startsWith("feat")) {
-        //             classUpdate.levelBoonsUpdated = true;
-        //         }
-        //         classUpdates.push(classUpdate);
-        //     }
-        // }
-        // DomainClassAndLevelModel.character = currentCharacter;
-        // this.#classOptions = null;
-        // this.#subClasses = null;
-        // this.#subClassOptions = null;
-        // this.#levelBoons = null;
-        // if (sourcesUpdated || classesUpdated || !message.option) {
-        //     await UIKit.renderer.renderElement(this.#kitElement.querySelector("#classes-array"));
-        // }
-        // else {
-        //     for (const classUpdate of classUpdates) {
-        //         if (classUpdate.classOptionUpdated) {
-        //             await UIKit.renderer.renderElement(this.#kitElement.querySelector(`#class-options-row-${classUpdate.classIndex}`));
-        //         }
-        //         if (classUpdate.subClassUpdated) {
-        //             await UIKit.renderer.renderElement(this.#kitElement.querySelector(`#sub-class-row-${classUpdate.classIndex}`));
-        //         }
-        //         if (classUpdate.subClassOptionUpdated) {
-        //             await UIKit.renderer.renderElement(this.#kitElement.querySelector(`#sub-class-options-row-${classUpdate.classIndex}`));
-        //         }
-        //         if (classUpdate.levelBoonsUpdated) {
-        //             await UIKit.renderer.renderElement(this.#kitElement.querySelector(`#level-boons-row-${classUpdate.classIndex}`));
-        //         }
-        //     }
-        // }
     }
 
     async addCharacterClass() {
@@ -93,14 +42,20 @@ export class DomainClassAndLevelModel {
             levelBoons: []
         };
         Sources.addCharacterClass(character, cls);
-        const message = { character: character };
+        const message = {
+            character: character,
+            section: "details-class-and-level"
+        };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
     async removeCharacterClass(classIndex) {
         const character = Character.currentCharacter;
         Sources.removeCharacterClass(character, classIndex);
-        const message = { character: character };
+        const message = {
+            character: character,
+            section: "details-class-and-level"
+        };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
@@ -144,7 +99,7 @@ export class DomainClassAndLevelModel {
 
             // check primary class multiclass eligibility
             const primaryClass = classes.find(c => c.name == character.classes[0].name);
-            if (primaryClass.getMulticlassEligibility) {
+            if (primaryClass?.getMulticlassEligibility) {
                 const primaryMultiClassEligibility = primaryClass.getMulticlassEligibility(character);
                 if (!primaryMultiClassEligibility?.isEligible) {
                     for (const option of options) {
@@ -207,7 +162,10 @@ export class DomainClassAndLevelModel {
             return;
         }
         Sources.updateCharacterClass(character, index, className);
-        const message = { character: character };
+        const message = {
+            character: character,
+            section: "details-class-and-level"
+        };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
@@ -248,7 +206,10 @@ export class DomainClassAndLevelModel {
             return;
         }
         Sources.updateCharacterLevel(character, index, level);
-        const message = { character: character };
+        const message = {
+            character: character,
+            section: "details-class-and-level"
+        };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
@@ -285,7 +246,11 @@ export class DomainClassAndLevelModel {
             values: optionValues
         }
         Sources.updateCharacterOption(character, option);
-        const message = { character: character, option: option };
+        const message = {
+            character: character,
+            option: option,
+            section: "details-class-and-level"
+        };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
@@ -358,7 +323,10 @@ export class DomainClassAndLevelModel {
         const character = Character.currentCharacter;
         const classIndex = Number(selectionModelName.replace("subClass-", ""));
         Sources.updateCharacterSubClass(character, classIndex, subClass);
-        const message = { character: character };
+        const message = {
+            character: character,
+            section: "details-class-and-level"
+        };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
@@ -395,7 +363,11 @@ export class DomainClassAndLevelModel {
             values: optionValues
         }
         Sources.updateCharacterOption(character, option);
-        const message = { character: character, option: option };
+        const message = {
+            character: character,
+            option: option,
+            section: "details-class-and-level"
+        };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
@@ -492,17 +464,16 @@ export class DomainClassAndLevelModel {
             const levelFilter = [4, 8, 12, 16, 19];
             for (let i = 0; i < character.classes.length; i++) {
                 const classLevelBoons = character.classes[i].levelBoons.filter(lb => levelFilter.includes(lb.level));
-                for (const lb of classLevelBoons) {
-                    lb.classIndex = i;
+                for (const classLevelBoon of classLevelBoons) {
+                    levelBoons.push({
+                        classIndex: i,
+                        level: classLevelBoon.level
+                    });
                 }
-                levelBoons.push({
-                    classIndex: i,
-                    levelBoons: classLevelBoons
-                });
             }
             this.#levelBoons = levelBoons;
         }
-        return this.#levelBoons.find(lb => lb.classIndex == classIndex).levelBoons;
+        return this.#levelBoons.filter(lb => lb.classIndex == classIndex);
     }
 
     #getDisplayOptions(classIndex, domainOptions) {
@@ -527,4 +498,5 @@ export class DomainClassAndLevelModel {
         }
         return displayOptions;
     }
+
 }

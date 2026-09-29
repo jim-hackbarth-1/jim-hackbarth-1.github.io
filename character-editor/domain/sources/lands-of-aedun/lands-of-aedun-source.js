@@ -81,4 +81,8 @@ export class LandsOfAedunSource {
         return [];
     }
 
+    static getEquipment() {
+        return [];
+    }
+
 }

@@ -30,6 +30,13 @@ export class EditorViewModel {
             callback: this.onCharacterUpdateStarted.name
         };
         UIKit.messenger.subscribe(EditorViewModel.CharacterUpdateStartedTopic, characterUpdateStartedSubscriber);
+        const characterUpdateSubscriber = {
+            elementKey: elementKey,
+            id: `${EditorViewModel.CharacterUpdateTopic}-${elementKey}`,
+            object: this,
+            callback: this.onCharacterUpdate.name
+        };
+        UIKit.messenger.subscribe(EditorViewModel.CharacterUpdateTopic, characterUpdateSubscriber);
     }
 
     static #resizeEventHandlerRegistered;
@@ -159,6 +166,12 @@ export class EditorViewModel {
 
         Character.currentCharacter = character;
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateTopic, message);
+    }
+
+    onCharacterUpdate(message) {
+        if (message.section) {
+            this.nextDetailsSection(message.section);
+        }
     }
 
     print() {

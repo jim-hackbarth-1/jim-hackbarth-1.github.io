@@ -83,7 +83,10 @@ class DomainAbilityScoresAndHitPointsModel {
     async togglePointsSystem() {
         const character = Character.currentCharacter;
         Sources.updateCharacterUseAbilityScorePointsSystem(character);
-        const message = { character: character };
+        const message = {
+            character: character,
+            section: "details-ability-scores"
+        };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
@@ -146,7 +149,10 @@ class DomainAbilityScoresAndHitPointsModel {
         const abilityScore = character.abilityScores.find(a => a.name == ability);
         if (value != abilityScore.baseScore) {
             abilityScore.baseScore = value;
-            const message = { character: character };
+            const message = {
+                character: character,
+                section: "details-ability-scores"
+            };
             await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
         }
         else {
@@ -236,7 +242,10 @@ class DomainAbilityScoresAndHitPointsModel {
         }
         levelBoon.hitPoints = value;
         Sources.updateCharacterLevelBoon(character, classIndex, levelBoon);
-        const message = { character: character };
+        const message = {
+            character: character,
+            section: "details-ability-scores"
+        };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 

@@ -136,6 +136,10 @@ import { Sailor } from "./backgrounds/sailor.js";
 import { Soldier } from "./backgrounds/soldier.js";
 import { Urchin } from "./backgrounds/urchin.js";
 
+// equipment
+import { Abacus } from "./equipment/adventuring-gear/abacus.js";
+import { AlchemistsFireFlask } from "./equipment/adventuring-gear/alchemists-fire-flask.js";
+import { AcidVial } from "./equipment/adventuring-gear/acid-vial.js";
 
 export class DnD5ESource {
 
@@ -188,7 +192,7 @@ export class DnD5ESource {
         Ranger,
         Rogue,
         Sorcerer,
-        Warlock,
+        Warlock, 
         Wizard
     ];
     static getClasses() {
@@ -242,48 +246,15 @@ export class DnD5ESource {
     }
 
     static #feats = [
-        Actor,
-        Alert,
-        Athlete,
-        Charger,
-        CrossbowExpert,
-        DefensiveDuelist,
-        DualWielder,
-        DungeonDelver,
-        Durable,
-        ElementalAdept,
-        Grappler,
-        GreatWeaponMaster,
-        Healer,
-        HeavilyArmored,
-        HeavyArmorMaster,
-        InspiringLeader,
-        KeenMind,
-        LightlyArmored,
-        Linguist,
-        Lucky,
-        MageSlayer,
-        MagicInitiate,
-        MartialAdept,
-        MediumArmorMaster,
-        Mobile,
-        ModeratelyArmored,
-        MountedCombatant,
-        Observant,
-        PolearmMaster,
-        Resilient,
-        RitualCaster,
-        SavageAttacker,
-        Sentinel,
-        Sharpshooter,
-        ShieldMaster,
-        Skilled,
-        Skulker,
-        SpellSniper,
-        TavernBrawler,
-        Tough,
-        WarCaster,
-        WeaponMaster,
+        Actor, Alert, Athlete, Charger, CrossbowExpert,
+        DefensiveDuelist, DualWielder, DungeonDelver, Durable, ElementalAdept,
+        Grappler, GreatWeaponMaster, Healer, HeavilyArmored, HeavyArmorMaster,
+        InspiringLeader, KeenMind, LightlyArmored, Linguist, Lucky,
+        MageSlayer, MagicInitiate, MartialAdept, MediumArmorMaster, Mobile,
+        ModeratelyArmored, MountedCombatant, Observant, PolearmMaster, Resilient,
+        RitualCaster, SavageAttacker, Sentinel, Sharpshooter, ShieldMaster,
+        Skilled, Skulker, SpellSniper, TavernBrawler, Tough,
+        WarCaster,WeaponMaster,
     ];
     static getFeats() {
         return DnD5ESource.#feats;
@@ -306,6 +277,13 @@ export class DnD5ESource {
     ];
     static getBackgrounds() {
         return DnD5ESource.#backgrounds;
+    }
+
+    static #equipment = [
+        Abacus, AlchemistsFireFlask, AcidVial
+    ];
+    static getEquipment() {
+        return DnD5ESource.#equipment;
     }
 
 }

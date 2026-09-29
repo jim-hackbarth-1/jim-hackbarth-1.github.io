@@ -18,7 +18,7 @@
                 <label>Ability score improvement</label>
             </div>
         </div>
-        <div id="ability-scores-container" class="details-section">
+        <div class="details-section ability-scores-container">
             <div class="selection-container">
                 <kit kit-component="./components/shared/selection/selection.html"
                      kit-obj-selection-model="selectionModel:#model.getAbilityScores(1)"
@@ -49,12 +49,12 @@
                 <label>Feat</label>
             </div>
         </div>
-        <div id="feats-container" class="details-section">
+        <div class="details-section feats-container" kit-element>
             <div class="selection-container">
                 <kit kit-component="./components/shared/selection/selection.html"
-                     kit-obj-selection-model="selectionModel:#model.getFeats()"
-                     kit-obj-get-detail-handler="getDetailHandler:#model.getFeatHtml"
-                     kit-obj-change-handler="changeHandler:#model.updateFeat">
+                     kit-obj-selection-model="selectionModel:#model?.getFeats()"
+                     kit-obj-get-detail-handler="getDetailHandler:#model?.getFeatHtml"
+                     kit-obj-change-handler="changeHandler:#model?.updateFeat">
                 </kit>
             </div>
             <div kit-if="#model.hasFeatOptions()">

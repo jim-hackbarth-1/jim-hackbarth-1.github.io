@@ -107,9 +107,7 @@ class SelectionModel {
         return this.#selectionModel.options;
     }
 
-    #togglingDetails;
     async toggleDetail(event, optionValue) {
-        this.#togglingDetails = true;
         const elementId = `option-${optionValue}`;
         const optionElement = this.#kitElement.querySelector(`#${elementId}`);
         const isExpanded = optionElement.classList.contains("expanded");
@@ -141,30 +139,38 @@ class SelectionModel {
     }
 
     async #onValueChanged(optionValue) {
-        if (!this.#togglingDetails) {
-            if (this.#changeHandler) { 
-                if (optionValue == "null") {
-                    optionValue = null;
+        if (this.#changeHandler) { 
+            if (optionValue == "null") {
+                optionValue = null;
+            }
+            const option = this.#selectionModel.options.find(o => o.value == optionValue);
+            if (!option.isDisabled) {
+                if (this.#selectionModel.maxSelections == 1) {
+                    this.#updateDisplayedValue([optionValue]);
+                    await this.#changeHandler(this.#selectionModel.name, [optionValue]);
                 }
-                const option = this.#selectionModel.options.find(o => o.value == optionValue);
-                if (!option.isDisabled) {
-                    if (this.#selectionModel.maxSelections == 1) {
-                        await this.#changeHandler(this.#selectionModel.name, [optionValue]);
-                    }
-                    else {
-                        const selectedValues = [...this.#kitElement.querySelectorAll("input[type='checkbox']:checked")]
-                            .map(c => c.getAttribute("data-option-value"));
-                        if (
-                            selectedValues.length == this.#selectionModel.maxSelections
-                            || selectedValues.length == 0
-                        ) {
-                            await this.#changeHandler(this.#selectionModel.name, selectedValues);
-                        }
+                else {
+                    const selectedValues = [...this.#kitElement.querySelectorAll("input[type='checkbox']:checked")]
+                        .map(c => c.getAttribute("data-option-value"));
+                    if (
+                        selectedValues.length == this.#selectionModel.maxSelections
+                        || selectedValues.length == 0
+                    ) {
+                        this.#updateDisplayedValue(selectedValues);
+                        await this.#changeHandler(this.#selectionModel.name, selectedValues);
                     }
                 }
             }
         }
-        this.#togglingDetails = false;
+    }
+
+    #updateDisplayedValue(selectedValues) {
+        for (const option of this.#selectionModel.options) {
+            option.isSelected = selectedValues.includes(option.value);
+        }
+        const label = this.#kitElement.querySelector(".collapsed-option-label").querySelector("label");
+        label.innerText = this.getCollapsedDisplayValue();
+        this.toggleDropDown();
     }
 
 }

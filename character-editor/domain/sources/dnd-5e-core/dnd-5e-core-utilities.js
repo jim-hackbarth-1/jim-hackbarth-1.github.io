@@ -1,17 +1,17 @@
 
 export class DnD5EUtilities {
 
-    static getFeatStyle() {
+    static getContentStyle() {
         return `
             <style>
-                .dnd-5e-feat h3 {
+                .dnd-5e-content h3 {
                     color:darkred;
                 }
-                .dnd-5e-feat hr {
+                .dnd-5e-content hr {
                     border: 1px solid darkred;
                     margin-bottom: 10px;
                 }
-                .dnd-5e-feat .content {
+                .dnd-5e-content .content {
                     font-family: Calibri, sans-serif;
                     margin-bottom: 10px;
                 }

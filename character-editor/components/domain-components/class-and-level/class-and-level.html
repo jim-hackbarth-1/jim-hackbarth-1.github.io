@@ -55,10 +55,10 @@
                 </div>
                 <div id="level-boons-row-%{#classInfo.index}%" kit-if="#model.hasLevelBoons('%{#classInfo.index}%')">
                     <div kit-array="#model.getLevelBoons('%{#classInfo.index}%')"
-                         kit-array-item-alias="option">
+                         kit-array-item-alias="levelBoon">
                         <div class="option-control">
                             <kit kit-component="./components/shared/level-boon-selection/level-boon-selection.html"
-                                 kit-obj-selection-model="selectionModel:#option">
+                                 kit-obj-selection-model="selectionModel:#levelBoon">
                             </kit>
                         </div>
                     </div>

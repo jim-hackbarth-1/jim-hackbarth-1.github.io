@@ -1,0 +1,178 @@
+
+<section id="domain-equipment-component">
+    <link rel="stylesheet" href="./components/domain-components/equipment/equipment.css" />
+    <div id="equipment-content">
+        <div id="inventory-content">
+            <div id="inventory-summary" class="summary">
+                <div class="summary-label no-wrap">Inventory</div>
+                <div>
+                    <div id="expand-inventory"
+                         title="Show inventory"
+                         class="toggle-button toggle-button-expand hidden"
+                         onpointerdown="#model.toggleDetail(event, 'inventory-detail')"
+                         kit-component="no-model:./resources/icons/expand.html">
+                    </div>
+                    <div id="collapse-inventory"
+                         title="Hide inventory"
+                         class="toggle-button toggle-button-collapse"
+                         onpointerdown="#model.toggleDetail(event, 'inventory-detail')"
+                         kit-component="no-model:./resources/icons/collapse.html">
+                    </div>
+                </div>
+            </div>
+            <div id="inventory-detail" class="detail">
+                <div id="inventory-list" kit-element>
+                    <div id="inventory-table"
+                         kit-array="#model.getInventory()"
+                         kit-array-item-alias="item">
+                        <div class="inventory-item"
+                             id="inventory-item-%{#item.index ?? ''}%">
+                            <div class="inventory-row">
+                                <div class="inventory-cell remove-button-cell">
+                                    <div kit-if="#item.name">
+                                        <button class="button remove-item"
+                                                data-item-index="%{#item.index}%"
+                                                onclick="#model.removeItem(event);">
+                                            Remove
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="inventory-cell">
+                                    <div class="checkbox-info-container"
+                                         kit-if="#item.name">
+                                        <div class="checkbox-container"
+                                             title="Equip item">
+                                            <label class="checkbox">
+                                                <input type="checkbox"
+                                                       kit-element
+                                                       onclick="#model.toggleEquip(event, '%{#item.index}%') " />
+                                                <span class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="checkbox-info-label">&nbsp;</div>
+                                    </div>
+                                </div>
+                                <div class="inventory-cell">
+                                    <div class="item-name">%{#item.title ?? ''}%</div>
+                                    <div class="item-source" kit-if="#item.name">%{#item.source?.title ?? '&nbsp;'}%</div>
+                                </div>
+                                <div class="inventory-cell" style="width:100%;">
+                                    <div class="item-properties"
+                                         kit-array="#item.properties ?? []"
+                                         kit-array-item-alias="prop">
+                                        <div>%{#prop}%</div>
+                                    </div>
+                                </div>
+                                <div class="inventory-cell">
+                                    <div class="toggle-button-container">
+                                        <div class="options-container" 
+                                             kit-if="#item.options"
+                                             onpointerdown="#model.toggleOptions(event, '%{#item.index}%')">
+                                            <div class="options-label">Options</div>
+                                            <div class="toggle-button options-button"
+                                                 title="Toggle options"
+                                                 kit-component="no-model:./resources/icons/down-arrow.html">
+                                            </div>
+                                        </div>
+                                        <kit kit-if="#item.html || #item.htmlPath">
+                                            <div class="expand-collapse-container">
+                                                <div class="toggle-button expand-button"
+                                                     title="Show Detail"
+                                                     onpointerdown="#model.toggleInventoryDetail(event, '%{#item.index}%', '%{#item.name}%')"
+                                                     kit-component="no-model:./resources/icons/expand.html">
+                                                </div>
+                                                <div class="toggle-button collapse-button hidden"
+                                                     title="Hide Detail"
+                                                     onpointerdown="#model.toggleInventoryDetail(event, '%{#item.index}%', '%{#item.name}%')"
+                                                     kit-component="no-model:./resources/icons/collapse.html">
+                                                </div>
+                                            </div>
+                                        </kit>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="inventory-item-options hidden">[options]</div>
+                            <div class="inventory-item-html hidden">[html]</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="add-equipment-content">
+            <div id="add-equipment-summary" class="summary">
+                <div class="summary-label no-wrap">Add equipment</div>
+                <div>
+                    <div id="expand-add-equipment"
+                         title="Show equipment"
+                         class="toggle-button toggle-button-expand hidden"
+                         onpointerdown="#model.toggleDetail(event, 'add-equipment-detail')"
+                         kit-component="no-model:./resources/icons/expand.html">
+                    </div>
+                    <div id="collapse-add-equipment"
+                         title="Hide equipment"
+                         class="toggle-button toggle-button-collapse"
+                         onpointerdown="#model.toggleDetail(event, 'add-equipment-detail')"
+                         kit-component="no-model:./resources/icons/collapse.html">
+                    </div>
+                </div>
+            </div>
+            <div id="add-equipment-detail" class="detail">
+                <div id="add-equipment-category" kit-element>
+                    <kit kit-component="./components/shared/selection/selection.html"
+                         kit-obj-selection-model="selectionModel:#model.getEquipmentCategories()"
+                         kit-obj-change-handler="changeHandler:#model.updateEquipmentCategory">
+                    </kit>
+                </div>
+                <div id="add-equipment-list" kit-element>
+                    <div id="add-equipment-table" 
+                         kit-array="#model.getEquipment()" 
+                         kit-array-item-alias="item">
+                        <div class="equipment-item"
+                             id="equipment-item-%{#item.name ?? ''}%">
+                            <div class="equipment-row">
+                                <div class="equipment-cell add-button-cell">
+                                    <div kit-if="#item.name">
+                                        <button class="button add-item"
+                                                data-item-name="%{#item.name}%"
+                                                onclick="#model.addItem(event);">
+                                            Add item
+                                        </button>
+                                    </div>
+                                    <div class="added-count">%{#item.addedCountLabel ?? ''}%</div>
+                                </div>
+                                <div class="equipment-cell">
+                                    <div class="item-name">%{#item.title ?? ''}%</div>
+                                    <div class="item-source">%{#item.source?.title ?? ''}%</div>
+                                </div>
+                                <div class="equipment-cell" style="width:100%;">
+                                    <div class="item-properties"
+                                         kit-array="#item.properties ?? []"
+                                         kit-array-item-alias="prop">
+                                        <div>%{#prop}%</div>
+                                    </div>
+                                </div>
+                                <div class="equipment-cell">
+                                    <div>
+                                        <div class="toggle-button expand-button"
+                                             title="Show Detail"
+                                             kit-if="#item.html || #item.htmlPath"
+                                             onpointerdown="#model.toggleEquipmentDetail(event, '%{#item.name}%')"
+                                             kit-component="no-model:./resources/icons/expand.html">
+                                        </div>
+                                        <div class="toggle-button collapse-button hidden"
+                                             title="Hide Detail"
+                                             kit-if="#item.html || #item.htmlPath"
+                                             onpointerdown="#model.toggleEquipmentDetail(event, '%{#item.name}%')"
+                                             kit-component="no-model:./resources/icons/collapse.html">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="equipment-item-html hidden">[html]</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

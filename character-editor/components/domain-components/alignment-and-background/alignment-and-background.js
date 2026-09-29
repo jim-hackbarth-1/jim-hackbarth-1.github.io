@@ -46,19 +46,21 @@ class DomainAlignmentAndBackgroundModel {
         if (sourcesUpdated || backgroundUpdated) {
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#background-row"));
         }
-        if (sourcesUpdated || backgroundUpdated || traitsUpdated) {
+        if (backgroundUpdated || traitsUpdated) {
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#traits-row"));
         }
-        if (sourcesUpdated || backgroundUpdated || idealUpdated) {
+        if (backgroundUpdated || idealUpdated) {
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#ideal-row"));
         }
-        if (sourcesUpdated || backgroundUpdated || bondUpdated) {
+        if (backgroundUpdated || bondUpdated) {
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#bond-row"));
         }
-        if (sourcesUpdated || backgroundUpdated || flawUpdated) {
+        if (backgroundUpdated || flawUpdated) {
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#flaw-row"));
         }
-        await UIKit.renderer.renderElement(this.#kitElement.querySelector("#background-options-row"));
+        if (message.option?.sourcePropertyName != "background") {
+            await UIKit.renderer.renderElement(this.#kitElement.querySelector("#background-options-row"));
+        }
     }
 
     getAlignments() {
@@ -102,8 +104,11 @@ class DomainAlignmentAndBackgroundModel {
             return;
         }
         Sources.updateCharacterAlignment(character, alignment);
-        const message = { character: character };
-        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
+        const message = {
+            character: character,
+            section: "details-alignment-and-background"
+        };
+        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateTopic, message);
     }
 
     getBackgrounds() {
@@ -157,7 +162,10 @@ class DomainAlignmentAndBackgroundModel {
             return;
         }
         Sources.updateCharacterBackground(character, background);
-        const message = { character: character };
+        const message = {
+            character: character,
+            section: "details-alignment-and-background"
+        };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
@@ -225,8 +233,11 @@ class DomainAlignmentAndBackgroundModel {
             return;
         }
         Sources.updateCharacterTraits(character, optionValues);
-        const message = { character: character };
-        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
+        const message = {
+            character: character,
+            section: "details-alignment-and-background"
+        };
+        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateTopic, message);
     }
 
     getIdeals() {
@@ -289,8 +300,11 @@ class DomainAlignmentAndBackgroundModel {
             return;
         }
         Sources.updateCharacterIdeal(character, ideal);
-        const message = { character: character };
-        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
+        const message = {
+            character: character,
+            section: "details-alignment-and-background"
+        };
+        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateTopic, message);
     }
 
     getBonds() {
@@ -353,8 +367,11 @@ class DomainAlignmentAndBackgroundModel {
             return;
         }
         Sources.updateCharacterBond(character, bond);
-        const message = { character: character };
-        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
+        const message = {
+            character: character,
+            section: "details-alignment-and-background"
+        };
+        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateTopic, message);
     }
 
     getFlaws() {
@@ -417,8 +434,12 @@ class DomainAlignmentAndBackgroundModel {
             return;
         }
         Sources.updateCharacterFlaw(character, flaw);
-        const message = { character: character };
-        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
+        Character.currentCharacter = character;
+        const message = {
+            character: character,
+            section: "details-alignment-and-background"
+        };
+        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateTopic, message);
     }
 
     hasBackgroundOptions() {
@@ -449,7 +470,11 @@ class DomainAlignmentAndBackgroundModel {
             values: optionValues
         }
         Sources.updateCharacterOption(character, option);
-        const message = { character: character, option: option };
+        const message = {
+            character: character,
+            option: option,
+            section: "details-alignment-and-background"
+        };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 

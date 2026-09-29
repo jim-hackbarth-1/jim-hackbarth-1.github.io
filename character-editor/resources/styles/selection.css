@@ -23,7 +23,7 @@
     background-color: #FFF8EB;
     cursor: pointer;
     padding: 5px;
-    display:flex;
+    display: flex;
 }
 
 .selection .collapsed-option-label {
@@ -34,7 +34,7 @@
 }
 
 .selection .collapsed-option-label label {
-    cursor:pointer;
+    cursor: pointer;
 }
 
 .selection .selection-expanded {

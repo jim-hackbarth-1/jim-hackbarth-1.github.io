@@ -5,11 +5,20 @@
 
     #ability-scores-and-hit-points-content {
         padding: 5px;
+        display: flex;
+        flex-wrap: wrap;
     }
 
     #ability-scores-content,
     #hit-points-content {
         margin-bottom: 20px;
+        margin-right: 10px;
+        flex: 1;
+    }
+
+    #ability-scores-detail {
+        border: 1px solid saddlebrown;
+        padding: 5px;
     }
 
     .summary {
@@ -62,7 +71,6 @@
     }
 
     table {
-        border: 1px solid saddlebrown;
         border-collapse: collapse;
     }
 

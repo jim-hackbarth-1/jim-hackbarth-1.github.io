@@ -195,6 +195,58 @@ export class Sources {
         return html ?? "";
     }
 
+    static #equipmentCategories = [
+        { name: "armor", title: "Armor" },
+        { name: "armor-magical", title: "Armor, Magical" },
+        { name: "potions", title: "Potions" },
+        { name: "rings", title: "Rings" },
+        { name: "rods", title: "Rods" },
+        { name: "scrolls", title: "Scrolls" },
+        { name: "staffs", title: "Staffs" },
+        { name: "wands", title: "Wands" },
+        { name: "weapons", title: "Weapons" },
+        { name: "weapons-magical", title: "Weapons, Magical" },
+        { name: "wondrous-items", title: "Wondrous Items" },
+        { name: "adventuring-gear", title: "Adventuring Gear" },
+        { name: "tools", title: "Tools" },
+        { name: "mounts-and-vehicls", title: "Mounts and Vehicles" }
+    ];
+    static getEquipmentCategories() {
+        return Sources.#equipmentCategories;
+    }
+
+    static #allEquipment;
+    static getEquipment(sources, category) {
+        if (!Sources.#allEquipment) {
+            const allEquipment = [];
+            for (const source of Sources.getSources()) {
+                if (source.getEquipment) {
+                    const equipment = source.getEquipment();
+                    for (const item of equipment) {
+                        item.source = source;
+                        allEquipment.push(item);
+                    }
+                }
+            }
+            Sources.#allEquipment = allEquipment;
+        }
+        let results = Sources.#allEquipment.filter(ei => sources.includes(ei.source.name));
+        if (category) {
+            results = results.filter(e => e.category == category);
+        }
+        return results;
+    }
+
+    static async getEquipmentHtml(sources, name) {
+        const basePath = "./domain/sources";
+        const equipmentModel = Sources.getEquipment(sources).find(e => e.name == name);
+        if (equipmentModel.html) {
+            return equipmentModel.html;
+        }
+        const html = await Sources.#getHtml(basePath, equipmentModel.htmlPath)
+        return html ?? "";
+    }
+
     static updateCharacterSources(character, sources) {
         if (character.race && !Sources.getRaces(sources).some(r => r.name == character.race)) {
             Sources.updateCharacterRace(character, null);

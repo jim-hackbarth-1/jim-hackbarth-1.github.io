@@ -4,9 +4,13 @@
 
     .class-content {
         margin: 5px 0 5px 5px;
-        border:1px solid saddlebrown;
-        padding:5px;
-        flex:1;
+        border: 1px solid saddlebrown;
+        padding: 5px;
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width:150px;
     }
 
     .class-content .toggle-button {

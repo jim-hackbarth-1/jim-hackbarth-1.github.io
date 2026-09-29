@@ -13,8 +13,8 @@ export class MagicInitiate {
 
     static get html() {
         return `
-        <div class="dnd-5e-feat">
-            ${DnD5EUtilities.getFeatStyle()}
+        <div class="dnd-5e-content">
+            ${DnD5EUtilities.getContentStyle()}
             <h3>Magic Initiate</h3>
             <hr/>
             <div class="content">

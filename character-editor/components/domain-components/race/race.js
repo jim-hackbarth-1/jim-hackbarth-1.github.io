@@ -29,7 +29,7 @@ class DomainRaceModel {
         const currentCharacter = Character.currentCharacter;
         const sourcesUpdated = !Utilities.areArraysEqual(oldCharacter.sources, currentCharacter.sources);
         const raceUpdated = (oldCharacter.race != currentCharacter.race);
-        const subRaceUpdated = (oldCharacter.subRace != currentCharacter.subRace);
+        const subRaceUpdated = raceUpdated || (oldCharacter.subRace != currentCharacter.subRace);
         DomainRaceModel.#character = currentCharacter;
         this.#raceOptions = null;
         this.#subRaces = null;
@@ -37,11 +37,15 @@ class DomainRaceModel {
         if (sourcesUpdated || raceUpdated) {
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#race-row"));
         }
-        await UIKit.renderer.renderElement(this.#kitElement.querySelector("#race-options-row"));
-        if (sourcesUpdated || raceUpdated || subRaceUpdated) {
+        if (message.option?.sourcePropertyName != "race") {
+            await UIKit.renderer.renderElement(this.#kitElement.querySelector("#race-options-row"));
+        }
+        if (sourcesUpdated || subRaceUpdated) {
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#sub-race-row"));
         }
-        await UIKit.renderer.renderElement(this.#kitElement.querySelector("#sub-race-options-row"));
+        if (message.option?.sourcePropertyName != "subRace") {
+            await UIKit.renderer.renderElement(this.#kitElement.querySelector("#sub-race-options-row"));
+        }
     }
 
     getRaces() {
@@ -95,7 +99,10 @@ class DomainRaceModel {
             return;
         }
         Sources.updateCharacterRace(character, race);
-        const message = { character: character };
+        const message = {
+            character: character,
+            section: "details-race"
+        };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
@@ -127,7 +134,11 @@ class DomainRaceModel {
             values: optionValues
         }
         Sources.updateCharacterOption(character, option);
-        const message = { character: character, option: option };
+        const message = {
+            character: character,
+            option: option,
+            section: "details-race"
+        };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
@@ -188,7 +199,10 @@ class DomainRaceModel {
             return;
         }
         Sources.updateCharacterSubRace(character, subRace);
-        const message = { character: character };
+        const message = {
+            character: character,
+            section: "details-race"
+        };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
@@ -220,7 +234,11 @@ class DomainRaceModel {
             values: optionValues
         }
         Sources.updateCharacterOption(character, option);
-        const message = { character: character, option: option };
+        const message = {
+            character: character,
+            option: option,
+            section: "details-race"
+        };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 

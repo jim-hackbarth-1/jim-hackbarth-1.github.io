@@ -48,6 +48,7 @@ class DomainAbilityScoresAndHitPointsModel {
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#max-base-score-row"));
         }
         if (hasAbilityScoreUpdate) {
+            await UIKit.renderer.renderElement(this.#kitElement.querySelector("#points-remaining-row"));
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#ability-score-table"));
         }
         await UIKit.renderer.renderElement(this.#kitElement.querySelector("#hit-points-table"));

@@ -95,6 +95,7 @@
     .inventory-cell,
     .equipment-cell {
         display: table-cell;
+        vertical-align: top;
     }
 
     .inventory-cell > div,
@@ -102,16 +103,24 @@
         margin: 5px;
     }
 
-    .add-button-cell {
-        text-align: center;
+    .add-item,
+    .remove-item {
+        width: 20px;
+        height: 20px;
+        background-color: #FFF8EB;
+        margin: 0;
+        border-color: saddlebrown;
+        padding: 0;
     }
 
-    .remove-item,
-    .add-item {
-        width: 80px;
-        color: black;
-        background-color: #C2B08E;
-        margin: 0;
+    .add-item:not([disabled]):hover,
+    .remove-item:not([disabled]):hover {
+        box-shadow: #C2B08E 1px 1px 3px 0 inset, #C2B08E -1px -1px 3px 0 inset;
+    }
+
+    .add-item .icon,
+    .remove-item .icon {
+        stroke: saddlebrown;
     }
 
     .added-count {
@@ -166,12 +175,11 @@
 
     .checkbox-container {
         position:relative;
-        top:-2px;
     }
 
     .checkbox-info-label {
         position: relative;
-        top: 22px;
+        top: 25px;
         font-size:small;
         color:saddlebrown;
 

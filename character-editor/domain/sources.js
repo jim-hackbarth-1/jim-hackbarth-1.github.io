@@ -20,8 +20,14 @@ export class Sources {
                 if (source.getRaces) {
                     const races = source.getRaces();
                     for (const race of races) {
-                        race.source = source;
-                        allRaces.push(race);
+                        const nameCollision = allRaces.find(r => r.name == race.name);
+                        if (nameCollision) {
+                            console.warn(`Duplicate race: ${race.name}. Sources: ${nameCollision.source.name}, ${source.name}`);
+                        }
+                        else {
+                            race.source = source;
+                            allRaces.push(race);
+                        }
                     }
                 }
             }
@@ -48,8 +54,14 @@ export class Sources {
                 if (source.getSubRaces) {
                     const subRaces = source.getSubRaces();
                     for (const subRace of subRaces) {
-                        subRace.source = source;
-                        allSubRaces.push(subRace);
+                        const nameCollision = allSubRaces.find(sr => sr.name == subRace.name);
+                        if (nameCollision) {
+                            console.warn(`Duplicate sub-race: ${subRace.name}. Sources: ${nameCollision.source.name}, ${source.name}`);
+                        }
+                        else {
+                            subRace.source = source;
+                            allSubRaces.push(subRace);
+                        }
                     }
                 }
             }
@@ -76,8 +88,14 @@ export class Sources {
                 if (source.getClasses) {
                     const classes = source.getClasses();
                     for (const cls of classes) {
-                        cls.source = source;
-                        allClasses.push(cls);
+                        const nameCollision = allClasses.find(c => c.name == cls.name);
+                        if (nameCollision) {
+                            console.warn(`Duplicate class: ${cls.name}. Sources: ${nameCollision.source.name}, ${source.name}`);
+                        }
+                        else {
+                            cls.source = source;
+                            allClasses.push(cls);
+                        }
                     }
                 }
             }
@@ -104,8 +122,14 @@ export class Sources {
                 if (source.getSubClasses) {
                     const subClasses = source.getSubClasses();
                     for (const subClass of subClasses) {
-                        subClass.source = source;
-                        allSubClasses.push(subClass);
+                        const nameCollision = allSubClasses.find(sc => sc.name == subClass.name);
+                        if (nameCollision) {
+                            console.warn(`Duplicate sub-class: ${subClass.name}. Sources: ${nameCollision.source.name}, ${source.name}`);
+                        }
+                        else {
+                            subClass.source = source;
+                            allSubClasses.push(subClass);
+                        }
                     }
                 }
             }
@@ -132,8 +156,14 @@ export class Sources {
                 if (source.getFeats) {
                     const feats = source.getFeats();
                     for (const feat of feats) {
-                        feat.source = source;
-                        allFeats.push(feat);
+                        const nameCollision = allFeats.find(f => f.name == feat.name);
+                        if (nameCollision) {
+                            console.warn(`Duplicate feat: ${feat.name}. Sources: ${nameCollision.source.name}, ${source.name}`);
+                        }
+                        else {
+                            feat.source = source;
+                            allFeats.push(feat);
+                        }
                     }
                 }
             }
@@ -175,8 +205,14 @@ export class Sources {
                 if (source.getBackgrounds) {
                     const backgrounds = source.getBackgrounds();
                     for (const background of backgrounds) {
-                        background.source = source;
-                        allBackgrounds.push(background);
+                        const nameCollision = allBackgrounds.find(b => b.name == background.name);
+                        if (nameCollision) {
+                            console.warn(`Duplicate background: ${background.name}. Sources: ${nameCollision.source.name}, ${source.name}`);
+                        }
+                        else {
+                            background.source = source;
+                            allBackgrounds.push(background);
+                        }
                     }
                 }
             }
@@ -223,7 +259,11 @@ export class Sources {
                 if (source.getEquipment) {
                     const equipment = source.getEquipment();
                     for (const item of equipment) {
-                        if (!allEquipment.some(e => e.name == item.name)) {
+                        const nameCollision = allEquipment.find(e => e.name == item.name);
+                        if (nameCollision) {
+                            console.warn(`Duplicate equipment: ${item.name}. Sources: ${nameCollision.source.name}, ${source.name}`);
+                        }
+                        else {
                             item.source = source;
                             allEquipment.push(item);
                         }
@@ -278,13 +318,14 @@ export class Sources {
         }
 
         const allEquipment = Sources.getEquipment(sources);
-        for (const item of character.equipment) {
-            if (!allEquipment.some(e => e.name == item.name)) {
-                Sources.removeCharacterEquipment(character, item.name);
+        for (let i = 0; i < character.equipment.length; i++) {
+            if (!allEquipment.some(e => e.name == character.equipment[i].name)) {
+                Sources.removeCharacterEquipment(character, i);
             }
         }
 
         // TODO: spells
+
         character.sources = sources;
     }
 

@@ -149,9 +149,11 @@ class DomainEquipmentModel {
         }
     }
 
-    async addItem(event) {
+    async addItem(itemName) {
+        if (!itemName) {
+            return;
+        }
         const character = Character.currentCharacter;
-        const itemName = event.srcElement.getAttribute("data-item-name");
         Sources.addCharacterEquipment(character, { name: itemName });
         const message = {
             character: character,
@@ -247,9 +249,9 @@ class DomainEquipmentModel {
         }
     }
 
-    async removeItem(event) {
+    async removeItem(itemIndex) {
         const character = Character.currentCharacter;
-        const index = Number(event.srcElement.getAttribute("data-item-index"));
+        const index = Number(itemIndex);
         const isEquipped = character.equipment[index].isEquipped;
         Sources.removeCharacterEquipment(character, index);
         const message = {

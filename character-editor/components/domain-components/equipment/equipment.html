@@ -31,9 +31,9 @@
                                 <div class="inventory-cell remove-button-cell">
                                     <div kit-if="#item.name">
                                         <button class="button remove-item"
-                                                data-item-index="%{#item.index}%"
-                                                onclick="#model.removeItem(event);">
-                                            Remove
+                                                title="Remove item"
+                                                onclick="#model.removeItem(#item.index);">
+                                            <div kit-component="no-model:./resources/icons/remove.html"></div>
                                         </button>
                                     </div>
                                 </div>
@@ -147,15 +147,14 @@
                              id="equipment-item-%{#item.name ?? ''}%">
                             <div class="equipment-row">
                                 <div class="equipment-cell add-button-cell">
-                                    <div kit-if="#item.name">
+                                    <div kit-if="#item.name" style="margin-bottom:-5px;">
                                         <button class="button add-item"
-                                                data-item-name="%{#item.name}%"
-                                                onclick="#model.addItem(event);">
-                                            Add item
+                                                title="Add item"
+                                                onclick="#model.addItem(#item.name);">
+                                            <div kit-component="no-model:./resources/icons/add.html"></div>
                                         </button>
                                     </div>
-                                    <div id="added-count-label-%{#item.name}%" 
-                                         class="added-count">
+                                    <div id="added-count-label-%{#item.name}%" class="added-count">
                                         %{#item.addedCountLabel ?? ''}%
                                     </div>
                                 </div>

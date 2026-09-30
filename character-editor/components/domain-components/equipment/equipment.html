@@ -42,14 +42,19 @@
                                          kit-if="#item.name">
                                         <div class="checkbox-container"
                                              title="Equip item">
-                                            <label class="checkbox">
+                                            <label class="checkbox" kit-if="#item.canBeEquipped">
                                                 <input type="checkbox"
                                                        kit-element
-                                                       onclick="#model.toggleEquip(event, '%{#item.index}%') " />
+                                                       data-item-index="%{#item.index}%"
+                                                       kit-attr-checked="checked:%{#item.isEquipped ? '' : null}%"
+                                                       onclick="#model.toggleEquip(event)" />
                                                 <span class="checkmark"></span>
                                             </label>
                                         </div>
-                                        <div class="checkbox-info-label">&nbsp;</div>
+                                        <div id="checkbox-info-label-%{#item.index}%" 
+                                             class="checkbox-info-label">
+                                            %{#item.isEquipped ? 'Equipped' : '&nbsp;'}%
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="inventory-cell">
@@ -66,7 +71,7 @@
                                 <div class="inventory-cell">
                                     <div class="toggle-button-container">
                                         <div class="options-container" 
-                                             kit-if="#item.options"
+                                             kit-if="(#item.options ?? []).length > 0"
                                              onpointerdown="#model.toggleOptions(event, '%{#item.index}%')">
                                             <div class="options-label">Options</div>
                                             <div class="toggle-button options-button"
@@ -91,7 +96,18 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="inventory-item-options hidden">[options]</div>
+                            <div class="inventory-item-options hidden">
+                                <div kit-array="#item.options ?? []"
+                                     kit-array-item-alias="option">
+                                    <div class="option-control">
+                                        <kit kit-component="./components/shared/selection/selection.html"
+                                             kit-obj-selection-model="selectionModel:#option"
+                                             kit-obj-get-detail-handler="getDetailHandler:#model.getOptionHtml"
+                                             kit-obj-change-handler="changeHandler:#model.updateOption">
+                                        </kit>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="inventory-item-html hidden">[html]</div>
                         </div>
                     </div>
@@ -138,7 +154,10 @@
                                             Add item
                                         </button>
                                     </div>
-                                    <div class="added-count">%{#item.addedCountLabel ?? ''}%</div>
+                                    <div id="added-count-label-%{#item.name}%" 
+                                         class="added-count">
+                                        %{#item.addedCountLabel ?? ''}%
+                                    </div>
                                 </div>
                                 <div class="equipment-cell">
                                     <div class="item-name">%{#item.title ?? ''}%</div>

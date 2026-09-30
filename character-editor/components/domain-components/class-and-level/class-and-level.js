@@ -25,11 +25,16 @@ export class DomainClassAndLevelModel {
     }
 
     async onCharacterUpdate(message) {
+        const oldCharacter = DomainClassAndLevelModel.character;
         DomainClassAndLevelModel.character = Character.currentCharacter;
         this.#classOptions = null;
         this.#subClasses = null;
         this.#subClassOptions = null;
         this.#levelBoons = null;
+        const isEquipmentAddRemove = this.#isEquipmentAddRemove(oldCharacter, message);
+        if (isEquipmentAddRemove) {
+            return;
+        }
         await UIKit.renderer.renderElement(this.#kitElement.querySelector("#classes-array"));
     }
 
@@ -223,10 +228,7 @@ export class DomainClassAndLevelModel {
     }
 
     getClassOptionHtml(selectionModelName, optionValue) {
-        //TODO: get html (if any) from domain source
-        console.log(selectionModelName);
-        console.log(optionValue);
-        return "TODO";
+        return "[no detail available]";
     }
 
     async updateClassOption(selectionModelName, optionValues) {
@@ -340,10 +342,7 @@ export class DomainClassAndLevelModel {
     }
 
     getSubClassOptionHtml(selectionModelName, optionValue) {
-        //TODO: get html (if any) from domain source
-        console.log(selectionModelName);
-        console.log(optionValue);
-        return "TODO";
+        return "[no detail available]";
     }
 
     async updateSubClassOption(selectionModelName, optionValues) {
@@ -497,6 +496,20 @@ export class DomainClassAndLevelModel {
             });
         }
         return displayOptions;
+    }
+
+    #isEquipmentAddRemove(character, message) {
+        if (message.equipmentAdded) {
+            return true;
+        }
+        const index = Number(message.equipmentRemoved);
+        if (index >= 0 && index < character.equipment.length) {
+            const isEquipped = character.equipment[index].isEquipped;
+            if (!isEquipped) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

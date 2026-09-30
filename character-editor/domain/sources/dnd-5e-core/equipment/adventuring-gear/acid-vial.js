@@ -23,6 +23,10 @@ export class AcidVial {
         ];
     }
 
+    static get canBeEquipped() {
+        return true;
+    }
+
     static get html() {
         return `
         <div class="dnd-5e-content">
@@ -36,7 +40,7 @@ export class AcidVial {
         `;
     }
 
-    static getOptions(character, iventoryIndex) {
+    static getOptions(character, inventoryIndex) {
         return [];
     }
 

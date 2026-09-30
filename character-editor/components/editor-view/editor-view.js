@@ -165,8 +165,17 @@ export class EditorViewModel {
                 background.updateFeatures(character);
             }
         }
-        
-        // TODO: same for equipment
+
+        const allEquipment = Sources.getEquipment(character.sources);
+        for (let i = 0; i < character.equipment.length; i++) {
+            const characterItem = character.equipment[i];
+            if (characterItem.isEquipped) {
+                const item = allEquipment.find(e => e.name == character.equipment[i].name);
+                if (item.updateFeatures) {
+                    item.updateFeatures(character, i);
+                }
+            }
+        }
 
         Character.currentCharacter = character;
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateTopic, message);

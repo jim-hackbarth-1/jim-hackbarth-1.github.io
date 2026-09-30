@@ -223,8 +223,10 @@ export class Sources {
                 if (source.getEquipment) {
                     const equipment = source.getEquipment();
                     for (const item of equipment) {
-                        item.source = source;
-                        allEquipment.push(item);
+                        if (!allEquipment.some(e => e.name == item.name)) {
+                            item.source = source;
+                            allEquipment.push(item);
+                        }
                     }
                 }
             }
@@ -275,7 +277,14 @@ export class Sources {
             Sources.updateCharacterBackground(character, null);
         }
 
-        // TODO: spells, equipment
+        const allEquipment = Sources.getEquipment(sources);
+        for (const item of character.equipment) {
+            if (!allEquipment.some(e => e.name == item.name)) {
+                Sources.removeCharacterEquipment(character, item.name);
+            }
+        }
+
+        // TODO: spells
         character.sources = sources;
     }
 
@@ -441,6 +450,17 @@ export class Sources {
         if (character.flaw != flaw) {
             character.flaw = flaw;
         }
+    }
+
+    static addCharacterEquipment(character, item) {
+        character.addEquipment(item);
+    }
+
+    static removeCharacterEquipment(character, index) {
+        const itemName = character.equipment[index].name;
+        character.options = character.options
+            .filter(o => o.sourcePropertyName != "equipment" && o.sourcePropertyValue != itemName);
+        character.removeEquipment(index);
     }
 
     static async #getHtml(basePath, path) {

@@ -63,7 +63,7 @@
     #inventory-list,
     #add-equipment-list {
         display: flex;
-        /*overflow-x: auto;*/
+        overflow-x: auto;
     }
 
     #inventory-table,

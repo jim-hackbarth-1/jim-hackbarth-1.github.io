@@ -31,10 +31,37 @@ class DomainEquipmentModel {
     }
 
     async onCharacterUpdate(message) {
-        DomainEquipmentModel.#character = Character.currentCharacter;
-        // const oldCharacter = DomainRaceModel.#character;
-        // const currentCharacter = Character.currentCharacter;
-        // const sourcesUpdated = !Utilities.areArraysEqual(oldCharacter.sources, currentCharacter.sources);  
+        const oldCharacter = DomainEquipmentModel.#character;
+        const currentCharacter = Character.currentCharacter;
+        const sourcesUpdated = !Utilities.areArraysEqual(oldCharacter.sources, currentCharacter.sources);
+        const removedEquipmentIndex = Number(message.equipmentRemoved);
+        let removedItemName = null;
+        if (removedEquipmentIndex >= 0) {
+            removedItemName = oldCharacter.equipment[removedEquipmentIndex].name;
+        }
+        const updatedEquipmentIndex = Number(message.equipmentUpdated);
+        DomainEquipmentModel.#character = currentCharacter;
+        if (sourcesUpdated) {
+            await UIKit.renderer.renderElement(this.#kitElement);
+        }
+        else {
+            const character = DomainEquipmentModel.#character;
+            if (message.equipmentAdded || removedItemName) {
+                const itemName = message.equipmentAdded ?? removedItemName;
+                await UIKit.renderer.renderElement(this.#kitElement.querySelector("#inventory-list"));
+                const addEquipmentElement = this.#kitElement.querySelector(`#added-count-label-${itemName}`);
+                if (addEquipmentElement) {
+                    const count = character.equipment.filter(e => e.name == itemName).length;
+                    const addedCountLabel = this.#getEquipmentAddedLabel(count);
+                    this.#kitElement.querySelector(`#added-count-label-${itemName}`).innerText = addedCountLabel;
+                }
+            }
+            if (updatedEquipmentIndex >= 0) {
+                const isEquipped = character.equipment[updatedEquipmentIndex].isEquipped;
+                const equippedLabel = isEquipped ? "Equipped" : "&nbsp;";
+                this.#kitElement.querySelector(`#checkbox-info-label-${updatedEquipmentIndex}`).innerHTML = equippedLabel;
+            }
+        }
     }
 
     toggleDetail(event, detailSection) {
@@ -86,14 +113,20 @@ class DomainEquipmentModel {
         await this.#presentEquipmentList();
     }
 
-    // static cache variable?
     getEquipment() {
         let equipment = [];
+        const character = DomainEquipmentModel.#character;
         if (DomainEquipmentModel.#equipmentCategory) {
             equipment = Sources.getEquipment(DomainEquipmentModel.#character.sources, DomainEquipmentModel.#equipmentCategory);
         }
         if (equipment.length == 0) {
             equipment.push({ properties: ["[No equipment]"] });
+        }
+        else {
+            for (const item of equipment) {
+                const count = character.equipment.filter(e => e.name == item.name).length;
+                item.addedCountLabel = this.#getEquipmentAddedLabel(count);
+            }
         }
         return equipment;
     }
@@ -117,44 +150,56 @@ class DomainEquipmentModel {
     }
 
     async addItem(event) {
-        console.log("add equipment");
+        const character = Character.currentCharacter;
+        const itemName = event.srcElement.getAttribute("data-item-name");
+        Sources.addCharacterEquipment(character, { name: itemName });
+        const message = {
+            character: character,
+            section: "details-equipment",
+            equipmentAdded: itemName
+        };
+        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
     getInventory() {
         let inventory = [];
-
-        inventory = [
-            {
-                index: 0,
-                name: "item-1",
-                title: "Item 1",
-                // properties: ["prop1", "prop2", "prop3"],
-                options: ["a", "b", "c"],
-                source: { title: "Blah" }
-            },
-            {
-                index: 1,
-                name: "item-2",
-                title: "Item 2",
-                html: "abc"
-            },
-            {
-                index: 2,
-                name: "item-3",
-                title: "Item 3",
-                html: "def",
-                options: ["a", "b", "c"]
-            }
-        ];
-
+        const character = DomainEquipmentModel.#character;
+        const allEquipment = Sources.getEquipment(character.sources);
+        for (let i = 0; i < character.equipment.length; i++) {
+            const characterItem = character.equipment[i];
+            const item = allEquipment.find(e => e.name == characterItem.name);
+            const domainOptions = item.getOptions(character, i) ?? [];
+            const displayOptions = this.#getDisplayOptions(domainOptions, i);
+            inventory.push({
+                index: i,
+                name: item.name,
+                title: item.title,
+                source: item.source,
+                properties: item.properties,
+                canBeEquipped: item.canBeEquipped,
+                options: displayOptions,
+                html: item.html,
+                htmlPath: item.htmlPath,
+                isEquipped: characterItem.isEquipped
+            });
+        }
         if (inventory.length == 0) {
             inventory.push({ properties: ["[No inventory]"] });
         }
         return inventory;
     }
 
-    async toggleEquip(event, inventoryIndex) {
-        console.log("toggle equip");
+    async toggleEquip(event) {
+        const character = Character.currentCharacter;
+        const index = Number(event.srcElement.getAttribute("data-item-index"));
+        const isEquipped = event.srcElement.checked;
+        character.equipment[index].isEquipped = isEquipped;
+        const message = {
+            character: character,
+            section: "details-equipment",
+            equipmentUpdated: index
+        };
+        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
     toggleOptions(event, inventoryIndex) {
@@ -188,8 +233,7 @@ class DomainEquipmentModel {
             }
         }
         if (isCollapsed) {
-            // const html = await Sources.getEquipmentHtml(DomainEquipmentModel.#character.sources, name);
-            const html = "blah";
+            const html = await Sources.getEquipmentHtml(DomainEquipmentModel.#character.sources, name);
             inventoryItem.querySelector(".inventory-item-html").innerHTML = html;
             inventoryItem.querySelector(".inventory-item-html").classList.remove("hidden");
             const expandButton = inventoryItem.querySelector(".expand-button");
@@ -204,11 +248,82 @@ class DomainEquipmentModel {
     }
 
     async removeItem(event) {
-        console.log("remove equipment");
+        const character = Character.currentCharacter;
+        const index = Number(event.srcElement.getAttribute("data-item-index"));
+        const isEquipped = character.equipment[index].isEquipped;
+        Sources.removeCharacterEquipment(character, index);
+        const message = {
+            character: character,
+            section: "details-equipment",
+            equipmentRemoved: index,
+            removedItemEquipped: isEquipped
+        };
+        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
+    }
+
+    getOptionHtml(selectionModelName, optionValue) {
+        return "[no detail available]";
+    }
+
+    async updateOption(selectionModelName, optionValues) {
+        const character = Character.currentCharacter;
+        const currentValues = character.options.find(o => o.name == selectionModelName)?.values ?? [];
+        if (Utilities.areArraysEqual(currentValues, optionValues)) {
+            return;
+        }
+        const parts = selectionModelName.split(":");
+        const itemIndex = Number(parts[0].replace("item-index-", ""));
+        const option = {
+            name: selectionModelName,
+            sourcePropertyName: "equipment",
+            sourcePropertyValue: itemIndex,
+            values: optionValues
+        };
+        Sources.updateCharacterOption(character, option);
+        const message = {
+            character: character,
+            option: option,
+            section: "details-equipment"
+        };
+        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
     async #presentEquipmentList() {
         await UIKit.renderer.renderElement(this.#kitElement.querySelector("#add-equipment-list"));
+    }
+
+    #getEquipmentAddedLabel(count) {
+        let addedCountLabel = "";
+        if (count == 1) {
+            addedCountLabel = "Added";
+        }
+        if (count > 1) {
+            addedCountLabel = `Added (x${count})`;
+        }
+        return addedCountLabel;
+    }
+
+    #getDisplayOptions(domainOptions, itemIndex) {
+        let displayOptions = [];
+        for (const domainOption of domainOptions) {
+            const options = domainOption.optionValues.map(ov => ({
+                value: ov.value,
+                text: ov.text ?? "",
+                noteText: ov.noteText ?? "",
+                hasDetail: ov.hasDetail ?? false,
+                isSelected: ov.isSelected ?? false,
+                isDisabled: ov.isDisabled ?? false,
+                disabledReason: ov.disabledReason ?? "",
+                hideCheckbox: ov.hideCheckbox
+            }));
+            displayOptions.push({
+                name: `item-index-${itemIndex}:${domainOption.name ?? ""}`,
+                title: `${domainOption.title ?? "Option"}:`,
+                maxSelections: domainOption.maxSelections ?? 1,
+                options: options
+            });
+        }
+        return displayOptions;
     }
 
 }

@@ -30,10 +30,11 @@ export class Character {
         this.useAbilityScorePointsSystem = data?.useAbilityScorePointsSystem;
         this.alignment = data?.alignment;
         this.background = data?.background;
-        this.traits = data?.traits,
-        this.ideal = data?.ideal,
-        this.bond = data?.bond,
-        this.flaw = data?.flaw,
+        this.traits = data?.traits;
+        this.ideal = data?.ideal;
+        this.bond = data?.bond;
+        this.flaw = data?.flaw;
+        this.equipment = data?.equipment;
         this.options = data?.options;
         this.features = data?.features;
     }
@@ -171,6 +172,24 @@ export class Character {
     }
     set flaw(flaw) {
         this.#flaw = flaw;
+    }
+
+    #equipment;
+    get equipment() {
+        return this.#equipment;
+    }
+    set equipment(equipment) {
+        this.#equipment = equipment ?? [];
+    }
+
+    addEquipment(item) {
+        this.equipment.push(item);
+    }
+
+    removeEquipment(index) {
+        if (index > -1 && index < this.equipment.length) {
+            this.equipment.splice(index, 1);
+        }
     }
 
     #options;
@@ -350,6 +369,7 @@ export class Character {
             ideal: this.ideal,
             bond: this.bond,
             flaw: this.flaw,
+            equipment: this.equipment,
             options: this.options,
             features: this.features
         }

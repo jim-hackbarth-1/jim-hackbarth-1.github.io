@@ -34,6 +34,10 @@ class DomainRaceModel {
         this.#raceOptions = null;
         this.#subRaces = null;
         this.#subRaceOptions = null;
+        const isEquipmentAddRemove = this.#isEquipmentAddRemove(oldCharacter, message);
+        if (isEquipmentAddRemove) {
+            return;
+        }
         if (sourcesUpdated || raceUpdated) {
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#race-row"));
         }
@@ -115,10 +119,7 @@ class DomainRaceModel {
     }
 
     async getRaceOptionHtml(selectionModelName, optionValue) {
-        //TODO: get html (if any) from domain source
-        console.log(selectionModelName);
-        console.log(optionValue);
-        return "TODO";
+        return "[no detail available]";
     }
 
     async updateRaceOption(selectionModelName, optionValues) {
@@ -215,10 +216,7 @@ class DomainRaceModel {
     }
 
     async getSubRaceOptionHtml(selectionModelName, optionValue) {
-        //TODO: get html (if any) from domain source
-        console.log(selectionModelName);
-        console.log(optionValue);
-        return "TODO";
+        return "[no detail available]";
     }
 
     async updateSubRaceOption(selectionModelName, optionValues) {
@@ -311,6 +309,20 @@ class DomainRaceModel {
             });
         }
         return displayOptions;
+    }
+
+    #isEquipmentAddRemove(character, message) {
+        if (message.equipmentAdded) {
+            return true;
+        }
+        const index = Number(message.equipmentRemoved);
+        if (index >= 0 && index < character.equipment.length) {
+            const isEquipped = character.equipment[index].isEquipped;
+            if (!isEquipped) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

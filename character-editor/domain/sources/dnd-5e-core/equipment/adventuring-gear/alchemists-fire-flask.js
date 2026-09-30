@@ -19,6 +19,10 @@ export class AlchemistsFireFlask {
         return [];
     }
 
+    static get canBeEquipped() {
+        return true;
+    }
+
     static get html() {
         return `
         <div class="dnd-5e-content">
@@ -32,7 +36,7 @@ export class AlchemistsFireFlask {
         `;
     }
 
-    static getOptions(character, iventoryIndex) {
+    static getOptions(character, inventoryIndex) {
         return [];
     }
 

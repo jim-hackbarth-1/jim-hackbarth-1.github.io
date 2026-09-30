@@ -27,7 +27,7 @@ class DomainEquipmentModel {
     }
 
     async onRendered() {
-        await this.#presentEquipmentList();
+        await UIKit.renderer.renderElement(this.#kitElement.querySelector("#add-equipment-list"));
     }
 
     async onCharacterUpdate(message) {
@@ -110,7 +110,7 @@ class DomainEquipmentModel {
             return;
         }
         DomainEquipmentModel.#equipmentCategory = equipmentCategory;
-        await this.#presentEquipmentList();
+        await UIKit.renderer.renderElement(this.#kitElement.querySelector("#add-equipment-list"));
     }
 
     getEquipment() {
@@ -160,7 +160,8 @@ class DomainEquipmentModel {
             section: "details-equipment",
             equipmentAdded: itemName
         };
-        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
+        Character.currentCharacter = character;
+        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateTopic, message);
     }
 
     getInventory() {
@@ -260,7 +261,13 @@ class DomainEquipmentModel {
             equipmentRemoved: index,
             removedItemEquipped: isEquipped
         };
-        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
+        if (isEquipped) {
+            await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
+        }
+        else {
+            Character.currentCharacter = character;
+            await UIKit.messenger.publish(EditorViewModel.CharacterUpdateTopic, message);
+        }
     }
 
     getOptionHtml(selectionModelName, optionValue) {
@@ -288,10 +295,6 @@ class DomainEquipmentModel {
             section: "details-equipment"
         };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
-    }
-
-    async #presentEquipmentList() {
-        await UIKit.renderer.renderElement(this.#kitElement.querySelector("#add-equipment-list"));
     }
 
     #getEquipmentAddedLabel(count) {

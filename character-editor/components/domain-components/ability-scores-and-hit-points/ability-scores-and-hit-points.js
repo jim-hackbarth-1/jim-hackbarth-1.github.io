@@ -38,10 +38,6 @@ class DomainAbilityScoresAndHitPointsModel {
             }
         }
         DomainAbilityScoresAndHitPointsModel.#character = currentCharacter;
-        const isEquipmentAddRemove = this.#isEquipmentAddRemove(oldCharacter, message);
-        if (isEquipmentAddRemove) {
-            return;
-        }
         if (useAbilityScorePointsSystemUpdated) {
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#points-remaining-row"));
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#min-base-score-row"));
@@ -264,19 +260,4 @@ class DomainAbilityScoresAndHitPointsModel {
 
         return baseScoreUpdated || modifiedMaxUpdated || abilityScoreModifiersUpdated;
     }
-
-    #isEquipmentAddRemove(character, message) {
-        if (message.equipmentAdded) {
-            return true;
-        }
-        const index = Number(message.equipmentRemoved);
-        if (index >= 0 && index < character.equipment.length) {
-            const isEquipped = character.equipment[index].isEquipped;
-            if (!isEquipped) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 }

@@ -3,11 +3,41 @@
     :scope {
     }
 
-    .input-row {
-        display:flex;
+    #name-and-description-content {
+        padding: 5px;
     }
 
-    .input-row input[type=text] {
+    #name-and-description-content > div {
+        margin-bottom: 10px;
+    }
+
+    input[type=text],
+    textarea {
         width:100%;
+    }
+
+    textarea {
+        height: 100px;
+    }
+
+    #portrait-container {
+        height: 300px;
+        width: 200px;
+        border: 1px solid black;
+        border-radius: 3px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background-color: #998B70;
+    }
+
+    #portrait {
+        max-height:300px;
+    }
+
+    #portrait-browse {
+        margin: 5px 0 0 0;
+        width: 200px;
     }
 }

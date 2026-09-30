@@ -64,6 +64,21 @@
                 padding-left: 5px;
             }
 
+            #portrait-container {
+                height: 300px;
+                width: 200px;
+                border: 1px solid black;
+                border-radius: 3px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+            }
+
+            #portrait {
+                max-height: 300px;
+            }
+
             ul {
                 margin-left: 20px;
             }
@@ -130,44 +145,67 @@
                 <div class="cell no-border"><h1 id="name-heading" class="no-wrap">&nbsp;</h1></div>
             </div>
             <div class="row">
-                <div class="cell">
-                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div>portrait</div>
-                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                <div class="cell" id="portrait-container">
+                    <img id="portrait" src="" />
                 </div>
-                <div class="cell" style="flex:1;">
+                <div class="cell" style="flex:1;height:300px;overflow:hidden;text-overflow:ellipsis;">
                     <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
                     <div>
-                        <div id="classes">
+                        <div id="classes" style="font-size:larger;color:darkred;">
                             <div class="row no-wrap">class 1 / lvl</div>
                             <div class="row no-wrap">class 2 / lvl</div>
                             <div class="row no-wrap">...</div>
                         </div>
                         <div class="row">
-                            <label>Race:</label>
+                            <label style="font-weight:bold;">Race:</label>
                             <div id="race" class="field-value no-wrap"></div>
                         </div>
                         <div class="row">
-                            <label>Size:</label>
+                            <label style="font-weight:bold;">Size:</label>
                             <div id="size" class="field-value no-wrap"></div>
                         </div>
-                        <div>height/weight</div>
-                        <div>gender</div>
-                        <div>age</div>
+                        <div class="row">
+                            <label style="font-weight:bold;">Alignment:</label>
+                            <div id="alignment" class="field-value no-wrap"></div>
+                        </div>
+                        <div class="row">
+                            <label style="font-weight:bold;">Background:</label>
+                            <div id="background" class="field-value no-wrap"></div>
+                        </div>
+                        <div class="no-wrap" style="font-weight:bold;">Description:</div>
+                        <div id="description" style="white-space: pre-wrap;">description</div>
                     </div>
                     <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                 </div>
-                <div class="cell" style="flex:1;">
-                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div>
-                        <div id="alignment" class="no-wrap">alignment</div>
-                        <div id="background" class="no-wrap">background</div>
-                        <div id="traits" class="no-wrap">traits</div>
-                        <div id="ideal" class="no-wrap">ideal</div>
-                        <div id="bond" class="no-wrap">bond</div>
-                        <div id="flaw" class="no-wrap">flaw</div>
+                <div style="display:flex;flex-direction:column;">
+                    <div class="cell">
+                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                        <div>initiative</div>
+                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                     </div>
-                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                    <div class="cell">
+                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                        <div>
+                            <div class="row">
+                                <label>Speed:</label>
+                                <div id="speed" class="field-value no-wrap"></div>
+                            </div>
+                        </div>
+                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                    </div>
+                    <div class="cell">
+                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                        <div>ac</div>
+                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                    </div>
+                    <div class="cell" style="flex:1;">
+                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                        <div class="stats-cell">
+                            <div id="hit-points-max" class="no-wrap">hp</div>
+                            <div id="hit-dice" class="no-wrap">hd</div>
+                        </div>
+                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -222,36 +260,6 @@
                         <div id="charisma" class="ability-score no-wrap">cha</div>
                         <div id="charisma-modifier" class="no-wrap ability-modifier">mod</div>
                         <div id="charisma-saving-throw-modifier" class="no-wrap saving-throw-modifier">saving throw</div>
-                    </div>
-                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="cell" style="flex:1;">
-                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div>initiative</div>
-                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
-                </div>
-                <div class="cell" style="flex:1;">
-                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div>
-                        <div class="row">
-                            <label>Speed:</label>
-                            <div id="speed" class="field-value no-wrap"></div>
-                        </div>
-                    </div>
-                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
-                </div>
-                <div class="cell" style="flex:1;">
-                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div>ac</div>
-                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
-                </div>
-                <div class="cell" style="flex:1;">
-                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div class="stats-cell">
-                        <div id="hit-points-max" class="no-wrap">hp</div>
-                        <div id="hit-dice" class="no-wrap">hd</div>
                     </div>
                     <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                 </div>

@@ -8,6 +8,7 @@
 @import "./resources/styles/input-text.css";
 @import "./resources/styles/level-boon-selection.css";
 @import "./resources/styles/selection.css";
+@import "./resources/styles/textarea.css";
 
 * {
     box-sizing: border-box;

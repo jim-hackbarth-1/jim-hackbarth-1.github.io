@@ -31,10 +31,6 @@ export class DomainClassAndLevelModel {
         this.#subClasses = null;
         this.#subClassOptions = null;
         this.#levelBoons = null;
-        const isEquipmentAddRemove = this.#isEquipmentAddRemove(oldCharacter, message);
-        if (isEquipmentAddRemove) {
-            return;
-        }
         await UIKit.renderer.renderElement(this.#kitElement.querySelector("#classes-array"));
     }
 
@@ -496,20 +492,6 @@ export class DomainClassAndLevelModel {
             });
         }
         return displayOptions;
-    }
-
-    #isEquipmentAddRemove(character, message) {
-        if (message.equipmentAdded) {
-            return true;
-        }
-        const index = Number(message.equipmentRemoved);
-        if (index >= 0 && index < character.equipment.length) {
-            const isEquipped = character.equipment[index].isEquipped;
-            if (!isEquipped) {
-                return true;
-            }
-        }
-        return false;
     }
 
 }

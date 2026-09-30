@@ -40,10 +40,6 @@ class DomainAlignmentAndBackgroundModel {
         this.#bonds = null;
         this.#flaws = null;
         this.#backgroundOptions = null;
-        const isEquipmentAddRemove = this.#isEquipmentAddRemove(oldCharacter, message);
-        if (isEquipmentAddRemove) {
-            return;
-        }
         if (sourcesUpdated || alignmentUpdated) {
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#alignment-row"));
         }
@@ -108,6 +104,7 @@ class DomainAlignmentAndBackgroundModel {
             return;
         }
         Sources.updateCharacterAlignment(character, alignment);
+        Character.currentCharacter = character;
         const message = {
             character: character,
             section: "details-alignment-and-background"
@@ -237,6 +234,7 @@ class DomainAlignmentAndBackgroundModel {
             return;
         }
         Sources.updateCharacterTraits(character, optionValues);
+        Character.currentCharacter = character;
         const message = {
             character: character,
             section: "details-alignment-and-background"
@@ -304,6 +302,7 @@ class DomainAlignmentAndBackgroundModel {
             return;
         }
         Sources.updateCharacterIdeal(character, ideal);
+        Character.currentCharacter = character;
         const message = {
             character: character,
             section: "details-alignment-and-background"
@@ -371,6 +370,7 @@ class DomainAlignmentAndBackgroundModel {
             return;
         }
         Sources.updateCharacterBond(character, bond);
+        Character.currentCharacter = character;
         const message = {
             character: character,
             section: "details-alignment-and-background"
@@ -571,17 +571,4 @@ class DomainAlignmentAndBackgroundModel {
         return displayOptions;
     }
 
-    #isEquipmentAddRemove(character, message) {
-        if (message.equipmentAdded) {
-            return true;
-        }
-        const index = Number(message.equipmentRemoved);
-        if (index >= 0 && index < character.equipment.length) {
-            const isEquipped = character.equipment[index].isEquipped;
-            if (!isEquipped) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

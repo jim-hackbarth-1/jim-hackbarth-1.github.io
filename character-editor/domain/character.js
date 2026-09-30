@@ -35,6 +35,9 @@ export class Character {
         this.bond = data?.bond;
         this.flaw = data?.flaw;
         this.equipment = data?.equipment;
+        this.portrait = data?.portrait;
+        this.description = data?.description;
+        this.historyNotes = data?.historyNotes;
         this.options = data?.options;
         this.features = data?.features;
     }
@@ -190,6 +193,30 @@ export class Character {
         if (index > -1 && index < this.equipment.length) {
             this.equipment.splice(index, 1);
         }
+    }
+
+    #portrait;
+    get portrait() {
+        return this.#portrait;
+    }
+    set portrait(portrait) {
+        this.#portrait = portrait;
+    }
+
+    #description;
+    get description() {
+        return this.#description;
+    }
+    set description(description) {
+        this.#description = description;
+    }
+
+    #historyNotes;
+    get historyNotes() {
+        return this.#historyNotes;
+    }
+    set historyNotes(historyNotes) {
+        this.#historyNotes = historyNotes;
     }
 
     #options;
@@ -370,6 +397,9 @@ export class Character {
             bond: this.bond,
             flaw: this.flaw,
             equipment: this.equipment,
+            portrait: this.portrait,
+            description: this.description,
+            historyNotes: this.historyNotes,
             options: this.options,
             features: this.features
         }

@@ -64,11 +64,11 @@ class PrintViewModel {
         // race
         let race = "";
         let size = "";
-        let speed= "";
+        let speed = "";
         if (character.race) {
             const raceModel = Sources.getRaces(character.sources).find(r => r.name == character.race);
             size = raceModel.size;
-            speed = raceModel.speed;
+            speed = `Speed: ${raceModel.speed}`;
             if (character.subRace) {
                 const subRaceModel = Sources
                     .getSubRaces(character.sources, character.race)

@@ -173,7 +173,7 @@ class DomainEquipmentModel {
             const characterItem = character.equipment[i];
             const item = allEquipment.find(e => e.name == characterItem.name);
             const domainOptions = item.getOptions(character, i) ?? [];
-            const displayOptions = SelectionModel.getDisplayOptions(character, domainOptions, `item-index-${itemIndex}:`);
+            const displayOptions = SelectionModel.getDisplayOptions(character, domainOptions, `item-index-${i}:`);
             inventory.push({
                 index: i,
                 name: item.name,

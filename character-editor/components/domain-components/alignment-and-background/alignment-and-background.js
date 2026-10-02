@@ -1,6 +1,7 @@
 
 import { Character, Sources, Utilities } from "../../../domain/references.js";
 import { EditorViewModel } from "../../editor-view/editor-view.js";
+import { SelectionModel } from "../../shared/selection/selection.js";
 
 export function createModel() {
     return new DomainAlignmentAndBackgroundModel();
@@ -104,12 +105,7 @@ class DomainAlignmentAndBackgroundModel {
             return;
         }
         Sources.updateCharacterAlignment(character, alignment);
-        Character.currentCharacter = character;
-        const message = {
-            character: character,
-            section: "details-alignment-and-background"
-        };
-        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateTopic, message);
+        await DomainAlignmentAndBackgroundModel.#updateCurrentCharacter(character);
     }
 
     getBackgrounds() {
@@ -194,7 +190,7 @@ class DomainAlignmentAndBackgroundModel {
         ({
             value: t.name,
             text: t.title,
-            hasDetail: true,
+            hasDetail: false,
             isSelected: (character.traits.includes(t.name)),
         }));
         if (options.length > 0) {
@@ -203,7 +199,8 @@ class DomainAlignmentAndBackgroundModel {
                 value: null,
                 text: "Traits (choose 2)",
                 hasDetail: false,
-                isSelected: false
+                isSelected: false,
+                hideCheckbox: true
             });
         }
         else {
@@ -220,8 +217,7 @@ class DomainAlignmentAndBackgroundModel {
 
     getTraitHtml(selectionModelName, optionValue) {
         let html = null;
-        const character = DomainAlignmentAndBackgroundModel.#character;
-        const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background);
+        const background = DomainAlignmentAndBackgroundModel.#getBackground();
         if (background?.getTraits) {
             html = background.getTraits().find(t => t.name == optionValue)?.html;
         }
@@ -234,12 +230,7 @@ class DomainAlignmentAndBackgroundModel {
             return;
         }
         Sources.updateCharacterTraits(character, optionValues);
-        Character.currentCharacter = character;
-        const message = {
-            character: character,
-            section: "details-alignment-and-background"
-        };
-        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateTopic, message);
+        await DomainAlignmentAndBackgroundModel.#updateCurrentCharacter(character);
     }
 
     getIdeals() {
@@ -258,7 +249,7 @@ class DomainAlignmentAndBackgroundModel {
         ({
             value: i.name,
             text: i.title,
-            hasDetail: true,
+            hasDetail: false,
             isSelected: (character.ideal == i.name),
         }));
         if (options.length > 0) {
@@ -284,8 +275,7 @@ class DomainAlignmentAndBackgroundModel {
 
     getIdealHtml(selectionModelName, optionValue) {
         let html = null;
-        const character = DomainAlignmentAndBackgroundModel.#character;
-        const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background);
+        const background = DomainAlignmentAndBackgroundModel.#getBackground();
         if (background?.getIdeals) {
             html = background.getIdeals().find(i => i.name == optionValue)?.html;
         }
@@ -302,12 +292,7 @@ class DomainAlignmentAndBackgroundModel {
             return;
         }
         Sources.updateCharacterIdeal(character, ideal);
-        Character.currentCharacter = character;
-        const message = {
-            character: character,
-            section: "details-alignment-and-background"
-        };
-        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateTopic, message);
+        await DomainAlignmentAndBackgroundModel.#updateCurrentCharacter(character);
     }
 
     getBonds() {
@@ -326,7 +311,7 @@ class DomainAlignmentAndBackgroundModel {
         ({
             value: b.name,
             text: b.title,
-            hasDetail: true,
+            hasDetail: false,
             isSelected: (character.bond == b.name),
         }));
         if (options.length > 0) {
@@ -352,8 +337,7 @@ class DomainAlignmentAndBackgroundModel {
 
     getBondHtml(selectionModelName, optionValue) {
         let html = null;
-        const character = DomainAlignmentAndBackgroundModel.#character;
-        const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background);
+        const background = DomainAlignmentAndBackgroundModel.#getBackground();
         if (background?.getBonds) {
             html = background.getBonds().find(b => b.name == optionValue)?.html;
         }
@@ -370,12 +354,7 @@ class DomainAlignmentAndBackgroundModel {
             return;
         }
         Sources.updateCharacterBond(character, bond);
-        Character.currentCharacter = character;
-        const message = {
-            character: character,
-            section: "details-alignment-and-background"
-        };
-        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateTopic, message);
+        await DomainAlignmentAndBackgroundModel.#updateCurrentCharacter(character);
     }
 
     getFlaws() {
@@ -394,7 +373,7 @@ class DomainAlignmentAndBackgroundModel {
         ({
             value: f.name,
             text: f.title,
-            hasDetail: true,
+            hasDetail: false,
             isSelected: (character.flaw == f.name),
         }));
         if (options.length > 0) {
@@ -420,8 +399,7 @@ class DomainAlignmentAndBackgroundModel {
 
     getFlawHtml(selectionModelName, optionValue) {
         let html = null;
-        const character = DomainAlignmentAndBackgroundModel.#character;
-        const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background);
+        const background = DomainAlignmentAndBackgroundModel.#getBackground();
         if (background?.getFlaws) {
             html = background.getFlaws().find(f => f.name == optionValue)?.html;
         }
@@ -438,12 +416,7 @@ class DomainAlignmentAndBackgroundModel {
             return;
         }
         Sources.updateCharacterFlaw(character, flaw);
-        Character.currentCharacter = character;
-        const message = {
-            character: character,
-            section: "details-alignment-and-background"
-        };
-        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateTopic, message);
+        await DomainAlignmentAndBackgroundModel.#updateCurrentCharacter(character);
     }
 
     hasBackgroundOptions() {
@@ -482,8 +455,7 @@ class DomainAlignmentAndBackgroundModel {
     #traits;
     #getTraits() {
         if (!this.#traits) {
-            const character = DomainAlignmentAndBackgroundModel.#character;
-            const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background);
+            const background = DomainAlignmentAndBackgroundModel.#getBackground();
             if (!background?.getTraits) {
                 return [];
             }
@@ -495,8 +467,7 @@ class DomainAlignmentAndBackgroundModel {
     #ideals;
     #getIdeals() {
         if (!this.#ideals) {
-            const character = DomainAlignmentAndBackgroundModel.#character;
-            const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background);
+            const background = DomainAlignmentAndBackgroundModel.#getBackground();
             if (!background?.getIdeals) {
                 return [];
             }
@@ -508,8 +479,7 @@ class DomainAlignmentAndBackgroundModel {
     #bonds;
     #getBonds() {
         if (!this.#bonds) {
-            const character = DomainAlignmentAndBackgroundModel.#character;
-            const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background);
+            const background = DomainAlignmentAndBackgroundModel.#getBackground();
             if (!background?.getBonds) {
                 return [];
             }
@@ -521,8 +491,7 @@ class DomainAlignmentAndBackgroundModel {
     #flaws;
     #getFlaws() {
         if (!this.#flaws) {
-            const character = DomainAlignmentAndBackgroundModel.#character;
-            const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background);
+            const background = DomainAlignmentAndBackgroundModel.#getBackground();
             if (!background?.getFlaws) {
                 return [];
             }
@@ -537,10 +506,10 @@ class DomainAlignmentAndBackgroundModel {
             const character = DomainAlignmentAndBackgroundModel.#character;
             let displayOptions = [];
             if (character.background) {
-                const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background);
+                const background = DomainAlignmentAndBackgroundModel.#getBackground();
                 if (background.getOptions) {
                     const backgroundOptions = background.getOptions(character);
-                    displayOptions = this.#getDisplayOptions(backgroundOptions);
+                    displayOptions = SelectionModel.getDisplayOptions(character, backgroundOptions);
                 }
             }
             this.#backgroundOptions = displayOptions;
@@ -548,27 +517,18 @@ class DomainAlignmentAndBackgroundModel {
         return this.#backgroundOptions;
     }
 
-    #getDisplayOptions(domainOptions) {
-        let displayOptions = [];
-        for (const domainOption of domainOptions) {
-            const options = domainOption.optionValues.map(ov => ({
-                value: ov.value,
-                text: ov.text ?? "",
-                noteText: ov.noteText ?? "",
-                hasDetail: ov.hasDetail ?? false,
-                isSelected: ov.isSelected ?? false,
-                isDisabled: ov.isDisabled ?? false,
-                disabledReason: ov.disabledReason ?? "",
-                hideCheckbox: ov.hideCheckbox
-            }));
-            displayOptions.push({
-                name: domainOption.name ?? "",
-                title: `${domainOption.title ?? "Option"}:`,
-                maxSelections: domainOption.maxSelections ?? 1,
-                options: options
-            });
-        }
-        return displayOptions;
+    static #getBackground() {
+        const character = DomainAlignmentAndBackgroundModel.#character;
+        return Sources.getBackgrounds(character.sources).find(b => b.name == character.background);
+    }
+
+    static async #updateCurrentCharacter(character) {
+        Character.currentCharacter = character;
+        const message = {
+            character: character,
+            section: "details-alignment-and-background"
+        };
+        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateTopic, message);
     }
 
 }

@@ -1,6 +1,6 @@
 
 // sub-races
-import { DragonbornWaveChild } from "./sub-races/dragonborn-wave-child.js";
+import { DragonbornSeaDrakken } from "./sub-races/dragonborn-sea-drakken.js";
 import { DwarfFrost } from "./sub-races/dwarf-frost.js";
 import { ElfDawn } from "./sub-races/elf-dawn.js";
 import { GnomeShadow } from "./sub-races/gnome-shadow.js";
@@ -38,7 +38,7 @@ export class LandsOfAedunSource {
     }
 
     static #subRaces = [
-        DragonbornWaveChild,
+        DragonbornSeaDrakken,
         DwarfFrost,
         ElfDawn,
         GnomeShadow,
@@ -83,6 +83,20 @@ export class LandsOfAedunSource {
 
     static getEquipment() {
         return [];
+    }
+
+    static #languages = [
+        { value: "incanta", text: "Incanta" },
+        { value: "wullah", text: "Wullah" },
+        { value: "drow", text: "Drow" },
+        { value: "ruic", text: "Ruic" },
+        { value: "gaizhan", text: "Gaizhan" },
+        { value: "daymu", text: "Daymu" },
+        { value: "sea-bash", text: "Sea Bash" },
+        { value: "shadow-talk", text: "Shadow Talk" }
+    ];
+    static getLanguages() {
+        return LandsOfAedunSource.#languages;
     }
 
 }

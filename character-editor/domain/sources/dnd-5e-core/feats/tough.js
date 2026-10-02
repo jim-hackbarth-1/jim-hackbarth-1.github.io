@@ -14,7 +14,7 @@ export class Tough {
     static get html() {
         return `
         <div class="dnd-5e-content">
-            ${DnD5EUtilities.getContentStyle()}
+            <link rel="stylesheet" type="text/css" href="./domain/sources/dnd-5e-core/dnd-5e-core.css">
             <h3>Tough</h3>
             <hr/>
             <div class="content">
@@ -37,12 +37,21 @@ export class Tough {
     }
 
     static updateFeatures(character) {
-        const features = [{
-            name: "tough-hit-point-modifier",
-            title: Tough.title,
-            modifier: "hit-points",
-            modifierValue: Number(character.level) * 2
-        }];
+        const hitPointMod = Number(character.level) * 2;
+        const features = [
+            {
+                name: "tough-hit-point-modifier",
+                title: Tough.title,
+                modifier: "hit-points",
+                modifierValue: hitPointMod,
+                displayStyle: "none"
+            },
+            {
+                name: "tough",
+                title: Tough.title,
+                displayStyle: "attack-card",
+                html: `<p>Your hit point maximum increases by ${hitPointMod}</p>`
+            }];
         for (const feature of features) {
             feature.sourcePropertyName = "feat";
             feature.sourcePropertyValue = "tough";

@@ -1,9 +1,11 @@
 
+import { Sources, Utilities } from "../../../domain/references.js";
+
 export function createModel() {
     return new SelectionModel();
 }
 
-class SelectionModel {
+export class SelectionModel {
 
     #kitElement;
     #selectionModel;
@@ -136,6 +138,48 @@ class SelectionModel {
     async onCheckboxClick(event, optionValue) {
         await this.#onValueChanged(optionValue);
         event.stopPropagation();
+    }
+
+    static getDisplayOptions(character, domainOptions, namePrefix) {
+        let displayOptions = [];
+        for (const domainOption of domainOptions) {
+            // TODO: spells, ... standard lists
+            const options = SelectionModel.#getDomainOptionValues(character, domainOption).map(ov => ({
+                value: ov.value,
+                text: ov.text ?? "",
+                noteText: ov.noteText ?? "",
+                hasDetail: ov.hasDetail ?? false,
+                isSelected: ov.isSelected ?? false,
+                isDisabled: ov.isDisabled ?? false,
+                disabledReason: ov.disabledReason ?? "",
+                hideCheckbox: ov.hideCheckbox
+            }));
+            let name = domainOption.name ?? "";
+            if (namePrefix) {
+                name = namePrefix + name;
+            }
+            displayOptions.push({
+                name: name,
+                title: `${domainOption.title ?? "Option"}:`,
+                maxSelections: domainOption.maxSelections ?? 1,
+                options: options
+            });
+        }
+        return displayOptions;
+    }
+
+    static #getDomainOptionValues(character, domainOption) {
+        let optionValues = domainOption.optionValues;
+        if (domainOption.useLanguages) {
+            optionValues = [...Sources.getLanguages(character.sources)];
+            for (const optionValue of optionValues) {
+                optionValue.noteText = optionValue.source.title;
+                optionValue.isSelected = (domainOption.selectedLanguages.includes(optionValue.value));
+            }
+            optionValues = Utilities.sort(optionValues, "text");
+            optionValues.unshift({ value: null, text: "Choose a language ..." });
+        }
+        return optionValues;
     }
 
     async #onValueChanged(optionValue) {

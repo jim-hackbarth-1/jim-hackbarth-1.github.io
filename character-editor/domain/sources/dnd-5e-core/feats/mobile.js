@@ -14,7 +14,7 @@ export class Mobile {
     static get html() {
         return `
         <div class="dnd-5e-content">
-            ${DnD5EUtilities.getContentStyle()}
+            <link rel="stylesheet" type="text/css" href="./domain/sources/dnd-5e-core/dnd-5e-core.css">
             <h3>Mobile</h3>
             <hr/>
             <div class="content">

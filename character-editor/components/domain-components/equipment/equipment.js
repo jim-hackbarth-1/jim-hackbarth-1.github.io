@@ -1,6 +1,7 @@
 
 import { Character, Sources, Utilities } from "../../../domain/references.js";
 import { EditorViewModel } from "../../editor-view/editor-view.js";
+import { SelectionModel } from "../../shared/selection/selection.js";
 
 export function createModel() {
     return new DomainEquipmentModel();
@@ -172,7 +173,7 @@ class DomainEquipmentModel {
             const characterItem = character.equipment[i];
             const item = allEquipment.find(e => e.name == characterItem.name);
             const domainOptions = item.getOptions(character, i) ?? [];
-            const displayOptions = this.#getDisplayOptions(domainOptions, i);
+            const displayOptions = SelectionModel.getDisplayOptions(character, domainOptions, `item-index-${itemIndex}:`);
             inventory.push({
                 index: i,
                 name: item.name,
@@ -306,29 +307,6 @@ class DomainEquipmentModel {
             addedCountLabel = `Added (x${count})`;
         }
         return addedCountLabel;
-    }
-
-    #getDisplayOptions(domainOptions, itemIndex) {
-        let displayOptions = [];
-        for (const domainOption of domainOptions) {
-            const options = domainOption.optionValues.map(ov => ({
-                value: ov.value,
-                text: ov.text ?? "",
-                noteText: ov.noteText ?? "",
-                hasDetail: ov.hasDetail ?? false,
-                isSelected: ov.isSelected ?? false,
-                isDisabled: ov.isDisabled ?? false,
-                disabledReason: ov.disabledReason ?? "",
-                hideCheckbox: ov.hideCheckbox
-            }));
-            displayOptions.push({
-                name: `item-index-${itemIndex}:${domainOption.name ?? ""}`,
-                title: `${domainOption.title ?? "Option"}:`,
-                maxSelections: domainOption.maxSelections ?? 1,
-                options: options
-            });
-        }
-        return displayOptions;
     }
 
 }

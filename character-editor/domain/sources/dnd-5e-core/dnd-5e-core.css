@@ -1,0 +1,79 @@
+
+.dnd-5e-content {
+    white-space: wrap;
+    border:1px solid black;
+    margin:0;
+    padding:5px;
+}
+
+.dnd-5e-content h2,
+.dnd-5e-content h3,
+.dnd-5e-content h4 {
+    color: darkred;
+}
+
+.dnd-5e-content hr {
+    border: 1px solid darkred;
+    margin-bottom: 10px;
+}
+
+.dnd-5e-content .content {
+    margin-bottom: 10px;
+}
+
+.dnd-5e-content .portrait {
+    overflow: hidden;
+}
+
+.dnd-5e-content .portrait > img {
+    width: 300px;
+}
+
+.dnd-5e-content li,
+.dnd-5e-content p {
+    font-family: Calibri, sans-serif;
+}
+
+.dnd-5e-content ul {
+    list-style-position: inside;
+}
+
+.dnd-5e-content p {
+    margin-bottom: 10px;
+}
+
+.dnd-5e-content .quote-long {
+    font-style: italic;
+}
+
+.dnd-5e-content table {
+    width: 98%;
+    border: 1px solid saddlebrown;
+    border-collapse: collapse;
+    margin-bottom: 5px;
+}
+
+.dnd-5e-content table caption {
+    background-color: saddlebrown;
+    color: white;
+}
+
+.dnd-5e-content table th, td {
+    padding: 5px;
+    text-align: left;
+}
+
+.dnd-5e-content tr:nth-child(even) {
+    background-color: #FFF8EB;
+}
+
+.dnd-5e-content tr:nth-child(odd) {
+    background-color: #D6C29C;
+}
+
+@container (width > 650px) {
+    .dnd-5e-content .portrait {
+        float: left;
+        width: 320px;
+    }
+}

@@ -102,9 +102,11 @@ class DomainNameAndDescriptionModel {
     }
 
     onFileSelected() {
+        const startCursor = UIKit.document.body.style.cursor;
         const file = this.#kitElement.querySelector("#file-input").files[0];
         if (file) {
             try {
+                UIKit.document.body.style.cursor = "wait";
                 const reader = new FileReader();
                 reader.onload = async (e) => {
                     const src = e.target.result;
@@ -114,6 +116,7 @@ class DomainNameAndDescriptionModel {
                 reader.readAsDataURL(file);
             }
             finally {
+                UIKit.document.body.style.cursor = startCursor;
             }
         }
     }

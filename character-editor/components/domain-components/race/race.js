@@ -1,6 +1,7 @@
 
 import { Character, Sources, Utilities } from "../../../domain/references.js";
 import { EditorViewModel } from "../../editor-view/editor-view.js";
+import { SelectionModel } from "../../shared/selection/selection.js";
 
 export function createModel() {
     return new DomainRaceModel();
@@ -245,7 +246,7 @@ class DomainRaceModel {
                 const race = Sources.getRaces(character.sources).find(r => r.name == character.race);
                 if (race.getOptions) {
                     const raceOptions = race.getOptions(character);
-                    displayOptions = this.#getDisplayOptions(raceOptions);
+                    displayOptions = SelectionModel.getDisplayOptions(character, raceOptions);
                 }
             }
             this.#raceOptions = displayOptions;
@@ -276,35 +277,12 @@ class DomainRaceModel {
                     .find(sr => sr.name == character.subRace);
                 if(subRace.getOptions) {
                     const subRaceOptions = subRace.getOptions(character);
-                    displayOptions = this.#getDisplayOptions(subRaceOptions);
+                    displayOptions = SelectionModel.getDisplayOptions(character, subRaceOptions);
                 }
             }
             this.#subRaceOptions = displayOptions;
         }
         return this.#subRaceOptions;
-    }
-
-    #getDisplayOptions(domainOptions) {
-        let displayOptions = [];
-        for (const domainOption of domainOptions) {
-            const options = domainOption.optionValues.map(ov => ({
-                value: ov.value,
-                text: ov.text ?? "",
-                noteText: ov.noteText ?? "",
-                hasDetail: ov.hasDetail ?? false,
-                isSelected: ov.isSelected ?? false,
-                isDisabled: ov.isDisabled ?? false,
-                disabledReason: ov.disabledReason ?? "",
-                hideCheckbox: ov.hideCheckbox
-            }));
-            displayOptions.push({
-                name: domainOption.name ?? "",
-                title: `${domainOption.title ?? "Option"}:`,
-                maxSelections: domainOption.maxSelections ?? 1,
-                options: options
-            });
-        }
-        return displayOptions;
     }
 
 }

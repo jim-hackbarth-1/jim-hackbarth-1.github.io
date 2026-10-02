@@ -2,6 +2,7 @@
 import { Character, Sources, Utilities } from "../../../domain/references.js";
 import { EditorViewModel } from "../../editor-view/editor-view.js";
 import { DomainClassAndLevelModel } from "../../domain-components/class-and-level/class-and-level.js";
+import { SelectionModel } from "../../shared/selection/selection.js";
 
 export function createModel() {
     return new LevelBoonSelectionModel();
@@ -62,36 +63,14 @@ class LevelBoonSelectionModel {
             name: `ability-score-${controlIndex}`,
             maxSelections: 1
         };
-        const options = [
-            {
-                value: null,
-                text: "Choose an ability score"
-            },
-            {
-                value: "strength",
-                text: "Strength"
-            },
-            {
-                value: "intelligence",
-                text: "Intelligence"
-            },
-            {
-                value: "wisdom",
-                text: "Wisdom"
-            },
-            {
-                value: "dexterity",
-                text: "Dexterity"
-            },
-            {
-                value: "constitution",
-                text: "Constitution"
-            },
-            {
-                value: "charisma",
-                text: "Charisma"
-            }
-        ];
+        const options = Sources.getAbilities().map(a => ({
+            value: a.name,
+            text: a.title
+        }));
+        options.unshift({
+            value: null,
+            text: "Choose an ability score"
+        });
         for (const option of options) {
             if (controlIndex == 2) {
                 option.isSelected = (this.#levelBoon.abilityScore2 == option.value);
@@ -215,10 +194,7 @@ class LevelBoonSelectionModel {
     }
 
     async getFeatOptionHtml(selectionModelName, optionValue) {
-        //TODO: get html (if any) from domain source
-        console.log(selectionModelName);
-        console.log(optionValue);
-        return "TODO";
+        return "[no detail available]";
     }
 
     updateFeatOption = async (selectionModelName, optionValues) => {
@@ -258,35 +234,12 @@ class LevelBoonSelectionModel {
                 const feat = Sources.getFeats(character.sources).find(f => f.name == this.#levelBoon.feat);
                 if (feat.getOptions) {
                     const featOptions = feat.getOptions(character, this.#selectionModel.classIndex, this.#selectionModel.level);
-                    displayOptions = this.#getDisplayOptions(featOptions);
+                    displayOptions = SelectionModel.getDisplayOptions(character, featOptions);
                 }
             }
             this.#featOptions = displayOptions;
         }
         return this.#featOptions;
-    }
-
-    #getDisplayOptions(domainOptions) {
-        let displayOptions = [];
-        for (const domainOption of domainOptions) {
-            const options = domainOption.optionValues.map(ov => ({
-                value: ov.value,
-                text: ov.text ?? "",
-                noteText: ov.noteText ?? "",
-                hasDetail: ov.hasDetail ?? false,
-                isSelected: ov.isSelected ?? false,
-                isDisabled: ov.isDisabled ?? false,
-                disabledReason: ov.disabledReason ?? "",
-                hideCheckbox: ov.hideCheckbox
-            }));
-            displayOptions.push({
-                name: domainOption.name ?? "",
-                title: `${domainOption.title ?? "Option"}:`,
-                maxSelections: domainOption.maxSelections ?? 1,
-                options: options
-            });
-        }
-        return displayOptions;
     }
 
 }

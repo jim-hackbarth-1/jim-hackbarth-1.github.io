@@ -1,0 +1,79 @@
+
+.lands-of-aedun-content {
+    white-space: wrap;
+    border:1px solid black;
+    margin:0;
+    padding:5px;
+}
+
+.lands-of-aedun-content h2,
+.lands-of-aedun-content h3,
+.lands-of-aedun-content h4 {
+    color: darkred;
+}
+
+.lands-of-aedun-content hr {
+    border: 1px solid darkred;
+    margin-bottom: 10px;
+}
+
+.lands-of-aedun-content .content {
+    margin-bottom: 10px;
+}
+
+.lands-of-aedun-content .portrait {
+    overflow: hidden;
+}
+
+.lands-of-aedun-content .portrait > img {
+    width: 300px;
+}
+
+.lands-of-aedun-content li,
+.lands-of-aedun-content p {
+    font-family: Calibri, sans-serif;
+}
+
+.lands-of-aedun-content ul {
+    list-style-position: inside;
+}
+
+.lands-of-aedun-content p {
+    margin-bottom: 10px;
+}
+
+.lands-of-aedun-content .quote-long {
+    font-style: italic;
+}
+
+.lands-of-aedun-content table {
+    width: 98%;
+    border: 1px solid saddlebrown;
+    border-collapse: collapse;
+    margin-bottom: 5px;
+}
+
+.lands-of-aedun-content table caption {
+    background-color: saddlebrown;
+    color: white;
+}
+
+.lands-of-aedun-content table th, td {
+    padding: 5px;
+    text-align: left;
+}
+
+.lands-of-aedun-content tr:nth-child(even) {
+    background-color: #FFF8EB;
+}
+
+.lands-of-aedun-content tr:nth-child(odd) {
+    background-color: #D6C29C;
+}
+
+@container (width > 650px) {
+    .lands-of-aedun-content .portrait {
+        float: left;
+        width: 320px;
+    }
+}

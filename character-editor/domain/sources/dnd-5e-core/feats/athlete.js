@@ -14,17 +14,19 @@ export class Athlete {
     static get html() {
         return `
         <div class="dnd-5e-content">
-            ${DnD5EUtilities.getContentStyle()}
+            <link rel="stylesheet" type="text/css" href="./domain/sources/dnd-5e-core/dnd-5e-core.css">
             <h3>Athlete</h3>
             <hr/>
             <div class="content">
                 <p>You have undergone extensive physical training to gain the following benefits:<p>
-                <ul>
-                    <li>Increase your Strength or Dexterity score by 1, to a maximum of 20.</li>
-                    <li>When you are prone, standing up uses only 5 feet of your movement.</li>
-                    <li>Climbing doesn't cost you extra movement.</li>
-                    <li>You can make a running long jump or a running high jump after moving only 5 feet on foot, rather than 10 feet.</li>
-                </ul>
+                <p>
+                    <ul>
+                        <li>Increase your Strength or Dexterity score by 1, to a maximum of 20.</li>
+                        <li>When you are prone, standing up uses only 5 feet of your movement.</li>
+                        <li>Climbing doesn't cost you extra movement.</li>
+                        <li>You can make a running long jump or a running high jump after moving only 5 feet on foot, rather than 10 feet.</li>
+                    </ul>
+                </p>
             </div>
         </div>
         `;
@@ -72,12 +74,24 @@ export class Athlete {
         }
         const features = [];
         if (abilityScore) {
-            features.push({
-                name: "athlete-ability-score-modifier",
-                title: Athlete.title,
-                modifier: `ability-score:${abilityScore}`,
-                modifierValue: 1
-            });
+            features.push(
+                {
+                    name: "athlete-ability-score-modifier",
+                    title: Athlete.title,
+                    modifier: `ability-score:${abilityScore}`,
+                    modifierValue: 1,
+                    displayStyle: "none"
+                },
+                {
+                    name: "athlete",
+                    title: "Athlete",
+                    displayStyle: "card",
+                    html: `
+                        <p>When you are prone, standing up uses only 5 feet of your movement.</p>
+                        <p>Climbing doesn't cost you extra movement.</p>
+                        <p>You can make a running long jump or a running high jump after moving only 5 feet on foot, rather than 10 feet.</p>
+                        `
+                });
         }
         for (const feature of features) {
             feature.sourcePropertyName = "feat";

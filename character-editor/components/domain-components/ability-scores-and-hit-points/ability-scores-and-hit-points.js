@@ -29,7 +29,7 @@ class DomainAbilityScoresAndHitPointsModel {
         const currentCharacter = Character.currentCharacter;
         const useAbilityScorePointsSystemUpdated
             = (oldCharacter.useAbilityScorePointsSystem != currentCharacter.useAbilityScorePointsSystem);
-        const abilities = ["strength", "intelligence", "wisdom", "dexterity", "constitution", "charisma"];
+        const abilities = Sources.getAbilities().map(a => a.name);
         let hasAbilityScoreUpdate = false;
         for (const ability of abilities) {
             if (this.#hasAbilityScoreUpdate(oldCharacter, currentCharacter, ability)) {
@@ -120,23 +120,18 @@ class DomainAbilityScoresAndHitPointsModel {
         const character = DomainAbilityScoresAndHitPointsModel.#character;
         const minBaseScore = this.getMinBaseScore();
         const maxBaseScore = this.getMaxBaseScore();
-        const abilityScores = [
-            { name: "strength", title: "Strength" },
-            { name: "intelligence", title: "Intelligence" },
-            { name: "wisdom", title: "Wisdom" },
-            { name: "dexterity", title: "Dexterity" },
-            { name: "constitution", title: "Constitution" },
-            { name: "charisma", title: "Charisma" }
-        ];
-        for (const abilityScore of abilityScores) {
-            abilityScore.baseScore = Number(character.abilityScores.find(a => a.name == abilityScore.name)?.baseScore);
-            abilityScore.minBaseScore = minBaseScore;
-            abilityScore.maxBaseScore = maxBaseScore;
-            abilityScore.modifiedScore = character.getAbilityScore(abilityScore.name);
-            abilityScore.modifiedMaxScore = character.abilityScores.find(a => a.name == abilityScore.name)?.modifiedMaximum;
-            abilityScore.modifiers = character.features.filter(f => f.modifier == `ability-score:${abilityScore.name}`);
+        const abilities = [...Sources.getAbilities()];
+        for (const ability of abilities) {
+            ability.baseScore = Number(character.abilityScores.find(a => a.name == ability.name)?.baseScore);
+            ability.minBaseScore = minBaseScore;
+            ability.maxBaseScore = maxBaseScore;
+            ability.modifiedScore = character.getAbilityScore(ability.name);
+            const maxBase = Number(character.abilityScores.find(a => a.name == ability.name).modifiedMaximum);
+            const maxModifiers = Number(this.#getModifiedMaxAbilityScoreModifiers(character, ability));
+            ability.modifiedMaxScore = maxBase + maxModifiers;
+            ability.modifiers = character.features.filter(f => f.modifier == `ability-score:${ability.name}`);
         }
-        return abilityScores;
+        return abilities;
     }
 
     async updateBaseAbilityScore(event, ability) {
@@ -176,27 +171,29 @@ class DomainAbilityScoresAndHitPointsModel {
         for (let i = 0; i < character.classes.length; i++) {
             const characterClass = character.classes[i];
             const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.name);
-            for (const levelBoon of characterClass.levelBoons) {
-                const conModifierAtLevel = character.getConModifierForHitPoints(levelBoon.index);
+            if (cls) {
+                for (const levelBoon of characterClass.levelBoons) {
+                    const conModifierAtLevel = character.getConModifierForHitPoints(levelBoon.index);
 
-                const conAtLevel = Number(conBase) + Number(conModifierAtLevel);
-                const hpModAtLevel = Math.floor((Number(conAtLevel) - 10) / 2);
+                    const conAtLevel = Number(conBase) + Number(conModifierAtLevel);
+                    const hpModAtLevel = Math.floor((Number(conAtLevel) - 10) / 2);
 
-                let conModifierAtLevelLabel = `+ ${hpModAtLevel}`;
-                if (hpModAtLevel < 0) {
-                    conModifierAtLevelLabel = `- ${Math.abs(hpModAtLevel)}`;
+                    let conModifierAtLevelLabel = `+ ${hpModAtLevel}`;
+                    if (hpModAtLevel < 0) {
+                        conModifierAtLevelLabel = `- ${Math.abs(hpModAtLevel)}`;
+                    }
+                    const modifiedHitPoints = Number(levelBoon.hitPoints) + Number(hpModAtLevel);
+                    rows.push({
+                        classIndex: i,
+                        class: cls.title,
+                        level: levelBoon.level,
+                        levelBoonIndex: levelBoon.index,
+                        hitDieSize: cls.hitDieSize,
+                        hitPoints: levelBoon.hitPoints,
+                        conModifierAtLevel: conModifierAtLevelLabel,
+                        modifiedHitPoints: `= ${modifiedHitPoints}`
+                    });
                 }
-                const modifiedHitPoints = Number(levelBoon.hitPoints) + Number(hpModAtLevel);
-                rows.push({
-                    classIndex: i,
-                    class: cls.title,
-                    level: levelBoon.level,
-                    levelBoonIndex: levelBoon.index,
-                    hitDieSize: cls.hitDieSize,
-                    hitPoints: levelBoon.hitPoints,
-                    conModifierAtLevel: conModifierAtLevelLabel,
-                    modifiedHitPoints: `= ${modifiedHitPoints}`
-                });
             }
         }
         rows = Utilities.sort(rows, "levelBoonIndex");
@@ -259,5 +256,12 @@ class DomainAbilityScoresAndHitPointsModel {
             = !Utilities.areArraysEqual(oldAbilityScoreModifiers, currentAbilityScoreModifiers, ["title", "modifierValue"]);
 
         return baseScoreUpdated || modifiedMaxUpdated || abilityScoreModifiersUpdated;
+    }
+
+    #getModifiedMaxAbilityScoreModifiers(character, ability) {
+        return character.features
+            .filter(f => f.modifier == `modified-max-ability-score:${ability}`)
+            .map(f => f.modifierValue)
+            .reduce((a, b) => a + b, 0);
     }
 }

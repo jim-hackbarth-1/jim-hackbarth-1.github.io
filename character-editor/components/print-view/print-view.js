@@ -108,7 +108,7 @@ class PrintViewModel {
             const title = abilityScore.title;
             const score = character.getAbilityScore(name);
             this.#kitElement.querySelector(`#${name}`).innerText = `${title}: ${score}`;
-            const modifier = this.#getAbilityScoreModifier(score);
+            const modifier = character.getAbilityScoreModifier(abilityScore.name);
             let modifierLabel = `(+${modifier} modifier)`;
             if (modifier < 0) {
                 modifierLabel = `(${modifier} modifier)`;
@@ -167,10 +167,6 @@ class PrintViewModel {
         //     flaw = `Flaw: ${backgroundModel.getFlaws().find(f => f.name == character.flaw)?.title ?? ""}`;
         // }
         // this.#kitElement.querySelector("#flaw").innerText = flaw;
-    }
-
-    #getAbilityScoreModifier(abilityScore) {
-        return Math.floor((Number(abilityScore) - 10) / 2);
     }
 
     #getSavingThrowModifier(character, abilityModifier, ability) {

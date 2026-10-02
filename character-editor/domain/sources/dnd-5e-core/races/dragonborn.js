@@ -1,4 +1,6 @@
 
+import { DnD5EUtilities } from "./../dnd-5e-core-utilities.js";
+
 export class Dragonborn {
 
     static get name() {
@@ -47,62 +49,54 @@ export class Dragonborn {
         const features = [
             {
                 name: "dragonborn-ability-score-modifier-strength",
-                title: Dragonborn.title,
+                title: "Dragonborn strength modifier",
                 modifier: "ability-score:strength",
-                modifierValue: 2
+                modifierValue: 2,
+                displayStyle: "bullet"
             },
             {
                 name: "dragonborn-ability-score-modifier-charisma",
-                title: Dragonborn.title,
+                title: "Dragonborn charisma modifier",
                 modifier: "ability-score:charisma",
-                modifierValue: 1
+                modifierValue: 1,
+                displayStyle: "bullet"
             },
             {
                 name: "dragonborn-language-common",
+                title: "Languages: Common",
                 modifier: "language",
-                text: "Common"
+                modifierValue: "Common",
+                displayStyle: "none"
             },
             {
                 name: "dragonborn-language-draconic",
+                title: "Languages: Draconic",
                 modifier: "language",
-                text: "Draconic"
+                modifierValue: "Draconic",
+                displayStyle: "none"
             }
         ];
         let draconicAncestry = null;
-        const draconicAncestryOption = character.options.find(o => o.name == "dragonborn-draconic-ancestry");
-        if (draconicAncestryOption) {
-            draconicAncestry = draconicAncestryOption.values[0];
+        const draconicAncestries = character.options.find(o => o.name == "dragonborn-draconic-ancestry")?.values ?? [];
+        if (draconicAncestries.length > 0) {
+            draconicAncestry = draconicAncestries[0];
         }
         if (draconicAncestry) {
             const draconicAncestryTitle = Dragonborn.#draconicAncestries.find(da => da.value == draconicAncestry)?.text;
-            const breathWeaponSaveAbility = (["green", "silver", "white"].includes(draconicAncestry)) ? "constitution" : "dexterity";
-            const breathWeaponDamageDice = Dragonborn.#getBreathWeaponDamageDice(character);
             const breathWeaponDamageAndResistanceType = Dragonborn.#getBreathWeaponAndResistanceType(draconicAncestry);
-            const breathWeaponDamageArea = (["gold", "green", "red", "silver", "white"].includes(draconicAncestry)) ? "15 ft cone" : "5 by 30 ft line";
             features.push({
                 name: "dragonborn-draconic-ancestry",
-                title: "Draconic Ancestry",
-                text: draconicAncestryTitle
-            });
-            features.push({
-                name: "dragonborn-draconic-ancestry-breath-weapon",
-                title: "Breath Weapon",
-                featureType: "attack",
-                // saveDC: "8",
-                // saveModifierAbility: "constitution",
-                // addProficiency: true,
-                // saveAbility: breathWeaponSaveAbility,
-                // damageDice: breathWeaponDamageDice,
-                // damageDieSize: 6,
-                // damageType: breathWeaponDamageAndResistanceType,
-                // damageArea: breathWeaponDamageArea,
-                // restRequirement: "Use again after short or long rest."
+                title: `Draconic Ancestry: ${draconicAncestryTitle}`,
+                displayStyle: "bullet"
             });
             features.push({
                 name: "dragonborn-draconic-ancestry-damage-resistance",
-                title: "Damage resistance",
-                text: breathWeaponDamageAndResistanceType
+                title: `Damage resistance: ${breathWeaponDamageAndResistanceType}`,
+                displayStyle: "bullet"
             })
+            const breathWeaponFeature = Dragonborn.#getBreathWeaponFeature(
+                character, draconicAncestry, breathWeaponDamageAndResistanceType);
+            features.push(breathWeaponFeature);         
         }
         for (const feature of features) {
            feature.sourcePropertyName = "race";
@@ -123,20 +117,6 @@ export class Dragonborn {
         { value: "silver", text: "Silver" },
         { value: "white", text: "White" }
     ];
-
-    static #getBreathWeaponDamageDice(character) {
-        let damageDice = 2;
-        if (character.level > 5) {
-            damageDice = 3;
-        }
-        if (character.level > 10) {
-            damageDice = 4;
-        }
-        if (character.level > 15) {
-            damageDice = 5;
-        }
-        return damageDice;
-    }
 
     static #getBreathWeaponAndResistanceType(draconicAncestry) {
         let breathWeaponDamageAndResistanceType = null;
@@ -174,4 +154,43 @@ export class Dragonborn {
         }
         return breathWeaponDamageAndResistanceType;
     }
+
+    static #getBreathWeaponFeature(character, draconicAncestry, breathWeaponDamageAndResistanceType) {
+
+        // dc
+        const dcAbility = (["green", "silver", "white"]
+            .includes(draconicAncestry)) ? "constitution" : "dexterity";
+        const dc = 8
+            + Number(character.getAbilityScoreModifier(dcAbility))
+            + Number(character.getProficiencyBonus());
+
+        // damage
+        let damageDice = 2;
+        if (character.level > 5) {
+            damageDice = 3;
+        }
+        if (character.level > 10) {
+            damageDice = 4;
+        }
+        if (character.level > 15) {
+            damageDice = 5;
+        }
+        const onFailedSave = DnD5EUtilities.getDamageLabel(
+            [{ number: damageDice, size: 6 }], 0, breathWeaponDamageAndResistanceType);
+
+        // area of effect
+        const areaOfEffect = (["gold", "green", "red", "silver", "white"]
+            .includes(draconicAncestry)) ? "15 ft cone" : "5 by 30 ft line";
+        
+        let html = DnD5EUtilities.getSavingThrowAttackCardHtml(
+            "Breath Weapon", dc, dcAbility, onFailedSave, "Half damage", areaOfEffect);
+        html += "<br/><i>Use again after short or long rest.</i>";
+        return {
+            name: "dragonborn-draconic-ancestry-breath-weapon",
+            title: "Breath Weapon",
+            displayStyle: "attack-card",
+            html: html
+        };
+    }
+
 }

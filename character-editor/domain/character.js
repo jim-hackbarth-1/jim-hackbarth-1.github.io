@@ -308,6 +308,11 @@ export class Character {
         return abilityScore;
     }
 
+    getAbilityScoreModifier(ability) {
+        const abilityScore = Number(this.getAbilityScore(ability));
+        return Math.floor((abilityScore - 10) / 2);
+    }
+
     getConModifierForHitPoints(levelBoonIndex) {
         const sourceProperties = ["race", "subRace", "class", "subClass", "background"];
         const features = this.features.filter(f =>
@@ -379,6 +384,88 @@ export class Character {
             bonus = 6;
         }
         return bonus;
+    }
+
+    getWeaponToHitModifier(equipmentIndex) {
+
+        // get weapon proficiency bonus
+        const weapon = this.equipment[equipmentIndex];
+        let proficiencyModifier = 0;
+        const isProficient = this.features.some(f =>
+            f.modifier == "weapon-proficiency"
+            && (f.modifierValue == weapon.weaponName || f.modifierValue == weapon.weaponType));
+        if (isProficient) {
+            proficiencyModifier = this.getProficiencyBonus();
+        }
+
+        // get ability modifier
+        const strengthModifier = this.getAbilityScoreModifier("strength");
+        const dexterityModifier = this.getAbilityScoreModifier("strength");
+        let relevantAbilityModifier = strengthModifier;
+        if ((weapon.weaponType == "simple-ranged")
+            || (weapon.weaponType == "martial-ranged")
+            || (weapon.properties.includes("versatile") && (dexterityModifier > strengthModifier))) {
+            relevantAbilityModifier = dexterityModifier;
+        }
+
+        // get all to-hit modifiers not from equipment
+        let toHitModifier = this.features
+            .filter(f => f.modifier == "to-hit" && f.sourcePropertyName != "equipment")
+            .map(f => Number(f.modifierValue))
+            .reduce((a, b) => a + b, 0);
+
+        // get equipment to-hit modifiers for the requested item and any other non-weapon items
+        const equipmentModifiers = this.features
+            .filter(f => f.modifier == "to-hit" && f.sourcePropertyName == "equipment")
+            .map(f = ({
+                equipmentIndex: Number(f.sourcePropertyValue),
+                modifier: Number(f.modifierValue)
+            }));
+        for (const equipmentModifier of equipmentModifiers) {
+            if (equipmentModifier.equipmentIndex == equipmentIndex
+                || !character.equipment[equipmentModifier.equipmentIndex].weaponType) {
+                toHitModifier += equipmentModifier.modifier;
+            }
+        }
+
+        // return sum
+        return relevantAbilityModifier + proficiencyModifier + toHitModifier;
+    }
+
+    getWeaponDamageModifier(equipmentIndex) {
+
+        // get ability modifier
+        const strengthModifier = this.getAbilityScoreModifier("strength");
+        const dexterityModifier = this.getAbilityScoreModifier("strength");
+        let relevantAbilityModifier = strengthModifier;
+        if ((weapon.weaponType == "simple-ranged")
+            || (weapon.weaponType == "martial-ranged")
+            || (weapon.properties.includes("versatile") && (dexterityModifier > strengthModifier))) {
+            relevantAbilityModifier = dexterityModifier;
+        }
+
+        // get all damage modifiers not from equipment
+        let damageModifier = this.features
+            .filter(f => f.modifier == "damage" && f.sourcePropertyName != "equipment")
+            .map(f => Number(f.modifierValue))
+            .reduce((a, b) => a + b, 0);
+
+        // get equipment damage modifiers for the requested item and any other non-weapon items
+        const equipmentModifiers = this.features
+            .filter(f => f.modifier == "damage" && f.sourcePropertyName == "equipment")
+            .map(f = ({
+                equipmentIndex: Number(f.sourcePropertyValue),
+                modifier: Number(f.modifierValue)
+            }));
+        for (const equipmentModifier of equipmentModifiers) {
+            if (equipmentModifier.equipmentIndex == equipmentIndex
+                || !this.equipment[equipmentModifier.equipmentIndex].weaponType) {
+                damageModifier += equipmentModifier.modifier;
+            }
+        }
+
+        // return sum
+        return relevantAbilityModifier + damageModifier;
     }
 
     toJSON() {

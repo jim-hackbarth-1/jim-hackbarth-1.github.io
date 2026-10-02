@@ -115,7 +115,7 @@ export class EditorViewModel {
         }
 
         for (const characterClass of character.classes) {
-            if (characterClass.name) {
+            if (characterClass.name && characterClass.level) {
                 const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.name);
                 if (cls.updateFeatures) {
                     cls.updateFeatures(character);

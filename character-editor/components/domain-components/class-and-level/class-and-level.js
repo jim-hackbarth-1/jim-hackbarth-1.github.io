@@ -1,6 +1,7 @@
 
 import { Character, Sources, Utilities } from "../../../domain/references.js";
 import { EditorViewModel } from "../../editor-view/editor-view.js";
+import { SelectionModel } from "../../shared/selection/selection.js";
 
 export function createModel() {
     return new DomainClassAndLevelModel();
@@ -387,7 +388,7 @@ export class DomainClassAndLevelModel {
                     const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.name);
                     if (cls.getOptions) {
                         const domainOptions = cls.getOptions(character);
-                        displayOptions = this.#getDisplayOptions(i, domainOptions);
+                        displayOptions = SelectionModel.getDisplayOptions(character, domainOptions, `class-${i}:`);
                     }
                 }
                 classOptions.push({
@@ -438,7 +439,7 @@ export class DomainClassAndLevelModel {
                         .find(sc => sc.name == characterClass.subClass);
                     if (subClass.getOptions) {
                         const domainOptions = subClass.getOptions(character);
-                        displayOptions = this.#getDisplayOptions(i, domainOptions);
+                        displayOptions = SelectionModel.getDisplayOptions(character, domainOptions, `class-${classIndex}:`);
                     }
                 }
                 subClassOptions.push({
@@ -469,29 +470,6 @@ export class DomainClassAndLevelModel {
             this.#levelBoons = levelBoons;
         }
         return this.#levelBoons.filter(lb => lb.classIndex == classIndex);
-    }
-
-    #getDisplayOptions(classIndex, domainOptions) {
-        let displayOptions = [];
-        for (const domainOption of domainOptions) {
-            const options = domainOption.optionValues.map(ov => ({
-                value: ov.value,
-                text: ov.text ?? "",
-                noteText: ov.noteText ?? "",
-                hasDetail: ov.hasDetail ?? false,
-                isSelected: ov.isSelected ?? false,
-                isDisabled: ov.isDisabled ?? false,
-                disabledReason: ov.disabledReason ?? "",
-                hideCheckbox: ov.hideCheckbox
-            }));
-            displayOptions.push({
-                name: `class-${classIndex}:${domainOption.name}`,
-                title: `${domainOption.title ?? "Option"}:`,
-                maxSelections: domainOption.maxSelections ?? 1,
-                options: options
-            });
-        }
-        return displayOptions;
     }
 
 }

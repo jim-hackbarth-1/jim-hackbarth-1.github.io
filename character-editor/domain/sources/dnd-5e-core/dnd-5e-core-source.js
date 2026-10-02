@@ -286,4 +286,26 @@ export class DnD5ESource {
         return DnD5ESource.#equipment;
     }
 
+    static #languages = [
+        { value: "common", text: "Common" },
+        { value: "dwarvish", text: "Dwarvish" },
+        { value: "elvish", text: "Elvish" },
+        { value: "giant", text: "Giant" },
+        { value: "gnomish", text: "Gnomish" },
+        { value: "goblin", text: "Goblin" },
+        { value: "halfling", text: "Halfling" },
+        { value: "orc", text: "Orc" },
+        { value: "abyssal", text: "Abyssal" },
+        { value: "celestial", text: "Celestial" },
+        { value: "draconic", text: "Draconic" },
+        { value: "deep-speech", text: "Deep Speech" },
+        { value: "infernal", text: "Infernal" },
+        { value: "primordial", text: "Primordial" },
+        { value: "sylvan", text: "Sylvan" },
+        { value: "undercommon", text: "Undercommon" }
+    ];
+    static getLanguages() {
+        return DnD5ESource.#languages;
+    }
+
 }

@@ -182,16 +182,28 @@ export class Sources {
         return html ?? "";
     }
 
+    static #allAbilities = [
+        { name: "strength", title: "Strength" },
+        { name: "intelligence", title: "Intelligence" },
+        { name: "wisdom", title: "Wisdom" },
+        { name: "dexterity", title: "Dexterity" },
+        { name: "constitution", title: "Constitution" },
+        { name: "charisma", title: "Charisma" }
+    ];
+    static getAbilities() {
+        return Sources.#allAbilities;
+    }
+
     static #allAlignments = [
-        { name: "lawful-good", title: "Lawful Good", html: "[content here]" },
-        { name: "neutral-good", title: "Neutral Good", html: "[content here]" },
-        { name: "chaotic-good", title: "Chaotic Good", html: "[content here]" },
-        { name: "lawful-neutral", title: "Lawful Neutral", html: "[content here]" },
-        { name: "neutral", title: "Neutral", html: "[content here]" },
-        { name: "chaotic-neutral", title: "Chaotic Neutral", html: "[content here]" },
-        { name: "lawful-evil", title: "Lawful Evil", html: "[content here]" },
-        { name: "neutral-evil", title: "Neutral Evil", html: "[content here]" },
-        { name: "chaotic-evil", title: "Chaotic Evil", html: "[content here]" }
+        { name: "lawful-good", title: "Lawful Good", html: "<p style='font-family: Calibri, sans-serif;'>Lawful Good creatures can be counted on to do the right thing as expected by society. Gold dragons, paladins, and most dwarves are lawful good.</p>" },
+        { name: "neutral-good", title: "Neutral Good", html: "<p style='font-family: Calibri, sans-serif;'>Neutral Good folk do the best they can to help others according to their needs. Many celestials, some cloud giants, and most gnomes are neutral good.</p>" },
+        { name: "chaotic-good", title: "Chaotic Good", html: "<p style='font-family: Calibri, sans-serif;'>Chaotic good creatures act as their conscience directs, with little regard for what others expect. Copper dragons, many elves, and unicorns are chaotic good.</p>" },
+        { name: "lawful-neutral", title: "Lawful Neutral", html: "<p style='font-family: Calibri, sans-serif;'>Lawful neutral individuals act in accordance with law, tradition, or peronsal codes. Many monks and some wizards are lawful neutral.</p>" },
+        { name: "neutral", title: "Neutral", html: "<p style='font-family: Calibri, sans-serif;'>Neutral is the alignment of those who prefer to steer clear of moral questions and don't take sides, doing what seems best at the time. Lizardfolk, most druids, and many humans are neutral.</p>" },
+        { name: "chaotic-neutral", title: "Chaotic Neutral", html: "<p style='font-family: Calibri, sans-serif;'>Chaotic neutral creatures follow their whims, holding their personal freedom above all else. Many barbarians and rogues, and some bards, are chaotic neutral.</p>" },
+        { name: "lawful-evil", title: "Lawful Evil", html: "<p style='font-family: Calibri, sans-serif;'>Lawful evil creatures methodically take what they want, within the limits of a code of tradition, loyalty, or order. Devils, blue dragons, and hobgoblins are lawful evil.</p>" },
+        { name: "neutral-evil", title: "Neutral Evil", html: "<p style='font-family: Calibri, sans-serif;'>Neutral evil is the alignment of those who do whatever they can get away with, without compassion or qualms. Many drow, some cloud giants, and yugoloths are neutral evil.</p>" },
+        { name: "chaotic-evil", title: "Chaotic Evil", html: "<p style='font-family: Calibri, sans-serif;'>Chaotic evil creatures act with arbitrary violence, spurred by their greed, hatred, or bloodlust. Demons, red dragons, and orcs are chaotic evil.</p>" }
     ];
     static getAlignments() {
         return Sources.#allAlignments;
@@ -287,6 +299,30 @@ export class Sources {
         }
         const html = await Sources.#getHtml(basePath, equipmentModel.htmlPath)
         return html ?? "";
+    }
+
+    static #allLanguages;
+    static getLanguages(sources) {
+        if (!Sources.#allLanguages) {
+            const allLanguages = [];
+            for (const source of Sources.getSources()) {
+                if (source.getLanguages) {
+                    const languages = source.getLanguages();
+                    for (const language of languages) {
+                        const nameCollision = allLanguages.find(l => l.value == language.value);
+                        if (nameCollision) {
+                            console.warn(`Duplicate language: ${language.name}. Sources: ${nameCollision.source.name}, ${source.name}`);
+                        }
+                        else {
+                            language.source = source;
+                            allLanguages.push(language);
+                        }
+                    }
+                }
+            }
+            Sources.#allLanguages = allLanguages;
+        }
+        return Sources.#allLanguages.filter(l => sources.includes(l.source.name));
     }
 
     static updateCharacterSources(character, sources) {

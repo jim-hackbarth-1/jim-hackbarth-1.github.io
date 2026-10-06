@@ -17,11 +17,15 @@ export class RogueConfidenceArtist {
         return "rogue";
     }
 
-    static getOptions(character) {
+    static getOptions(character, classIndex) {
         return [];
     }
 
-    static updateFeatures(character) {
+    static applyModifiers(character, classIndex) {
+
+    }
+
+    static applyFeatures(features, character, classIndex) {
 
     }
 

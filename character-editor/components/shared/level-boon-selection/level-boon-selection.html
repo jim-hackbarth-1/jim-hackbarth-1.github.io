@@ -10,7 +10,7 @@
                            name="#model.getRadioGroupName()"
                            value="ability-scores"
                            kit-attr-checked="checked:%{#model.isAbilityScoresChecked ? '' : null}%"
-                           onclick="#model.onAbilityScoresRadioClick()" />
+                           onclick="#model?.onAbilityScoresRadioClick()" />
                     <span class="checkmark"></span>
                 </label>
             </div>
@@ -21,14 +21,14 @@
         <div class="details-section ability-scores-container">
             <div class="selection-container">
                 <kit kit-component="./components/shared/selection/selection.html"
-                     kit-obj-selection-model="selectionModel:#model.getAbilityScores(1)"
-                     kit-obj-change-handler="changeHandler:#model.updateAbilityScore">
+                     kit-obj-selection-model="selectionModel:#model?.getAbilityScores(1)"
+                     kit-obj-change-handler="changeHandler:#model?.updateAbilityScore">
                 </kit>
             </div>
             <div class="selection-container">
                 <kit kit-component="./components/shared/selection/selection.html"
-                     kit-obj-selection-model="selectionModel:#model.getAbilityScores(2)"
-                     kit-obj-change-handler="changeHandler:#model.updateAbilityScore">
+                     kit-obj-selection-model="selectionModel:#model?.getAbilityScores(2)"
+                     kit-obj-change-handler="changeHandler:#model?.updateAbilityScore">
                 </kit>
             </div>
         </div>

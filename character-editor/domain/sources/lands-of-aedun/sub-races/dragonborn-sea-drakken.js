@@ -21,50 +21,89 @@ export class DragonbornSeaDrakken {
         return [];
     }
 
-    static updateFeatures(character) {
-        character.removeFeature("dragonborn-ability-score-modifier-strength");
-        character.removeFeature("dragonborn-ability-score-modifier-charisma");
-        character.removeFeature("dragonborn-draconic-ancestry-breath-weapon");
-        const dexterity = Number(character.abilityScores.find(a => a.name == 'dexterity').value);
-        const strength = Number(character.abilityScores.find(a => a.name == 'strength').value);
-        const biteAttackAbility = (dexterity > strength) ? "dexterity" : "strength";
-        const features = [
+    static applyModifiers(character) {
+        character.removeModifier("dragonborn-ability-score-modifier-strength");
+        character.removeModifier("dragonborn-ability-score-modifier-charisma");
+        const modifiers = [
             {
                 name: "dragonborn-sea-drakken-ability-score-modifier-strength",
-                title: DragonbornSeaDrakken.title,
-                modifier: "ability-score:strength",
-                modifierValue: 1
+                target: "ability-score:strength",
+                value: 1,
+                title: DragonbornSeaDrakken.title
             },
             {
                 name: "dragonborn-sea-drakken-ability-score-modifier-constitution",
-                title: DragonbornSeaDrakken.title,
-                modifier: "ability-score:constitution",
-                modifierValue: 2
-            },
-            {
-                name: "dragonborn-sea-drakken-bond-of-the-sea",
-                title: "Bond of the Sea",
-                text: "May breathe underwater. Swimming speed equals walking speed."
-            },
-            {
-                name: "dragonborn-sea-drakken-bite",
-                title: "Bite",
-                featureType: "attack",
-                // attackAbility: biteAttackAbility,
-                // damageDice: 1,
-                // damageDieSize: 6,
-                // damageType: "piercing",
-            },
-            {
-                name: "dragonborn-sea-drakken-kiss-of-the-deep",
-                title: "Kiss of the Deep",
-                text: "Upon touching a willing creature, the creature gains 2d6 hit points and the dragonborn loses hit points equal to one half of the total. Alternatively, after a successful bite attack, the creature makes a constitution save (8 + Constitution modifier + proficiency bonus). Upon a failed save, the creature takes an additional 2d6 necrotic damage and the dragonborn regains one half of the total necrotic damage. Half-damage upon a successful save. Whether touching a willing creature or attacking a foe, the effect increases to 3d6 at 6<sup>the</sup> level, 4d6 at 11<sup>the</sup> level, and 5d6 at 16<sup>the</sup> level. After using Kiss of the Deep, it can’t be used again until after completing a short or long rest."
+                target: "ability-score:constitution",
+                value: 2,
+                title: DragonbornSeaDrakken.title
             }
         ];
-        for (const feature of features) {
+        for (const modifier of modifiers) {
+            modifier.sourcePropertyName = "subRace";
+            modifier.sourcePropertyValue = "dragonborn-sea-drakken";
+            character.addModifier(modifier);
+        }
+    }
+
+    static applyFeatures(features, character) {
+        const dragonbornBreathWeaponIndex = features
+            .findIndex(f => f.name == "dragonborn-draconic-ancestry-breath-weapon");
+        if (dragonbornBreathWeaponIndex > -1 && dragonbornBreathWeaponIndex < features.length) {
+            features.splice(dragonbornBreathWeaponIndex, 1);
+        }
+        const tempFeatures = [];
+
+        // bond of the sea
+        tempFeatures.push({
+            name: "dragonborn-sea-drakken-bond-of-the-sea",
+            displayType: "card",
+            html: `
+                <h3>Bond of the Sea.</h3>
+                <p>May breathe underwater.  Swimming speed equals walking speed.</p>`,
+        });
+        
+        // bite
+        const dexterity = Number(character.getAbilityScore("dexterity"));
+        const strength = Number(character.getAbilityScore("strength"));
+        const biteAttackAbility = (dexterity > strength) ? "dexterity" : "strength";
+        const biteAttackCard = character.getAttackCard({
+            name: "dragonborn-sea-drakken-bite-attack",
+            title: "Sea Drakken Bite",
+            damageDieSize: 6,
+            damageType: "piercing",
+            relevantAbility: biteAttackAbility
+        });
+        tempFeatures.push(biteAttackCard);
+       
+        // kiss of the deep
+        let damageDice = 2;
+        if (character.level >= 6) {
+            damageDice++;
+        }
+        if (character.level >= 11) {
+            damageDice++;
+        }
+        if (character.level >= 16) {
+            damageDice++;
+        }
+        const dc = 8
+            + Number(character.getAbilityScoreModifier("constitution"))
+            + Number(character.getProficiencyBonus());
+        const kissAttackCard = character.getAttackCard({
+            name: "dragonborn-sea-drakken-kiss-of-the-deep-attack",
+            title: "Kiss of the Deep",
+            damageDice: [{ number: damageDice, size: 6 }],
+            damageType: "necrotic",
+            relevantAbility: biteAttackAbility,
+            dc: dc,
+            onFailedSave: "Half damage"
+        });
+        tempFeatures.push(kissAttackCard);
+
+        for (const feature of tempFeatures) {
             feature.sourcePropertyName = "subRace";
-            feature.sourcePropertyValue = "dragonborn-sea-drakken";
-            character.addFeature(feature);
+            feature.sourcePropertyValue = DragonbornSeaDrakken.name
+            features.push(feature);
         }
     }
 

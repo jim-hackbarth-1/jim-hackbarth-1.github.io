@@ -136,10 +136,20 @@ import { Sailor } from "./backgrounds/sailor.js";
 import { Soldier } from "./backgrounds/soldier.js";
 import { Urchin } from "./backgrounds/urchin.js";
 
-// equipment
+// equipment - adventuring gear
 import { Abacus } from "./equipment/adventuring-gear/abacus.js";
 import { AlchemistsFireFlask } from "./equipment/adventuring-gear/alchemists-fire-flask.js";
 import { AcidVial } from "./equipment/adventuring-gear/acid-vial.js";
+
+// equipment - armor
+import { Shield } from "./equipment/armor/shield.js";
+
+// equipment - weapons
+import { Longbow } from "./equipment/weapons/longbow.js";
+import { Longsword } from "./equipment/weapons/longsword.js";
+
+// equipment - wondrous items
+import { BracersOfArchery } from "./equipment/wondrous-items/bracers-of-archery.js";
 
 export class DnD5ESource {
 
@@ -280,7 +290,10 @@ export class DnD5ESource {
     }
 
     static #equipment = [
-        Abacus, AlchemistsFireFlask, AcidVial
+        Abacus, AlchemistsFireFlask, AcidVial,
+        Shield,
+        Longbow, Longsword,
+        BracersOfArchery
     ];
     static getEquipment() {
         return DnD5ESource.#equipment;

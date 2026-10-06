@@ -1,6 +1,4 @@
 
-import { DnD5EUtilities } from "./../dnd-5e-core-utilities.js";
-
 export class TavernBrawler {
 
     static get name() {
@@ -36,7 +34,11 @@ export class TavernBrawler {
         return [];
     }
 
-    static updateFeatures(character) {
+    static applyModifiers(character, classIndex, level) {
+
+    }
+
+    static applyFeatures(features, character, classIndex, level) {
 
     }
 

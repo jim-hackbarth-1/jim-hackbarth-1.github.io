@@ -38,13 +38,13 @@ class DomainRaceModel {
         if (sourcesUpdated || raceUpdated) {
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#race-row"));
         }
-        if (message.option?.sourcePropertyName != "race") {
+        if (message.selection?.sourcePropertyName != "race") {
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#race-options-row"));
         }
         if (sourcesUpdated || subRaceUpdated) {
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#sub-race-row"));
         }
-        if (message.option?.sourcePropertyName != "subRace") {
+        if (message.selection?.sourcePropertyName != "subRace") {
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#sub-race-options-row"));
         }
     }
@@ -121,20 +121,20 @@ class DomainRaceModel {
 
     async updateRaceOption(selectionModelName, optionValues) {
         const character = Character.currentCharacter;
-        const currentValues = character.options.find(o => o.name == selectionModelName)?.values ?? [];
+        const currentValues = character.selections.find(s => s.name == selectionModelName)?.values ?? [];
         if (Utilities.areArraysEqual(currentValues, optionValues)) {
             return;
         }
-        const option = {
+        const selection = {
             name: selectionModelName,
             sourcePropertyName: "race",
             sourcePropertyValue: character.race,
             values: optionValues
         }
-        Sources.updateCharacterOption(character, option);
+        Sources.updateCharacterSelection(character, selection);
         const message = {
             character: character,
-            option: option,
+            selection: selection,
             section: "details-race"
         };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
@@ -218,20 +218,20 @@ class DomainRaceModel {
 
     async updateSubRaceOption(selectionModelName, optionValues) {
         const character = Character.currentCharacter;
-        const currentValues = character.options.find(o => o.name == selectionModelName)?.values ?? [];
+        const currentValues = character.selections.find(s => s.name == selectionModelName)?.values ?? [];
         if (Utilities.areArraysEqual(currentValues, optionValues)) {
             return;
         }
-        const option = {
+        const selection = {
             name: selectionModelName,
             sourcePropertyName: "subRace",
             sourcePropertyValue: character.subRace,
             values: optionValues
         }
-        Sources.updateCharacterOption(character, option);
+        Sources.updateCharacterSelection(character, selection);
         const message = {
             character: character,
-            option: option,
+            selection: selection,
             section: "details-race"
         };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);

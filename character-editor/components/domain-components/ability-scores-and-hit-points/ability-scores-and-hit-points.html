@@ -77,7 +77,7 @@
                         <div id="ability-modifiers-row-%{#abilityInfo.name}%" class="ability-modifiers-row hidden">
                             <div style="font-weight:bold;" class="no-wrap">Modifiers:</div>
                             <div kit-array="#abilityInfo.modifiers" kit-array-item-alias="modifier">
-                                <div class="no-wrap">%{#modifier.title}% +%{#modifier.modifierValue}%</div>
+                                <div class="no-wrap">%{#modifier.title}% +%{#modifier.value}%</div>
                             </div>
                         </div>
                     </div>
@@ -132,8 +132,10 @@
                         <div class="hit-point-total-cell">%{#row.modifiedHitPoints}%</div>
                     </div>
                     <div kit-if="#row.isTotal" class="hit-point-row hit-point-total-row">
-                        <div class="feature-cell">Total:</div>
-                        <div class="hit-point-total-cell">= %{#row.totalHitPoints}%</div>
+                        <div class="feature-cell">Total =</div>
+                        <div class="hit-point-total-cell">
+                            <div class="grand-total">%{#row.totalHitPoints}%</div>
+                        </div>
                     </div>
                 </div>
                 <div class="con-modifier-note no-wrap"><b>*</b> Constitution modifier at level</div>

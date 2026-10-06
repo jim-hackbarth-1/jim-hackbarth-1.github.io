@@ -367,7 +367,7 @@ export class Sources {
 
     static updateCharacterRace(character, race) {
         if (character.race != race) {
-            character.options = character.options.filter(o => o.sourcePropertyName != "race");
+            character.selections = character.selections.filter(s => s.sourcePropertyName != "race");
             character.race = race;
             Sources.updateCharacterSubRace(character, null);
         }
@@ -375,7 +375,7 @@ export class Sources {
 
     static updateCharacterSubRace(character, subRace) {
         if (character.subRace != subRace) {
-            character.options = character.options.filter(o => o.sourcePropertyName != "subRace");
+            character.selections = character.selections.filter(s => s.sourcePropertyName != "subRace");
             character.subRace = subRace;
         }
     }
@@ -395,39 +395,41 @@ export class Sources {
     static updateCharacterClass(character, classIndex, className) {
         const index = Number(classIndex);
         const cls = character.classes[index];
-        character.options = character.options.filter(
-            o => o.sourcePropertyName != "class" || o.sourcePropertyValue != cls.name);
+        character.selections = character.selections.filter(s => !s.sourcePropertyName.startsWith(`class-${classIndex}`));
         character.classes[index].name = className;
         Sources.updateCharacterSubClass(character, classIndex, null);
     }
 
     static updateCharacterLevel(character, classIndex, level) {
         const index = Number(classIndex);
+        const levelNumber = Number(level);
         const characterClass = character.classes[index];
         const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.name);
         if (cls && characterClass.level < cls.subClassLevel) {
             Sources.updateCharacterSubClass(character, index, null);
         }
-        const levelBoons =[];
-        for (let i = 1; i <= 20; i++) {
-            if (level < i) {
-                character.options = character.options.filter(
-                    o => o.sourcePropertyName != `feat:class-${index}-level-${i}`);
-            }
-            else {
-                let levelBoon = characterClass.levelBoons.find(lb => lb.level == i);
-                if (!levelBoon) {
-                    let defaultHitPoints = Math.ceil((Number(cls.hitDieSize) + 1) / 2);
-                    if (classIndex == 0 && i == 1) {
-                        defaultHitPoints = Number(cls.hitDieSize);
-                    }
-                    const levelBoonIndex = Sources.#getNextLevelBoonIndex(character);
-                    levelBoon = {
-                        level: i,
-                        hitPoints: defaultHitPoints,
-                        index: levelBoonIndex
-                    };
+        const otherClassesBoons = [];
+        for (let i = 0; i < character.classes.length; i++) {
+            if (i != index) {
+                for (const levelBoon of character.classes[i].levelBoons) {
+                    otherClassesBoons.push(levelBoon);
                 }
+            }
+        }
+        const levelBoons = characterClass.levelBoons.filter(lb => Number(lb.level) <= levelNumber);
+        for (let i = 1; i <= levelNumber; i++) {
+            let levelBoon = characterClass.levelBoons.find(lb => Number(lb.level) == i);
+            if (!levelBoon) {
+                let defaultHitPoints = Math.ceil((Number(cls.hitDieSize) + 1) / 2);
+                if (index == 0 && i == 1) {
+                    defaultHitPoints = Number(cls.hitDieSize);
+                }
+                const levelBoonIndex = Sources.#getNextLevelBoonIndex(otherClassesBoons, levelBoons);
+                levelBoon = {
+                    level: i,
+                    hitPoints: defaultHitPoints,
+                    index: levelBoonIndex
+                };
                 levelBoons.push(levelBoon);
             }
         }
@@ -438,8 +440,7 @@ export class Sources {
     static updateCharacterSubClass(character, classIndex, subClass) {
         const index = Number(classIndex);
         const cls = character.classes[index];
-        character.options = character.options.filter(
-            o => o.sourcePropertyName != "subClass" || o.sourcePropertyValue != cls.subClass);
+        character.selections = character.selections.filter(s => s.sourcePropertyName != `subClass-${classIndex}`);
         character.classes[index].subClass = subClass;
     }
 
@@ -448,8 +449,8 @@ export class Sources {
         const characterClass = character.classes[index];
         let currentLevelBoon = characterClass.levelBoons.find(lb => lb.level == levelBoon.level);
         if (currentLevelBoon?.feat && currentLevelBoon.feat != levelBoon.feat) {
-            character.options = character.options.filter(
-                o => o.sourcePropertyName != `feat:class-${index}-level-${levelBoon.level}`);
+            character.selections = character.selections.filter(
+                s => s.sourcePropertyName != `class-${index}-level-${levelBoon.level}-feat`);
         }
         currentLevelBoon.hitPoints = levelBoon.hitPoints;
         currentLevelBoon.abilityScore1 = levelBoon.abilityScore1;
@@ -457,9 +458,9 @@ export class Sources {
         currentLevelBoon.feat = levelBoon.feat;
     }
 
-    static updateCharacterOption(character, option) {
-        character.removeOption(option.name);
-        character.addOption(option);
+    static updateCharacterSelection(character, selection) {
+        character.removeSelection(selection.name);
+        character.addSelection(selection);
     }
 
     static updateCharacterUseAbilityScorePointsSystem(character) {
@@ -478,14 +479,13 @@ export class Sources {
 
     static updateCharacterAlignment(character, alignment) {
         if (character.alignment != alignment) {
-            character.options = character.options.filter(o => o.sourcePropertyName != "alignment");
             character.alignment = alignment;
         }
     }
 
     static updateCharacterBackground(character, background) {
         if (character.background != background) {
-            character.options = character.options.filter(o => o.sourcePropertyName != "background");
+            character.selections = character.selections.filter(s => s.sourcePropertyName != "background");
             character.background = background;
             Sources.updateCharacterTraits(character, []);
             Sources.updateCharacterIdeal(character, null);
@@ -506,7 +506,6 @@ export class Sources {
             }
         }
         if (hasChange) {
-            character.options = character.options.filter(o => o.sourcePropertyName != "trait");
             character.traits = traits;
         }
     }
@@ -535,9 +534,82 @@ export class Sources {
 
     static removeCharacterEquipment(character, index) {
         const itemName = character.equipment[index].name;
-        character.options = character.options
-            .filter(o => o.sourcePropertyName != "equipment" && o.sourcePropertyValue != itemName);
+        character.selections = character.selections.filter(s => s.sourcePropertyName != `equipment-${index}`);
         character.removeEquipment(index);
+    }
+
+    /*
+    Feature:
+    - name
+    - sourcePropertyName
+    - sourcePropertyValue
+    - displayType
+    - html
+    */
+    static getCharacterFeatures(character) {
+
+        const features = [];
+
+        // race
+        if (character.race) {
+            const race = Sources.getRaces(character.sources).find(r => r.name == character.race);
+            if (race?.applyFeatures) {
+                race.applyFeatures(features, character);
+            }
+        }
+
+        // subRace
+        if (character.race && character.subRace) {
+            const subRace = Sources.getSubRaces(character.sources, character.race).find(sr => sr.name == character.subRace);
+            if (subRace?.applyFeatures) {
+                subRace.applyFeatures(features, character);
+            }
+        }
+
+        // classes, subclasses, and feats
+        for (let i = 0; i < character.classes.length; i++) {
+            const characterClass = character.classes[i];
+            if (characterClass.name && characterClass.level) {
+                const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.name);
+                if (cls?.applyFeatures) {
+                    cls.applyFeatures(features, character, i);
+                }
+            }
+            if (characterClass.name && characterClass.level && characterClass.subClass) {
+                const subClass = Sources.getSubClasses(character.sources, characterClass.name)
+                    .find(sc => sc.name == characterClass.subClass);
+                if (subClass?.applyFeatures) {
+                    subClass.applyFeatures(features, character, i);
+                }
+            }
+            for (const levelBoon of characterClass.levelBoons) {
+                if (levelBoon.feat) {
+                    const feat = Sources.getFeats(character.sources).find(f => f.name == levelBoon.feat);
+                    if (feat?.applyFeatures) {
+                        feat.applyFeatures(features, character, i, levelBoon.level);
+                    }
+                }
+            }
+        }
+
+        // background
+        if (character.background) {
+            const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background);
+            if (background?.applyFeatures) {
+                background.applyFeatures(features, character);
+            }
+        }
+
+        // equipment
+        for (let i = 0; i < character.equipment.length; i++) {
+            const equipment = Sources.getEquipment(character.sources).find(e => e.name == character.equipment[i].name);
+            if (equipment?.applyFeatures) {
+                equipment.applyFeatures(features, character, i);
+            }
+        }
+
+        return features;
+
     }
 
     static async #getHtml(basePath, path) {
@@ -552,14 +624,18 @@ export class Sources {
         return await response.text();
     }
 
-    static #getNextLevelBoonIndex(character) {
+    static #getNextLevelBoonIndex(otherClassesBoons, levelBoons) {
         let lastIndex = -1;
-        for (const characterClass of character.classes) {
-            for (const levelBoon of characterClass.levelBoons) {
-                const index = Number(levelBoon.index);
-                if (index > lastIndex) {
-                    lastIndex = index;
-                }
+        for (const levelBoon of otherClassesBoons) {
+            const index = Number(levelBoon.index);
+            if (index > lastIndex) {
+                lastIndex = index;
+            }
+        }
+        for (const levelBoon of levelBoons) {
+            const index = Number(levelBoon.index);
+            if (index > lastIndex) {
+                lastIndex = index;
             }
         }
         return lastIndex + 1;

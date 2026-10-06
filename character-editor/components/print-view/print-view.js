@@ -171,9 +171,9 @@ class PrintViewModel {
 
     #getSavingThrowModifier(character, abilityModifier, ability) {
         let label = "";
-        const savingThrowModifier = character.features
-            .filter(f => f.modifier == `saving-throw-proficiency:${ability}`)
-            .map(f => f.modifierValue)
+        const savingThrowModifier = character.modifiers
+            .filter(m => m.target == `saving-throw-proficiency:${ability}`)
+            .map(m => m.value)
             .reduce((a, b) => a + b, 0);
         if (savingThrowModifier > 0) {
             const total = Number(abilityModifier) + Number(savingThrowModifier);

@@ -20,6 +20,28 @@
                     </div>
                 </div>
             </div>
+            <div id="starting-equipment-container">
+                <!-- starting equipment (start) -->
+                <div id="summary-row">
+                    <div id="summary-row-label" class="no-wrap">Starting equipment</div>
+                    <div id="expand-starting-equipment"
+                         title="Show starting equipment"
+                         class="info-icon"
+                         onpointerdown="#model.toggleStartingEquipment()"
+                         kit-component="no-model:./resources/icons/expand.html">
+                    </div>
+                    <div id="collapse-starting-equipment"
+                         title="Hide starting equipment"
+                         class="info-icon hidden"
+                         onpointerdown="#model.toggleStartingEquipment()"
+                         kit-component="no-model:./resources/icons/collapse.html">
+                    </div>
+                </div>
+                <div id="starting-equipment" class="hidden">
+                    <div id="starting-equipment-content" class="no-wrap">[starting equipment]</div>
+                </div>
+                <!-- starting equipment (end) -->
+            </div>
             <div id="inventory-detail" class="detail">
                 <div id="inventory-list" kit-element>
                     <div id="inventory-table"

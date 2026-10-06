@@ -129,7 +129,7 @@ class DomainAbilityScoresAndHitPointsModel {
             const maxBase = Number(character.abilityScores.find(a => a.name == ability.name).modifiedMaximum);
             const maxModifiers = Number(this.#getModifiedMaxAbilityScoreModifiers(character, ability));
             ability.modifiedMaxScore = maxBase + maxModifiers;
-            ability.modifiers = character.features.filter(f => f.modifier == `ability-score:${ability.name}`);
+            ability.modifiers = character.modifiers.filter(m => m.target == `ability-score:${ability.name}`);
         }
         return abilities;
     }
@@ -197,19 +197,17 @@ class DomainAbilityScoresAndHitPointsModel {
             }
         }
         rows = Utilities.sort(rows, "levelBoonIndex");
-        const featFeatures = character.features.filter(f =>
-            f.modifier == "hit-points"
-            && f.sourcePropertyName == "feat");
-        for (const feature of featFeatures) {
+        const hpModifiers = character.modifiers.filter(m => m.target == "hit-points");
+        for (const modifier of hpModifiers) {
             rows.push({
-                feature: `Feat: ${feature.title}`,
-                modifiedHitPoints: `= ${feature.modifierValue}`
+                feature: `Feat: ${modifier.title}`,
+                modifiedHitPoints: `= ${modifier.value}`
             });
         }
         rows.push({
             isTotal: true,
             totalHitPoints: character.getHitPoints()
-        })
+        });
         return rows;
     }
 
@@ -250,18 +248,18 @@ class DomainAbilityScoresAndHitPointsModel {
         const currentModifiedMax = currentCharacter.abilityScores.find(a => a.name == ability)?.modifiedMaximum;
         const modifiedMaxUpdated = (oldModifiedMax != currentModifiedMax);
 
-        const oldAbilityScoreModifiers = oldCharacter.features.filter(f => f.modifier == `ability-score:${ability}`);
-        const currentAbilityScoreModifiers = currentCharacter.features.filter(f => f.modifier == `ability-score:${ability}`);
+        const oldAbilityScoreModifiers = oldCharacter.modifiers.filter(m => m.target == `ability-score:${ability}`);
+        const currentAbilityScoreModifiers = currentCharacter.modifiers.filter(m => m.target == `ability-score:${ability}`);
         const abilityScoreModifiersUpdated
-            = !Utilities.areArraysEqual(oldAbilityScoreModifiers, currentAbilityScoreModifiers, ["title", "modifierValue"]);
+            = !Utilities.areArraysEqual(oldAbilityScoreModifiers, currentAbilityScoreModifiers, ["title", "value"]);
 
         return baseScoreUpdated || modifiedMaxUpdated || abilityScoreModifiersUpdated;
     }
 
     #getModifiedMaxAbilityScoreModifiers(character, ability) {
-        return character.features
-            .filter(f => f.modifier == `modified-max-ability-score:${ability}`)
-            .map(f => f.modifierValue)
+        return character.modifiers
+            .filter(m => m.target == `modified-max-ability-score:${ability.name}`)
+            .map(m => m.value)
             .reduce((a, b) => a + b, 0);
     }
 }

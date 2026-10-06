@@ -1,6 +1,4 @@
 
-import { DnD5EUtilities } from "./../dnd-5e-core-utilities.js";
-
 export class Athlete {
 
     static get name() {
@@ -48,9 +46,9 @@ export class Athlete {
             { value: "dexterity", text: "Dexterity" }
         ];
         let abilityScoreIncrease = null;
-        const sourcePropertyName = `feat:class-${classIndex}-level-${level}`
-        const values = character.options
-            .find(o => o.sourcePropertyName == sourcePropertyName && o.name == optionName)?.values ?? [];
+        const sourcePropertyName = `class-${classIndex}-level-${level}-feat`;
+        const values = character.selections
+            .find(s => s.sourcePropertyName == sourcePropertyName && s.name == optionName)?.values ?? [];
         if (values.length > 0) {
             abilityScoreIncrease = values[0];
         }
@@ -66,37 +64,54 @@ export class Athlete {
         ];
     }
 
-    static updateFeatures(character) {
+    static applyModifiers(character, classIndex, level) {
+        const modifiers = [];
         let abilityScore = null;
-        const abilityScoreOption = character.options.find(o => o.name == "athlete-ability-score-increase");
-        if (abilityScoreOption) {
-            abilityScore = abilityScoreOption.values[0];
+        const values = character.selections.find(s => s.name == "athlete-ability-score-increase")?.values ?? [];
+        if (values.length > 0) {
+            abilityScore = values[0];
         }
-        const features = [];
         if (abilityScore) {
-            features.push(
+            modifiers.push(
                 {
                     name: "athlete-ability-score-modifier",
+                    target: `ability-score:${abilityScore}`,
+                    value: 1,
                     title: Athlete.title,
-                    modifier: `ability-score:${abilityScore}`,
-                    modifierValue: 1,
-                    displayStyle: "none"
-                },
-                {
-                    name: "athlete",
-                    title: "Athlete",
-                    displayStyle: "card",
-                    html: `
-                        <p>When you are prone, standing up uses only 5 feet of your movement.</p>
-                        <p>Climbing doesn't cost you extra movement.</p>
-                        <p>You can make a running long jump or a running high jump after moving only 5 feet on foot, rather than 10 feet.</p>
-                        `
                 });
         }
-        for (const feature of features) {
-            feature.sourcePropertyName = "feat";
-            feature.sourcePropertyValue = "athlete";
-            character.addFeature(feature);
+        for (const modifier of modifiers) {
+            modifier.sourcePropertyName = `class-${classIndex}-level-${level}-feat`;
+            modifier.sourcePropertyValue = "athlete";
+            character.addModifier(modifier);
+        }
+    }
+
+    static applyFeatures(features, character, classIndex, level) {
+        const tempFeatures = [];
+        tempFeatures.push({
+            name: `class-${classIndex}-level-${level}-feat`,
+            displayType: "card",
+            html: `
+                <h3>Athlete</h3>
+                <hr/>
+                <div class="content">
+                    <p>You have undergone extensive physical training to gain the following benefits:<p>
+                    <p>
+                        <ul>
+                            <li>Increase your Strength or Dexterity score by 1, to a maximum of 20.</li>
+                            <li>When you are prone, standing up uses only 5 feet of your movement.</li>
+                            <li>Climbing doesn't cost you extra movement.</li>
+                            <li>You can make a running long jump or a running high jump after moving only 5 feet on foot, rather than 10 feet.</li>
+                        </ul>
+                    </p>
+                </div>
+                `
+        });
+        for (const feature of tempFeatures) {
+            feature.sourcePropertyName = `class-${classIndex}-level-${level}-feat`;
+            feature.sourcePropertyValue = Athlete.name
+            features.push(feature);
         }
     }
 

@@ -70,6 +70,11 @@ export class SelectionModel {
         return this.#selectionModel.title ?? "";
     }
 
+    getSelectionRequiredClass() {
+        const hasSelection = this.#selectionModel.options.some(o => o.isSelected && o.value);
+        return hasSelection ? "" : "selection-required";
+    }
+
     getCollapsedDisplayValue() {
         let displayValue = null;
         if (this.#selectionModel.options.length > 0) {
@@ -212,7 +217,15 @@ export class SelectionModel {
         for (const option of this.#selectionModel.options) {
             option.isSelected = selectedValues.includes(option.value);
         }
-        const label = this.#kitElement.querySelector(".collapsed-option-label").querySelector("label");
+        const hasSelection = this.#selectionModel.options.some(o => o.isSelected && o.value);
+        const element = this.#kitElement.querySelector(".collapsed-option-label");
+        if (hasSelection) {
+            element.classList.remove("selection-required");
+        }
+        else {
+            element.classList.add("selection-required");
+        }
+        const label = element.querySelector("label");
         label.innerText = this.getCollapsedDisplayValue();
         this.toggleDropDown();
     }

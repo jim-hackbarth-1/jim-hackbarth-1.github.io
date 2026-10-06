@@ -42,7 +42,6 @@
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        
     }
 
     .ability-score-row > div {
@@ -91,15 +90,26 @@
     }
 
     .hit-point-total-cell {
-        width: 40px;
-        min-width: 40px;
+        width: 60px;
+        min-width: 60px;
         font-weight: bold;
         margin-top: 5px;
     }
 
     .hit-point-total-row {
         font-size:larger;
-        color:darkred;
+    }
+
+    .hit-point-total-row .feature-cell {
+        margin-right:-10px;
+    }
+    .hit-point-total-row .hit-point-total-cell .grand-total {
+        border: 1px solid black;
+        padding: 4px;
+        border-radius: 3px;
+        text-align: center;
+        width: 50px;
+        min-width: 50px;
     }
 
     .hit-point-total-row > div {
@@ -204,7 +214,6 @@
     .modified-ability-score {
         font-weight: bold;
         font-size: larger;
-        color:darkred;
         border:1px solid black;
         padding:4px;
         border-radius:3px;

@@ -1,6 +1,4 @@
 
-import { DnD5EUtilities } from "./../dnd-5e-core-utilities.js";
-
 export class SpellSniper {
 
     static get name() {
@@ -36,7 +34,11 @@ export class SpellSniper {
         return [];
     }
 
-    static updateFeatures(character) {
+    static applyModifiers(character, classIndex, level) {
+
+    }
+
+    static applyFeatures(features, character, classIndex, level) {
 
     }
 

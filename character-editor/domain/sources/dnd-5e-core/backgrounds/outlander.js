@@ -69,7 +69,11 @@ export class Outlander {
         return [];
     }
 
-    static updateFeatures(character) {
+    static applyModifiers(character) {
+
+    }
+
+    static applyFeatures(features, character) {
 
     }
 

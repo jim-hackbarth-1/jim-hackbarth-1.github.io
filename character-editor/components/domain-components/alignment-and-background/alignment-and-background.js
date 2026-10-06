@@ -59,7 +59,7 @@ class DomainAlignmentAndBackgroundModel {
         if (backgroundUpdated || flawUpdated) {
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#flaw-row"));
         }
-        if (message.option?.sourcePropertyName != "background") {
+        if (message.selection?.sourcePropertyName != "background") {
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#background-options-row"));
         }
     }
@@ -433,20 +433,20 @@ class DomainAlignmentAndBackgroundModel {
 
     async updateBackgroundOption(selectionModelName, optionValues) {
         const character = Character.currentCharacter;
-        const currentValues = character.options.find(o => o.name == selectionModelName)?.values ?? [];
+        const currentValues = character.selections.find(s => s.name == selectionModelName)?.values ?? [];
         if (Utilities.areArraysEqual(currentValues, optionValues)) {
             return;
         }
-        const option = {
+        const selection = {
             name: selectionModelName,
             sourcePropertyName: "background",
             sourcePropertyValue: character.background,
             values: optionValues
         }
-        Sources.updateCharacterOption(character, option);
+        Sources.updateCharacterSelection(character, selection);
         const message = {
             character: character,
-            option: option,
+            selection: selection,
             section: "details-alignment-and-background"
         };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);

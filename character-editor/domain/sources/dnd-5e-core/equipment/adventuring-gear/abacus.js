@@ -1,6 +1,4 @@
 
-import { DnD5EUtilities } from "./../../dnd-5e-core-utilities.js"
-
 export class Abacus {
 
     static get name() {
@@ -44,7 +42,7 @@ export class Abacus {
         let name = "abacus-color"; 
         let title = "Color"
         let optionName = `item-index-${inventoryIndex}:${name}`;
-        let values = character.options.find(o => o.name == optionName)?.values ?? [];
+        let values = character.selections.find(s => s.name == optionName)?.values ?? [];
         let selectedValue = null;
         if (values.length > 0) {
             selectedValue = values[0];
@@ -71,7 +69,7 @@ export class Abacus {
         name = "abacus-size";
         title = "Size"
         optionName = `item-index-${inventoryIndex}:${name}`;
-        values = character.options.find(o => o.name == optionName)?.values ?? [];
+        values = character.selections.find(s => s.name == optionName)?.values ?? [];
         selectedValue = null;
         if (values.length > 0) {
             selectedValue = values[0];
@@ -95,7 +93,11 @@ export class Abacus {
         return options;
     }
 
-    static updateFeatures(character, inventoryIndex) {
+    static applyModifiers(character, inventoryIndex) {
+
+    }
+
+    static applyFeatures(features, character, inventoryIndex) {
 
     }
 

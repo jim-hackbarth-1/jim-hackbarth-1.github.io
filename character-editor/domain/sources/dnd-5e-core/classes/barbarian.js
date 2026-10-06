@@ -1,4 +1,3 @@
-import { DnD5EUtilities } from "../dnd-5e-core-utilities.js";
 
 export class Barbarian {
 
@@ -16,6 +15,20 @@ export class Barbarian {
 
     static get hitDieSize() {
         return 12;
+    }
+
+    static get startingEquipment() {
+        return `
+            <ul>
+                <li>(a) a greataxe or (b) any martial melee weapon</li>
+                <li>(a) two handaxes or (b) any simple weapon</li>
+                <li>An explorer's pack and four javelins</li>
+            </ul>
+        `;
+    }
+
+    static get startingGold() {
+        return "2d4 x 10 gp";
     }
 
     static getMulticlassEligibility(character) {
@@ -40,16 +53,16 @@ export class Barbarian {
         return 3;
     }
 
-    static getOptions(character) {
+    static getOptions(character, classIndex) {
 
         const options = [];
 
         // skill proficiences
-        if (character.classes[0].name == "barbarian") {
+        if (classIndex == 0) {
             let optionName = "barbarian-skill-proficiencies";
             let optionValues = [...Barbarian.#skillProficiencies];
             optionValues.unshift({ value: null, text: "Choose skill proficiencies ...", hideCheckbox: true });
-            let selections = character.options.find(o => o.name == optionName)?.values ?? [];
+            let selections = character.selections.find(s => s.name == optionName)?.values ?? [];
             for (const optionValue of optionValues) {
                 optionValue.isSelected = selections.includes(optionValue.value);
             }
@@ -64,284 +77,296 @@ export class Barbarian {
         return options;
     }
 
-    static updateFeatures(character) {
+    static applyModifiers(character, classIndex) {
 
-        const features = [];
+        const modifiers = [];
         if (character.classes[0].name == "barbarian") {
-            features.push({
+            modifiers.push({
                 name: "barbarian-armor-proficiency-light-armor",
-                title: "Light armor",
-                modifier: "armor-proficiency",
-                modifierValue: "light-armor",
-                displayStyle: "none"
+                target: "armor-proficiency",
+                value: "light-armor",
+                title: Barbarian.title
             });
-            features.push({
+            modifiers.push({
                 name: "barbarian-armor-proficiency-medium-armor",
-                title: "Medium armor",
-                modifier: "armor-proficiency",
-                modifierValue: "medium-armor",
-                displayStyle: "none"
+                target: "armor-proficiency",
+                value: "medium-armor",
+                title: Barbarian.title
             });
         }
-        features.push({
+        modifiers.push({
             name: "barbarian-armor-proficiency-shield",
-            title: "Shields",
-            modifier: "armor-proficiency",
-            modifierValue: "shield",
-            displayStyle: "none"
+            target: "armor-proficiency",
+            value: "shield",
+            title: Barbarian.title
         });
-        features.push({
+        modifiers.push({
             name: "barbarian-weapon-type-proficiency-simple-melee",
-            title: "Simple melee weapons",
-            modifier: "weapon-proficiency",
-            modifierValue: "simple-melee",
-            displayStyle: "none"
+            target: "weapon-proficiency",
+            value: "simple-melee",
+            title: Barbarian.title
         });
-        features.push({
+        modifiers.push({
             name: "barbarian-weapon-type-proficiency-martial-melee",
-            title: "Martial melee weapons",
-            modifier: "weapon-proficiency",
-            modifierValue: "martial-melee",
-            displayStyle: "none"
+            target: "weapon-proficiency",
+            value: "martial-melee",
+            title: Barbarian.title
         });
-        features.push({
+        modifiers.push({
             name: "barbarian-weapon-type-proficiency-simple-ranged",
-            title: "Simple ranged weapons",
-            modifier: "weapon-proficiency",
-            modifierValue: "simple-ranged",
-            displayStyle: "none"
+            target: "weapon-proficiency",
+            value: "simple-ranged",
+            title: Barbarian.title
         });
-        features.push({
+        modifiers.push({
             name: "barbarian-weapon-type-proficiency-martial-ranged",
-            title: "Martial ranged weapons",
-            modifier: "weapon-proficiency",
-            modifierValue: "martial-ranged",
-            displayStyle: "none"
+            target: "weapon-proficiency",
+            value: "martial-ranged",
+            title: Barbarian.title
         });
         if (character.classes[0].name == "barbarian") {
             const proficiencyBonus = character.getProficiencyBonus();
-            features.push({
+            modifiers.push({
                 name: "barbarian-saving-throw-proficiency-strength",
-                title: "Strength",
-                modifier: "saving-throw-proficiency:strength",
-                modifierValue: proficiencyBonus,
-                displayStyle: "none"
+                target: "saving-throw-proficiency:strength",
+                value: proficiencyBonus,
+                title: Barbarian.title
             });
-            features.push({
+            modifiers.push({
                 name: "barbarian-saving-throw-proficiency-constitution",
-                title: "Constitution",
-                modifier: "saving-throw-proficiency:constitution",
-                modifierValue: proficiencyBonus,
-                displayStyle: "none"
+                target: "saving-throw-proficiency:constitution",
+                value: proficiencyBonus,
+                title: Barbarian.title
             });
-            const skillProficiencies = character.options.find(o => o.name == "barbarian-skill-proficiencies")?.values ?? [];
+            const skillProficiencies = character.selections.find(s => s.name == "barbarian-skill-proficiencies")?.values ?? [];
             for (const skillProficiency of skillProficiencies) {
-                features.push({
+                modifiers.push({
                     name: `barbarian-skill-proficiency-${skillProficiency}`,
-                    title: Barbarian.#skillProficiencies.find(sp => sp.value == skillProficiency).text,
-                    modifier: `skill-proficiency:${skillProficiency}`,
-                    modifierValue: proficiencyBonus,
-                    displayStyle: "none"
+                    target: `skill-proficiency:${skillProficiency}`,
+                    value: proficiencyBonus,
+                    title: Barbarian.title
                 });
             }
         }
 
+        const armorTypes = ["light-armor", "medium-armor", "heavy-armor"];
+        const hasArmor = character.equipment.some(e =>
+            e.isEquipped
+            && e.properties
+            && e.properties.some(p => p.name == "armor-type" && armorTypes.includes(p.value)));
+        if (character.classes[0].name == "barbarian" && !hasArmor) {
+            const acModifier = 2 + Number(character.getAbilityScoreModifier("constitution"));
+            modifiers.push({
+                name: "barbarian-unarmored-defense-armor-class-modifier",
+                target: "armor-class",
+                value: acModifier,
+                title: Barbarian.title
+            });
+        }
+
+        const level = Number(character.classes.find(c => c.name == "barbarian").level);
+        const hasHeavyArmor = character.equipment.some(e =>
+            e.isEquipped
+            && e.properties
+            && e.properties.some(p => p.name == "armor-type" && p.value == "heavy-armor"));
+        if (level >= 5 && !hasHeavyArmor) {
+            modifiers.push({
+                name: "barbarian-fast-movement-speed-modifier",
+                target: "speed",
+                value: 10,
+                title: Barbarian.title
+            });
+        }
+
+        if (level == 20) {
+            modifiers.push({
+                name: "barbarian-primal-champion-ability-score-modifier-strength",
+                target: "ability-score:strength",
+                value: 4,
+                title: Barbarian.title
+            });
+            modifiers.push({
+                name: "barbarian-primal-champion-ability-score-modifier-constitution",
+                target: "ability-score:constitution",
+                value: 4,
+                title: Barbarian.title
+            });
+            modifiers.push({
+                name: "barbarian-primal-champion-modified-max-ability-score-modifier-strength",
+                target: "modified-max-ability-score:strength",
+                value: 4,
+                title: Barbarian.title
+            });
+            modifiers.push({
+                name: "barbarian-primal-champion-modified-max-ability-score-modifier-constitution",
+                target: "modified-max-ability-score:constitution",
+                value: 4,
+                title: Barbarian.title
+            });
+        }
+
+        for (const modifier of modifiers) {
+            modifier.sourcePropertyName = `class-${classIndex}`;
+            modifier.sourcePropertyValue = Barbarian.name;
+            character.addModifier(modifier);
+        }
+    }
+
+    static applyFeatures(features, character, classIndex) {
+
+        const tempFeatures = [];
+
         // rage
         const level = Number(character.classes.find(c => c.name == "barbarian").level);
-        const hasHeavyArmor = character.equipment.some(e => e.isEquipped && e.armorType == "heavy-armor");
+        const hasHeavyArmor = character.equipment.some(e =>
+            e.isEquipped
+            && e.properties
+            && e.properties.some(p => p.name == "armor-type" && p.value == "heavy-armor"));
         if (!hasHeavyArmor) {
-            let rageCount = 2;
-            let rageDamage = 2;
-            if (level >= 3) {
-                rageCount = 3;
-            }
-            if (level >= 6) {
-                rageCount = 4;
-            }
-            if (level >= 9) {
-                rageDamage = 3;
-            }
-            if (level >= 12) {
-                rageCount = 5;
-            }
-            if (level >= 16) {
-                rageDamage = 4;
-            }
-            if (level >= 17) {
-                rageCount = 6;
-            }
-            if (level == 20) {
-                rageCount = null;
-            }
-            let rageHtml = `
-            <p>In battle, you fight with primal ferocity. On your turn, you can enter a rage as a bonus action.</p>
-            <p>While raging, you gain the following benefits if you aren't wearing heavy armor:</p>
-            <ul>
-                <li>You have advantage on Strength checks and Strength saving throws.</li>
-                <li>When you make a melee weapon attack using Strength, you gain a +${rageDamage} bonus to the damage roll.</li>
-                <li>You have resistance to bludgeoning, piercing, and slashing damage.</li>
-            </ul>
-            <p>If you are able to cast spells, you can't cast them or concentrate on them while raging.</p>
-            <p>Your rage lasts for 1 minute. It ends early if you are knocked unconscious or if your turn ends and you haven't attacked a hostile creature since your last turn or taken damage since then. You can also end your rage on your turn as a bonus action.</p>`;
-            if (rageCount) {
-                rageHtml += `<p>Once you have raged ${rageCount} times, you must finish a long rest before you can rage again.</p>`
-            }
-            features.push({
+            tempFeatures.push({
                 name: "barbarian-rage",
-                title: "Rage",
-                displayStyle: "card",
-                html: rageHtml
+                displayType: "card",
+                html: `
+                    <h3>Rage</h3>
+                    <hr />
+                    <p>In battle, you fight with primal ferocity. On your turn, you can enter a rage as a bonus action.</p>
+                    <p>While raging, you gain the following benefits if you aren't wearing heavy armor:</p>
+                    <ul>
+                        <li>You have advantage on Strength checks and Strength saving throws.</li>
+                        <li>When you make a melee weapon attack using Strength, you gain a bonus to the damage roll that increases as you gain levels as a barbarian, as shown in the Rage Damage column of the Barbarian table.</li>
+                        <li>You have resistance to bludgeoning, piercing, and slashing damage.</li>
+                    </ul>
+                    <p>If you are able to cast spells, you can't cast them or concentrate on them while raging.</p>
+                    <p>Your rage lasts for 1 minute. It ends early if you are knocked unconscious or if your turn ends and you haven't attacked a hostile creature since your last turn or taken damage since then. You can also end your rage on your turn as a bonus action.</p>
+                    <p>Once you have raged the number of times shown for your barbarian level in the Rages column of the Barbarian table, you must finish a long rest before you can rage again.</p>
+                    `
             });
         }
 
         const armorTypes = ["light-armor", "medium-armor", "heavy-armor"];
-        const hasArmor = character.equipment.some(e => e.isEquipped && armorTypes.includes(e.armorType));
+        const hasArmor = character.equipment.some(e =>
+            e.isEquipped
+            && e.properties
+            && e.properties.some(p => p.name == "armor-type" && armorTypes.includes(p.value)));
         if (character.classes[0].name == "barbarian" && !hasArmor) {
-            const acModifier = 2 + Number(character.getAbilityScoreModifier("constitution"));
-            features.push({
+            tempFeatures.push({
                 name: "barbarian-unarmored-defense",
-                title: "Unarmored Defense",
-                displayStyle: "bullet"
-            });
-            features.push({
-                name: "barbarian-unarmored-defense-armor-class-modifier",
-                title: "Unarmored Defense - Armor class modifier",
-                modifier: "armor-class",
-                modifierValue: acModifier,
-                displayStyle: "none"
+                displayType: "card",
+                html: `
+                    <h3>Unarmored Defense</h3>
+                    <hr />
+                    <p>While you are not wearing any armor, your armor class equals 10 + your Dexterity modifier + your Constitution modifier. You can use a shield and still gain this benefit.</p>
+                    `
             });
         }
 
         if (level >= 2) {
-            features.push({
+            tempFeatures.push({
                 name: "barbarian-reckless-attack",
-                title: "Reckless Attack",
-                displayStyle: "card",
-                html: "<p>When you make your first attack on your turn, you can decide to attack recklessly. Doing so gives you advantage on melee weapon attack rolls using Strength during this turn, but attack rolls against you have advantage until your next turn.</p>"
+                displayType: "card",
+                html: `
+                    <h3>Reckless Attack</h3>
+                    <hr />
+                    <p>You can throw aside all concern for defense to attack with fierce desperation. When you make your first attack on your turn, you can decide to attack recklessly. Doing so gives you advantage on melee weapon attack rolls using Strength during this turn, but attack rolls against you have advantage until your next turn.</p>
+                    `
             });
-            features.push({
+            tempFeatures.push({
                 name: "barbarian-danger-sense",
-                title: "Danger Sense",
-                displayStyle: "card",
-                html: "<p>You have advantage on Dexterity saving throws against effects that you can see, such as traps and spells. To gain this benefit, you can't be blinded, deafened, or incapacitated.</p>"
+                displayType: "card",
+                html: `
+                    <h3>Danger Sense</h3>
+                    <hr />
+                    <p>You gain an uncanny sense of when things nearby aren't as they should be, giving you an edge when you dodge away from danger. You have advantage on Dexterity saving throws against effects that you can see, such as traps and spells. To gain this benefit, you can't be blinded, deafened, or incapacitated.</p>
+                    `
             });
         }
         if (character.classes[0].name == "barbarian" && level >= 5) {
-            features.push({
+            tempFeatures.push({
                 name: "barbarian-extra-attack",
-                title: "Extra Attack",
-                displayStyle: "card",
-                html: "<p>You can attack twice, instead of once, whenever you take the Attack action on your turn.</p>"
+                displayType: "card",
+                html: `
+                    <h3>Extra Attack</h3>
+                    <hr />
+                    <p>You can attack twice, instead of once, whenever you take the Attack action on your turn.</p>
+                    `
             });
         }
         if (level >= 5 && !hasHeavyArmor) {
-            features.push({
+            tempFeatures.push({
                 name: "barbarian-fast-movement",
-                title: "Fast Movement",
-                displayStyle: "bullet"
-            });
-            features.push({
-                name: "barbarian-fast-movement-speed-modifier",
-                title: "Fast Movement - Speed modifier",
-                modifier: "speed",
-                modifierValue: 10,
-                displayStyle: "none"
+                displayType: "card",
+                html: `
+                    <h3>Fast Movement</h3>
+                    <hr />
+                    <p>Your speed increases by 10 feet while you aren't wearing heavy armor.</p>
+                    `
             });
         }
         if (level >= 7) {
-            const feralInstinctHtml = `
-                <p>You have advantage on initiative rolls.</p>
-                <p>Additionally, if you are surprised at the beginning of combat and aren't incapacitated, you can act normally on your first turn, but only if you enter your rage before doing anything else on that turn.</p>`;
-            features.push({
+            tempFeatures.push({
                 name: "barbarian-feral-instinct",
-                title: "Feral Instinct",
-                displayStyle: "card",
-                html: feralInstinctHtml
+                displayType: "card",
+                html: `
+                    <h3>Feral Instinct</h3>
+                    <hr />
+                    <p>Your instincts are so honed that you have advantage on initiative rolls.</p>
+                    <p>Additionally, if you are surprised at the beginning of combat and aren't incapacitated, you can act normally on your first turn, but only if you enter your rage before doing anything else on that turn.</p>
+                    `
             });
         }
         if (level >= 9) {
-            let additionalDice = "one";
-            if (level >= 13) {
-                additionalDice = "two";
-            }
-            if (level >= 17) {
-                additionalDice = "three";
-            }
-            features.push({
-                name: "barbarian-feral-instinct",
-                title: "Feral Instinct",
-                displayStyle: "card",
-                html: `<p>You can roll ${additionalDice} additional weapon damage die when determining the extra damage for a critical hit with a melee attack.</p>`
+            tempFeatures.push({
+                name: "barbarian-brutal-critical",
+                displayType: "card",
+                html: `
+                    <h3>Brutal Critical</h3>
+                    <hr />
+                    <p>You can roll one additional weapon damage die when determining the extra damage for a critical hit with a melee attack.</p>
+                    <p>This increases to two additional dice at 13th level and three additional dice at 17th level.</p>
+                    `
             });
         }
         if (level >= 11) {
-            const relentlessRageHtml = ` 
-                <p>Your rage can keep you fighting despite grievous wounds. If you drop to 0 hit points while you're raging and don't die outright, you can make a DC 10 Constitution saving throw. If you succeed, you drop to 1 hit point instead.</p>
-                <p>Each time you use this feature after the first, the DC increases by 5. When you finish a short or long rest, the DC resets to 10.</p>`;
-            features.push({
+            tempFeatures.push({
                 name: "barbarian-relentless-rage",
-                title: "Relentless Rage",
-                displayStyle: "card",
-                html: relentlessRageHtml
+                displayType: "card",
+                html: `
+                    <h3>Relentless Rage</h3>
+                    <hr />
+                    <p>Your rage can keep you fighting despite grievous wounds. If you drop to 0 hit points while you're raging and don't die outright, you can make a DC 10 Constitution saving throw. If you succeed, you drop to 1 hit point instead.</p>
+                    <p>Each time you use this feature after the first, the DC increases by 5. When you finish a short or long rest, the DC resets to 10.</p>
+                    `
             });
         }
         if (level >= 15) {
-            features.push({
+            tempFeatures.push({
                 name: "barbarian-persistent-rage",
-                title: "Persistent Rage",
-                displayStyle: "card",
-                html: `<p>Your rage is so fierce that it ends early only if you fall unconscious or if you choose to end it.</p>`
+                displayType: "card",
+                html: `
+                    <h3>Persistent Rage</h3>
+                    <hr />
+                    <p>Your rage is so fierce that it ends early only if you fall unconscious or if you choose to end it.</p>
+                    `
             });
         }
         if (level >= 18) {
-            features.push({
+            tempFeatures.push({
                 name: "barbarian-indomitable-might",
-                title: "Indomitable Might",
-                displayStyle: "card",
-                html: `<p>If your total for a Strength check is less than your Strength score, you can use that score in place of the total.</p>`
-            });
-        }
-        if (level >= 20) {
-            features.push({
-                name: "barbarian-primal-champion",
-                title: "Primal Champion",
-                displayStyle: "bullet"
-            });
-            features.push({
-                name: "barbarian-primal-champion-ability-score-modifier-strength",
-                title: "Primal Champion - Strength modifier",
-                modifier: "ability-score:strength",
-                modifierValue: 4,
-                displayStyle: "none"
-            });
-            features.push({
-                name: "barbarian-primal-champion-ability-score-modifier-constitution",
-                title: "Primal Champion - Constitution modifier",
-                modifier: "ability-score:constitution",
-                modifierValue: 4,
-                displayStyle: "none"
-            });
-            features.push({
-                name: "barbarian-primal-champion-modified-max-ability-score-modifier-strength",
-                title: "Primal Champion - Modified max strength modifier",
-                modifier: "modified-max-ability-score:strength",
-                modifierValue: 4,
-                displayStyle: "none"
-            });
-            features.push({
-                name: "barbarian-primal-champion-modified-max-ability-score-modifier-constitution",
-                title: "Primal Champion - Mdified max constitution modifier",
-                modifier: "modified-max-ability-score:constitution",
-                modifierValue: 4,
-                displayStyle: "none"
+                displayType: "card",
+                html: `
+                    <h3>Indomitable Might</h3>
+                    <hr />
+                    <p>If your total for a Strength check is less than your Strength score, you can use that score in place of the total.</p>
+                    `
             });
         }
 
-        for (const feature of features) {
-            feature.sourcePropertyName = "class";
-            feature.sourcePropertyValue = "barbarian";
-            character.addFeature(feature);
+        for (const feature of tempFeatures) {
+            feature.sourcePropertyName = `class-${classIndex}`;
+            feature.sourcePropertyValue = Barbarian.name
+            features.push(feature);
         }
+           
     }
 
     static #skillProficiencies = [

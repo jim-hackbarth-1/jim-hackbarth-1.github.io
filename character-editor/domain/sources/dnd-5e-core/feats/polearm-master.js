@@ -1,6 +1,4 @@
 
-import { DnD5EUtilities } from "./../dnd-5e-core-utilities.js";
-
 export class PolearmMaster {
 
     static get name() {
@@ -40,39 +38,50 @@ export class PolearmMaster {
         return [];
     }
 
-    static updateFeatures(character) {
-        const features = [];
-        features.push({
-            name: "polearm-master",
-            title: "Polearm Master",
-            displayStyle: "card",
-            html: `
-                <p>When you take the Attack action and attack with only a glaive, halberd, quarterstaff, or spear, you can use a bonus action to make a melee attack with the opposite end of the weapon.</p>
-                <p>While you are wielding a glaive, halberd, pike, quarterstaff, or spear, other creatures provoke an opportunity attack from you when they enter the reach you have with that weapon.</p>
-            `
-        });
+    static applyModifiers(character, classIndex, level) {
 
+    }
+
+    static applyFeatures(features, character, classIndex, level) {
+        const tempFeatures = [];
+        tempFeatures.push({
+            name: `class-${classIndex}-level-${level}-feat`,
+            displayType: "card",
+            html: `
+                <h3>Polearm Master</h3>
+                <hr/>
+                <div class="content">
+                    <p>You gain the following benefits:</p>
+                    <ul>
+                        <li>When you take the Attack action and attack with only a glaive, halberd, quarterstaff, or spear, you can use a bonus action to make a melee attack with the opposite end of the weapon. This attack uses the same ability modifier as the primary attack. The weapon's damage die for this attack is a d4, and it deals bludgeoning damage.</li>
+                        <li>While you are wielding a glaive, halberd, pike, quarterstaff, or spear, other creatures provoke an opportunity attack from you when they enter the reach you have with that weapon.</li>
+                    </ul>
+                </div>
+                `
+        });
         const polearms = ["glaive", "halberd", "quarterstaff", "spear"];
-        const polearmIndex = character.equipment.findIndex(e => e.isEquipped && polearms.includes(e.weaponName));
+        const polearmIndex = character.equipment.findIndex(e =>
+            e.isEquipped
+            && e.properties
+            && e.properties.includes(p.name == "weapon-name" && polearms.includes(p.value)));
         if (polearmIndex > -1) {
-            const toHitLabel = DnD5EUtilities.getToHitLabel(character.getWeaponToHitModifier(polearmIndex));
-            const damageModifier = character.getWeaponDamageModifier(polearmIndex);
-            const damageLabel = DnD5EUtilities.getDamageLabel([{ number: 1, size: 4 }], damageModifier, "bludgeoning");
-            const polearm = character.equipment[polearmIndex];
-            let range = (polearm.weaponName == "glaive" || polearm.weaponName == "halberd") ? 5 : null;
-            let html = DnD5EUtilities.getMeleeAttackCardHtml("Polearm master bonus attack", toHitLabel, damageLabel, reach);
-            features.push({
+            const properties = character.equipment[polearmIndex].properties ?? [];
+            const weaponName = properties.find(p => p.name == "weapon-name")?.value;
+            let reach = (weaponName == "glaive" || weaponName == "halberd") ? 5 : null;
+            const attackCard = character.getAttackCard({
                 name: "polearm-master-bonus-attack",
-                title: "Polearm Master Bonus Attack",
-                displayStyle: "attack-card",
-                html: html
-            })
+                title: "Polearm master bonus attack",
+                inventoryIndex: polearmIndex,
+                damageDieSize: 4,
+                damageType: "bludgeoning",
+                reach: reach,
+            });
+            tempFeatures.push(attackCard);
         }
-        
-        for (const feature of features) {
-            feature.sourcePropertyName = "feat";
-            feature.sourcePropertyValue = "polearm-master";
-            character.addFeature(feature);
+        for (const feature of tempFeatures) {
+            feature.sourcePropertyName = `class-${classIndex}-level-${level}-feat`;
+            feature.sourcePropertyValue = PolearmMaster.name
+            features.push(feature);
         }
     }
 

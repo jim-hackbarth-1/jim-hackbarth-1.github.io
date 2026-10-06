@@ -199,17 +199,17 @@ class LevelBoonSelectionModel {
 
     updateFeatOption = async (selectionModelName, optionValues) => {
         const character = Character.currentCharacter;
-        const currentValues = character.options.find(o => o.name == selectionModelName)?.values ?? [];
+        const currentValues = character.selections.find(s => s.name == selectionModelName)?.values ?? [];
         if (Utilities.areArraysEqual(currentValues, optionValues)) {
             return;
         }
-        const option = {
+        const selection = {
             name: selectionModelName,
-            sourcePropertyName: `feat:class-${this.#selectionModel.classIndex}-level-${this.#selectionModel.level}`,
+            sourcePropertyName: `class-${this.#selectionModel.classIndex}-level-${this.#selectionModel.level}-feat`,
             values: optionValues
         };
-        Sources.updateCharacterOption(character, option);
-        const message = { character: character, option: option };
+        Sources.updateCharacterSelection(character, selection);
+        const message = { character: character, selection: selection };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 

@@ -98,61 +98,62 @@ export class EditorViewModel {
 
     async onCharacterUpdateStarted(message) {
         const character = message.character;
-        character.features = [];
+        character.modifiers = [];
         if (character.race) {
             const race = Sources.getRaces(character.sources).find(r => r.name == character.race);
-            if (race.updateFeatures) {
-                race.updateFeatures(character);
+            if (race.applyModifiers) {
+                race.applyModifiers(character);
             }
             if (character.subRace) {
                 const subRace = Sources
                     .getSubRaces(character.sources, character.race)
                     .find(sr => sr.name == character.subRace);
-                if (subRace.updateFeatures) {
-                    subRace.updateFeatures(character);
+                if (subRace.applyModifiers) {
+                    subRace.applyModifiers(character);
                 }
             }
         }
 
-        for (const characterClass of character.classes) {
+        for (let i = 0; i < character.classes.length; i++) {
+            const characterClass = character.classes[i];
             if (characterClass.name && characterClass.level) {
                 const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.name);
-                if (cls.updateFeatures) {
-                    cls.updateFeatures(character);
+                if (cls.applyModifiers) {
+                    cls.applyModifiers(character, i);
                 }
                 if (characterClass.subClass) {
                     const subClass = Sources
                         .getSubClasses(character.sources, characterClass.name)
                         .find(sc => sc.name == characterClass.subClass);
-                    if (subClass.updateFeatures) {
-                        subClass.updateFeatures(character);
+                    if (subClass.applyModifiers) {
+                        subClass.applyModifiers(character, i);
                     }
                 }
                 for (const levelBoon of characterClass.levelBoons) {
                     if (levelBoon.feat) {
                         const feat = Sources.getFeats(character.sources).find(f => f.name == levelBoon.feat);
-                        if (feat.updateFeatures) {
-                            feat.updateFeatures(character);
+                        if (feat.applyModifiers) {
+                            feat.applyModifiers(character, i, levelBoon.level);
                         }
                     }
                     if (levelBoon.abilityScore1) {
-                        character.addFeature({
+                        character.addModifier({
                             name: `${characterClass.name}-${levelBoon.level}-ability-score-modifier-1`,
-                            title: `${cls.title} Level ${levelBoon.level} ability score improvement`,
-                            modifier: `ability-score:${levelBoon.abilityScore1}`,
-                            modifierValue: 1,
-                            sourcePropertyName: "levelBoon",
-                            sourcePropertyValue: `${characterClass.name}-${levelBoon.level}-ability-score-modifier-1`
+                            target: `ability-score:${levelBoon.abilityScore1}`,
+                            value: 1,
+                            sourcePropertyName: `class-${i}-level-${levelBoon.level}-ability-score-1`,
+                            sourcePropertyValue: levelBoon.abilityScore1,
+                            title: `${cls.title} Level ${levelBoon.level} ability score improvement`
                         });
                     }
                     if (levelBoon.abilityScore2) {
-                        character.addFeature({
+                        character.addModifier({
                             name: `${characterClass.name}-${levelBoon.level}-ability-score-modifier-2`,
+                            target: `ability-score:${levelBoon.abilityScore2}`,
+                            value: 1,
+                            sourcePropertyName: `class-${i}-level-${levelBoon.level}-ability-score-2`,
+                            sourcePropertyValue: levelBoon.abilityScore2,
                             title: `${cls.title} Level ${levelBoon.level} ability score improvement`,
-                            modifier: `ability-score:${levelBoon.abilityScore2}`,
-                            modifierValue: 1,
-                            sourcePropertyName: "levelBoon",
-                            sourcePropertyValue: `${characterClass.name}-${levelBoon.level}-ability-score-modifier-2`
                         });
                     }
                 }
@@ -161,8 +162,8 @@ export class EditorViewModel {
 
         if (character.background) {
             const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background);
-            if (background.updateFeatures) {
-                background.updateFeatures(character);
+            if (background.applyModifiers) {
+                background.applyModifiers(character);
             }
         }
 
@@ -171,8 +172,8 @@ export class EditorViewModel {
             const characterItem = character.equipment[i];
             if (characterItem.isEquipped) {
                 const item = allEquipment.find(e => e.name == character.equipment[i].name);
-                if (item.updateFeatures) {
-                    item.updateFeatures(character, i);
+                if (item.applyModifiers) {
+                    item.applyModifiers(character, i);
                 }
             }
         }

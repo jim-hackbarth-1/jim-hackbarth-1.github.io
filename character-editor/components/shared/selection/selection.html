@@ -3,7 +3,9 @@
     <div class="selection-title"><label>%{#model.getTitle()}%</label></div>
     <div class="selection-collapsed" 
          onpointerdown="#model.toggleDropDown(event)">
-        <div class="collapsed-option-label"><label>%{#model.getCollapsedDisplayValue()}%</label></div>
+        <div class="collapsed-option-label %{#model.getSelectionRequiredClass()}%">
+            <label>%{#model.getCollapsedDisplayValue()}%</label>
+        </div>
         <div class="toggle-button" 
              kit-component="no-model:./resources/icons/down-arrow.html">
         </div>

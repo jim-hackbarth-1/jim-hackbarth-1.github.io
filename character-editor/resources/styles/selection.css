@@ -37,6 +37,10 @@
     cursor: pointer;
 }
 
+.selection .collapsed-option-label.selection-required label {
+    color: darkred;
+}
+
 .selection .selection-expanded {
     border: 1px solid black;
     background-color: #FFF8EB;

@@ -204,7 +204,7 @@ export class DomainClassAndLevelModel {
         const character = Character.currentCharacter;
         const index = Number(selectionModelName.replace("level-", ""));
         const characterClass = character.classes[index];
-        if (Number(characterClass.level) == Number(level)) {
+        if (!characterClass.name || Number(characterClass.level) == Number(level)) {
             return;
         }
         Sources.updateCharacterLevel(character, index, level);
@@ -234,20 +234,20 @@ export class DomainClassAndLevelModel {
         const character = Character.currentCharacter;
         const characterClass = character.classes[classIndex];
         const optionName = parts[1];
-        const currentValues = character.options.find(o => o.name == optionName)?.values ?? [];
+        const currentValues = character.selections.find(s => s.name == optionName)?.values ?? [];
         if (Utilities.areArraysEqual(currentValues, optionValues)) {
             return;
         }
-        const option = {
+        const selection = {
             name: optionName,
-            sourcePropertyName: "class",
+            sourcePropertyName: `class-${classIndex}`,
             sourcePropertyValue: characterClass.name,
             values: optionValues
         }
-        Sources.updateCharacterOption(character, option);
+        Sources.updateCharacterSelection(character, selection);
         const message = {
             character: character,
-            option: option,
+            selection: selection,
             section: "details-class-and-level"
         };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
@@ -348,20 +348,20 @@ export class DomainClassAndLevelModel {
         const character = Character.currentCharacter;
         const characterClass = character.classes[classIndex];
         const optionName = parts[1];
-        const currentValues = character.options.find(o => o.name == optionName)?.values ?? [];
+        const currentValues = character.selections.find(s => s.name == optionName)?.values ?? [];
         if (Utilities.areArraysEqual(currentValues, optionValues)) {
             return;
         }
-        const option = {
+        const selection = {
             name: optionName,
-            sourcePropertyName: "subClass",
+            sourcePropertyName: `subClass-${classIndex}`,
             sourcePropertyValue: characterClass.subClass,
             values: optionValues
         }
-        Sources.updateCharacterOption(character, option);
+        Sources.updateCharacterSelection(character, selection);
         const message = {
             character: character,
-            option: option,
+            selection: selection,
             section: "details-class-and-level"
         };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
@@ -387,7 +387,7 @@ export class DomainClassAndLevelModel {
                 if (characterClass.name) {
                     const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.name);
                     if (cls.getOptions) {
-                        const domainOptions = cls.getOptions(character);
+                        const domainOptions = cls.getOptions(character, i);
                         displayOptions = SelectionModel.getDisplayOptions(character, domainOptions, `class-${i}:`);
                     }
                 }
@@ -438,7 +438,7 @@ export class DomainClassAndLevelModel {
                         .getSubClasses(character.sources, characterClass.name)
                         .find(sc => sc.name == characterClass.subClass);
                     if (subClass.getOptions) {
-                        const domainOptions = subClass.getOptions(character);
+                        const domainOptions = subClass.getOptions(character, i);
                         displayOptions = SelectionModel.getDisplayOptions(character, domainOptions, `class-${classIndex}:`);
                     }
                 }

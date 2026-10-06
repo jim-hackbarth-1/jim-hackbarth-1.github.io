@@ -1,6 +1,4 @@
 
-import { DnD5EUtilities } from "./../../dnd-5e-core-utilities.js"
-
 export class AcidVial {
 
     static get name() {
@@ -16,11 +14,7 @@ export class AcidVial {
     }
 
     static get properties() {
-        return [
-            "prop 1",
-            "prop 2",
-            "prop 3"
-        ];
+        return [];
     }
 
     static get canBeEquipped() {
@@ -44,7 +38,11 @@ export class AcidVial {
         return [];
     }
 
-    static updateFeatures(character, inventoryIndex) {
+    static applyModifiers(character, inventoryIndex) {
+
+    }
+
+    static applyFeatures(features, character, inventoryIndex) {
 
     }
 

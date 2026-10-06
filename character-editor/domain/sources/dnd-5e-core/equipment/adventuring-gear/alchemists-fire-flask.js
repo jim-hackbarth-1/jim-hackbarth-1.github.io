@@ -1,6 +1,4 @@
 
-import { DnD5EUtilities } from "./../../dnd-5e-core-utilities.js"
-
 export class AlchemistsFireFlask {
 
     static get name() {
@@ -40,7 +38,11 @@ export class AlchemistsFireFlask {
         return [];
     }
 
-    static updateFeatures(character, inventoryIndex) {
+    static applyModifiers(character, inventoryIndex) {
+
+    }
+
+    static applyFeatures(features, character, inventoryIndex) {
 
     }
 

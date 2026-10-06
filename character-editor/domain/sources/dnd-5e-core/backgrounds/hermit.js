@@ -13,6 +13,17 @@ export class Hermit {
         return "dnd-5e-core/backgrounds/hermit.html";
     }
 
+    static get startingEquipment() {
+        return `
+            <ul>
+                <li>A scroll case stuffed full of notes from your studies or prayers</li>
+                <li>A winter blanket</li>
+                <li>A set of common clothes</li>
+                <li>an herbalism kit, and 5gp</li>
+            </ul>
+        `;
+    }
+
     static getTraits() {
         return [
             { name: "trait-1", title: "I've been isolated for so long that I rarely speak, preferring gestures and the occasional grunt." },
@@ -67,64 +78,69 @@ export class Hermit {
                 title: "Language",
                 maxSelections: 1,
                 useLanguages: true,
-                selectedLanguages: character.options.find(f => f.name == optionName)?.values ?? []
+                selectedLanguages: character.selections.find(f => f.name == optionName)?.values ?? []
             }
         ];
     }
 
-    static updateFeatures(character) {
+    static applyModifiers(character) {
 
-        const features = [];
-        features.push({
+        const modifiers = [];
+        modifiers.push({
             name: "hermit-skill-proficiency-medicine",
-            title: "Skill Proficiency: Medicine",
-            modifier: "skill-proficiency",
-            modifierValue: "medicine",
-            displayStyle: "none"
+            target: "skill-proficiency",
+            value: "medicine",
+            title: Hermit.title
         });
-        features.push({
+        modifiers.push({
             name: "hermit-skill-proficiency-religion",
-            title: "Skill Proficiency: Religion",
-            modifier: "skill-proficiency",
-            modifierValue: "religion",
-            displayStyle: "none"
+            target: "skill-proficiency",
+            value: "religion",
+            title: Hermit.title
         });
-        features.push({
+        modifiers.push({
             name: "hermit-tool-proficiency-herbalism-kit",
-            title: "Tool Proficiency: Herbalism kit",
-            modifier: "tool-proficiency",
-            modifierValue: "herbalism-kit",
-            displayStyle: "none"
+            target: "tool-proficiency",
+            value: "herbalism-kit",
+            title: Hermit.title
         });
 
         let language = null;
-        const languages = character.options.find(o => o.name == "hermit-language")?.values ?? [];
+        const languages = character.selections.find(s => s.name == "hermit-language")?.values ?? [];
         if (languages.length > 0) {
             language = languages[0];
         }
         if (language) {
-            features.push({
+            modifiers.push({
                 name: `hermit-language-${language}`,
-                title: `Hermit Language: ${language}`,
-                modifier: "language",
-                modifierValue: language,
-                displayStyle: "none"
+                target: "language",
+                value: language,
+                title: Hermit.title
             });
         }
 
-        features.push({
-            name: "hermit-discovery",
-            title: "Discovery",
-            displayStyle: "card",
-            html: "<p>The quiet seclusion of your extended hermitage gave you access to a unique and powerful discovery. The exact nature of this revelation depends on the nature of your seclusion. It might be a great truth about the cosmos, the deities, the powerful beings of the outer planes, or the forces of nature. It could be a site that no one else has ever seen. You might have uncovered a fact that has long been forgotten, or unearthed some relic of the past that could rewrite history. It might be information that would be damaging to the people who or consigned you to exile, and hence the reason for your return to society.</p>"
-        });
-
-        for (const feature of features) {
-            feature.sourcePropertyName = "background";
-            feature.sourcePropertyValue = "hermit";
-            character.addFeature(feature);
+        for (const modifier of modifiers) {
+            modifier.sourcePropertyName = "background";
+            modifier.sourcePropertyValue = Hermit.name;
+            character.addModifier(modifier);
         }
 
+    }
+
+    static applyFeatures(features, character) {
+        const tempFeatures = [];
+        tempFeatures.push({
+            name: "hermit-discovery",
+            displayType: "card",
+            html: `
+                <h3>Discovery</h3>
+                <p>The quiet seclusion of your extended hermitage gave you access to a unique and powerful discovery. The exact nature of this revelation depends on the nature of your seclusion. It might be a great truth about the cosmos, the deities, the powerful beings of the outer planes, or the forces of nature. It could be a site that no one else has ever seen. You might have uncovered a fact that has long been forgotten, or unearthed some relic of the past that could rewrite history. It might be information that would be damaging to the people who or consigned you to exile, and hence the reason for your return to society.</p>`
+        });
+        for (const feature of tempFeatures) {
+            feature.sourcePropertyName = "background";
+            feature.sourcePropertyValue = Hermit.name
+            features.push(feature);
+        }
     }
 
 }

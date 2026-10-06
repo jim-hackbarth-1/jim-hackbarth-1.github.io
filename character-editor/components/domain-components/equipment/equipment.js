@@ -29,12 +29,17 @@ class DomainEquipmentModel {
 
     async onRendered() {
         await UIKit.renderer.renderElement(this.#kitElement.querySelector("#add-equipment-list"));
+        this.toggleStartingEquipment();
     }
 
     async onCharacterUpdate(message) {
         const oldCharacter = DomainEquipmentModel.#character;
         const currentCharacter = Character.currentCharacter;
         const sourcesUpdated = !Utilities.areArraysEqual(oldCharacter.sources, currentCharacter.sources);
+        const oldCharacterClass = (oldCharacter.classes.length > 0) ? oldCharacter.classes[0].name : "";
+        const currentCharacterClass = (currentCharacter.classes.length > 0) ? currentCharacter.classes[0].name : "";
+        const classUpdated = (oldCharacterClass != currentCharacterClass);
+        const backgroundUpdated = (oldCharacter.background != currentCharacter.background);
         const removedEquipmentIndex = Number(message.equipmentRemoved);
         let removedItemName = null;
         if (removedEquipmentIndex >= 0) {
@@ -47,6 +52,9 @@ class DomainEquipmentModel {
         }
         else {
             const character = DomainEquipmentModel.#character;
+            if (classUpdated || backgroundUpdated) {
+                this.toggleStartingEquipment();
+            }
             if (message.equipmentAdded || removedItemName) {
                 const itemName = message.equipmentAdded ?? removedItemName;
                 await UIKit.renderer.renderElement(this.#kitElement.querySelector("#inventory-list"));
@@ -128,6 +136,7 @@ class DomainEquipmentModel {
                 const count = character.equipment.filter(e => e.name == item.name).length;
                 item.addedCountLabel = this.#getEquipmentAddedLabel(count);
             }
+            equipment = Utilities.sort(equipment, "title");
         }
         return equipment;
     }
@@ -165,21 +174,59 @@ class DomainEquipmentModel {
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateTopic, message);
     }
 
+    toggleStartingEquipment() {
+        let startingEquipment = "";
+        const character = DomainEquipmentModel.#character;
+        if (character.background) {
+            const backgroundEquipment = Sources.getBackgrounds(character.sources)
+                .find(b => b.name == character.background)?.startingEquipment;
+            if (backgroundEquipment) {
+                startingEquipment += backgroundEquipment;
+            }
+        }
+        if (character.classes.length > 0 && character.classes[0].name) {
+            const cls = Sources.getClasses(character.sources).find(c => c.name == character.classes[0].name);
+            if (cls?.startingEquipment) {
+                startingEquipment += cls?.startingEquipment;
+            }
+            if (cls?.startingGold) {
+                startingEquipment += "OR<br/>"
+                startingEquipment += cls?.startingGold;
+            }
+        }
+        
+        if (!startingEquipment) {
+            startingEquipment = "[None]";
+        }
+        this.#kitElement.querySelector("#starting-equipment-content").innerHTML = startingEquipment;
+        this.#kitElement.querySelector("#starting-equipment").classList.toggle("hidden");
+        this.#kitElement.querySelector("#expand-starting-equipment").classList.toggle("hidden");
+        this.#kitElement.querySelector("#collapse-starting-equipment").classList.toggle("hidden");
+    }
+
     getInventory() {
         let inventory = [];
         const character = DomainEquipmentModel.#character;
         const allEquipment = Sources.getEquipment(character.sources);
+        const armorTypes = ["light-armor", "medium-armor", "heavy-armor"];
         for (let i = 0; i < character.equipment.length; i++) {
             const characterItem = character.equipment[i];
             const item = allEquipment.find(e => e.name == characterItem.name);
             const domainOptions = item.getOptions(character, i) ?? [];
             const displayOptions = SelectionModel.getDisplayOptions(character, domainOptions, `item-index-${i}:`);
+            let properties = item.properties ?? [];
+            if (item.armorType == "shield") {
+                properties.push("<span class='property-note'>(Only 1 shield may be equipped.)</span>");
+            }
+            if (armorTypes.includes(item.armorType)) {
+                properties.push("<span class='property-note'>(Only 1 armor may be equipped.)</span>");
+            }
             inventory.push({
                 index: i,
                 name: item.name,
                 title: item.title,
                 source: item.source,
-                properties: item.properties,
+                properties: properties,
                 canBeEquipped: item.canBeEquipped,
                 options: displayOptions,
                 html: item.html,
@@ -190,14 +237,43 @@ class DomainEquipmentModel {
         if (inventory.length == 0) {
             inventory.push({ properties: ["[No inventory]"] });
         }
+        else {
+            inventory = Utilities.sort(inventory, "title");
+        }
         return inventory;
     }
 
     async toggleEquip(event) {
         const character = Character.currentCharacter;
         const index = Number(event.srcElement.getAttribute("data-item-index"));
+        const inventoryItem = character.equipment[index];
+        if (!inventoryItem) {
+            return;
+        }
         const isEquipped = event.srcElement.checked;
-        character.equipment[index].isEquipped = isEquipped;
+        if (isEquipped) {
+            const equipment = Sources.getEquipment(character.sources).find(e => e.name == character.equipment[index].name);
+            let canEquip = true;
+            if (equipment.armorType == "shield") {
+                canEquip = !this.#hasEquippedShield(character, index);
+            }
+            const armorTypes = ["light-armor", "medium-armor", "heavy-armor"];
+            if (armorTypes.includes(equipment.armorType)) {
+                canEquip = !this.#hasEquippedArmor(character, index, armorTypes);
+            }
+            if (canEquip) {
+                if (equipment.equip) {
+                    equipment.equip(character, index);
+                } else {
+                    inventoryItem.isEquipped = true;
+                }
+            }
+        }
+        else {
+            inventoryItem.properties = [];
+            inventoryItem.isEquipped = false;
+        }
+        event.srcElement.checked = inventoryItem.isEquipped;
         const message = {
             character: character,
             section: "details-equipment",
@@ -277,22 +353,29 @@ class DomainEquipmentModel {
 
     async updateOption(selectionModelName, optionValues) {
         const character = Character.currentCharacter;
-        const currentValues = character.options.find(o => o.name == selectionModelName)?.values ?? [];
+        const currentValues = character.selections.find(s => s.name == selectionModelName)?.values ?? [];
         if (Utilities.areArraysEqual(currentValues, optionValues)) {
             return;
         }
         const parts = selectionModelName.split(":");
         const itemIndex = Number(parts[0].replace("item-index-", ""));
-        const option = {
+        const selection = {
             name: selectionModelName,
-            sourcePropertyName: "equipment",
-            sourcePropertyValue: itemIndex,
+            sourcePropertyName: `equipment-${itemIndex}`,
+            sourcePropertyValue: character.equipment[itemIndex].name,
             values: optionValues
         };
-        Sources.updateCharacterOption(character, option);
+        Sources.updateCharacterSelection(character, selection);
+        const inventoryItem = character.equipment[itemIndex];
+        if (inventoryItem.isEquipped) {
+            const equipment = Sources.getEquipment(character.source).find(e => e.inventoryItem.name);
+            if (equipment?.equip) {
+                equipment.equip(character, itemIndex);
+            }
+        }
         const message = {
             character: character,
-            option: option,
+            selection: selection,
             section: "details-equipment"
         };
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
@@ -307,6 +390,22 @@ class DomainEquipmentModel {
             addedCountLabel = `Added (x${count})`;
         }
         return addedCountLabel;
+    }
+
+    #hasEquippedShield(character, inventoryIndex) {
+        let shieldIndex = character.equipment.findIndex(e =>
+            e.isEquipped
+            && e.properties
+            && e.properties.some(p => p.name == "armor-type" && p.value == "shield"));
+        return (shieldIndex > -1 && shieldIndex != inventoryIndex);
+    }
+
+    #hasEquippedArmor(character, inventoryIndex, armorTypes) {
+        let armorIndex = character.equipment.findIndex(e =>
+            e.isEquipped
+            && e.properties
+            && e.properties.some(p => p.name == "armor-type" && armorTypes.includes(p.value)));
+        return (armorIndex > -1 && armorIndex != inventoryIndex);
     }
 
 }

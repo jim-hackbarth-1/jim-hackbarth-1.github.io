@@ -539,6 +539,34 @@ export class Sources {
         character.removeEquipment(index);
     }
 
+    static getMulticlassIneligibilityReasons(character, classIndex) {
+        const reasons = [];
+        const index = Number(classIndex);
+        if (index > 0) {
+            const primaryClassName = character.classes[0].value;
+            const className = character.classes[index].value;
+            if (primaryClassName && className) {
+                const primaryClass = Sources.getClasses(character.sources).find(c => c.name == primaryClassName);
+                if (primaryClass?.getMulticlassEligibility) {
+                    const primaryReason = primaryClass.getMulticlassEligibility(character).ineligibilityReason;
+                    if (primaryReason) {
+                        reasons.push(primaryReason);
+                    }
+                }
+            }
+            if (className) {
+                const cls = Sources.getClasses(character.sources).find(c => c.name == className);
+                if (cls.getMulticlassEligibility) {
+                    const reason = cls.getMulticlassEligibility(character).ineligibilityReason;
+                    if (reason) {
+                        reasons.push(reason);
+                    }
+                }
+            }
+        }
+        return reasons;
+    }
+
     static applyCharacterModifiers(character) {
         character.modifiers = [];
 

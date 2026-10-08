@@ -10,6 +10,9 @@
              kit-component="no-model:./resources/icons/down-arrow.html">
         </div>
     </div>
+    <div class="alert-message">
+        %{#model.getAlertMessage()}%
+    </div>
     <div class="selection-expanded hidden">
         <div onpointerdown="event.stopPropagation();"
              kit-array="#model.getOptions()"

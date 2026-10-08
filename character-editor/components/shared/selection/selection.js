@@ -63,6 +63,10 @@ export class SelectionModel {
         return "";
     }
 
+    getAlertMessage() {
+        return this.#selectionModel.alertMessage ?? "";
+    }
+
     async toggleDropDown(event) {
         let sectionExpanded = this.#kitElement.querySelector(".selection-expanded");
         const isHidden = sectionExpanded.classList.contains("hidden");

@@ -106,3 +106,17 @@
     cursor: default;
     border-top: 1px dotted saddlebrown;
 }
+
+.selection .alert-message {
+    color: red;
+    font-size: small;
+    display:flex;
+    white-space:nowrap;
+}
+
+.selection .alert-message div,
+.selection .alert-message p {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

@@ -72,17 +72,24 @@ export class DomainClassAndLevelModel {
 
     // ~~~ classes
     getClassSelectionModel(classIndex) {
+        const index = Number(classIndex);
         const character = DomainClassAndLevelModel.#character;
-        const characterClass = character.classes[classIndex];
+        const characterClass = character.classes[index];
         let currentSelection = { value: null, text: "Choose a class ..." };
         if (characterClass.value) {
             currentSelection = { value: characterClass.value, text: characterClass.text };
+        }
+        const reasons = Sources.getMulticlassIneligibilityReasons(character, index);
+        let alertMessage = "";
+        if (reasons.length > 0) {
+            alertMessage = `<p>Multi-class elibility requirements not met:<br/>-${reasons.join("<br/>-")}</p>`;
         }
         return {
             name: `class-${classIndex}`,
             title: "Class",
             maxSelections: 1,
             currentSelections: [currentSelection],
+            alertMessage: alertMessage,
             getOptions: this.getClasses,
             getOptionDetail: this.getClassHtml,
             updateSelection: this.updateClass

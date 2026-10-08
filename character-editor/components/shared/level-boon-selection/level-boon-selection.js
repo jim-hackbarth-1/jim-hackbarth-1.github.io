@@ -140,7 +140,15 @@ class LevelBoonSelectionModel {
     getFeatSelectionModel() {
         const character = EditorViewModel.character;
         let currentSelection = { value: null, text: "Choose a feat ..." };
+        let alertMessage = "";
         if (this.#levelBoon.feat?.value) {
+            const feat = Sources.getFeats(character.sources).find(f => f.name == this.#levelBoon.feat.value);
+            if (feat?.checkPrerequisites) {
+                const prereq = feat.checkPrerequisites(character).text;
+                if (prereq) {
+                    alertMessage = `<p>Character does not meet prerequisites:<br/>- ${prereq}</p>`;
+                }
+            }
             currentSelection = this.#levelBoon.feat;
         }
         return {
@@ -148,6 +156,7 @@ class LevelBoonSelectionModel {
             title: "",
             maxSelections: 1,
             currentSelections: [currentSelection],
+            alertMessage: alertMessage,
             getOptions: this.getFeats,
             getOptionDetail: this.getFeatHtml,
             updateSelection: this.updateFeat

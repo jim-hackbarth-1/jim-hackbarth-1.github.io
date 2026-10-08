@@ -28,17 +28,19 @@ export class DomainClassAndLevelModel {
     async onCharacterUpdate(message) {
         const oldCharacter = DomainClassAndLevelModel.character;
         DomainClassAndLevelModel.character = Character.currentCharacter;
-        this.#classOptions = null;
+        this.#classSelections = null;
         this.#subClasses = null;
-        this.#subClassOptions = null;
+        this.#subClassSelections = null;
         this.#levelBoons = null;
         await UIKit.renderer.renderElement(this.#kitElement.querySelector("#classes-array"));
+        EditorViewModel.restoreScrollY();
     }
 
     async addCharacterClass() {
         const character = Character.currentCharacter;
         const cls = {
-            name: "",
+            value: "",
+            text: "",
             level: "",
             subClass: "",
             levelBoons: []
@@ -70,37 +72,52 @@ export class DomainClassAndLevelModel {
     }
 
     // ~~~ classes
-    getClasses(classIndex) {
-        const selectionModel = {
-            name: `class-${classIndex}`,
-            title: "Class:",
-            maxSelections: 1
-        };
+    getClassSelectionModel(classIndex) {
         const character = DomainClassAndLevelModel.character;
-        const index = Number(classIndex);
-        const characterClass = character.classes[index];
+        const characterClass = character.classes[classIndex];
+        let currentSelection = { value: null, text: "Choose a class ..." };
+        if (characterClass.value) {
+            currentSelection = { value: characterClass.value, text: characterClass.text };
+        }
+        return {
+            name: `class-${classIndex}`,
+            title: "Class",
+            maxSelections: 1,
+            currentSelections: [currentSelection],
+            getOptions: this.getClasses,
+            getOptionDetail: this.getClassHtml,
+            updateSelection: this.updateClass
+        };
+    }
+
+    getClasses(selectionModelName) {
+        const character = DomainClassAndLevelModel.character;
+        const classIndex = Number(selectionModelName.replace("class-", ""));
+        const characterClass = character.classes[classIndex];
+        const classes = Sources.getClasses(character.sources);
+
         const otherClassNames = [];
         for (let i = 0; i < character.classes.length; i++) {
-            if (i != index && character.classes[i].name) {
-                otherClassNames.push(character.classes[i].name);
+            if (i != classIndex && character.classes[i].value) {
+                otherClassNames.push(character.classes[i].value);
             }
         }
-        let classes = Sources.getClasses(character.sources);
+
         let options = classes.map(c =>
         ({
             value: c.name,
             text: c.title,
             noteText: `(${c.source.title})`,
             hasDetail: true,
-            isSelected: (characterClass.name == c.name),
+            isSelected: (characterClass?.value == c.name),
             isDisabled: otherClassNames.includes(c.name),
             disabledReason: otherClassNames.includes(c.name) ? "Disabled: Selected for other class" : ""
         }));
 
-        if (index > 0) {
+        if (classIndex > 0) {
 
             // check primary class multiclass eligibility
-            const primaryClass = classes.find(c => c.name == character.classes[0].name);
+            const primaryClass = classes.find(c => c.name == character.classes[0].value);
             if (primaryClass?.getMulticlassEligibility) {
                 const primaryMultiClassEligibility = primaryClass.getMulticlassEligibility(character);
                 if (!primaryMultiClassEligibility?.isEligible) {
@@ -127,11 +144,12 @@ export class DomainClassAndLevelModel {
                 }
             }
         }
+
         if (options.length > 0) {
             options = Utilities.sort(options, "text");
             options.unshift({
                 value: null,
-                text: "Choose a class",
+                text: "Choose a class ...",
                 hasDetail: false,
                 isSelected: false
             });
@@ -144,26 +162,22 @@ export class DomainClassAndLevelModel {
                 isSelected: false
             });
         }
-        selectionModel.options = options;
-        return selectionModel;
+        return options;
     }
 
     async getClassHtml(selectionModelName, optionValue) {
         return await Sources.getClassHtml(DomainClassAndLevelModel.character.sources, optionValue);
     }
 
-    async updateClass(selectionModelName, optionValues) {
-        let className = optionValues[0];
-        if (className == "null") {
-            className = null;
-        }
+    async updateClass(selectionModelName, options) {
+        const cls = options[0];
         const character = Character.currentCharacter;
-        const index = Number(selectionModelName.replace("class-", ""));
-        const characterClass = character.classes[index];
-        if (characterClass.name == className) {
+        const classIndex = Number(selectionModelName.replace("class-", ""));
+        const characterClass = character.classes[classIndex];
+        if (characterClass?.value == cls.value) {
             return;
         }
-        Sources.updateCharacterClass(character, index, className);
+        Sources.updateCharacterClass(character, classIndex, cls);
         const message = {
             character: character,
             section: "details-class-and-level"
@@ -172,40 +186,54 @@ export class DomainClassAndLevelModel {
     }
 
     // ~~~ levels
-    getLevels(classIndex) {
-        const selectionModel = {
-            name: `level-${classIndex}`,
-            title: "Level:",
-            maxSelections: 1
-        };
+    getLevelSelectionModel(classIndex) {
         const character = DomainClassAndLevelModel.character;
-        const index = Number(classIndex);
-        const characterClass = character.classes[index];
-        const options = [{
+        const characterClass = character.classes[classIndex];
+        let currentSelection = { value: null, text: "Choose a level ..." };
+        if (characterClass.level) {
+            currentSelection = { value: characterClass.level, text: `Level ${characterClass.level}` };
+        }
+        return {
+            name: `level-${classIndex}`,
+            title: "Level",
+            maxSelections: 1,
+            currentSelections: [currentSelection],
+            getOptions: this.getLevels,
+            updateSelection: this.updateLevel
+        };
+    }
+
+    getLevels(selectionModelName) {
+        const character = DomainClassAndLevelModel.character;
+        const classIndex = Number(selectionModelName.replace("level-", ""));
+        const characterClass = character.classes[classIndex];
+        const level = Number(characterClass.level);
+        const classes = Sources.getClasses(character.sources);
+
+        let options = [{
             value: null,
-            text: "Select a level"
+            text: "Choose a level ..."
         }];
         for (let i = 1; i <= 20; i++) {
             options.push({
                 value: i,
                 text: `Level ${i}`,
-                isSelected: (i == characterClass.level)
+                isSelected: (i == level)
             });
         }
-        selectionModel.options = options;
-        return selectionModel;
+        return options;
     }
 
-    async updateLevel(selectionModelName, optionValues) {
-        let level = optionValues[0];
+    async updateLevel(selectionModelName, options) {
+        let level = options[0].value;
         if (level == "null") {
             level = null;
         }
         const character = Character.currentCharacter;
         const index = Number(selectionModelName.replace("level-", ""));
         const characterClass = character.classes[index];
-        if (!characterClass.name || Number(characterClass.level) == Number(level)) {
-            return;
+        if (!characterClass.value || Number(characterClass.level) == Number(level)) {
+            level = null;
         }
         Sources.updateCharacterLevel(character, index, level);
         const message = {
@@ -215,35 +243,47 @@ export class DomainClassAndLevelModel {
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
-    // ~~~ class options
-    hasClassOptions(classIndex) {
-        return (this.#getClassOptions(classIndex).length > 0);
+    // ~~~ class selections
+    hasClassSelections(classIndex) {
+        return (this.#getClassSelections(classIndex).length > 0);
     }
 
-    getClassOptions(classIndex) {
-        return this.#getClassOptions(classIndex);
+    getClassSelections(classIndex) {
+        return this.#getClassSelections(classIndex);
     }
 
-    getClassOptionHtml(selectionModelName, optionValue) {
-        return "[no detail available]";
-    }
-
-    async updateClassOption(selectionModelName, optionValues) {
+    getClassSelectionOptions(selectionModelName) {
         const parts = selectionModelName.split(":");
         const classIndex = Number(parts[0].replace("class-", ""));
-        const character = Character.currentCharacter;
+        const modelName = parts[1];
+        const character = DomainClassAndLevelModel.character;
         const characterClass = character.classes[classIndex];
-        const optionName = parts[1];
-        const currentValues = character.selections.find(s => s.name == optionName)?.values ?? [];
-        if (Utilities.areArraysEqual(currentValues, optionValues)) {
+        let options = [];
+        if (characterClass.value) {
+            const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.value);
+            if (cls?.getSelectionOptions) {
+                options = cls.getSelectionOptions(character, classIndex, modelName);
+            }
+        }
+        return options;
+    }
+
+    async updateClassSelection(selectionModelName, selectedOptions) {
+        const parts = selectionModelName.split(":");
+        const classIndex = Number(parts[0].replace("class-", ""));
+        const modelName = parts[1];
+        const character = DomainClassAndLevelModel.character;
+        const characterClass = character.classes[classIndex];
+        const currentValues = character.selections.find(s => s.name == modelName)?.values ?? [];
+        if (Utilities.areArraysEqual(currentValues, selectedOptions, ["value"])) {
             return;
         }
         const selection = {
-            name: optionName,
+            name: modelName,
             sourcePropertyName: `class-${classIndex}`,
-            sourcePropertyValue: characterClass.name,
-            values: optionValues
-        }
+            sourcePropertyValue: characterClass.value,
+            values: selectedOptions
+        };
         Sources.updateCharacterSelection(character, selection);
         const message = {
             character: character,
@@ -255,72 +295,78 @@ export class DomainClassAndLevelModel {
 
     // ~~~ sub classes
     hasSubClasses(classIndex) {
-        return (this.#getSubClasses(classIndex).length > 0);
+        const subClasses = this.#getSubClasses(classIndex)?.subClasses ?? [];
+        return (subClasses.length > 0);
     }
 
-    getSubClasses(classIndex) {
-        const selectionModel = {
-            name: `subClass-${classIndex}`,
-            title: "Sub Class:",
-            maxSelections: 1,
-            options: []
-        };
+    getSubClassSelectionModel(classIndex) {
         const character = DomainClassAndLevelModel.character;
-        const index = Number(classIndex);
-        const characterClass = character.classes[index];
-        if (!characterClass.name) {
-            return selectionModel;
-        }
-        const subClasses = this.#getSubClasses(classIndex);
-        let options = subClasses.map(sc =>
+        const characterClass = character.classes[classIndex];
+        const title = this.#getSubClasses(classIndex).title;
+        let currentSelection = { value: null, text: `${title} ...` };
+        if (characterClass.subClass?.value) {
+            currentSelection = { value: characterClass.subClass.value, text: characterClass.subClass.text };
+        } 
+        return {
+            name: `sub-class-${classIndex}`,
+            title: title,
+            maxSelections: 1,
+            currentSelections: [currentSelection],
+            getOptions: this.getSubClasses,
+            getOptionDetail: this.getSubClassHtml,
+            updateSelection: this.updateSubClass
+        };
+    }
+
+    getSubClasses = (selectionModelName) => {
+        const character = DomainClassAndLevelModel.character;
+        const classIndex = Number(selectionModelName.replace("sub-class-", ""));
+        const characterClass = character.classes[classIndex];
+        const subClassInfo = this.#getSubClasses(classIndex);
+        let options = subClassInfo.subClasses.map(sc =>
         ({
             value: sc.name,
             text: sc.title,
             noteText: `(${sc.source.title})`,
             hasDetail: true,
-            isSelected: (characterClass.subClass == sc.name),
+            isSelected: (characterClass.subClass?.value == sc.name),
         }));
-        if (subClasses.length > 0) {
-            const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.name);
-            let title = "Choose a sub class";
-            if (cls.subClassTitle) {
-                selectionModel.title = `${cls.subClassTitle}:`;
-                title = `Choose a ${cls.subClassTitle}`;
-                const startsWithVowelPattern = '^[aieouAIEOU].*'
-                const startsWithVowel = cls.subClassTitle.match(startsWithVowelPattern);
-                if (startsWithVowel) {
-                    title = `Choose an ${cls.subClassTitle}`;
-                }
-            }
-            if (!subClasses.some(sc => sc.source.name == cls.source.name)) {
-                // sub-classes available, but none from class's source
-                title += " (Optional)"
-            }
+
+        if (options.length > 0) {
             options = Utilities.sort(options, "text");
             options.unshift({
                 value: null,
-                text: title,
-                hasDetail: false
+                text: `${subClassInfo.title} ...`,
+                hasDetail: false,
+                isSelected: false
             });
         }
-        selectionModel.options = options;
-        return selectionModel;
+        else {
+            options.push({
+                value: null,
+                text: "No sub classes in selected sources",
+                hasDetail: false,
+                isSelected: false
+            });
+        }
+        return options;
     }
 
     async getSubClassHtml(selectionModelName, optionValue) {
         const character = DomainClassAndLevelModel.character;
-        const classIndex = Number(selectionModelName.replace("subClass-", ""));
+        const classIndex = Number(selectionModelName.replace("sub-class-", ""));
         const characterClass = character.classes[classIndex];
-        return await Sources.getSubClassHtml(character.sources, characterClass.name, optionValue);
+        return await Sources.getSubClassHtml(character.sources, characterClass.value, optionValue);
     }
 
-    async updateSubClass(selectionModelName, optionValues) {
-        let subClass = optionValues[0];
-        if (subClass == "null") {
-            subClass = null;
-        }
+    async updateSubClass(selectionModelName, options) {
+        const subClass = options[0];
         const character = Character.currentCharacter;
-        const classIndex = Number(selectionModelName.replace("subClass-", ""));
+        const classIndex = Number(selectionModelName.replace("sub-class-", ""));
+        const characterClass = character.classes[classIndex];
+        if (characterClass.subClass?.value == subClass.value) {
+            return;
+        }
         Sources.updateCharacterSubClass(character, classIndex, subClass);
         const message = {
             character: character,
@@ -329,35 +375,49 @@ export class DomainClassAndLevelModel {
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
-    // ~~~ sub class options
-    hasSubClassOptions(classIndex) {
-        return (this.#getSubClassOptions(classIndex).length > 0);
+    // ~~~ sub class selections
+    hasSubClassSelections(classIndex) {
+        return (this.#getSubClassSelections(classIndex).length > 0);
     }
 
-    getSubClassOptions(classIndex) {
-        return this.#getSubClassOptions(classIndex);
+    getSubClassSelections(classIndex) {
+        return this.#getSubClassSelections(classIndex);
     }
 
-    getSubClassOptionHtml(selectionModelName, optionValue) {
-        return "[no detail available]";
-    }
-
-    async updateSubClassOption(selectionModelName, optionValues) {
+    getSubClassSelectionOptions(selectionModelName) {
         const parts = selectionModelName.split(":");
-        const classIndex = Number(parts[0].replace("class-", ""));
-        const character = Character.currentCharacter;
+        const classIndex = Number(parts[0].replace("sub-class-", ""));
+        const modelName = parts[1];
+        const character = DomainClassAndLevelModel.character;
         const characterClass = character.classes[classIndex];
-        const optionName = parts[1];
-        const currentValues = character.selections.find(s => s.name == optionName)?.values ?? [];
-        if (Utilities.areArraysEqual(currentValues, optionValues)) {
+        let options = [];
+        if (characterClass.subClass?.value) {
+            const subClass = Sources
+                .getSubClasses(character.sources, characterClass.value)
+                .find(sc => sc.name == characterClass.subClass.value);
+            if (subClass?.getSelectionOptions) {
+                options = subClass.getSelectionOptions(character, classIndex, modelName);
+            }
+        }
+        return options;
+    }
+
+    async updateSubClassSelection(selectionModelName, selectedOptions) {
+        const parts = selectionModelName.split(":");
+        const classIndex = Number(parts[0].replace("sub-class-", ""));
+        const modelName = parts[1];
+        const character = DomainClassAndLevelModel.character;
+        const characterClass = character.classes[classIndex];
+        const currentValues = character.selections.find(s => s.name == modelName)?.values ?? [];
+        if (Utilities.areArraysEqual(currentValues, selectedOptions, ["value"])) {
             return;
         }
         const selection = {
-            name: optionName,
+            name: modelName,
             sourcePropertyName: `subClass-${classIndex}`,
-            sourcePropertyValue: characterClass.subClass,
-            values: optionValues
-        }
+            sourcePropertyValue: characterClass.subClass.value,
+            values: selectedOptions
+        };
         Sources.updateCharacterSelection(character, selection);
         const message = {
             character: character,
@@ -376,29 +436,29 @@ export class DomainClassAndLevelModel {
         return this.#getLevelBoons(classIndex);
     }
 
-    #classOptions;
-    #getClassOptions(classIndex) {
-        if (!this.#classOptions) {
-            const classOptions = [];
+    #classSelections;
+    #getClassSelections(classIndex) {
+        if (!this.#classSelections) {
+            const classSelections = [];
             const character = DomainClassAndLevelModel.character;
             for (let i = 0; i < character.classes.length; i++) {
-                let displayOptions = [];
                 const characterClass = character.classes[i];
-                if (characterClass.name) {
-                    const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.name);
-                    if (cls.getOptions) {
-                        const domainOptions = cls.getOptions(character, i);
-                        displayOptions = SelectionModel.getDisplayOptions(character, domainOptions, `class-${i}:`);
+                if (characterClass.value) {
+                    const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.value);
+                    if (cls?.getSelections) {
+                        const characterClassSelections = cls.getSelections(character, i);
+                        for (const classSelection of characterClassSelections) {
+                            classSelection.name = `class-${classIndex}:${classSelection.name}`;
+                            classSelection.getOptions = this.getClassSelectionOptions;
+                            classSelection.updateSelection = this.updateClassSelection;
+                            classSelections.push(classSelection);
+                        }
                     }
                 }
-                classOptions.push({
-                    classIndex: i,
-                    options: displayOptions
-                });
             }
-            this.#classOptions = classOptions;
+            this.#classSelections = classSelections;
         }
-        return this.#classOptions.find(co => co.classIndex == classIndex).options;
+        return this.#classSelections.filter(cs => cs.name.startsWith(`class-${classIndex}`));
     }
 
     #subClasses;
@@ -408,48 +468,62 @@ export class DomainClassAndLevelModel {
             const character = DomainClassAndLevelModel.character;
             for (let i = 0; i < character.classes.length; i++) {
                 let classSubClasses = [];
+                let title = "Choose a sub class ...";
+                let subClassOptional = false;
                 const characterClass = character.classes[i];
-                if (characterClass.name) {
-                    const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.name);
+                if (characterClass.value) {
+                    const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.value);
                     if (Number(characterClass.level) >= Number(cls.subClassLevel)) {
-                        classSubClasses = Sources.getSubClasses(character.sources, characterClass.name);
+                        classSubClasses = Sources.getSubClasses(character.sources, characterClass.value);
+                    }
+                    if (cls.subClassTitle) {
+                        title = `Choose a ${cls.subClassTitle}`;
+                        const startsWithVowelPattern = '^[aieouAIEOU].*'
+                        const startsWithVowel = cls.subClassTitle.match(startsWithVowelPattern);
+                        if (startsWithVowel) {
+                            title = `Choose an ${cls.subClassTitle}`;
+                        }
+                    }
+                    if (!classSubClasses.some(sc => sc.source.name == cls.source.name)) {
+                        title+= " (Optional)"
                     }
                 }
                 subClasses.push({
                     classIndex: i,
-                    subClasses: classSubClasses
+                    subClasses: classSubClasses,
+                    title: title
                 });
             } 
             this.#subClasses = subClasses;
         }
-        return this.#subClasses.find(sc => sc.classIndex == classIndex).subClasses;
+        return this.#subClasses.find(sc => sc.classIndex == classIndex);
     }
 
-    #subClassOptions;
-    #getSubClassOptions(classIndex) {
-        if (!this.#subClassOptions) {
-            const subClassOptions = [];
+    #subClassSelections;
+    #getSubClassSelections(classIndex) {
+        if (!this.#subClassSelections) {
+            const subClassSelections = [];
             const character = DomainClassAndLevelModel.character;
             for (let i = 0; i < character.classes.length; i++) {
-                let displayOptions = [];
                 const characterClass = character.classes[i];
-                if (characterClass.name && characterClass.subClass) {
+                if (characterClass.subClass?.value) {
                     const subClass = Sources
-                        .getSubClasses(character.sources, characterClass.name)
-                        .find(sc => sc.name == characterClass.subClass);
-                    if (subClass.getOptions) {
-                        const domainOptions = subClass.getOptions(character, i);
-                        displayOptions = SelectionModel.getDisplayOptions(character, domainOptions, `class-${classIndex}:`);
+                        .getSubClasses(character.sources, characterClass.value)
+                        .find(sc => sc.name == characterClass.subClass.value);
+                    if (subClass?.getSelections) {
+                        const characterClassSubClassSelections = subClass.getSelections(character, i);
+                        for (const subClassSelection of characterClassSubClassSelections) {
+                            subClassSelection.name = `sub-class-${classIndex}:${subClassSelection.name}`;
+                            subClassSelection.getOptions = this.getSubClassSelectionOptions;
+                            subClassSelection.updateSelection = this.updateSubClassSelection;
+                            subClassSelections.push(subClassSelection);
+                        }
                     }
                 }
-                subClassOptions.push({
-                    classIndex: i,
-                    options: displayOptions
-                });
             }
-            this.#subClassOptions = subClassOptions;
+            this.#subClassSelections = subClassSelections;
         }
-        return this.#subClassOptions.find(sco => sco.classIndex == classIndex).options;
+        return this.#subClassSelections.filter(scs => scs.name.startsWith(`sub-class-${classIndex}`));
     }
 
     #levelBoons;

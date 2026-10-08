@@ -29,47 +29,57 @@ class DomainRaceModel {
         const oldCharacter = DomainRaceModel.#character;
         const currentCharacter = Character.currentCharacter;
         const sourcesUpdated = !Utilities.areArraysEqual(oldCharacter.sources, currentCharacter.sources);
-        const raceUpdated = (oldCharacter.race != currentCharacter.race);
-        const subRaceUpdated = raceUpdated || (oldCharacter.subRace != currentCharacter.subRace);
+        const raceUpdated = (oldCharacter.race?.value != currentCharacter.race?.value);
+        const subRaceUpdated = (oldCharacter.subRace?.value != currentCharacter.subRace?.value);
         DomainRaceModel.#character = currentCharacter;
-        this.#raceOptions = null;
+        this.#raceSelections = null;
         this.#subRaces = null;
-        this.#subRaceOptions = null;
+        this.#subRaceSelections = null;
         if (sourcesUpdated || raceUpdated) {
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#race-row"));
         }
         if (message.selection?.sourcePropertyName != "race") {
-            await UIKit.renderer.renderElement(this.#kitElement.querySelector("#race-options-row"));
+            await UIKit.renderer.renderElement(this.#kitElement.querySelector("#race-selections-row"));
         }
-        if (sourcesUpdated || subRaceUpdated) {
+        if (sourcesUpdated || raceUpdated || subRaceUpdated) {
             await UIKit.renderer.renderElement(this.#kitElement.querySelector("#sub-race-row"));
         }
         if (message.selection?.sourcePropertyName != "subRace") {
-            await UIKit.renderer.renderElement(this.#kitElement.querySelector("#sub-race-options-row"));
+            await UIKit.renderer.renderElement(this.#kitElement.querySelector("#sub-race-selections-row"));
         }
     }
 
-    getRaces() {
-        const selectionModel = {
-            name: "race",
-            title: "Race:",
-            maxSelections: 1
-        };
+    // ~~~ races
+    getRaceSelectionModel() {
         const character = DomainRaceModel.#character;
-        let races = Sources.getRaces(character.sources);
+        const currentSelection = character.race ?? { value: null, text: "Choose a race ..." };
+        return {
+            name: "race",
+            title: "Race",
+            maxSelections: 1,
+            currentSelections: [currentSelection],
+            getOptions: this.getRaces,
+            getOptionDetail: this.getRaceHtml,
+            updateSelection: this.updateRace
+        };
+    }
+
+    getRaces() {
+        const character = DomainRaceModel.#character;
+        const races = Sources.getRaces(character.sources);
         let options = races.map(r =>
         ({
             value: r.name,
             text: r.title,
             noteText: `(${r.source.title})`,
             hasDetail: true,
-            isSelected: (character.race == r.name)
+            isSelected: (character.race?.value == r.name)
         }));
         if (options.length > 0) {
             options = Utilities.sort(options, "text");
             options.unshift({
                 value: null,
-                text: "Choose a race",
+                text: "Choose a race ...",
                 hasDetail: false,
                 isSelected: false
             });
@@ -82,21 +92,17 @@ class DomainRaceModel {
                 isSelected: false
             });
         }
-        selectionModel.options = options;
-        return selectionModel;
+        return options;
     }
 
     async getRaceHtml(selectionModelName, optionValue) {
         return await Sources.getRaceHtml(DomainRaceModel.#character.sources, optionValue);
     }
 
-    async updateRace(selectionModelName, optionValues) {
-        let race = optionValues[0];
-        if (race == "null") {
-            race = null;
-        }
+    async updateRace(selectionModelName, options) {
+        const race = options[0];
         const character = Character.currentCharacter;
-        if (character.race == race) {
+        if (character.race?.value == race.value) {
             return;
         }
         Sources.updateCharacterRace(character, race);
@@ -107,30 +113,39 @@ class DomainRaceModel {
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
-    hasRaceOptions() {
-        return (this.#getRaceOptions().length > 0);
+    // ~~~ race selections
+    hasRaceSelections() {
+        return (this.#getRaceSelections().length > 0);
     }
 
-    getRaceOptions() {
-        return this.#getRaceOptions();
+    getRaceSelections() {
+        return this.#getRaceSelections();
     }
 
-    async getRaceOptionHtml(selectionModelName, optionValue) {
-        return "[no detail available]";
+    getRaceSelectionOptions(selectionModelName) {
+        const character = DomainRaceModel.#character;
+        let options = [];
+        if (character.race?.value) {
+            const race = Sources.getRaces(character.sources).find(r => r.name == character.race?.value);
+            if (race?.getSelectionOptions) {
+                options = race.getSelectionOptions(character, selectionModelName);
+            }
+        }
+        return options;
     }
 
-    async updateRaceOption(selectionModelName, optionValues) {
+    async updateRaceSelection(selectionModelName, selectedOptions) {
         const character = Character.currentCharacter;
         const currentValues = character.selections.find(s => s.name == selectionModelName)?.values ?? [];
-        if (Utilities.areArraysEqual(currentValues, optionValues)) {
+        if (Utilities.areArraysEqual(currentValues, selectedOptions, ["value"])) {
             return;
         }
         const selection = {
             name: selectionModelName,
             sourcePropertyName: "race",
-            sourcePropertyValue: character.race,
-            values: optionValues
-        }
+            sourcePropertyValue: character.race.value,
+            values: selectedOptions
+        };
         Sources.updateCharacterSelection(character, selection);
         const message = {
             character: character,
@@ -140,60 +155,67 @@ class DomainRaceModel {
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
+    // ~~~ sub races
     hasSubRaces() {
         return (this.#getSubRaces().length > 0);
     }
 
-    getSubRaces() {
-        const selectionModel = {
-            name: "sub-race",
-            title: "Sub Race:",
-            maxSelections: 1,
-            options: []
-        };
+    getSubRaceSelectionModel() {
         const character = DomainRaceModel.#character;
-        if (!character.race) {
-            return selectionModel;
-        }
-        const subRaces = this.#getSubRaces();
+        const text = this.#subRaceOptional ? "Choose a sub race (optional) ..." : "Choose a sub race ...";
+        const currentSelection = character.subRace ?? { value: null, text: text };
+        return {
+            name: "subRace",
+            title: "Sub race",
+            maxSelections: 1,
+            currentSelections: [currentSelection],
+            getOptions: this.getSubRaces,
+            getOptionDetail: this.getSubRaceHtml,
+            updateSelection: this.updateSubRace
+        };
+    }
+
+    getSubRaces = () => {
+        const character = DomainRaceModel.#character;
+        const subRaces = Sources.getSubRaces(character.sources, character.race?.value);
         let options = subRaces.map(sr =>
         ({
             value: sr.name,
             text: sr.title,
             noteText: `(${sr.source.title})`,
             hasDetail: true,
-            isSelected: (character.subRace == sr.name),
+            isSelected: (character.subRace?.value == sr.name)
         }));
-        if (subRaces.length > 0) {
-            const race = Sources.getRaces(character.sources).find(r => r.name == character.race);
-            let title = "Choose a sub race";
-            if (!subRaces.some(sr => sr.source.name == race.source.name)) {
-                // sub-races available, but none from race's source
-                title += " (Optional)"
-            }
+        const text = this.#subRaceOptional ? "Choose a sub race (optional) ..." : "Choose a sub race ...";
+        if (options.length > 0) {
             options = Utilities.sort(options, "text");
             options.unshift({
                 value: null,
-                text: title,
-                hasDetail: false
+                text: text,
+                hasDetail: false,
+                isSelected: false
             });
         }
-        selectionModel.options = options;
-        return selectionModel;
+        else {
+            options.push({
+                value: null,
+                text: "No sub races in selected sources",
+                hasDetail: false,
+                isSelected: false
+            });
+        }
+        return options;
     }
 
     async getSubRaceHtml(selectionModelName, optionValue) {
         const character = DomainRaceModel.#character;
-        return await Sources.getSubRaceHtml(character.sources, character.race, optionValue);
+        return await Sources.getSubRaceHtml(character.sources, character.race.value, optionValue);
     }
 
-    async updateSubRace(selectionModelName, optionValues) {
-        const subRace = optionValues[0];
-        if (subRace == "null") {
-            subRace = null;
-        }
+    async updateSubRace(selectionModelName, options) {
+        const subRace = options[0];
         const character = Character.currentCharacter;
-        if (character.subRace == subRace) {
+        if (character.subRace?.value == subRace?.value) {
             return;
         }
         Sources.updateCharacterSubRace(character, subRace);
@@ -204,30 +226,41 @@ class DomainRaceModel {
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
-    hasSubRaceOptions() {
-        return (this.#getSubRaceOptions().length > 0);
+    // ~~~ sub race options
+    hasSubRaceSelections() {
+        return (this.#getSubRaceSelections().length > 0);
     }
 
-    getSubRaceOptions() {
-        return this.#getSubRaceOptions();
+    getSubRaceSelections() {
+        return this.#getSubRaceSelections();
     }
 
-    async getSubRaceOptionHtml(selectionModelName, optionValue) {
-        return "[no detail available]";
+    getSubRaceSelectionOptions(selectionModelName) {
+        const character = DomainRaceModel.#character;
+        let options = [];
+        if (character.race?.value && character.subRace?.value) {
+            const subRace = Sources
+                .getSubRaces(character.sources, character.race.value)
+                .find(sr => sr.name == character.subRace?.value);
+            if (subRace?.getSelectionOptions) {
+                options = subRace.getSelectionOptions(character, selectionModelName);
+            }
+        }
+        return options;
     }
 
-    async updateSubRaceOption(selectionModelName, optionValues) {
+    async updateSubRaceSelection(selectionModelName, selectedOptions) {
         const character = Character.currentCharacter;
         const currentValues = character.selections.find(s => s.name == selectionModelName)?.values ?? [];
-        if (Utilities.areArraysEqual(currentValues, optionValues)) {
+        if (Utilities.areArraysEqual(currentValues, selectedOptions, ["value"])) {
             return;
         }
         const selection = {
             name: selectionModelName,
             sourcePropertyName: "subRace",
-            sourcePropertyValue: character.subRace,
-            values: optionValues
-        }
+            sourcePropertyValue: character.subRace.value,
+            values: selectedOptions
+        };
         Sources.updateCharacterSelection(character, selection);
         const message = {
             character: character,
@@ -237,52 +270,62 @@ class DomainRaceModel {
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
-    #raceOptions;
-    #getRaceOptions() {
-        if (!this.#raceOptions) {
+    #raceSelections;
+    #getRaceSelections() {
+        if (!this.#raceSelections) {
             const character = DomainRaceModel.#character;
-            let displayOptions = [];
-            if (character.race) {
-                const race = Sources.getRaces(character.sources).find(r => r.name == character.race);
-                if (race.getOptions) {
-                    const raceOptions = race.getOptions(character);
-                    displayOptions = SelectionModel.getDisplayOptions(character, raceOptions);
+            let raceSelections = [];
+            if (character.race?.value) {
+                const race = Sources.getRaces(character.sources).find(r => r.name == character.race?.value);
+                if (race?.getSelections) {
+                    raceSelections = race.getSelections(character);
+                    for (const raceSelection of raceSelections) {
+                        raceSelection.getOptions = this.getRaceSelectionOptions;
+                        raceSelection.updateSelection = this.updateRaceSelection;
+                    }
                 }
             }
-            this.#raceOptions = displayOptions;
+            this.#raceSelections = raceSelections;
         }
-        return this.#raceOptions;
+        return this.#raceSelections;
     }
 
+    #subRaceOptional;
     #subRaces;
     #getSubRaces() {
         if (!this.#subRaces) {
             const character = DomainRaceModel.#character;
-            if (!character.race) {
+            if (!character.race?.value) {
                 return [];
             }
-            this.#subRaces = Sources.getSubRaces(character.sources, character.race);
+            this.#subRaces = Sources.getSubRaces(character.sources, character.race?.value);
+            const raceSource = Sources.getRaces(character.sources).find(r => r.name == character.race.value).source;
+            // sub-races available, but none from race's source
+            this.#subRaceOptional = !this.#subRaces.some(sr => sr.source.name == raceSource.name);
         }
         return this.#subRaces;
     }
 
-    #subRaceOptions;
-    #getSubRaceOptions() {
-        if (!this.#subRaceOptions) {
+    #subRaceSelections;
+    #getSubRaceSelections() {
+        if (!this.#subRaceSelections) {
             const character = DomainRaceModel.#character;
-            let displayOptions = [];
-            if (character.race && character.subRace) {
+            let subRaceSelections = [];
+            if (character.race?.value && character.subRace?.value) {
                 const subRace = Sources
-                    .getSubRaces(character.sources, character.race)
-                    .find(sr => sr.name == character.subRace);
-                if(subRace.getOptions) {
-                    const subRaceOptions = subRace.getOptions(character);
-                    displayOptions = SelectionModel.getDisplayOptions(character, subRaceOptions);
+                    .getSubRaces(character.sources, character.race?.value)
+                    .find(sr => sr.name == character.subRace?.value);
+                if (subRace?.getSelections) {
+                    subRaceSelections = subRace.getSelections(character);
+                    for (const subRaceSelection of subRaceSelections) {
+                        subRaceSelection.getOptions = this.getSubRaceSelectionOptions;
+                        subRaceSelection.updateSelection = this.updateSubRaceSelection;
+                    }
                 }
             }
-            this.#subRaceOptions = displayOptions;
+            this.#subRaceSelections = subRaceSelections;
         }
-        return this.#subRaceOptions;
+        return this.#subRaceSelections;
     }
 
 }

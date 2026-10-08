@@ -1,5 +1,5 @@
 
-import { Sources, Utilities } from "../../../domain/references.js";
+import { Character, Sources, Utilities } from "../../../domain/references.js";
 
 export function createModel() {
     return new SelectionModel();
@@ -9,14 +9,11 @@ export class SelectionModel {
 
     #kitElement;
     #selectionModel;
-    #changeHandler;
-    #getDetailHandler;
+    #options;
 
     async init(kitElement, kitObjects) {
         this.#kitElement = kitElement;
         this.#selectionModel = kitObjects.find(o => o.alias == "selectionModel")?.object; 
-        this.#changeHandler = kitObjects.find(o => o.alias == "changeHandler")?.object;  
-        this.#getDetailHandler = kitObjects.find(o => o.alias == "getDetailHandler")?.object; 
     }
 
     static #hideSectionExpandedRegistered;
@@ -34,23 +31,7 @@ export class SelectionModel {
                 .addEventListener("pointerdown", (event) => this.hideExpandedSections());
             SelectionModel.#hideSectionExpandedRegistered = true;
         }
-        const sectionExpanded = this.#kitElement.querySelector(".selection-expanded");
-        if (sectionExpanded) {
-            sectionExpanded.classList.add("hidden");
-        }
-        if (this.#selectionModel?.maxSelections == 1) {
-            const checkboxes = this.#kitElement.querySelectorAll(".option-checkbox");
-            for (const checkbox of checkboxes) {
-                checkbox.classList.add("hidden");
-            }
-        }
-    }
-
-    hasSelectionModel() {
-        if (this.#selectionModel) {
-            return true;
-        }
-        return false;
+        this.#displayCurrentSelection();
     }
 
     hideExpandedSections() {
@@ -63,43 +44,32 @@ export class SelectionModel {
             if (!section.classList.contains("hidden")) {
                 section.classList.add("hidden");
             }
-        }       
+        }
+    }
+
+    hasSelectionModel() {
+        if (this.#selectionModel) {
+            return true;
+        }
+        return false;
     }
 
     getTitle() {
-        return this.#selectionModel.title ?? "";
-    }
-
-    getSelectionRequiredClass() {
-        const hasSelection = this.#selectionModel.options.some(o => o.isSelected && o.value);
-        return hasSelection ? "" : "selection-required";
-    }
-
-    getCollapsedDisplayValue() {
-        let displayValue = null;
-        if (this.#selectionModel.options.length > 0) {
-            displayValue = this.#selectionModel.options[0].text;
-            if (this.#selectionModel.maxSelections == 1) {
-                const selectedOption = this.#selectionModel.options.find(o => o.isSelected);
-                if (selectedOption) {
-                    displayValue = selectedOption?.text;
-                }
-            }
-            else {
-                const selectedCount = this.#selectionModel.options.filter(o => o.isSelected).length;
-                if (selectedCount == this.#selectionModel.maxSelections) {
-                    displayValue = `${selectedCount} selected`;
-                }
-            }
+        const title = this.#selectionModel.title ?? "";
+        if (title) {
+            return `${title}:`;
         }
-        return displayValue ?? "";
+        return "";
     }
 
-    toggleDropDown(event) {
-        const sectionExpanded = this.#kitElement.querySelector(".selection-expanded");
+    async toggleDropDown(event) {
+        let sectionExpanded = this.#kitElement.querySelector(".selection-expanded");
         const isHidden = sectionExpanded.classList.contains("hidden");
         this.hideExpandedSections();
         if (isHidden) {
+            this.#options = this.#selectionModel.getOptions(this.#selectionModel.name);
+            await UIKit.renderer.renderElement(this.#kitElement.querySelector(".selection-expanded"));
+            sectionExpanded = this.#kitElement.querySelector(".selection-expanded");
             sectionExpanded.classList.remove("hidden");
         }
         else {
@@ -111,30 +81,31 @@ export class SelectionModel {
     }
 
     getOptions() {
-        return this.#selectionModel.options;
+        return this.#getOptions();
     }
 
-    async toggleDetail(event, optionValue) {
-        const elementId = `option-${optionValue}`;
-        const optionElement = this.#kitElement.querySelector(`#${elementId}`);
+    isMultiSelect() {
+        return this.#selectionModel.maxSelections > 1;
+    }
+
+    async toggleDetail(optionValue) {
+        const optionElement = this.#kitElement.querySelector(`.data-option-value-${optionValue}`)
         const isExpanded = optionElement.classList.contains("expanded");
         const allOptions = this.#kitElement.querySelectorAll(".option");
         for (const option of allOptions) {
             option.classList.remove("expanded");
         }
-        if (isExpanded) {
-            optionElement.classList.remove("expanded");
-        }
-        else {
+        if (!isExpanded) {
             const optionDetailElement = optionElement.querySelector(".option-detail");
-            if (this.#getDetailHandler) {
-                optionDetailElement.innerHTML = await this.#getDetailHandler(this.#selectionModel.name, optionValue);
+            if (this.#selectionModel.getOptionDetail) {
+                optionDetailElement.innerHTML
+                    = await this.#selectionModel.getOptionDetail(this.#selectionModel.name, optionValue);
             }
             optionElement.classList.add("expanded");
-        }       
+        }
     }
 
-    async onOptionClick(event, optionValue) {
+    async onOptionClick(optionValue) {
         if (this.#selectionModel.maxSelections == 1) {
             await this.#onValueChanged(optionValue);
         }
@@ -145,58 +116,38 @@ export class SelectionModel {
         event.stopPropagation();
     }
 
-    static getDisplayOptions(character, domainOptions, namePrefix) {
-        let displayOptions = [];
-        for (const domainOption of domainOptions) {
-            // TODO: spells, ... standard lists
-            const options = SelectionModel.#getDomainOptionValues(character, domainOption).map(ov => ({
-                value: ov.value,
-                text: ov.text ?? "",
-                noteText: ov.noteText ?? "",
-                hasDetail: ov.hasDetail ?? false,
-                isSelected: ov.isSelected ?? false,
-                isDisabled: ov.isDisabled ?? false,
-                disabledReason: ov.disabledReason ?? "",
-                hideCheckbox: ov.hideCheckbox
-            }));
-            let name = domainOption.name ?? "";
-            if (namePrefix) {
-                name = namePrefix + name;
-            }
-            displayOptions.push({
-                name: name,
-                title: `${domainOption.title ?? "Option"}:`,
-                maxSelections: domainOption.maxSelections ?? 1,
-                options: options
-            });
+    #displayCurrentSelection() {
+        let value = null;
+        let text = null;
+        const currentSelections = this.#selectionModel?.currentSelections ?? [];
+        if (currentSelections.length == 1) {
+            value = currentSelections[0].value;
+            text = currentSelections[0].text;
         }
-        return displayOptions;
-    }
-
-    static #getDomainOptionValues(character, domainOption) {
-        let optionValues = domainOption.optionValues;
-        if (domainOption.useLanguages) {
-            optionValues = [...Sources.getLanguages(character.sources)];
-            for (const optionValue of optionValues) {
-                optionValue.noteText = optionValue.source.title;
-                optionValue.isSelected = (domainOption.selectedLanguages.includes(optionValue.value));
-            }
-            optionValues = Utilities.sort(optionValues, "text");
-            optionValues.unshift({ value: null, text: "Choose a language ..." });
+        if (currentSelections.length > 1) {
+            value = "multiple";
+            text = `${currentSelections.length} selected`;
         }
-        return optionValues;
+        const element = this.#kitElement.querySelector(".collapsed-option-label");
+        element.querySelector("label").innerText = text ?? "Choose an option ...";
+        if (value) {
+            element.classList.remove("selection-required");
+        }
+        else {
+            element.classList.add("selection-required");
+        }
     }
 
     async #onValueChanged(optionValue) {
-        if (this.#changeHandler) { 
-            if (optionValue == "null") {
-                optionValue = null;
-            }
-            const option = this.#selectionModel.options.find(o => o.value == optionValue);
+        if (this.#selectionModel.updateSelection) {
+            const option = this.#getSelectedOption(optionValue);
             if (!option.isDisabled) {
                 if (this.#selectionModel.maxSelections == 1) {
-                    this.#updateDisplayedValue([optionValue]);
-                    await this.#changeHandler(this.#selectionModel.name, [optionValue]);
+                    this.#selectionModel.currentSelections = [{ value: option.value, text: option.text }];
+                    this.toggleDropDown();
+                    this.#displayCurrentSelection();
+                    await this.#selectionModel.updateSelection(
+                        this.#selectionModel.name, this.#selectionModel.currentSelections);
                 }
                 else {
                     const selectedValues = [...this.#kitElement.querySelectorAll("input[type='checkbox']:checked")]
@@ -205,29 +156,49 @@ export class SelectionModel {
                         selectedValues.length == this.#selectionModel.maxSelections
                         || selectedValues.length == 0
                     ) {
-                        this.#updateDisplayedValue(selectedValues);
-                        await this.#changeHandler(this.#selectionModel.name, selectedValues);
+                        this.#selectionModel.currentSelections = this.#options
+                            .filter(o => selectedValues.includes(o.value))
+                            .map(o => ({ value: o.value, text: o.text }));
+                        this.toggleDropDown();
+                        this.#displayCurrentSelection();
+                        await this.#selectionModel.updateSelection(
+                            this.#selectionModel.name, this.#selectionModel.currentSelections);
                     }
                 }
             }
         }
     }
 
-    #updateDisplayedValue(selectedValues) {
-        for (const option of this.#selectionModel.options) {
-            option.isSelected = selectedValues.includes(option.value);
+    #getOptions() {
+        if (this.#selectionModel.useLanguages) {
+            const character = Character.currentCharacter;
+            const selectedLanguages = character.selections.find(s => s.name == this.#selectionModel.name)?.values ?? [];
+            return this.#getLanguages(character, selectedLanguages);
         }
-        const hasSelection = this.#selectionModel.options.some(o => o.isSelected && o.value);
-        const element = this.#kitElement.querySelector(".collapsed-option-label");
-        if (hasSelection) {
-            element.classList.remove("selection-required");
+        return this.#options ?? [];
+    }
+
+    #getSelectedOption(optionValue) {
+        if (optionValue == "null") {
+            optionValue = null;
         }
-        else {
-            element.classList.add("selection-required");
+        let option = null;
+        if (this.#selectionModel.useLanguages) {
+            const character = Character.currentCharacter;
+            return option = Sources.getLanguages(character.sources).find(l => l.value == optionValue);
         }
-        const label = element.querySelector("label");
-        label.innerText = this.getCollapsedDisplayValue();
-        this.toggleDropDown();
+        return this.#options.find(o => o.value == optionValue);
+    }
+
+    #getLanguages(character, selectedLanguages) {
+        let optionValues = [...Sources.getLanguages(character.sources)];
+        for (const optionValue of optionValues) {
+            optionValue.noteText = optionValue.source.title;
+            optionValue.isSelected = (selectedLanguages.includes(optionValue.value));
+        }
+        optionValues = Utilities.sort(optionValues, "text");
+        optionValues.unshift({ value: null, text: "Choose a language ..." });
+        return optionValues;
     }
 
 }

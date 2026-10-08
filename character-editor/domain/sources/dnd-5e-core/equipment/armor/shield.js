@@ -29,18 +29,15 @@ export class Shield {
         return "";
     }
 
-    static getOptions(character, inventoryIndex) {
+    static getSelections(character, inventoryIndex) {
+        return []
+    }
+
+    static getSelectionOptions(character, inventoryIndex, selectionName) {
         return [];
     }
 
     static equip(character, inventoryIndex) {
-        // let shieldIndex = character.equipment.findIndex(e =>
-        //     e.isEquipped
-        //     && e.properties
-        //     && e.properties.some(p => p.name == "armor-type" && p.value == "shield"));
-        // if (shieldIndex > -1 && shieldIndex != inventoryIndex) {
-        //     return;
-        // }
         const item = character.equipment[inventoryIndex];
         item.properties = [
             { name: "armor-name", value: "shield" },

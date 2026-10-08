@@ -18,7 +18,7 @@ export class Abacus {
     }
 
     static get canBeEquipped() {
-        return false;
+        return true;
     }
 
     static get html() {
@@ -34,62 +34,72 @@ export class Abacus {
         `;
     }
 
-    static getOptions(character, inventoryIndex) {
-
-        const options = [];
-
-        // abacus color
-        let name = "abacus-color"; 
-        let title = "Color"
-        let optionName = `item-index-${inventoryIndex}:${name}`;
-        let values = character.selections.find(s => s.name == optionName)?.values ?? [];
-        let selectedValue = null;
-        if (values.length > 0) {
-            selectedValue = values[0];
+    static getSelections(character, inventoryIndex) {
+        const selections = [];
+        let color = "abacus-color";
+        const colorSelections = character.selections.find(s => s.name == color)?.values ?? [];
+        if (colorSelections.length == 0) {
+            colorSelections.push({ value: null, text: "Choose a color ..." });
         }
-        let optionValues = [
-            { value: null, text: "Choose a color ..." },
-            { value: "black", text: "Black" },
-            { value: "blue", text: "Blue" },
-            { value: "green", text: "Green" },
-            { value: "red", text: "Red" },
-            { value: "white", text: "White" }
-        ];
-        for (const optionValue of optionValues) {
-            optionValue.isSelected = (optionValue.value == selectedValue);
-        }
-        options.push({
-            name: name,
-            title: title,
+        selections.push({
+            name: color,
+            title: "Color",
             maxSelections: 1,
-            optionValues: optionValues
+            currentSelections: colorSelections
         });
 
-        // abacus size
-        name = "abacus-size";
-        title = "Size"
-        optionName = `item-index-${inventoryIndex}:${name}`;
-        values = character.selections.find(s => s.name == optionName)?.values ?? [];
-        selectedValue = null;
-        if (values.length > 0) {
-            selectedValue = values[0];
+        let size = "abacus-size";
+        const sizeSelections = character.selections.find(s => s.name == size)?.values ?? [];
+        if (sizeSelections.length == 0) {
+            sizeSelections.push({ value: null, text: "Choose a size ..." });
         }
-        optionValues = [
-            { value: null, text: "Choose a size ..." },
-            { value: "small", text: "Small" },
-            { value: "medium", text: "Medium" },
-            { value: "large", text: "Large" }
-        ];
-        for (const optionValue of optionValues) {
-            optionValue.isSelected = (optionValue.value == selectedValue);
-        }
-        options.push({
-            name: name,
-            title: title,
+        selections.push({
+            name: size,
+            title: "Size",
             maxSelections: 1,
-            optionValues: optionValues
+            currentSelections: sizeSelections
         });
+        return selections;
+    }
 
+    static getSelectionOptions(character, inventoryIndex, selectionName) {
+        let options = [];
+        let currentSelections = [];
+        if (selectionName == "abacus-color") {
+            options = [
+                { value: null, text: "Choose a color ..." },
+                { value: "black", text: "Black" },
+                { value: "blue", text: "Blue" },
+                { value: "green", text: "Green" },
+                { value: "red", text: "Red" },
+                { value: "white", text: "White" }
+            ];
+            let color = null;
+            currentSelections = character.selections.find(s => s.name == "abacus-color")?.values ?? [];
+            if (currentSelections.length > 0) {
+                color = currentSelections[0].value;
+            }
+            for (const option of options) {
+                option.isSelected = (option.value == color);
+            }
+        }
+        if (selectionName == "abacus-size") {
+            options = [
+                { value: null, text: "Choose a size ..." },
+                { value: "small", text: "Small" },
+                { value: "medium", text: "Medium" },
+                { value: "large", text: "Large" },
+                { value: "red", text: "Red" }
+            ];
+            let size = null;
+            currentSelections = character.selections.find(s => s.name == "abacus-size")?.values ?? [];
+            if (currentSelections.length > 0) {
+                size = currentSelections[0].value;
+            }
+            for (const option of options) {
+                option.isSelected = (option.value == size);
+            }
+        }
         return options;
     }
 

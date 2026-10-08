@@ -21,14 +21,12 @@
         <div class="details-section ability-scores-container">
             <div class="selection-container">
                 <kit kit-component="./components/shared/selection/selection.html"
-                     kit-obj-selection-model="selectionModel:#model?.getAbilityScores(1)"
-                     kit-obj-change-handler="changeHandler:#model?.updateAbilityScore">
+                     kit-obj-selection-model="selectionModel:#model?.getAbilityScoreSelectionModel(1)">
                 </kit>
             </div>
             <div class="selection-container">
                 <kit kit-component="./components/shared/selection/selection.html"
-                     kit-obj-selection-model="selectionModel:#model?.getAbilityScores(2)"
-                     kit-obj-change-handler="changeHandler:#model?.updateAbilityScore">
+                     kit-obj-selection-model="selectionModel:#model?.getAbilityScoreSelectionModel(2)">
                 </kit>
             </div>
         </div>
@@ -52,19 +50,15 @@
         <div class="details-section feats-container" kit-element>
             <div class="selection-container">
                 <kit kit-component="./components/shared/selection/selection.html"
-                     kit-obj-selection-model="selectionModel:#model?.getFeats()"
-                     kit-obj-get-detail-handler="getDetailHandler:#model?.getFeatHtml"
-                     kit-obj-change-handler="changeHandler:#model?.updateFeat">
+                     kit-obj-selection-model="selectionModel:#model?.getFeatSelectionModel()">
                 </kit>
             </div>
-            <div kit-if="#model.hasFeatOptions()">
-                <div kit-array="#model.getFeatOptions()"
-                     kit-array-item-alias="option">
+            <div kit-if="#model.hasFeatSelections()">
+                <div kit-array="#model.getFeatSelections()"
+                     kit-array-item-alias="selection">
                     <div>
                         <kit kit-component="./components/shared/selection/selection.html"
-                             kit-obj-selection-model="selectionModel:#option"
-                             kit-obj-get-detail-handler="getDetailHandler:#model.getFeatOptionHtml"
-                             kit-obj-change-handler="changeHandler:#model.updateFeatOption">
+                             kit-obj-selection-model="selectionModel:#selection">
                         </kit>
                     </div>
                 </div>

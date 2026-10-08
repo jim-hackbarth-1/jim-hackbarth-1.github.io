@@ -335,21 +335,21 @@ export class Sources {
         const classes = Sources.getClasses(sources);
         const feats = Sources.getFeats(sources).map(f => f.name);
         for (let i = character.classes.length - 1; i >= 0; i--) {
-            const cls = character.classes[i];
-            const subClasses = Sources.getSubClasses(sources, cls.name);
-            if (cls.subClass && !subClasses.some(sc => sc.name == cls.subClass)) {
+            const characterClass = character.classes[i];
+            const subClasses = Sources.getSubClasses(sources, characterClass.value);
+            if (characterClass.subClass?.value && !subClasses.some(sc => sc.name == characterClass.subClass?.value)) {
                 Sources.updateCharacterSubClass(character, i, null)
             }
             for (const levelBoon of cls.levelBoons) {
-                if (levelBoon.feat && !feats.includes(levelBoon.feat)) {
+                if (levelBoon.feat?.value && !feats.includes(levelBoon.feat.value)) {
                     levelBoon.feat = null;
                 }
             }
-            if (cls.name && !classes.some(c => c.name == cls.name)) {
+            if (characterClass.value && !classes.some(c => c.name == characterClass.value)) {
                 Sources.removeCharacterClass(character, i);
             }
         }
-        if (character.background && !Sources.getBackgrounds(sources).some(b => b.name == character.background)) {
+        if (character.background?.value && !Sources.getBackgrounds(sources).some(b => b.name == character.background.value)) {
             Sources.updateCharacterBackground(character, null);
         }
 
@@ -366,7 +366,7 @@ export class Sources {
     }
 
     static updateCharacterRace(character, race) {
-        if (character.race != race) {
+        if (character.race?.value != race?.value) {
             character.selections = character.selections.filter(s => s.sourcePropertyName != "race");
             character.race = race;
             Sources.updateCharacterSubRace(character, null);
@@ -374,7 +374,7 @@ export class Sources {
     }
 
     static updateCharacterSubRace(character, subRace) {
-        if (character.subRace != subRace) {
+        if (character.subRace?.value != subRace?.value) {
             character.selections = character.selections.filter(s => s.sourcePropertyName != "subRace");
             character.subRace = subRace;
         }
@@ -392,11 +392,12 @@ export class Sources {
         }
     }
 
-    static updateCharacterClass(character, classIndex, className) {
+    static updateCharacterClass(character, classIndex, cls) {
         const index = Number(classIndex);
-        const cls = character.classes[index];
+        const characterClass = character.classes[index];
         character.selections = character.selections.filter(s => !s.sourcePropertyName.startsWith(`class-${classIndex}`));
-        character.classes[index].name = className;
+        characterClass.value = cls?.value;
+        characterClass.text = cls?.text;
         Sources.updateCharacterSubClass(character, classIndex, null);
     }
 
@@ -404,8 +405,8 @@ export class Sources {
         const index = Number(classIndex);
         const levelNumber = Number(level);
         const characterClass = character.classes[index];
-        const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.name);
-        if (cls && characterClass.level < cls.subClassLevel) {
+        const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.value);
+        if (cls && Number(characterClass.level) < Number(cls.subClassLevel)) {
             Sources.updateCharacterSubClass(character, index, null);
         }
         const otherClassesBoons = [];
@@ -439,7 +440,6 @@ export class Sources {
 
     static updateCharacterSubClass(character, classIndex, subClass) {
         const index = Number(classIndex);
-        const cls = character.classes[index];
         character.selections = character.selections.filter(s => s.sourcePropertyName != `subClass-${classIndex}`);
         character.classes[index].subClass = subClass;
     }
@@ -448,7 +448,7 @@ export class Sources {
         const index = Number(classIndex);
         const characterClass = character.classes[index];
         let currentLevelBoon = characterClass.levelBoons.find(lb => lb.level == levelBoon.level);
-        if (currentLevelBoon?.feat && currentLevelBoon.feat != levelBoon.feat) {
+        if (currentLevelBoon?.feat && currentLevelBoon.feat?.value != levelBoon.feat?.value) {
             character.selections = character.selections.filter(
                 s => s.sourcePropertyName != `class-${index}-level-${levelBoon.level}-feat`);
         }
@@ -478,13 +478,13 @@ export class Sources {
     }
 
     static updateCharacterAlignment(character, alignment) {
-        if (character.alignment != alignment) {
+        if (character.alignment?.value != alignment?.value) {
             character.alignment = alignment;
         }
     }
 
     static updateCharacterBackground(character, background) {
-        if (character.background != background) {
+        if (character.background?.value != background?.value) {
             character.selections = character.selections.filter(s => s.sourcePropertyName != "background");
             character.background = background;
             Sources.updateCharacterTraits(character, []);
@@ -499,7 +499,7 @@ export class Sources {
             (character.traits.length != traits.length)
         if (!hasChange) {
             for (let i = 0; i < traits.length; i++) {
-                if (character.traits[i] != traits[i]) {
+                if (character.traits[i].value != traits[i].value) {
                     hasChange = true;
                     break;
                 }
@@ -511,19 +511,19 @@ export class Sources {
     }
 
     static updateCharacterIdeal(character, ideal) {
-        if (character.ideal != ideal) {
+        if (character.ideal?.value != ideal?.value) {
             character.ideal = ideal;
         }
     }
 
     static updateCharacterBond(character, bond) {
-        if (character.bond != bond) {
+        if (character.bond?.value != bond?.value) {
             character.bond = bond;
         }
     }
 
     static updateCharacterFlaw(character, flaw) {
-        if (character.flaw != flaw) {
+        if (character.flaw?.value != flaw?.value) {
             character.flaw = flaw;
         }
     }
@@ -551,16 +551,18 @@ export class Sources {
         const features = [];
 
         // race
-        if (character.race) {
-            const race = Sources.getRaces(character.sources).find(r => r.name == character.race);
+        if (character.race?.value) {
+            const race = Sources.getRaces(character.sources).find(r => r.name == character.race.value);
             if (race?.applyFeatures) {
                 race.applyFeatures(features, character);
             }
         }
 
         // subRace
-        if (character.race && character.subRace) {
-            const subRace = Sources.getSubRaces(character.sources, character.race).find(sr => sr.name == character.subRace);
+        if (character.race?.value && character.subRace?.value) {
+            const subRace = Sources
+                .getSubRaces(character.sources, character.race.value)
+                .find(sr => sr.name == character.subRace.value);
             if (subRace?.applyFeatures) {
                 subRace.applyFeatures(features, character);
             }
@@ -569,22 +571,22 @@ export class Sources {
         // classes, subclasses, and feats
         for (let i = 0; i < character.classes.length; i++) {
             const characterClass = character.classes[i];
-            if (characterClass.name && characterClass.level) {
-                const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.name);
+            if (characterClass.value && characterClass.level) {
+                const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.value);
                 if (cls?.applyFeatures) {
                     cls.applyFeatures(features, character, i);
                 }
             }
-            if (characterClass.name && characterClass.level && characterClass.subClass) {
-                const subClass = Sources.getSubClasses(character.sources, characterClass.name)
-                    .find(sc => sc.name == characterClass.subClass);
+            if (characterClass.value && characterClass.level && characterClass.subClass?.value) {
+                const subClass = Sources.getSubClasses(character.sources, characterClass.value)
+                    .find(sc => sc.name == characterClass.subClass.value);
                 if (subClass?.applyFeatures) {
                     subClass.applyFeatures(features, character, i);
                 }
             }
             for (const levelBoon of characterClass.levelBoons) {
-                if (levelBoon.feat) {
-                    const feat = Sources.getFeats(character.sources).find(f => f.name == levelBoon.feat);
+                if (levelBoon.feat?.value) {
+                    const feat = Sources.getFeats(character.sources).find(f => f.name == levelBoon.feat?.value);
                     if (feat?.applyFeatures) {
                         feat.applyFeatures(features, character, i, levelBoon.level);
                     }
@@ -593,8 +595,8 @@ export class Sources {
         }
 
         // background
-        if (character.background) {
-            const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background);
+        if (character.background?.value) {
+            const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background.value);
             if (background?.applyFeatures) {
                 background.applyFeatures(features, character);
             }

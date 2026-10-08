@@ -38,30 +38,37 @@ export class Athlete {
         return { prerequisitesMet: true, text: null };
     }
 
-    static getOptions(character, classIndex, level) {
-        const optionName = "athlete-ability-score-increase";
-        const optionValues = [
-            { value: null, text: "Choose Strength or Dexterity ..." },
-            { value: "strength", text: "Strength" },
-            { value: "dexterity", text: "Dexterity" }
-        ];
-        let abilityScoreIncrease = null;
-        const sourcePropertyName = `class-${classIndex}-level-${level}-feat`;
-        const values = character.selections
-            .find(s => s.sourcePropertyName == sourcePropertyName && s.name == optionName)?.values ?? [];
-        if (values.length > 0) {
-            abilityScoreIncrease = values[0];
+    static getSelections(character, classIndex, level) {
+        const selections = [];
+        const selectionName = "athlete-ability-score-increase";
+        let currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
+        if (currentSelections.length == 0) {
+            currentSelections = [{ value: null, text: "Choose ability ..." }];
         }
-        for (const optionValue of optionValues) {
-            optionValue.isSelected = (optionValue.value == abilityScoreIncrease);
-        }
-        return [
-            {
-                name: optionName,
-                maxSelections: 1,
-                optionValues: optionValues
+        selections.push({
+            name: selectionName,
+            title: "Choose ability ...",
+            maxSelections: 1,
+            currentSelections: currentSelections
+        })
+        return selections;
+    }
+
+    static getSelectionOptions(character, classIndex, level, selectionName) {
+        let options = [];
+        if (selectionName == "athlete-ability-score-increase") {
+            options = [
+                { value: null, text: "Choose ability ..." },
+                { value: "strength", text: "Strength" },
+                { value: "dexterity", text: "Dexterity" }
+            ];
+            let currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
+            currentSelections = currentSelections.map(cs => cs.value);
+            for (const option of options) {
+                option.isSelected = currentSelections.includes(option.value);
             }
-        ];
+        }
+        return options;
     }
 
     static applyModifiers(character, classIndex, level) {

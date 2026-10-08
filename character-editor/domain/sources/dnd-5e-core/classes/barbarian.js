@@ -53,34 +53,42 @@ export class Barbarian {
         return 3;
     }
 
-    static getOptions(character, classIndex) {
-
-        const options = [];
-
-        // skill proficiences
-        if (classIndex == 0) {
-            let optionName = "barbarian-skill-proficiencies";
-            let optionValues = [...Barbarian.#skillProficiencies];
-            optionValues.unshift({ value: null, text: "Choose skill proficiencies ...", hideCheckbox: true });
-            let selections = character.selections.find(s => s.name == optionName)?.values ?? [];
-            for (const optionValue of optionValues) {
-                optionValue.isSelected = selections.includes(optionValue.value);
+    static getSelections(character, classIndex) {
+        const selections = [];
+        if (Number(classIndex) == 0) {
+            const selectionName = "barbarian-skill-proficiencies";
+            let currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
+            if (currentSelections.length == 0) {
+                currentSelections = [{ value: null, text: "Choose skill proficiencies ..." }];
             }
-            options.push({
-                name: optionName,
+            selections.push({
+                name: selectionName,
                 title: "Skill Proficiencies (choose two)",
                 maxSelections: 2,
-                optionValues: optionValues
-            });
+                currentSelections: currentSelections
+            })
         }
+        return selections;
+    }
 
+    static getSelectionOptions(character, classIndex, selectionName) {
+        let options = [];
+        if (selectionName == "barbarian-skill-proficiencies") {
+            options = [...Barbarian.#skillProficiencies];
+            options.unshift({ value: null, text: "Choose skill proficiencies ...", hideCheckbox: true });
+            let currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
+            currentSelections = currentSelections.map(cs => cs.value);
+            for (const option of options) {
+                option.isSelected = currentSelections.includes(option.value);
+            }
+        }
         return options;
     }
 
     static applyModifiers(character, classIndex) {
 
         const modifiers = [];
-        if (character.classes[0].name == "barbarian") {
+        if (character.classes[0].value == "barbarian") {
             modifiers.push({
                 name: "barbarian-armor-proficiency-light-armor",
                 target: "armor-proficiency",
@@ -124,7 +132,7 @@ export class Barbarian {
             value: "martial-ranged",
             title: Barbarian.title
         });
-        if (character.classes[0].name == "barbarian") {
+        if (character.classes[0].value == "barbarian") {
             const proficiencyBonus = character.getProficiencyBonus();
             modifiers.push({
                 name: "barbarian-saving-throw-proficiency-strength",
@@ -154,7 +162,7 @@ export class Barbarian {
             e.isEquipped
             && e.properties
             && e.properties.some(p => p.name == "armor-type" && armorTypes.includes(p.value)));
-        if (character.classes[0].name == "barbarian" && !hasArmor) {
+        if (character.classes[0].value == "barbarian" && !hasArmor) {
             const acModifier = 2 + Number(character.getAbilityScoreModifier("constitution"));
             modifiers.push({
                 name: "barbarian-unarmored-defense-armor-class-modifier",
@@ -164,7 +172,7 @@ export class Barbarian {
             });
         }
 
-        const level = Number(character.classes.find(c => c.name == "barbarian").level);
+        const level = Number(character.classes.find(c => c.value == "barbarian").level);
         const hasHeavyArmor = character.equipment.some(e =>
             e.isEquipped
             && e.properties
@@ -217,7 +225,7 @@ export class Barbarian {
         const tempFeatures = [];
 
         // rage
-        const level = Number(character.classes.find(c => c.name == "barbarian").level);
+        const level = Number(character.classes.find(c => c.value == "barbarian").level);
         const hasHeavyArmor = character.equipment.some(e =>
             e.isEquipped
             && e.properties
@@ -248,7 +256,7 @@ export class Barbarian {
             e.isEquipped
             && e.properties
             && e.properties.some(p => p.name == "armor-type" && armorTypes.includes(p.value)));
-        if (character.classes[0].name == "barbarian" && !hasArmor) {
+        if (character.classes[0].value == "barbarian" && !hasArmor) {
             tempFeatures.push({
                 name: "barbarian-unarmored-defense",
                 displayType: "card",
@@ -280,7 +288,7 @@ export class Barbarian {
                     `
             });
         }
-        if (character.classes[0].name == "barbarian" && level >= 5) {
+        if (character.classes[0].value == "barbarian" && level >= 5) {
             tempFeatures.push({
                 name: "barbarian-extra-attack",
                 displayType: "card",

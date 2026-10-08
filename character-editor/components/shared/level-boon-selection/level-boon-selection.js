@@ -58,38 +58,106 @@ class LevelBoonSelectionModel {
         this.#kitElement.querySelector(".feats-container").classList.remove("hidden");
     }
 
-    getAbilityScores(controlIndex) {
-        const selectionModel = {
-            name: `ability-score-${controlIndex}`,
-            maxSelections: 1
+    getAbilityScoreSelectionModel(controlIndex) {
+        const index = Number(controlIndex);
+        const character = DomainClassAndLevelModel.character;
+        let currentSelection = { value: null, text: "Choose an ability ..." };
+        if (index == 1 && this.#levelBoon.abilityScore1) {
+            const ability1 = Sources.getAbilities().find(a => a.name == this.#levelBoon.abilityScore1);
+            currentSelection = {
+                value: ability1.name,
+                text: ability1.title
+            };
+        }
+        if (index == 2 && this.#levelBoon.abilityScore2) {
+            const ability2 = Sources.getAbilities().find(a => a.name == this.#levelBoon.abilityScore2);
+            currentSelection = {
+                value: ability2.name,
+                text: ability2.title
+            };
+        }
+        return {
+            name: `ability-${index}`,
+            title: "",
+            maxSelections: 1,
+            currentSelections: [currentSelection],
+            getOptions: this.getAbilities,
+            updateSelection: this.updateAbility
         };
+    }
+
+    getAbilities = (selectionModelName) => {
+        const index = Number(selectionModelName.replace("ability-", ""));
         const options = Sources.getAbilities().map(a => ({
             value: a.name,
             text: a.title
         }));
         options.unshift({
             value: null,
-            text: "Choose an ability score"
+            text: "Choose an ability ..."
         });
         for (const option of options) {
-            if (controlIndex == 2) {
-                option.isSelected = (this.#levelBoon.abilityScore2 == option.value);
-            }
-            else {
+            if (index == 1) {
                 option.isSelected = (this.#levelBoon.abilityScore1 == option.value);
             }
+            else {
+                option.isSelected = (this.#levelBoon.abilityScore2 == option.value);
+            }
         }
-        selectionModel.options = options;
-        return selectionModel;
+        return options;
     }
 
-    getFeats() {
-        const selectionModel = {
-            name: "feat",
-            maxSelections: 1
+    updateAbility = async (selectionModelName, options) => {
+        const ability = options[0];
+        const index = Number(selectionModelName.replace("ability-", ""));
+        if (index == 1 && this.#levelBoon.abilityScore1 == ability.value) {
+            return;
+        }
+        if (index == 2 && this.#levelBoon.abilityScore2 == ability.value) {
+            return;
+        }
+        const classIndex = this.#selectionModel.classIndex;
+        const levelBoon = {
+            level: this.#selectionModel.level,
+            hitPoints: this.#levelBoon.hitPoints,
+            abilityScore1: this.#levelBoon.abilityScore1,
+            abilityScore2: this.#levelBoon.abilityScore2,
         };
+        if (index == 1) {
+            levelBoon.abilityScore1 = ability.value;
+        }
+        else {
+            levelBoon.abilityScore2 = ability.value;
+        }
+        const character = Character.currentCharacter;
+        Sources.updateCharacterLevelBoon(character, classIndex, levelBoon);
+        const message = {
+            character: character,
+            section: "details-class-and-level"
+        };
+        EditorViewModel.setCurrentScrollY();
+        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
+    }
+
+    getFeatSelectionModel() {
         const character = DomainClassAndLevelModel.character;
-        const characterClass = character.classes[Number(this.#selectionModel.classIndex)];
+        let currentSelection = { value: null, text: "Choose a feat ..." };
+        if (this.#levelBoon.feat?.value) {
+            currentSelection = this.#levelBoon.feat;
+        }
+        return {
+            name: "feat",
+            title: "",
+            maxSelections: 1,
+            currentSelections: [currentSelection],
+            getOptions: this.getFeats,
+            getOptionDetail: this.getFeatHtml,
+            updateSelection: this.updateFeat
+        };
+    }
+
+    getFeats = () => {
+        const character = DomainClassAndLevelModel.character;
         const feats = Sources.getFeats(character.sources);
         for (const feat of feats) {
             if (feat.checkPrerequisites) {
@@ -99,8 +167,8 @@ class LevelBoonSelectionModel {
         const selectedFeats = [];
         for (const cls of character.classes) {
             for (const levelBoon of cls.levelBoons) {
-                if (levelBoon.feat) {
-                    selectedFeats.push(levelBoon.feat);
+                if (levelBoon.feat?.value) {
+                    selectedFeats.push(levelBoon.feat.value);
                 }
             }
         }
@@ -108,7 +176,7 @@ class LevelBoonSelectionModel {
             value: f.name ?? "",
             text: f.title ?? "",
             noteText: f.source.name ?? "",
-            isSelected: (this.#levelBoon.feat == f.name),
+            isSelected: (this.#levelBoon.feat?.value == f.name),
             hasDetail: true,
             isDisabled: (f.prerequisites?.prerequisitesMet == false),
             disabledReason: f.prerequisites?.text
@@ -119,56 +187,35 @@ class LevelBoonSelectionModel {
                 option.isDisabled = selectedFeats.includes(option.value);
                 option.disabledReason = selectedFeats.includes(option.value) ? "Feat already selected" : null;
             }
-        }    
-        options = Utilities.sort(options, "text");
-        options.unshift({
-            value: null,
-            text: "Choose a feat",
-            hasDetail: false
-        });
-        selectionModel.options = options;
-        return selectionModel;
+        } 
+        if (options.length > 0) {
+            options = Utilities.sort(options, "text");
+            options.unshift({
+                value: null,
+                text: "Choose a feat ...",
+                hasDetail: false,
+                isSelected: false
+            });
+        }
+        else {
+            options.push({
+                value: null,
+                text: "No feats in selected sources",
+                hasDetail: false,
+                isSelected: false
+            });
+        }
+        return options;
     }
 
     async getFeatHtml(selectionModelName, optionValue) {
-        const character = DomainClassAndLevelModel.character;
-        return await Sources.getFeatHtml(character.sources, optionValue);
+        return await Sources.getFeatHtml(DomainClassAndLevelModel.character.sources, optionValue);
     }
 
-    updateAbilityScore = async (selectionModelName, optionValues) => {
-        let abilityScore = optionValues[0];
-        if (abilityScore == "null") {
-            abilityScore = null;
-        }
-        const classIndex = this.#selectionModel.classIndex;
-        const levelBoon = {
-            level: this.#selectionModel.level,
-            hitPoints: this.#levelBoon.hitPoints,
-            abilityScore1: this.#levelBoon.abilityScore1,
-            abilityScore2: this.#levelBoon.abilityScore2,
-        };
-        if (selectionModelName == "ability-score-2") {
-            levelBoon.abilityScore2 = abilityScore;
-            if (this.#levelBoon.abilityScore2 == abilityScore) {
-                return;
-            }
-        }
-        else {
-            levelBoon.abilityScore1 = abilityScore;
-            if (this.#levelBoon.abilityScore1 == abilityScore) {
-                return;
-            }
-        }
-        const character = Character.currentCharacter;
-        Sources.updateCharacterLevelBoon(character, classIndex, levelBoon);
-        const message = { character: character };
-        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
-    }
-
-    updateFeat = async (selectionModelName, optionValues) => {
-        let feat = optionValues[0];
-        if (feat == "null") {
-            feat = null;
+    updateFeat = async (selectionModelName, options) => {
+        const feat = options[0];
+        if (this.#levelBoon.feat?.value == feat.value) {
+            return;
         }
         const classIndex = this.#selectionModel.classIndex;
         const levelBoon = {
@@ -176,40 +223,55 @@ class LevelBoonSelectionModel {
             hitPoints: this.#levelBoon.hitPoints,
             feat: feat
         };
-        if (this.#levelBoon.feat == levelBoon.feat) {
-            return;
-        }
         const character = Character.currentCharacter;
         Sources.updateCharacterLevelBoon(character, classIndex, levelBoon);
-        const message = { character: character };
+        const message = {
+            character: character,
+            section: "details-class-and-level"
+        };
+        EditorViewModel.setCurrentScrollY();
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
-    hasFeatOptions() {
-        return (this.#getFeatOptions().length > 0);
+    hasFeatSelections() {
+        return (this.#getFeatSelections().length > 0);
     }
 
-    getFeatOptions() {
-        return this.#getFeatOptions();
+    getFeatSelections() {
+        return this.#getFeatSelections();
     }
 
-    async getFeatOptionHtml(selectionModelName, optionValue) {
-        return "[no detail available]";
+    getFeatSelectionOptions = (selectionModelName) => {
+        let options = [];
+        if (this.#levelBoon.feat?.value) {
+            const character = DomainClassAndLevelModel.character;
+            const feat = Sources.getFeats(character.sources).find(f => f.name == this.#levelBoon.feat.value);
+            if (feat?.getSelectionOptions) {
+                options = feat.getSelectionOptions(
+                    character, this.#selectionModel.classIndex, this.#selectionModel.level, selectionModelName);
+            }
+        }
+        return options;
     }
 
-    updateFeatOption = async (selectionModelName, optionValues) => {
+    updateFeatSelection = async (selectionModelName, selectedOptions) => {
         const character = Character.currentCharacter;
         const currentValues = character.selections.find(s => s.name == selectionModelName)?.values ?? [];
-        if (Utilities.areArraysEqual(currentValues, optionValues)) {
+        if (Utilities.areArraysEqual(currentValues, selectedOptions, ["value"])) {
             return;
         }
         const selection = {
             name: selectionModelName,
             sourcePropertyName: `class-${this.#selectionModel.classIndex}-level-${this.#selectionModel.level}-feat`,
-            values: optionValues
+            values: selectedOptions
         };
         Sources.updateCharacterSelection(character, selection);
-        const message = { character: character, selection: selection };
+        const message = {
+            character: character,
+            selection: selection,
+            section: "details-class-and-level"
+        };
+        EditorViewModel.setCurrentScrollY();
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
@@ -225,21 +287,24 @@ class LevelBoonSelectionModel {
         }
     }
 
-    #featOptions;
-    #getFeatOptions() {
-        if (!this.#featOptions) {
+    #featSelections;
+    #getFeatSelections() {
+        if (!this.#featSelections) {
             const character = DomainClassAndLevelModel.character;
-            let displayOptions = [];
-            if (this.#levelBoon.feat) {
-                const feat = Sources.getFeats(character.sources).find(f => f.name == this.#levelBoon.feat);
-                if (feat.getOptions) {
-                    const featOptions = feat.getOptions(character, this.#selectionModel.classIndex, this.#selectionModel.level);
-                    displayOptions = SelectionModel.getDisplayOptions(character, featOptions);
+            let featSelections = [];
+            if (this.#levelBoon.feat?.value) {
+                const feat = Sources.getFeats(character.sources).find(f => f.name == this.#levelBoon.feat.value);
+                if (feat.getSelections) {
+                    featSelections = feat.getSelections(character, this.#selectionModel.classIndex, this.#selectionModel.level);
+                    for (const featSelection of featSelections) {
+                        featSelection.getOptions = this.getFeatSelectionOptions;
+                        featSelection.updateSelection = this.updateFeatSelection;
+                    }
                 }
             }
-            this.#featOptions = displayOptions;
+            this.#featSelections = featSelections;
         }
-        return this.#featOptions;
+        return this.#featSelections;
     }
 
 }

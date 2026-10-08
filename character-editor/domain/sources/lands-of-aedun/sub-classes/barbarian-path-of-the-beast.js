@@ -17,7 +17,11 @@ export class BarbarianPathOfTheBeast {
         return "barbarian";
     }
 
-    static getOptions(character, classIndex) {
+    static getSelections(character, classIndex) {
+        return [];
+    }
+
+    static getSelectionOptions(character, classIndex, selectionName) {
         return [];
     }
 
@@ -27,7 +31,7 @@ export class BarbarianPathOfTheBeast {
 
     static applyFeatures(features, character, classIndex) {
         const tempFeatures = [];
-        const characterClass = character.classes.find(c => c.name == "barbarian");
+        const characterClass = character.classes.find(c => c.value == "barbarian");
         if (characterClass.level >= 3) {
             // beast form
             tempFeatures.push({

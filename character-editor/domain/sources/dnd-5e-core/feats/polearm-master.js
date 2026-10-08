@@ -34,7 +34,11 @@ export class PolearmMaster {
         return { prerequisitesMet: true, text: null };
     }
 
-    static getOptions(character, classIndex, level) {
+    static getSelections(character, classIndex, level) {
+        return [];
+    }
+
+    static getSelectionOptions(character, classIndex, level, selectionName) {
         return [];
     }
 

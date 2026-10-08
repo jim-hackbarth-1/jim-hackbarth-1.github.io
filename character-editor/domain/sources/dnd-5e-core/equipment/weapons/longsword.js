@@ -40,7 +40,11 @@ export class Longsword {
         return "";
     }
 
-    static getOptions(character, inventoryIndex) {
+    static getSelections(character, inventoryIndex) {
+        return []
+    }
+
+    static getSelectionOptions(character, inventoryIndex, selectionName) {
         return [];
     }
 

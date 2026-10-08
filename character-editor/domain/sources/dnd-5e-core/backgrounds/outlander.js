@@ -65,7 +65,11 @@ export class Outlander {
         ]
     }
 
-    static getOptions(character) {
+    static getSelections(character) {
+        return [];
+    }
+
+    static getSelectionOptions(character, selectionName) {
         return [];
     }
 

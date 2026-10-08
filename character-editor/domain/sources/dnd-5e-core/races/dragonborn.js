@@ -21,26 +21,37 @@ export class Dragonborn {
         return "medium";
     }
 
-    static getOptions(character) { 
-        const optionName = "dragonborn-draconic-ancestry";
-        const optionValues = [...Dragonborn.#draconicAncestries];
-        optionValues.unshift({ value: null, text: "Choose a draconic ancestry ..." });
-        let draconicAncestry = null;
-        const values = character.selections.find(f => f.name == optionName)?.values ?? [];
-        if (values.length > 0) {
-            draconicAncestry = values[0];
-        }
-        for (const optionValue of optionValues) {
-            optionValue.isSelected = (optionValue.value == draconicAncestry);
+    static getSelections(character) { 
+        const selectionName = "dragonborn-draconic-ancestry";
+        const currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
+        if (currentSelections.length == 0) {
+            currentSelections.push({ value: null, text: "Choose a draconic ancestry ..." });
         }
         return [
             {
-                name: optionName,
+                name: selectionName,
                 title: "Draconic Ancestry",
                 maxSelections: 1,
-                optionValues: optionValues
+                currentSelections: currentSelections
             }
         ];
+    }
+
+    static getSelectionOptions(character, selectionName) {
+        let options = [];
+        if (selectionName == "dragonborn-draconic-ancestry") {
+            options = [...Dragonborn.#draconicAncestries];
+            options.unshift({ value: null, text: "Choose a draconic ancestry ..." });
+            let draconicAncestry = null;
+            const currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
+            if (currentSelections.length > 0) {
+                draconicAncestry = currentSelections[0].value;
+            }
+            for (const option of options) {
+                option.isSelected = (option.value == draconicAncestry);
+            }
+        }
+        return options;
     }
 
     static applyModifiers(character) {

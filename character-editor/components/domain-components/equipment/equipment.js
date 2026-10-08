@@ -85,48 +85,58 @@ class DomainEquipmentModel {
         this.#kitElement.querySelector(`#${detailSection}`).classList.toggle("hidden");
     }
 
-    getEquipmentCategories() {
-        const selectionModel = {
+    getEquipmentCategoriesSelectionModel() {
+        let currentSelection = { value: null, text: "Choose an equipment category ..." };
+        const category = DomainEquipmentModel.#equipmentCategory;
+        if (category?.value) {
+            currentSelection = { value: category.value, text: category.text };
+        }
+        return {
             name: "equipment-category",
-            title: "Category:",
-            maxSelections: 1
+            title: "Category",
+            maxSelections: 1,
+            currentSelections: [currentSelection],
+            getOptions: this.getEquipmentCategories,
+            updateSelection: this.updateEquipmentCategory
         };
-        let categories = Sources.getEquipmentCategories();
+    }
+
+    getEquipmentCategories() {
+        const character = DomainEquipmentModel.#character;
+        const categories = Sources.getEquipmentCategories();
+        const category = DomainEquipmentModel.#equipmentCategory;
         let options = categories.map(ec =>
         ({
             value: ec.name,
             text: ec.title,
             hasDetail: false,
-            isSelected: (DomainEquipmentModel.#equipmentCategory == ec.name)
+            isSelected: (category?.value == ec.name)
         }));
         options = Utilities.sort(options, "text");
         options.unshift({
             value: null,
-            text: "Choose an equipment category",
+            text: "Choose an equipment category ...",
             hasDetail: false,
             isSelected: false
         });
-        selectionModel.options = options;
-        return selectionModel;
+        return options;
     }
 
-    updateEquipmentCategory = async (selectionModelName, optionValues) => {
-        let equipmentCategory = optionValues[0];
-        if (equipmentCategory == "null") {
-            equipmentCategory = null;
-        }
-        if (DomainEquipmentModel.#equipmentCategory == equipmentCategory) {
+    updateEquipmentCategory = async (selectionModelName, options) => {
+        const category = options[0];
+        const currentCategory = DomainEquipmentModel.#equipmentCategory;
+        if (category?.value == currentCategory?.value) {
             return;
         }
-        DomainEquipmentModel.#equipmentCategory = equipmentCategory;
+        DomainEquipmentModel.#equipmentCategory = category;
         await UIKit.renderer.renderElement(this.#kitElement.querySelector("#add-equipment-list"));
     }
 
     getEquipment() {
         let equipment = [];
         const character = DomainEquipmentModel.#character;
-        if (DomainEquipmentModel.#equipmentCategory) {
-            equipment = Sources.getEquipment(DomainEquipmentModel.#character.sources, DomainEquipmentModel.#equipmentCategory);
+        if (DomainEquipmentModel.#equipmentCategory?.value) {
+            equipment = Sources.getEquipment(DomainEquipmentModel.#character.sources, DomainEquipmentModel.#equipmentCategory.value);
         }
         if (equipment.length == 0) {
             equipment.push({ properties: ["[No equipment]"] });
@@ -212,8 +222,15 @@ class DomainEquipmentModel {
         for (let i = 0; i < character.equipment.length; i++) {
             const characterItem = character.equipment[i];
             const item = allEquipment.find(e => e.name == characterItem.name);
-            const domainOptions = item.getOptions(character, i) ?? [];
-            const displayOptions = SelectionModel.getDisplayOptions(character, domainOptions, `item-index-${i}:`);
+            let selections = null;
+            if (item?.getSelections) {
+                selections = item.getSelections(character, i);
+                for (const selection of selections) {
+                    selection.name = `inventory-${i}:${selection.name}`;
+                    selection.getOptions = this.getEquipmentSelectionOptions;
+                    selection.updateSelection = this.updateEquipmentSelection;
+                }
+            }
             let properties = item.properties ?? [];
             if (item.armorType == "shield") {
                 properties.push("<span class='property-note'>(Only 1 shield may be equipped.)</span>");
@@ -228,7 +245,7 @@ class DomainEquipmentModel {
                 source: item.source,
                 properties: properties,
                 canBeEquipped: item.canBeEquipped,
-                options: displayOptions,
+                selections: selections,
                 html: item.html,
                 htmlPath: item.htmlPath,
                 isEquipped: characterItem.isEquipped
@@ -284,16 +301,16 @@ class DomainEquipmentModel {
 
     toggleOptions(event, inventoryIndex) {
         const inventoryItem = this.#kitElement.querySelector(`#inventory-item-${inventoryIndex}`);
-        const isHidden = inventoryItem.querySelector(".inventory-item-options").classList.contains("hidden");
-        const allOptionElements = this.#kitElement.querySelectorAll(".inventory-item-options");
+        const isHidden = inventoryItem.querySelector(".inventory-item-selections").classList.contains("hidden");
+        const allOptionElements = this.#kitElement.querySelectorAll(".inventory-item-selections");
         for (const optionElement of allOptionElements) {
             optionElement.classList.add("hidden");  
         }
         if (isHidden) {
-            inventoryItem.querySelector(".inventory-item-options").classList.remove("hidden");
+            inventoryItem.querySelector(".inventory-item-selections").classList.remove("hidden");
         }
         else {
-            inventoryItem.querySelector(".inventory-item-options").classList.add("hidden");
+            inventoryItem.querySelector(".inventory-item-selections").classList.add("hidden");
         }
     }
 
@@ -347,30 +364,41 @@ class DomainEquipmentModel {
         }
     }
 
-    getOptionHtml(selectionModelName, optionValue) {
-        return "[no detail available]";
+    getEquipmentSelectionOptions(selectionModelName) {
+        const parts = selectionModelName.split(":");
+        const index = Number(parts[0].replace("inventory-", ""));
+        const modelName = parts[1];
+        const character = DomainEquipmentModel.#character;
+        let options = [];
+        const itemName = character.equipment[index].name;
+        const item = Sources.getEquipment(character.sources).find(e => e.name == itemName);
+        if (item?.getSelectionOptions) {
+            options = item.getSelectionOptions(character, index, modelName);
+        }
+        return options;
     }
 
-    async updateOption(selectionModelName, optionValues) {
+    async updateEquipmentSelection(selectionModelName, selectedOptions) {
+        const parts = selectionModelName.split(":");
+        const index = Number(parts[0].replace("inventory-", ""));
+        const modelName = parts[1];
         const character = Character.currentCharacter;
         const currentValues = character.selections.find(s => s.name == selectionModelName)?.values ?? [];
-        if (Utilities.areArraysEqual(currentValues, optionValues)) {
+        if (Utilities.areArraysEqual(currentValues, selectedOptions, ["value"])) {
             return;
         }
-        const parts = selectionModelName.split(":");
-        const itemIndex = Number(parts[0].replace("item-index-", ""));
         const selection = {
-            name: selectionModelName,
-            sourcePropertyName: `equipment-${itemIndex}`,
-            sourcePropertyValue: character.equipment[itemIndex].name,
-            values: optionValues
+            name: modelName,
+            sourcePropertyName: `equipment-${index}`,
+            sourcePropertyValue: character.equipment[index].name,
+            values: selectedOptions
         };
         Sources.updateCharacterSelection(character, selection);
-        const inventoryItem = character.equipment[itemIndex];
+        const inventoryItem = character.equipment[index];
         if (inventoryItem.isEquipped) {
-            const equipment = Sources.getEquipment(character.source).find(e => e.inventoryItem.name);
+            const equipment = Sources.getEquipment(character.sources).find(e => e.name == e.inventoryItem.name);
             if (equipment?.equip) {
-                equipment.equip(character, itemIndex);
+                equipment.equip(character, index);
             }
         }
         const message = {

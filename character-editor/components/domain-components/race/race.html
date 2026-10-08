@@ -4,38 +4,30 @@
     <div id="race-content">
         <div id="race-row" kit-element>
             <kit kit-component="./components/shared/selection/selection.html"
-                 kit-obj-selection-model="selectionModel:#model.getRaces()"
-                 kit-obj-get-detail-handler="getDetailHandler:#model.getRaceHtml"
-                 kit-obj-change-handler="changeHandler:#model.updateRace">
+                 kit-obj-selection-model="selectionModel:#model.getRaceSelectionModel()">
             </kit>
         </div>
-        <div id="race-options-row" kit-if="#model.hasRaceOptions()">
-            <div kit-array="#model.getRaceOptions()"
-                 kit-array-item-alias="option">
-                <div class="option-control">
+        <div id="race-selections-row" kit-if="#model.hasRaceSelections()">
+            <div kit-array="#model.getRaceSelections()"
+                 kit-array-item-alias="selection">
+                <div class="selection-control">
                     <kit kit-component="./components/shared/selection/selection.html"
-                         kit-obj-selection-model="selectionModel:#option"
-                         kit-obj-get-detail-handler="getDetailHandler:#model.getRaceOptionHtml"
-                         kit-obj-change-handler="changeHandler:#model.updateRaceOption">
+                         kit-obj-selection-model="selectionModel:#selection">
                     </kit>
                 </div>
             </div>
         </div>
         <div id="sub-race-row" kit-if="#model.hasSubRaces()">
             <kit kit-component="./components/shared/selection/selection.html"
-                 kit-obj-selection-model="selectionModel:#model.getSubRaces()"
-                 kit-obj-get-detail-handler="getDetailHandler:#model.getSubRaceHtml"
-                 kit-obj-change-handler="changeHandler:#model.updateSubRace">
+                 kit-obj-selection-model="selectionModel:#model.getSubRaceSelectionModel()">
             </kit>
         </div>
-        <div id="sub-race-options-row" kit-if="#model.hasSubRaceOptions()">
-            <div kit-array="#model.getSubRaceOptions()"
-                 kit-array-item-alias="option">
-                <div class="option-control">
+        <div id="sub-race-selections-row" kit-if="#model.hasSubRaceSelections()">
+            <div kit-array="#model.getSubRaceSelections()"
+                 kit-array-item-alias="selection">
+                <div class="selection-control">
                     <kit kit-component="./components/shared/selection/selection.html"
-                         kit-obj-selection-model="selectionModel:#option"
-                         kit-obj-get-detail-handler="getDetailHandler:#model.getSubRaceOptionHtml"
-                         kit-obj-change-handler="changeHandler:#model.updateSubRaceOption">
+                         kit-obj-selection-model="selectionModel:#selection">
                     </kit>
                 </div>
             </div>

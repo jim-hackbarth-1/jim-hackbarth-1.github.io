@@ -84,7 +84,7 @@ export class Character {
         }
         const temp = [];
         for (const cls of classes) {
-            if (!cls.name || !temp.some(c => c.name == cls.name)) {
+            if (!cls.value || !temp.some(c => c.value == cls.value)) {
                 temp.push(cls);
             }
         }

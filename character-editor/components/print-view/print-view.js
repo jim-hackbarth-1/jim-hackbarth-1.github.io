@@ -43,16 +43,16 @@ class PrintViewModel {
         // classes
         let classesHtml = "";
         const profiencyBonus = character.getProficiencyBonus();
-        const characterClasses = character.classes.filter(c => c.name && c.level);
+        const characterClasses = character.classes.filter(c => c.value && c.level);
         if (characterClasses.length > 0) {
             if (characterClasses.length == 1) {
-                const primaryClass = Sources.getClasses(character.sources).find(c => c.name == characterClasses[0].name);
+                const primaryClass = Sources.getClasses(character.sources).find(c => c.name == characterClasses[0].value);
                 classesHtml += `<div class="row no-wrap">${primaryClass.title}, Level ${characterClasses[0].level}</div>`;
             }
             if (characterClasses.length > 1) {
                 classesHtml = "<div class='no-wrap'>Classes:</div><ul>";
                 for (const cls of characterClasses) {
-                    const classModel = Sources.getClasses(character.sources).find(c => c.name == cls.name);
+                    const classModel = Sources.getClasses(character.sources).find(c => c.name == cls.value);
                     classesHtml += `<div class="row no-wrap">${classModel.title}, Level ${cls.level}</div>`;
                 }
                 classesHtml += "</ul>";
@@ -65,14 +65,14 @@ class PrintViewModel {
         let race = "";
         let size = "";
         let speed = "";
-        if (character.race) {
-            const raceModel = Sources.getRaces(character.sources).find(r => r.name == character.race);
+        if (character.race?.value) {
+            const raceModel = Sources.getRaces(character.sources).find(r => r.name == character.race.value);
             size = raceModel.size;
             speed = `Speed: ${raceModel.speed}`;
-            if (character.subRace) {
+            if (character.subRace?.value) {
                 const subRaceModel = Sources
-                    .getSubRaces(character.sources, character.race)
-                    .find(sr => sr.name == character.subRace);
+                    .getSubRaces(character.sources, character.race.value)
+                    .find(sr => sr.name == character.subRace.value);
                 race = subRaceModel.title;
             }
             else {
@@ -85,16 +85,16 @@ class PrintViewModel {
 
         // alignment
         let alignment = ""
-        if (character.alignment) {
-            alignment = Sources.getAlignments().find(a => a.name == character.alignment)?.title ?? "";
+        if (character.alignment?.value) {
+            alignment = Sources.getAlignments().find(a => a.name == character.alignment.value)?.title ?? "";
         }
         this.#kitElement.querySelector("#alignment").innerText = alignment;
 
         // background
         let background = ""
         let backgroundModel = null;
-        if (character.background) {
-            backgroundModel = Sources.getBackgrounds(character.sources).find(b => b.name == character.background);
+        if (character.background?.value) {
+            backgroundModel = Sources.getBackgrounds(character.sources).find(b => b.name == character.background.value);
             background = backgroundModel?.title ?? "";
         }
         this.#kitElement.querySelector("#background").innerText = background;

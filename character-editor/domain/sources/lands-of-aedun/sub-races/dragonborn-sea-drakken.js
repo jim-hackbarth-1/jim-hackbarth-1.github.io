@@ -17,7 +17,11 @@ export class DragonbornSeaDrakken {
         return "dragonborn";
     }
 
-    static getOptions(character) {
+    static getSelections(character) {
+        return [];
+    }
+
+    static getSelectionOptions(character, optionName) {
         return [];
     }
 

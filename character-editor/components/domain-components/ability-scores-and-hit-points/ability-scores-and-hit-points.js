@@ -170,7 +170,7 @@ class DomainAbilityScoresAndHitPointsModel {
         const conBase = character.abilityScores.find(a => a.name == "constitution").baseScore;
         for (let i = 0; i < character.classes.length; i++) {
             const characterClass = character.classes[i];
-            const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.name);
+            const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.value);
             if (cls) {
                 for (const levelBoon of characterClass.levelBoons) {
                     const conModifierAtLevel = character.getConModifierForHitPoints(levelBoon.index);

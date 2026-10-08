@@ -25,7 +25,11 @@ export class BracersOfArchery {
         return "<p>While wearing these bracers, you have proficiency with the longbow and shortbow, and you gain a +2 bonus to damage rolls on ranged attacks made with such weapons.</p>";
     }
 
-    static getOptions(character, inventoryIndex) {
+    static getSelections(character, inventoryIndex) {
+        return []
+    }
+
+    static getSelectionOptions(character, inventoryIndex,selectionName) {
         return [];
     }
 

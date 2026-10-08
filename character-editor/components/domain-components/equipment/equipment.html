@@ -93,7 +93,7 @@
                                 <div class="inventory-cell">
                                     <div class="toggle-button-container">
                                         <div class="options-container" 
-                                             kit-if="(#item.options ?? []).length > 0"
+                                             kit-if="(#item.selections ?? []).length > 0"
                                              onpointerdown="#model.toggleOptions(event, '%{#item.index}%')">
                                             <div class="options-label">Options</div>
                                             <div class="toggle-button options-button"
@@ -118,14 +118,12 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="inventory-item-options hidden">
-                                <div kit-array="#item.options ?? []"
-                                     kit-array-item-alias="option">
-                                    <div class="option-control">
+                            <div class="inventory-item-selections hidden">
+                                <div kit-array="#item.selections ?? []"
+                                     kit-array-item-alias="selection">
+                                    <div>
                                         <kit kit-component="./components/shared/selection/selection.html"
-                                             kit-obj-selection-model="selectionModel:#option"
-                                             kit-obj-get-detail-handler="getDetailHandler:#model.getOptionHtml"
-                                             kit-obj-change-handler="changeHandler:#model.updateOption">
+                                             kit-obj-selection-model="selectionModel:#selection">
                                         </kit>
                                     </div>
                                 </div>
@@ -157,8 +155,7 @@
             <div id="add-equipment-detail" class="detail">
                 <div id="add-equipment-category" kit-element>
                     <kit kit-component="./components/shared/selection/selection.html"
-                         kit-obj-selection-model="selectionModel:#model.getEquipmentCategories()"
-                         kit-obj-change-handler="changeHandler:#model.updateEquipmentCategory">
+                         kit-obj-selection-model="selectionModel:#model.getEquipmentCategoriesSelectionModel()">
                     </kit>
                 </div>
                 <div id="add-equipment-list" kit-element>

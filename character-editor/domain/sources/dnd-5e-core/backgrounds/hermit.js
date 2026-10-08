@@ -70,17 +70,25 @@ export class Hermit {
         ]
     }
 
-    static getOptions(character) {
-        const optionName = "hermit-language";
+    static getSelections(character) {
+        const selectionName = "hermit-language";
+        const currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
+        if (currentSelections.length == 0) {
+            currentSelections.push({ value: null, text: "Choose a language ..." });
+        }
         return [
             {
-                name: optionName,
+                name: selectionName,
                 title: "Language",
                 maxSelections: 1,
                 useLanguages: true,
-                selectedLanguages: character.selections.find(f => f.name == optionName)?.values ?? []
+                currentSelections: currentSelections
             }
         ];
+    }
+
+    static getSelectionOptions(character, selectionName) {
+        return [];
     }
 
     static applyModifiers(character) {

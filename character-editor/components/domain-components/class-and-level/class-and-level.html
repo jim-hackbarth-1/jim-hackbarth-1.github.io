@@ -11,44 +11,35 @@
                 </div>
                 <div id="class-row-%{#classInfo.index}%" kit-element>
                     <kit kit-component="./components/shared/selection/selection.html"
-                         kit-obj-selection-model="selectionModel:#model.getClasses('%{#classInfo.index}%')"
-                         kit-obj-get-detail-handler="getDetailHandler:#model.getClassHtml"
-                         kit-obj-change-handler="changeHandler:#model.updateClass">
+                         kit-obj-selection-model="selectionModel:#model.getClassSelectionModel('%{#classInfo.index}%')">
                     </kit>
                 </div>
                 <div id="level-row-%{#classInfo.index}%" kit-element>
                     <kit kit-component="./components/shared/selection/selection.html"
-                         kit-obj-selection-model="selectionModel:#model.getLevels('%{#classInfo.index}%')"
-                         kit-obj-change-handler="changeHandler:#model.updateLevel">
+                         kit-obj-selection-model="selectionModel:#model.getLevelSelectionModel('%{#classInfo.index}%')">
                     </kit>
                 </div>
-                <div id="class-options-row-%{#classInfo.index}%" kit-if="#model.hasClassOptions('%{#classInfo.index}%')">
-                    <div kit-array="#model.getClassOptions('%{#classInfo.index}%')"
-                         kit-array-item-alias="option">
-                        <div class="option-control">
+                <div id="class-selections-row-%{#classInfo.index}%" kit-if="#model.hasClassSelections('%{#classInfo.index}%')">
+                    <div kit-array="#model.getClassSelections('%{#classInfo.index}%')"
+                         kit-array-item-alias="selection">
+                        <div class="selection-control">
                             <kit kit-component="./components/shared/selection/selection.html"
-                                 kit-obj-selection-model="selectionModel:#option"
-                                 kit-obj-get-detail-handler="getDetailHandler:#model.getClassOptionHtml"
-                                 kit-obj-change-handler="changeHandler:#model.updateClassOption">
+                                 kit-obj-selection-model="selectionModel:#selection">
                             </kit>
                         </div>
                     </div>
                 </div>
                 <div id="sub-class-row-%{#classInfo.index}%" kit-if="#model.hasSubClasses('%{#classInfo.index}%')">
                     <kit kit-component="./components/shared/selection/selection.html"
-                         kit-obj-selection-model="selectionModel:#model.getSubClasses('%{#classInfo.index}%')"
-                         kit-obj-get-detail-handler="getDetailHandler:#model.getSubClassHtml"
-                         kit-obj-change-handler="changeHandler:#model.updateSubClass">
+                         kit-obj-selection-model="selectionModel:#model.getSubClassSelectionModel('%{#classInfo.index}%')">
                     </kit>
                 </div>
-                <div id="sub-class-options-row-%{#classInfo.index}%" kit-if="#model.hasSubClassOptions('%{#classInfo.index}%')">
-                    <div kit-array="#model.getSubClassOptions('%{#classInfo.index}%')"
-                         kit-array-item-alias="option">
-                        <div class="option-control">
+                <div id="sub-class-selections-row-%{#classInfo.index}%" kit-if="#model.hasSubClassSelections('%{#classInfo.index}%')">
+                    <div kit-array="#model.getSubClassSelections('%{#classInfo.index}%')"
+                         kit-array-item-alias="selection">
+                        <div class="selection-control">
                             <kit kit-component="./components/shared/selection/selection.html"
-                                 kit-obj-selection-model="selectionModel:#option"
-                                 kit-obj-get-detail-handler="getDetailHandler:#model.getSubClassOptionHtml"
-                                 kit-obj-change-handler="changeHandler:#model.updateSubClassOption">
+                                 kit-obj-selection-model="selectionModel:#selection">
                             </kit>
                         </div>
                     </div>
@@ -56,7 +47,7 @@
                 <div id="level-boons-row-%{#classInfo.index}%" kit-if="#model.hasLevelBoons('%{#classInfo.index}%')">
                     <div kit-array="#model.getLevelBoons('%{#classInfo.index}%')"
                          kit-array-item-alias="levelBoon">
-                        <div class="option-control">
+                        <div class="selection-control">
                             <kit kit-component="./components/shared/level-boon-selection/level-boon-selection.html"
                                  kit-obj-selection-model="selectionModel:#levelBoon">
                             </kit>

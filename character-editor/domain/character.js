@@ -655,8 +655,7 @@ export class Character {
             portrait: this.portrait,
             description: this.description,
             historyNotes: this.historyNotes,
-            selections: this.selections,
-            modifiers: this.modifiers
+            selections: this.selections
         }
     }
 }

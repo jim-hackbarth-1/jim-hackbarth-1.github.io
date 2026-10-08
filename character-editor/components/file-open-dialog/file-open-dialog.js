@@ -1,5 +1,7 @@
 
 import { Character } from "../../domain/character.js";
+import { Sources } from "../../domain/sources.js";
+import { EditorViewModel } from "../editor-view/editor-view.js";
 import { HeadingModel } from "../heading/heading.js";
 import { DialogHelper } from "../shared/dialog-helper.js";
 
@@ -76,15 +78,19 @@ class FileOpenDialogModel {
 
     async buttonOkClicked() {
         this.closeDialog();
+        let character = null;
         if (FileOpenDialogModel.#hasFileSystemAccess()) {
             HeadingModel.FileHandle = FileOpenDialogModel.#fileHandle;
             const file = await HeadingModel.FileHandle.getFile();
             const json = await file.text();
-            Character.currentCharacter = new Character(JSON.parse(json));
+            character = new Character(JSON.parse(json));           
         }
         else {
-            Character.currentCharacter = new Character(JSON.parse(FileOpenDialogModel.#fileContents));
+            character = new Character(JSON.parse(FileOpenDialogModel.#fileContents));
         }
+        Sources.applyCharacterModifiers(character);
+        Character.currentCharacter = character;
+        EditorViewModel.character = character;
         const contentElement = UIKit.document.documentElement.querySelector("#content-component");
         await UIKit.renderer.renderElement(contentElement);
     }

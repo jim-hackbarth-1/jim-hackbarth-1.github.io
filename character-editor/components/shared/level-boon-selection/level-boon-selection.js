@@ -1,7 +1,6 @@
 
 import { Character, Sources, Utilities } from "../../../domain/references.js";
 import { EditorViewModel } from "../../editor-view/editor-view.js";
-import { DomainClassAndLevelModel } from "../../domain-components/class-and-level/class-and-level.js";
 import { SelectionModel } from "../../shared/selection/selection.js";
 
 export function createModel() {
@@ -17,7 +16,7 @@ class LevelBoonSelectionModel {
     async init(kitElement, kitObjects) {
         this.#kitElement = kitElement;
         this.#selectionModel = kitObjects.find(o => o.alias == "selectionModel")?.object;
-        const character = Character.currentCharacter;
+        const character = EditorViewModel.character;
         if (this.#selectionModel) {
             this.#levelBoon = character.classes[this.#selectionModel.classIndex].levelBoons
                 .find(lb => lb.level == this.#selectionModel.level);
@@ -60,7 +59,7 @@ class LevelBoonSelectionModel {
 
     getAbilityScoreSelectionModel(controlIndex) {
         const index = Number(controlIndex);
-        const character = DomainClassAndLevelModel.character;
+        const character = EditorViewModel.character;
         let currentSelection = { value: null, text: "Choose an ability ..." };
         if (index == 1 && this.#levelBoon.abilityScore1) {
             const ability1 = Sources.getAbilities().find(a => a.name == this.#levelBoon.abilityScore1);
@@ -135,12 +134,11 @@ class LevelBoonSelectionModel {
             character: character,
             section: "details-class-and-level"
         };
-        EditorViewModel.setCurrentScrollY();
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
     getFeatSelectionModel() {
-        const character = DomainClassAndLevelModel.character;
+        const character = EditorViewModel.character;
         let currentSelection = { value: null, text: "Choose a feat ..." };
         if (this.#levelBoon.feat?.value) {
             currentSelection = this.#levelBoon.feat;
@@ -157,7 +155,7 @@ class LevelBoonSelectionModel {
     }
 
     getFeats = () => {
-        const character = DomainClassAndLevelModel.character;
+        const character = EditorViewModel.character;
         const feats = Sources.getFeats(character.sources);
         for (const feat of feats) {
             if (feat.checkPrerequisites) {
@@ -209,7 +207,7 @@ class LevelBoonSelectionModel {
     }
 
     async getFeatHtml(selectionModelName, optionValue) {
-        return await Sources.getFeatHtml(DomainClassAndLevelModel.character.sources, optionValue);
+        return await Sources.getFeatHtml(EditorViewModel.character.sources, optionValue);
     }
 
     updateFeat = async (selectionModelName, options) => {
@@ -229,7 +227,6 @@ class LevelBoonSelectionModel {
             character: character,
             section: "details-class-and-level"
         };
-        EditorViewModel.setCurrentScrollY();
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
@@ -244,7 +241,7 @@ class LevelBoonSelectionModel {
     getFeatSelectionOptions = (selectionModelName) => {
         let options = [];
         if (this.#levelBoon.feat?.value) {
-            const character = DomainClassAndLevelModel.character;
+            const character = EditorViewModel.character;
             const feat = Sources.getFeats(character.sources).find(f => f.name == this.#levelBoon.feat.value);
             if (feat?.getSelectionOptions) {
                 options = feat.getSelectionOptions(
@@ -271,7 +268,6 @@ class LevelBoonSelectionModel {
             selection: selection,
             section: "details-class-and-level"
         };
-        EditorViewModel.setCurrentScrollY();
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
@@ -290,7 +286,7 @@ class LevelBoonSelectionModel {
     #featSelections;
     #getFeatSelections() {
         if (!this.#featSelections) {
-            const character = DomainClassAndLevelModel.character;
+            const character = EditorViewModel.character;
             let featSelections = [];
             if (this.#levelBoon.feat?.value) {
                 const feat = Sources.getFeats(character.sources).find(f => f.name == this.#levelBoon.feat.value);

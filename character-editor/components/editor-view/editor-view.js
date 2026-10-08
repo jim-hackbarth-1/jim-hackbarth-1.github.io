@@ -18,6 +18,8 @@ export class EditorViewModel {
     static #startX;
     static #resizing = false;
 
+    static character;
+
     #kitElement;
 
     static #currentScrollTop = 0;
@@ -31,6 +33,7 @@ export class EditorViewModel {
     
     async init(kitElement) {
         this.#kitElement = kitElement;
+        EditorViewModel.character = Character.currentCharacter;
         const elementKey = this.#kitElement.getAttribute("kit-element-key");
         const characterUpdateStartedSubscriber = {
             elementKey: elementKey,
@@ -106,101 +109,22 @@ export class EditorViewModel {
     }
 
     async onCharacterUpdateStarted(message) {
+        EditorViewModel.setCurrentScrollY();
         const character = message.character;
-        character.modifiers = [];
-        if (character.race?.value) {
-            const race = Sources.getRaces(character.sources).find(r => r.name == character.race?.value);
-            if (race?.applyModifiers) {
-                race.applyModifiers(character);
-            }
-            if (character.subRace?.value) {
-                const subRace = Sources
-                    .getSubRaces(character.sources, character.race.value)
-                    .find(sr => sr.name == character.subRace.value);
-                if (subRace.applyModifiers) {
-                    subRace.applyModifiers(character);
-                }
-            }
-        }
-
-        for (let i = 0; i < character.classes.length; i++) {
-            const characterClass = character.classes[i];
-            if (characterClass.value && characterClass.level) {
-                 const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.value);
-                 if (cls.applyModifiers) {
-                     cls.applyModifiers(character, i);
-                 }
-                 if (characterClass.subClass?.value) {
-                     const subClass = Sources
-                         .getSubClasses(character.sources, characterClass.value)
-                         .find(sc => sc.name == characterClass.subClass.value);
-                     if (subClass.applyModifiers) {
-                         subClass.applyModifiers(character, i);
-                     }
-                 }
-                 for (const levelBoon of characterClass.levelBoons) {
-                     if (levelBoon.feat?.value) {
-                         const feat = Sources.getFeats(character.sources).find(f => f.name == levelBoon.feat.value);
-                         if (feat.applyModifiers) {
-                             feat.applyModifiers(character, i, levelBoon.level);
-                         }
-                     }
-                     if (levelBoon.abilityScore1) {
-                         character.addModifier({
-                             name: `${characterClass.value}-${levelBoon.level}-ability-score-modifier-1`,
-                             target: `ability-score:${levelBoon.abilityScore1}`,
-                             value: 1,
-                             sourcePropertyName: `class-${i}-level-${levelBoon.level}-ability-score-1`,
-                             sourcePropertyValue: levelBoon.abilityScore1,
-                             title: `${cls.title} Level ${levelBoon.level} ability score improvement`
-                         });
-                     }
-                     if (levelBoon.abilityScore2) {
-                         character.addModifier({
-                             name: `${characterClass.value}-${levelBoon.level}-ability-score-modifier-2`,
-                             target: `ability-score:${levelBoon.abilityScore2}`,
-                             value: 1,
-                             sourcePropertyName: `class-${i}-level-${levelBoon.level}-ability-score-2`,
-                             sourcePropertyValue: levelBoon.abilityScore2,
-                             title: `${cls.title} Level ${levelBoon.level} ability score improvement`,
-                         });
-                     }
-                 }
-            }
-        }
-
-         if (character.background?.value) {
-             const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background.value);
-             if (background.applyModifiers) {
-                 background.applyModifiers(character);
-             }
-         }
-
-         const allEquipment = Sources.getEquipment(character.sources);
-         for (let i = 0; i < character.equipment.length; i++) {
-             const characterItem = character.equipment[i];
-             if (characterItem.isEquipped) {
-                 const item = allEquipment.find(e => e.name == character.equipment[i].name);
-                 if (item.applyModifiers) {
-                     item.applyModifiers(character, i);
-                 }
-             }
-         }
-
+        Sources.applyCharacterModifiers(character);
         Character.currentCharacter = character;
+        EditorViewModel.character = character;
         await UIKit.messenger.publish(EditorViewModel.CharacterUpdateTopic, message);
     }
 
     onCharacterUpdate(message) {
-        if (message.section) {
-            this.nextDetailsSection(message.section);
-        }
+        EditorViewModel.character = Character.currentCharacter;
     }
 
     print() {
         var html = UIKit.document.querySelector("#print-content").outerHTML;
         UIKit.document.body.innerHTML = html;
-        let title = Character.currentCharacter?.name;
+        let title = EditorViewModel.character?.name;
         if (!title || title.length == 0) {
             title = "DnD Character";
         }

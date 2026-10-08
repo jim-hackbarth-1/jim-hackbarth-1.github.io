@@ -179,7 +179,11 @@ class DomainAlignmentAndBackgroundModel {
             return;
         }
         Sources.updateCharacterBackground(character, background);
-        await DomainAlignmentAndBackgroundModel.#updateCurrentCharacter(character);
+        const message = {
+            character: character,
+            section: "details-alignment-and-background"
+        };
+        await UIKit.messenger.publish(EditorViewModel.CharacterUpdateStartedTopic, message);
     }
 
     // ~~~ Traits ~~~
@@ -210,7 +214,7 @@ class DomainAlignmentAndBackgroundModel {
         ({
             value: t.name,
             text: t.title,
-            hasDetail: true,
+            hasDetail: false,
             isSelected: selectedTraits.includes(t.name)
         }));
         if (options.length > 0) {

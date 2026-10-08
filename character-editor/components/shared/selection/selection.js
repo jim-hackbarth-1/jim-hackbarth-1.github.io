@@ -1,5 +1,6 @@
 
-import { Character, Sources, Utilities } from "../../../domain/references.js";
+import { Sources, Utilities } from "../../../domain/references.js";
+import { EditorViewModel } from "../../editor-view/editor-view.js";
 
 export function createModel() {
     return new SelectionModel();
@@ -171,7 +172,7 @@ export class SelectionModel {
 
     #getOptions() {
         if (this.#selectionModel.useLanguages) {
-            const character = Character.currentCharacter;
+            const character = EditorViewModel.character;
             const selectedLanguages = character.selections.find(s => s.name == this.#selectionModel.name)?.values ?? [];
             return this.#getLanguages(character, selectedLanguages);
         }
@@ -184,7 +185,7 @@ export class SelectionModel {
         }
         let option = null;
         if (this.#selectionModel.useLanguages) {
-            const character = Character.currentCharacter;
+            const character = EditorViewModel.character;
             return option = Sources.getLanguages(character.sources).find(l => l.value == optionValue);
         }
         return this.#options.find(o => o.value == optionValue);

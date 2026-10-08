@@ -32,7 +32,7 @@ class PrintViewModel {
 
     #updateView() {
 
-        const character = Character.currentCharacter;
+        const character = EditorViewModel.character;
 
         // name
         this.#kitElement.querySelector("#name-heading").innerText = character.name ?? "[character name]";

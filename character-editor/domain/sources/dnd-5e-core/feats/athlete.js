@@ -47,7 +47,7 @@ export class Athlete {
         }
         selections.push({
             name: selectionName,
-            title: "Choose ability ...",
+            title: "Ability",
             maxSelections: 1,
             currentSelections: currentSelections
         })

@@ -1,5 +1,7 @@
 
 import { Character } from "../../domain/references.js";
+import { Sources } from "../../domain/sources.js";
+import { EditorViewModel } from "../editor-view/editor-view.js";
 
 export function createModel() {
     return new HeadingModel();
@@ -30,7 +32,7 @@ export class HeadingModel {
         this.#kitElement.querySelector("#action-menu").style.setProperty("display", this.#display);
         if (this.#display == "block") {
             let disabled = true;
-            if (Character.currentCharacter) {
+            if (EditorViewModel.character) {
                 disabled = false;
             }
             this.#kitElement.querySelector("#save-button").disabled = disabled;
@@ -49,6 +51,7 @@ export class HeadingModel {
         HeadingModel.FileHandle = null;
         const character = new Character();
         character.name = "[new character]";
+        Sources.applyCharacterModifiers(character);
         Character.currentCharacter = character;
         const contentElement = UIKit.document.documentElement.querySelector("#content-component");
         await UIKit.renderer.renderElement(contentElement);
@@ -73,7 +76,7 @@ export class HeadingModel {
         const startCursor = UIKit.document.body.style.cursor;
         try {
             UIKit.document.body.style.cursor = "wait";
-            const json = JSON.stringify(Character.currentCharacter, null, 2);
+            const json = JSON.stringify(EditorViewModel.character, null, 2);
             const writable = await HeadingModel.FileHandle.createWritable();
             try {
                 await writable.write(json);
@@ -94,7 +97,7 @@ export class HeadingModel {
     printCharacter() {
         var html = UIKit.document.querySelector("#print-content").outerHTML;
         UIKit.document.body.innerHTML = html;
-        let title = Character.currentCharacter?.name;
+        let title = EditorViewModel.character?.name;
         if (!title || title.length == 0) {
             title = "DnD Character";
         }
@@ -105,6 +108,7 @@ export class HeadingModel {
 
     async closeCharacter() {
         Character.currentCharacter = null;
+        EditorViewModel.character = null;
         const contentElement = UIKit.document.documentElement.querySelector("#content-component");
         await UIKit.renderer.renderElement(contentElement);
     }

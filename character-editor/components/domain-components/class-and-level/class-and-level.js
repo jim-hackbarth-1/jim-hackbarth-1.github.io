@@ -10,11 +10,11 @@ export function createModel() {
 export class DomainClassAndLevelModel {
 
     #kitElement;
-    static character;
+    static #character;
 
     async init(kitElement) {
         this.#kitElement = kitElement;
-        DomainClassAndLevelModel.character = Character.currentCharacter;
+        DomainClassAndLevelModel.#character = Character.currentCharacter;
         const elementKey = this.#kitElement.getAttribute("kit-element-key");
         const characterUpdateSubscriber = {
             elementKey: elementKey,
@@ -26,14 +26,13 @@ export class DomainClassAndLevelModel {
     }
 
     async onCharacterUpdate(message) {
-        const oldCharacter = DomainClassAndLevelModel.character;
-        DomainClassAndLevelModel.character = Character.currentCharacter;
+        const oldCharacter = DomainClassAndLevelModel.#character;
+        DomainClassAndLevelModel.#character = Character.currentCharacter;
         this.#classSelections = null;
         this.#subClasses = null;
         this.#subClassSelections = null;
         this.#levelBoons = null;
         await UIKit.renderer.renderElement(this.#kitElement.querySelector("#classes-array"));
-        EditorViewModel.restoreScrollY();
     }
 
     async addCharacterClass() {
@@ -64,7 +63,7 @@ export class DomainClassAndLevelModel {
     }
 
     getCharacterClasses() {
-        const classes = DomainClassAndLevelModel.character.classes;
+        const classes = DomainClassAndLevelModel.#character.classes;
         for (let i = 0; i < classes.length; i++) {
             classes[i].index = i;
         }
@@ -73,7 +72,7 @@ export class DomainClassAndLevelModel {
 
     // ~~~ classes
     getClassSelectionModel(classIndex) {
-        const character = DomainClassAndLevelModel.character;
+        const character = DomainClassAndLevelModel.#character;
         const characterClass = character.classes[classIndex];
         let currentSelection = { value: null, text: "Choose a class ..." };
         if (characterClass.value) {
@@ -91,7 +90,7 @@ export class DomainClassAndLevelModel {
     }
 
     getClasses(selectionModelName) {
-        const character = DomainClassAndLevelModel.character;
+        const character = DomainClassAndLevelModel.#character;
         const classIndex = Number(selectionModelName.replace("class-", ""));
         const characterClass = character.classes[classIndex];
         const classes = Sources.getClasses(character.sources);
@@ -166,7 +165,7 @@ export class DomainClassAndLevelModel {
     }
 
     async getClassHtml(selectionModelName, optionValue) {
-        return await Sources.getClassHtml(DomainClassAndLevelModel.character.sources, optionValue);
+        return await Sources.getClassHtml(DomainClassAndLevelModel.#character.sources, optionValue);
     }
 
     async updateClass(selectionModelName, options) {
@@ -187,7 +186,7 @@ export class DomainClassAndLevelModel {
 
     // ~~~ levels
     getLevelSelectionModel(classIndex) {
-        const character = DomainClassAndLevelModel.character;
+        const character = DomainClassAndLevelModel.#character;
         const characterClass = character.classes[classIndex];
         let currentSelection = { value: null, text: "Choose a level ..." };
         if (characterClass.level) {
@@ -204,7 +203,7 @@ export class DomainClassAndLevelModel {
     }
 
     getLevels(selectionModelName) {
-        const character = DomainClassAndLevelModel.character;
+        const character = DomainClassAndLevelModel.#character;
         const classIndex = Number(selectionModelName.replace("level-", ""));
         const characterClass = character.classes[classIndex];
         const level = Number(characterClass.level);
@@ -256,7 +255,7 @@ export class DomainClassAndLevelModel {
         const parts = selectionModelName.split(":");
         const classIndex = Number(parts[0].replace("class-", ""));
         const modelName = parts[1];
-        const character = DomainClassAndLevelModel.character;
+        const character = DomainClassAndLevelModel.#character;
         const characterClass = character.classes[classIndex];
         let options = [];
         if (characterClass.value) {
@@ -272,7 +271,7 @@ export class DomainClassAndLevelModel {
         const parts = selectionModelName.split(":");
         const classIndex = Number(parts[0].replace("class-", ""));
         const modelName = parts[1];
-        const character = DomainClassAndLevelModel.character;
+        const character = DomainClassAndLevelModel.#character;
         const characterClass = character.classes[classIndex];
         const currentValues = character.selections.find(s => s.name == modelName)?.values ?? [];
         if (Utilities.areArraysEqual(currentValues, selectedOptions, ["value"])) {
@@ -300,7 +299,7 @@ export class DomainClassAndLevelModel {
     }
 
     getSubClassSelectionModel(classIndex) {
-        const character = DomainClassAndLevelModel.character;
+        const character = DomainClassAndLevelModel.#character;
         const characterClass = character.classes[classIndex];
         const title = this.#getSubClasses(classIndex).title;
         let currentSelection = { value: null, text: `${title} ...` };
@@ -319,7 +318,7 @@ export class DomainClassAndLevelModel {
     }
 
     getSubClasses = (selectionModelName) => {
-        const character = DomainClassAndLevelModel.character;
+        const character = DomainClassAndLevelModel.#character;
         const classIndex = Number(selectionModelName.replace("sub-class-", ""));
         const characterClass = character.classes[classIndex];
         const subClassInfo = this.#getSubClasses(classIndex);
@@ -353,7 +352,7 @@ export class DomainClassAndLevelModel {
     }
 
     async getSubClassHtml(selectionModelName, optionValue) {
-        const character = DomainClassAndLevelModel.character;
+        const character = DomainClassAndLevelModel.#character;
         const classIndex = Number(selectionModelName.replace("sub-class-", ""));
         const characterClass = character.classes[classIndex];
         return await Sources.getSubClassHtml(character.sources, characterClass.value, optionValue);
@@ -388,7 +387,7 @@ export class DomainClassAndLevelModel {
         const parts = selectionModelName.split(":");
         const classIndex = Number(parts[0].replace("sub-class-", ""));
         const modelName = parts[1];
-        const character = DomainClassAndLevelModel.character;
+        const character = DomainClassAndLevelModel.#character;
         const characterClass = character.classes[classIndex];
         let options = [];
         if (characterClass.subClass?.value) {
@@ -406,7 +405,7 @@ export class DomainClassAndLevelModel {
         const parts = selectionModelName.split(":");
         const classIndex = Number(parts[0].replace("sub-class-", ""));
         const modelName = parts[1];
-        const character = DomainClassAndLevelModel.character;
+        const character = DomainClassAndLevelModel.#character;
         const characterClass = character.classes[classIndex];
         const currentValues = character.selections.find(s => s.name == modelName)?.values ?? [];
         if (Utilities.areArraysEqual(currentValues, selectedOptions, ["value"])) {
@@ -440,7 +439,7 @@ export class DomainClassAndLevelModel {
     #getClassSelections(classIndex) {
         if (!this.#classSelections) {
             const classSelections = [];
-            const character = DomainClassAndLevelModel.character;
+            const character = DomainClassAndLevelModel.#character;
             for (let i = 0; i < character.classes.length; i++) {
                 const characterClass = character.classes[i];
                 if (characterClass.value) {
@@ -465,7 +464,7 @@ export class DomainClassAndLevelModel {
     #getSubClasses(classIndex) {
         if (!this.#subClasses) {
             const subClasses = [];
-            const character = DomainClassAndLevelModel.character;
+            const character = DomainClassAndLevelModel.#character;
             for (let i = 0; i < character.classes.length; i++) {
                 let classSubClasses = [];
                 let title = "Choose a sub class ...";
@@ -503,7 +502,7 @@ export class DomainClassAndLevelModel {
     #getSubClassSelections(classIndex) {
         if (!this.#subClassSelections) {
             const subClassSelections = [];
-            const character = DomainClassAndLevelModel.character;
+            const character = DomainClassAndLevelModel.#character;
             for (let i = 0; i < character.classes.length; i++) {
                 const characterClass = character.classes[i];
                 if (characterClass.subClass?.value) {
@@ -530,7 +529,7 @@ export class DomainClassAndLevelModel {
     #getLevelBoons(classIndex) {
         if (!this.#levelBoons) {
             const levelBoons = [];
-            const character = DomainClassAndLevelModel.character;
+            const character = DomainClassAndLevelModel.#character;
             const levelFilter = [4, 8, 12, 16, 19];
             for (let i = 0; i < character.classes.length; i++) {
                 const classLevelBoons = character.classes[i].levelBoons.filter(lb => levelFilter.includes(lb.level));

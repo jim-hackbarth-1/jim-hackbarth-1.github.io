@@ -1,5 +1,6 @@
 
 import { Character } from "../../domain/character.js";
+import { EditorViewModel } from "../editor-view/editor-view.js";
 import { HeadingModel } from "../heading/heading.js";
 import { DialogHelper } from "../shared/dialog-helper.js";
 
@@ -83,7 +84,7 @@ class FileSaveDialogModel {
             await HeadingModel.saveCharacterWithFileHandle();
         }
         else {
-            const json = JSON.stringify(Character.currentCharacter);
+            const json = JSON.stringify(EditorViewModel.character);
             const blob = new Blob([json], { type: "text/plain" });
             const anchor = UIKit.document.createElement("a");
             anchor.href = URL.createObjectURL(blob);
@@ -116,7 +117,7 @@ class FileSaveDialogModel {
     }
 
     #getDefaultFileName() {
-        let name = Character.currentCharacter.name
+        let name = EditorViewModel.character.name
             .replace(/ /g, "_")
             .replace(/\W/g, '')
             .replace(/_/g, "-");

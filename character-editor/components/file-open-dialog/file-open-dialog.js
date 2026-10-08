@@ -88,7 +88,6 @@ class FileOpenDialogModel {
         else {
             character = new Character(JSON.parse(FileOpenDialogModel.#fileContents));
         }
-        Sources.applyCharacterModifiers(character);
         Character.currentCharacter = character;
         EditorViewModel.character = character;
         const contentElement = UIKit.document.documentElement.querySelector("#content-component");

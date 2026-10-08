@@ -587,10 +587,23 @@ export class Sources {
         }
 
         // classes
+        let primaryMulticlassEligibility = true;
         for (let i = 0; i < character.classes.length; i++) {
             const characterClass = character.classes[i];
             if (characterClass.value && characterClass.level) {
                 const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.value);
+                let multiclassEligibility = true;
+                if (cls.getMulticlassEligibility) {
+                    multiclassEligibility = cls.getMulticlassEligibility(character).isEligible;
+                }
+                if (i == 0) {
+                    primaryMulticlassEligibility = multiclassEligibility;
+                }
+                else {
+                    if (!primaryMulticlassEligibility || !multiclassEligibility) {
+                        continue;
+                    }
+                }
                 if (cls.applyModifiers) {
                     cls.applyModifiers(character, i);
                 }
@@ -685,10 +698,25 @@ export class Sources {
         }
 
         // classes, subclasses, and feats
+        let primaryMulticlassEligibility = true;
         for (let i = 0; i < character.classes.length; i++) {
             const characterClass = character.classes[i];
             if (characterClass.value && characterClass.level) {
                 const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.value);
+
+                let multiclassEligibility = true;
+                if (cls.getMulticlassEligibility) {
+                    multiclassEligibility = cls.getMulticlassEligibility(character).isEligible;
+                }
+                if (i == 0) {
+                    primaryMulticlassEligibility = multiclassEligibility;
+                }
+                else {
+                    if (!primaryMulticlassEligibility || !multiclassEligibility) {
+                        continue;
+                    }
+                }
+
                 if (cls?.applyFeatures) {
                     cls.applyFeatures(features, character, i);
                 }

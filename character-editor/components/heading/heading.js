@@ -51,7 +51,6 @@ export class HeadingModel {
         HeadingModel.FileHandle = null;
         const character = new Character();
         character.name = "[new character]";
-        Sources.applyCharacterModifiers(character);
         Character.currentCharacter = character;
         const contentElement = UIKit.document.documentElement.querySelector("#content-component");
         await UIKit.renderer.renderElement(contentElement);

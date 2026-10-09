@@ -408,6 +408,23 @@ export class Character {
         return bonus;
     }
 
+    getArmorClass() {
+        let armorClass = 10;
+        let dexModifier = this.getAbilityScoreModifier("dexterity");
+        const armorType = this.equipment.find(e => e.name == "armor-type" && e.value != "shield" && e.isEquipped);
+        if (armorType == "medium-armor" && dexModifier > 2) {
+            dexModifier = 2;
+        }
+        if (armorType == "heavy-armor") {
+            dexModifier = 0;
+        }
+        let acModifiers = this.modifiers
+            .filter(m => m.target == "armor-class")
+            .map(m => m.value)
+            .reduce((a, b) => a + b, 0);
+        return Number(armorClass) + Number(dexModifier) + Number(acModifiers);
+    }
+
     getAttackCard({
         name,
         title,

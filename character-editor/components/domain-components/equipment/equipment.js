@@ -189,13 +189,13 @@ class DomainEquipmentModel {
         const character = DomainEquipmentModel.#character;
         if (character.background) {
             const backgroundEquipment = Sources.getBackgrounds(character.sources)
-                .find(b => b.name == character.background)?.startingEquipment;
+                .find(b => b.name == character.background.value)?.startingEquipment;
             if (backgroundEquipment) {
                 startingEquipment += backgroundEquipment;
             }
         }
-        if (character.classes.length > 0 && character.classes[0].name) {
-            const cls = Sources.getClasses(character.sources).find(c => c.name == character.classes[0].name);
+        if (character.classes.length > 0 && character.classes[0].value) {
+            const cls = Sources.getClasses(character.sources).find(c => c.name == character.classes[0].value);
             if (cls?.startingEquipment) {
                 startingEquipment += cls?.startingEquipment;
             }

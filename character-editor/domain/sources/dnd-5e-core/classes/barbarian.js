@@ -86,13 +86,6 @@ export class Barbarian {
     }
 
     static applyModifiers(character, classIndex) {
-
-        if (Number(classIndex) > 0) {
-            const multiClassEligibility = Barbarian.getMulticlassEligibility(character);
-            if (!multiClassEligibility.isEligible) {
-                return;
-            }
-        }
         const modifiers = [];
         if (character.classes[0].value == "barbarian") {
             modifiers.push({
@@ -227,14 +220,6 @@ export class Barbarian {
     }
 
     static applyFeatures(features, character, classIndex) {
-
-        if (Number(classIndex) > 0) {
-            const multiClassEligibility = Barbarian.getMulticlassEligibility(character);
-            if (!multiClassEligibility.isEligible) {
-                return [];
-            }
-        }
-
         const tempFeatures = [];
 
         // rage

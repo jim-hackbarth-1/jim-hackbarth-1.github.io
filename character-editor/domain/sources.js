@@ -758,6 +758,16 @@ export class Sources {
 
     }
 
+    static getHitDice(character) {
+        const labels = [];
+        const classes = character.classes.filter(c => c.value && c.level);
+        for (const characterClass of classes) {
+            const hitDieSize = Sources.getClasses(character.sources).find(c => c.name == characterClass.value).hitDieSize
+            labels.push(`${characterClass.level}d${hitDieSize}`);
+        }
+        return labels.join(", ");
+    }
+
     static async #getHtml(basePath, path) {
         if (!path) {
             return "";

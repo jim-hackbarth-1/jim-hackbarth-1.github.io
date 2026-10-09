@@ -42,65 +42,68 @@ class PrintViewModel {
 
         // classes
         let classesHtml = "";
-        const profiencyBonus = character.getProficiencyBonus();
-        const characterClasses = character.classes.filter(c => c.value && c.level);
-        if (characterClasses.length > 0) {
-            if (characterClasses.length == 1) {
-                const primaryClass = Sources.getClasses(character.sources).find(c => c.name == characterClasses[0].value);
-                classesHtml += `<div class="row no-wrap">${primaryClass.title}, Level ${characterClasses[0].level}</div>`;
-            }
-            if (characterClasses.length > 1) {
-                classesHtml = "<div class='no-wrap'>Classes:</div><ul>";
-                for (const cls of characterClasses) {
-                    const classModel = Sources.getClasses(character.sources).find(c => c.name == cls.value);
-                    classesHtml += `<div class="row no-wrap">${classModel.title}, Level ${cls.level}</div>`;
-                }
-                classesHtml += "</ul>";
-            }
-            // classesHtml += `<div id="profiency-bonus" class="row no-wrap">(Profiency bonus: +${profiencyBonus})</div>`;
+        const characterClasses = character.classes.filter(c => c.value && c.text && c.level);
+        for (const characterClass of characterClasses) {
+            classesHtml += `<div class="row no-wrap">${characterClass.text}, Level ${characterClass.level}</div>`;
         }
         this.#kitElement.querySelector("#classes").innerHTML = classesHtml;
 
+        // proficiency bonus
+        this.#kitElement.querySelector("#proficiency-bonus").innerText = `+${character.getProficiencyBonus()}`;
+
         // race
         let race = "";
-        let size = "";
-        let speed = "";
-        if (character.race?.value) {
-            const raceModel = Sources.getRaces(character.sources).find(r => r.name == character.race.value);
-            size = raceModel.size;
-            speed = `Speed: ${raceModel.speed}`;
-            if (character.subRace?.value) {
-                const subRaceModel = Sources
-                    .getSubRaces(character.sources, character.race.value)
-                    .find(sr => sr.name == character.subRace.value);
-                race = subRaceModel.title;
-            }
-            else {
-                race = raceModel.title;
-            }
+        if (character.race?.value || character.subRace?.value) {
+            race = character.subRace?.text ?? character.race.text ?? "";
         }
         this.#kitElement.querySelector("#race").innerText = race;
+
+        // size
+        let size = "";
+        let baseSpeed = 30;
+        if (character.race?.value) {
+            const raceModel = Sources.getRaces(character.sources).find(r => r.name == character.race.value);
+            size = raceModel?.size ?? "";
+            baseSpeed = raceModel?.speed ?? baseSpeed;
+        }
         this.#kitElement.querySelector("#size").innerText = size;
-        this.#kitElement.querySelector("#speed").innerText = speed;
 
         // alignment
         let alignment = ""
         if (character.alignment?.value) {
-            alignment = Sources.getAlignments().find(a => a.name == character.alignment.value)?.title ?? "";
+            alignment = character.alignment.text ?? "";
         }
         this.#kitElement.querySelector("#alignment").innerText = alignment;
 
         // background
         let background = ""
-        let backgroundModel = null;
         if (character.background?.value) {
-            backgroundModel = Sources.getBackgrounds(character.sources).find(b => b.name == character.background.value);
-            background = backgroundModel?.title ?? "";
+            background = character.background.text ?? "";
         }
         this.#kitElement.querySelector("#background").innerText = background;
 
         // description
         this.#kitElement.querySelector("#description").innerHTML = character.description ?? "";
+
+        // initiative
+        const dexModifier = character.getAbilityScoreModifier("dexterity");
+        const initModifiers = this.#getModifiers(character, "initiative");
+        const initiative = Number(dexModifier) + Number(initModifiers);
+        this.#kitElement.querySelector("#initiative").innerHTML = (initiative < 0) ? `${initiative}` : `+${initiative}`;
+
+        // speed
+        const speedModifiers = this.#getModifiers(character, "speed");
+        const speed = Number(baseSpeed) + Number(speedModifiers);
+        this.#kitElement.querySelector("#speed").innerHTML = speed;
+
+        // ac
+        this.#kitElement.querySelector("#armor-class").innerHTML = character.getArmorClass();
+
+        // hp
+        this.#kitElement.querySelector("#hit-points").innerHTML = character.getHitPoints();
+
+        // hit dice
+        this.#kitElement.querySelector("#hit-dice").innerHTML = Sources.getHitDice(character);
 
         // abilities
         for (const abilityScore of character.abilityScores) {
@@ -122,19 +125,19 @@ class PrintViewModel {
         }
 
         // hit points and hit dice
-        const hitPoints = `Hit Points: ${character.getHitPoints()}`;
-        const hitDice = [];
-        for (const characterClass of character.classes) {
-            const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.name);
-            const hitDieSize = cls?.hitDieSize;
-            const level = characterClass?.level;
-            if (hitDieSize && level) {
-                hitDice.push(`${level}D${hitDieSize}`);
-            }
-        }
-        const hitDiceLabel = `(Hit Dice: ${hitDice.join(", ")})`;
-        this.#kitElement.querySelector("#hit-points-max").innerText = hitPoints;
-        this.#kitElement.querySelector("#hit-dice").innerText = hitDiceLabel;
+        // const hitPoints = `Hit Points: ${character.getHitPoints()}`;
+        // const hitDice = [];
+        // for (const characterClass of character.classes) {
+        //     const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.name);
+        //     const hitDieSize = cls?.hitDieSize;
+        //     const level = characterClass?.level;
+        //     if (hitDieSize && level) {
+        //         hitDice.push(`${level}D${hitDieSize}`);
+        //     }
+        // }
+        // const hitDiceLabel = `(Hit Dice: ${hitDice.join(", ")})`;
+        // this.#kitElement.querySelector("#hit-points-max").innerText = hitPoints;
+        // this.#kitElement.querySelector("#hit-dice").innerText = hitDiceLabel;
 
         // traits
         // let traitsHtml = "<div class='no-wrap'>Traits:</div><ul>";
@@ -183,5 +186,12 @@ class PrintViewModel {
             }
         }
         return label;
+    }
+
+    #getModifiers(character, target) {
+        return character.modifiers
+            .filter(m => m.target == target)
+            .map(m => m.value)
+            .reduce((a, b) => a + b, 0);
     }
 }

@@ -97,15 +97,6 @@ export class HeadingModel {
 
     printCharacter() {
         UIKit.window.print();
-        // var html = UIKit.document.querySelector("#print-content").outerHTML;
-        // UIKit.document.body.innerHTML = html;
-        // let title = EditorViewModel.character?.name;
-        // if (!title || title.length == 0) {
-        //     title = "DnD Character";
-        // }
-        // UIKit.document.title = title;
-        // UIKit.window.print();
-        // UIKit.window.location.reload();
     }
 
     async closeCharacter() {
@@ -116,7 +107,6 @@ export class HeadingModel {
     }
 
     static onBeforePrint(event) {
-        console.log("before print");
         var html = UIKit.document.querySelector("#print-content").outerHTML;
         UIKit.document.body.innerHTML = html;
         let title = EditorViewModel.character?.name;
@@ -127,7 +117,6 @@ export class HeadingModel {
     }
 
     static onAfterPrint(event) {
-        console.log("after print");
         UIKit.window.location.reload();
     }
 

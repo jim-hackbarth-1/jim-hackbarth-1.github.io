@@ -38,7 +38,7 @@ export class PolearmMaster {
         return [];
     }
 
-    static getSelectionOptions(character, classIndex, level, selectionName) {
+    static getSelectionOptions(character, classIndex, level, selectionName, sources) {
         return [];
     }
 
@@ -67,18 +67,18 @@ export class PolearmMaster {
         const polearmIndex = character.equipment.findIndex(e =>
             e.isEquipped
             && e.properties
-            && e.properties.includes(p.name == "weapon-name" && polearms.includes(p.value)));
+            && e.properties.some(p => p.name == "weapon-name" && polearms.includes(p.value)));
         if (polearmIndex > -1) {
             const properties = character.equipment[polearmIndex].properties ?? [];
             const weaponName = properties.find(p => p.name == "weapon-name")?.value;
             let reach = (weaponName == "glaive" || weaponName == "halberd") ? 5 : null;
             const attackCard = character.getAttackCard({
-                name: "polearm-master-bonus-attack",
                 title: "Polearm master bonus attack",
                 inventoryIndex: polearmIndex,
                 damageDieSize: 4,
                 damageType: "bludgeoning",
                 reach: reach,
+                notes: ["Bonus action"]
             });
             tempFeatures.push(attackCard);
         }

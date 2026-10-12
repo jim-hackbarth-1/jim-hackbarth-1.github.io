@@ -325,6 +325,30 @@ export class Sources {
         return Sources.#allLanguages.filter(l => sources.includes(l.source.name));
     }
 
+    static #skills = [
+        { name:"acrobatics", title:"Acrobatics", ability:"dexterity" },
+        { name: "animal-handling", title: "Animal Handling", ability: "wisdom" },
+        { name: "arcana", title: "Arcana", ability: "intelligence" },
+        { name: "athletics", title: "Athletics", ability: "strength" },
+        { name: "deception", title: "Deception", ability: "charisma" },
+        { name: "history", title: "History", ability: "intelligence" },
+        { name: "insight", title: "Insight", ability: "wisdom" },
+        { name: "intimidation", title: "Intimidation", ability: "charisma" },
+        { name: "investigation", title: "Investigation", ability: "intelligence" },
+        { name: "medicine", title: "Medicine", ability: "wisdom" },
+        { name: "nature", title: "Nature", ability: "intelligence" },
+        { name: "perception", title: "Perception", ability: "wisdom" },
+        { name: "performance", title: "Performance", ability: "charisma" },
+        { name: "persuasion", title: "Persuasion", ability: "charisma" },
+        { name: "religion", title: "Religion", ability: "intelligence" },
+        { name: "sleight-of-hand", title: "Sleight of Hand", ability: "dexterity" },
+        { name: "stealth", title: "Stealth", ability: "dexterity" },
+        { name: "survival", title: "Survival", ability: "wisdom" }     
+    ];
+    static getSkills() {
+        return Sources.#skills;
+    }
+
     static updateCharacterSources(character, sources) {
         if (character.race && !Sources.getRaces(sources).some(r => r.name == character.race)) {
             Sources.updateCharacterRace(character, null);
@@ -340,7 +364,7 @@ export class Sources {
             if (characterClass.subClass?.value && !subClasses.some(sc => sc.name == characterClass.subClass?.value)) {
                 Sources.updateCharacterSubClass(character, i, null)
             }
-            for (const levelBoon of cls.levelBoons) {
+            for (const levelBoon of characterClass.levelBoons) {
                 if (levelBoon.feat?.value && !feats.includes(levelBoon.feat.value)) {
                     levelBoon.feat = null;
                 }
@@ -665,6 +689,7 @@ export class Sources {
                 }
             }
         }
+
     }
 
     /*
@@ -753,6 +778,29 @@ export class Sources {
                 equipment.applyFeatures(features, character, i);
             }
         }
+
+        // basic attacks
+        features.push(character.getAttackCard({
+            title: "Unarmed strike",
+            damageDieSize: 1,
+            damageType: "bludgeoning",
+            canBeOffHand: true
+        }));
+        features.push(character.getAttackCard({
+            title: "Improvised weapon",
+            applyProficiencyModifier: false,
+            damageDieSize: 4,
+            damageType: "bludgeoning",
+            range: "range 20/60 ft."
+        }));
+        features.push({
+            title: "Grapple/shove",
+            displayType: "attack-card",
+            lines: [
+                "Athletics vs. Athletics or Acrobatics",
+                "Target is grappled, knocked prone, or moved 5 ft."
+            ]
+        });
 
         return features;
 

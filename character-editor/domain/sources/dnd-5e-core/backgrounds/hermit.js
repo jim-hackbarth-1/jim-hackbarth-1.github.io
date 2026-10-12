@@ -81,14 +81,39 @@ export class Hermit {
                 name: selectionName,
                 title: "Language",
                 maxSelections: 1,
-                useLanguages: true,
+                sources: [{name: "language"}],
                 currentSelections: currentSelections
             }
         ];
     }
 
-    static getSelectionOptions(character, selectionName) {
-        return [];
+    static getSelectionOptions(character, selectionName, sources) {
+        let options = [];
+        if (selectionName == "hermit-language") {
+            options = [...sources.find(s => s.name == "language").options];
+            const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
+            for (const option of options) {
+                option.noteText = option.source.title;
+                option.isSelected = (selectedValues.includes(option.value));
+            }
+            options = Hermit.#sortOptions(options, "text");
+            options.unshift({ value: null, text: "Choose a language ..." });
+        }
+        return options;
+    }
+
+    static #sortOptions(array, sortField) {
+        function sortByProperty(item1, item2) {
+            if (item1[sortField] < item2[sortField]) {
+                return -1;
+            }
+            if (item1[sortField] > item2[sortField]) {
+                return 1;
+            }
+            return 0;
+        }
+        array.sort(sortByProperty);
+        return array;
     }
 
     static applyModifiers(character) {

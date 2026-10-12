@@ -69,7 +69,7 @@ export class Charlatan {
         return [];
     }
 
-    static getSelectionOptions(character, selectionName) {
+    static getSelectionOptions(character, selectionName, sources) {
         return [];
     }
 

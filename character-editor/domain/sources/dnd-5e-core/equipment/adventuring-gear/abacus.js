@@ -62,7 +62,7 @@ export class Abacus {
         return selections;
     }
 
-    static getSelectionOptions(character, inventoryIndex, selectionName) {
+    static getSelectionOptions(character, inventoryIndex, selectionName, sources) {
         let options = [];
         let currentSelections = [];
         if (selectionName == "abacus-color") {

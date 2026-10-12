@@ -38,7 +38,7 @@ export class AcidVial {
         return []
     }
 
-    static getSelectionOptions(character, inventoryIndex, selectionName) {
+    static getSelectionOptions(character, inventoryIndex, selectionName, sources) {
         return [];
     }
 

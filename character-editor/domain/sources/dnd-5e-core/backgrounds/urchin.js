@@ -69,7 +69,7 @@ export class Urchin {
         return [];
     }
 
-    static getSelectionOptions(character, selectionName) {
+    static getSelectionOptions(character, selectionName, sources) {
         return [];
     }
 

@@ -426,231 +426,293 @@ export class Character {
     }
 
     getAttackCard({
-        name,
         title,
         inventoryIndex,
+        hasSavingThrow,
         relevantAbility,
-        toHitModifier,
-        toHitLabel,
-        damageModifier,
-        damageDice,
+        applyAbilityModifier,
+        applyAbilityModifierForDamage,
+        applyProficiencyModifier,
+        applyProficiencyModifierForDamage,
         damageDieSize,
+        damageDice,
         damageType,
-        damageLabel,
-        attackType,
         reach,
         range,
-        hasSavingThrow,
-        dc,
-        onFailedSave,
-        onSave,
-        target
+        target,
+        canBeOffHand,
+        notes
     }) {
-        if (!toHitLabel && !hasSavingThrow) {
-            if (!toHitModifier) {
-                toHitModifier = this.#getToHitModifier(inventoryIndex, relevantAbility);
-            }
-            toHitLabel = this.#getToHitLabel(toHitModifier);
-        }
-        if (!damageLabel) {
-            if (!damageModifier) {
-                damageModifier = this.#getDamageModifier(inventoryIndex, relevantAbility);
-            }
-            if (!damageDice) {
-                damageDice = [{ number: 1, size: damageDieSize }];
-            }
-            damageLabel = this.#getDamageLabel(damageDice, damageModifier, damageType);
-        }
-        let html = "";
-        if (!title) {
-            title = "Attack";
-        }
+        const applyAbilityModifierInteral = this.#getApplyModifierValue(applyAbilityModifier, true);
+        const applyAbilityModifierForDamageInternal = this.#getApplyModifierValue(applyAbilityModifierForDamage, true);
+        const applyProficiencyModifierInternal = this.#getApplyModifierValue(applyProficiencyModifier, true);
+        const applyProficiencyModifierForDamageInternal = this.#getApplyModifierValue(applyProficiencyModifierForDamage, false);
+        const weaponProperties = this.equipment[Number(inventoryIndex)]?.properties ?? [];
+        const toHitOrDcModifiers = this.#getModifiers(
+            "to-hit", inventoryIndex, weaponProperties, relevantAbility, applyAbilityModifierInteral, applyProficiencyModifierInternal);
+        const toHitOrDcModifier = Number(toHitOrDcModifiers.map(m => m.value).reduce((a, b) => a + b, 0));
+        const damageModifiers = this.#getModifiers(
+            "damage", inventoryIndex, weaponProperties, relevantAbility, applyAbilityModifierForDamageInternal, applyProficiencyModifierForDamageInternal);
+        const damageModifier = Number(damageModifiers.map(m => m.value).reduce((a, b) => a + b, 0));
+        let toHitOrDcLabel = "";
         if (hasSavingThrow) {
-            if (!dc) {
-                dc = 8 + Number(this.#getToHitModifier(inventoryIndex, relevantAbility));
-            }
-            if (!onFailedSave) {
-                onFailedSave = damageLabel;
-            }
-            html = this.#getSavingThrowAttackCardHtml(title, dc, relevantAbility, onFailedSave, onSave, range, target);
+            toHitOrDcLabel = this.#getSavingThrowLabel(8 + toHitOrDcModifier, relevantAbility);
         }
         else {
-            if (range) {
-                html = this.#getRangedAttackCardHtml(title, toHitLabel, damageLabel, range, target);
+            toHitOrDcLabel = this.#getToHitLabel(toHitOrDcModifier);
+        }
+        let damageDiceInternal = damageDice;
+        if (!damageDiceInternal && damageDieSize) {
+            let damageDieSizeModifiers = this.#getTargetModifiers(inventoryIndex, weaponProperties, "damage-die-size");
+            if (damageDieSizeModifiers.length > 0) {
+                damageDieSize = Math.max(...damageDieSizeModifiers.map(dm => Number(dm.value)));
             }
-            else {
-                html = this.#getMeleeAttackCardHtml(title, toHitLabel, damageLabel, reach, target);
-            }
+            damageDiceInternal = [{ number: 1, size: damageDieSize }];
         }
-        if (!name) {
-            name = "attack";
-            if (Number(inventoryIndex >= 0)) {
-                name = `attack-${inventoryIndex}`;
-            }
+        const damageLabel = this.#getDamageLabel(damageDiceInternal, damageModifier, damageType);
+        const line1Parts = [toHitOrDcLabel];
+        if (damageLabel) {
+            line1Parts.push(damageLabel);
         }
-        return {
-            name: name,
-            displayType: "attack-card",
-            html: html
-        };
-    }
-
-    #getToHitModifier(inventoryIndex, relevantAbility) {
-        const weapon = this.#getWeaponProperties(inventoryIndex);
-        const abilityModifier = Number(this.#getAbilityModifierForAttack(weapon, relevantAbility));
-        const proficiencyModifier = Number(this.#getProficiencyModifierForAttack(weapon));
-        const toHitModifier = Number(this.#getTargetModifiersForAttack(weapon, "to-hit"));
-        return abilityModifier + proficiencyModifier + toHitModifier;
-    }
-
-    #getToHitLabel(toHitModifier) {
-        if (Number(toHitModifier) >= 0) {
-            return `+${toHitModifier} to hit`;
-        }
-        return `${toHitModifier} to hit`;
-    }
-
-    #getDamageModifier(inventoryIndex, relevantAbility) {
-        const weapon = this.#getWeaponProperties(inventoryIndex);
-        const abilityModifier = Number(this.#getAbilityModifierForAttack(weapon, relevantAbility));
-        const damageModifier = Number(this.#getTargetModifiersForAttack(weapon, "damage"));
-        return abilityModifier + damageModifier;
-    }
-
-    #getDamageLabel(damageDice, modifier, damageType) {
-        const damageDieLabels = [];
-        for (const damageDie of damageDice) {
-            damageDieLabels.push(`${damageDie.number}d${damageDie.size}`)
-        }
-        let html = damageDieLabels.join(" + ");
-        const numberModifier = Number(modifier);
-        if (numberModifier > 0) {
-            html += ` + ${numberModifier}`;
-        }
-        if (numberModifier < 0) {
-            html += ` - ${Math.abs(numberModifier)}`;
-        }
-        html = `(${html})`;
-        if (damageType) {
-            html += ` ${damageType}`;
-        }
-        html += " damage";
-        return html;
-    }
-
-    #getSavingThrowAttackCardHtml(name, dc, dcAbility, onFailedSave, onSave, range, target) {
-        let html = `<b>${name}</b>. <i>Saving throw</i>: DC ${dc} ${dcAbility}`;
-        if (range) {
-            html += `, ${range}`;
-        }
-        if (target) {
-            html += `, ${target}`;
-        }
-        html += `<br/>${onFailedSave} <br/>On save: ${onSave}`;
-        return html;
-    }
-
-    #getRangedAttackCardHtml(name, toHitLabel, damageLabel, range, target) {
-        let html = `<b>${name}</b>. <i>Ranged Attack</i>: ${toHitLabel}, ${range}`;
-        if (target) {
-            html += `, ${target}`;
-        }
-        html += `, <i>Hit:</i> ${damageLabel}`;
-        return html;
-    }
-
-    #getMeleeAttackCardHtml(name, toHitLabel, damageLabel, reach, target) {
-        let html = `<b>${name}</b>. <i>Melee Attack</i>: ${toHitLabel}`;
         if (reach) {
-            html += `, reach ${reach} ft.`;
+            line1Parts.push(`reach ${reach} ft.`);
+        }
+        if (range) {
+            line1Parts.push(range)
         }
         if (target) {
-            html += `, ${target}`;
+            line1Parts.push(target);
         }
-        html += `, <i>Hit:</i> ${damageLabel}`;
-        return html;
-    }
-
-    #getWeaponProperties(inventoryIndex) {
-        let weapon = null;
-        let weaponName = null;
-        let weaponType = null;
-        let isVersatile = false;
-        if (inventoryIndex) {
-            weapon = this.equipment[inventoryIndex];
-            if (weapon?.properties) {
-                weaponName = weapon.properties.find(p => p.name == "weapon-name")?.value;
-                weaponType = weapon.properties.find(p => p.name == "weapon-type")?.value;
-                isVersatile = weapon.properties.some(p => p.name == "versatile");
+        const lines = [line1Parts.join(", ")];
+        if (canBeOffHand || this.#canBeOffhand(inventoryIndex, weaponProperties)) {
+            const abilities = ["strength", "intelligence", "wisdom", "dexterity", "constitution", "charisma"];
+            const offHandDamageModifiers = damageModifiers.filter(dm => !(abilities.includes(dm.name) && Number(dm.value) > 0));
+            const offHandDamageModifier = Number(offHandDamageModifiers.map(m => m.value).reduce((a, b) => a + b, 0));
+            const offHandDamageLabel = this.#getDamageLabel(damageDiceInternal, offHandDamageModifier, damageType);
+            lines.push(`Off hand: ${toHitOrDcLabel}, ${offHandDamageLabel}, bonus action`);
+        }
+        if (notes) {
+            for (const note of notes) {
+                lines.push(note);
             }
         }
+        const modifiers = this.#getDisplayModifiers(toHitOrDcModifiers, damageModifiers, hasSavingThrow);
         return {
-            weaponName: weaponName,
-            weaponType: weaponType,
-            isVersatile: isVersatile
+            title: this.#getSubstring(title ?? "Attack", 40),
+            displayType: "attack-card",
+            lines: lines,
+            modifiers: modifiers
         };
     }
 
-    #getAbilityModifierForAttack(weapon, relevantAbility) {
-        let relevantAbilityModifier = 0;
-        if (relevantAbility) {
-            relevantAbilityModifier = this.getAbilityScoreModifier(relevantAbility);
+    #getSubstring(valueIn, length) {
+        let valueOut = valueIn ?? "";
+        if (valueOut.length > length) {
+            valueOut = valueOut.substring(0, length) + "...";
         }
-        else {
-            const strengthModifier = this.getAbilityScoreModifier("strength");
-            const dexterityModifier = this.getAbilityScoreModifier("dexterity");
-            if ((weapon.weaponType == "simple-ranged")
-                || (weapon.weaponType == "martial-ranged")
-                || (weapon.isVersatile && (dexterityModifier > strengthModifier))) {
-                relevantAbilityModifier = dexterityModifier;
-            }
-            else {
-                relevantAbilityModifier = strengthModifier
-            }
-        }
-        return relevantAbilityModifier;
+        return valueOut;
     }
 
-    #getProficiencyModifierForAttack(weapon) {
-        let proficiencyModifier = 0;
-        const isProficient = this.modifiers.some(m =>
-            m.target == "weapon-proficiency"
-            && (m.value == weapon.weaponName || m.value == weapon.weaponType));
-        if (!weapon.weaponName || isProficient) {
-            proficiencyModifier = this.getProficiencyBonus();
+    #getApplyModifierValue(modifierIn, defaultValue) {
+        let modifierOut = defaultValue;
+        if (modifierIn == true || modifierIn == false) {
+            modifierOut = modifierIn;
         }
-        return proficiencyModifier;
+        return modifierOut;
     }
 
-    #getTargetModifiersForAttack(weapon, target) {
+    #getModifiers(target, inventoryIndex, weaponProperties, relevantAbility, applyAbilityModifier, applyProficiencyModifier) {
+        const modifiers = this.#getTargetModifiers(inventoryIndex, weaponProperties, target);
+        if (applyProficiencyModifier) {
+            modifiers.push(this.#getProficiencyModifier(weaponProperties));
+        }
+        if (applyAbilityModifier) {
+            modifiers.push(this.#getAbilityModifier(weaponProperties, relevantAbility))
+        }
+        for (const modifier of modifiers) {
+            modifier.target = target;
+        }
+        return modifiers;
+    }
+
+    #getTargetModifiers(inventoryIndex, weaponProperties, target) {
         const modifiers = [];
         let targetModifiers = this.modifiers.filter(m => m.target == target);
         for (const modifier of targetModifiers) {
             let conditionsMet = true;
             if (modifier.conditions) {
-                for (const condition of conditions) {
+                conditionsMet = false;
+                for (const condition of modifier.conditions) {
                     const conditionValues = condition.values ?? [];
                     if (condition.name == "equipment-index") {
                         const allowedIndexes = conditionValues.map(v => Number(v));
                         if (!allowedIndexes.includes(inventoryIndex)) {
-                            conditionsMet = false;
-                            break;
+                            continue;
                         }
                     }
                     if (condition.name == "weapon-type") {
-                        if (!conditionValues.includes(weapon.weaponType)) {
-                            conditionsMet = false;
-                            break;
+                        const weaponType = weaponProperties.find(wp => wp.name == "weapon-type")?.value;
+                        if (!conditionValues.includes(weaponType)) {
+                            continue;
                         }
                     }
+                    conditionsMet = true;
                 }
             }
             if (conditionsMet) {
                 modifiers.push(modifier);
             }
         }
-        const modifier = modifiers.map(m => Number(m.value)).reduce((a, b) => a + b, 0);
-        return modifier;
+        return modifiers;
+    }
+
+    #getProficiencyModifier(weaponProperties) {
+        let proficiencyModifier = 0;
+        const weaponName = weaponProperties.find(wp => wp.name == "weapon-name")?.value;
+        const weaponType = weaponProperties.find(wp => wp.name == "weapon-type")?.value;
+        const isProficient = this.modifiers.some(m =>
+            m.target == "weapon-proficiency"
+            && (m.value == weaponName || m.value == weaponType));
+        if (!weaponName || isProficient) {
+            proficiencyModifier = this.getProficiencyBonus();
+        }
+        return {
+            name: "proficiency",
+            title: "Proficiency",
+            value: proficiencyModifier
+        }
+    }
+
+    #getAbilityModifier(weaponProperties, relevantAbility) {
+        let relevantAbilityModifier = 0;
+        if (relevantAbility) {
+            relevantAbilityModifier = this.getAbilityScoreModifier(relevantAbility.name);
+        }
+        else {
+            const strengthModifier = this.getAbilityScoreModifier("strength");
+            const dexterityModifier = this.getAbilityScoreModifier("dexterity");
+            const weaponType = weaponProperties.find(wp => wp.name == "weapon-type")?.value;
+            const isVersatile = weaponProperties.some(wp => wp.name == "versatile");
+            if ((weaponType == "simple-ranged")
+                || (weaponType == "martial-ranged")
+                || (isVersatile && (dexterityModifier > strengthModifier))) {
+                relevantAbility = { name: "dexterity", title: "Dexterity" };
+                relevantAbilityModifier = dexterityModifier;
+            }
+            else {
+                relevantAbility = { name: "strength", title: "Strength" };
+                relevantAbilityModifier = strengthModifier
+            }
+        }
+        return {
+            name: relevantAbility.name,
+            title: relevantAbility.title,
+            value: relevantAbilityModifier
+        }
+    }
+
+    #getSavingThrowLabel(dc, dcAbility) {
+        return `DC ${dc} ${dcAbility.title} saving throw`;
+    }
+
+    #getToHitLabel(toHitModifier) {
+        if (Number(toHitModifier) >= 0) {
+            return `+${toHitModifier} to hit`;
+        }
+        return `-${Math.abs(toHitModifier)} to hit`;
+    }
+
+    #getDamageLabel(damageDice, modifier, damageType) {
+        if (!damageDice || damageDice.length == 0) {
+            return "";
+        }
+        const damageDieLabels = [];
+        for (const damageDie of damageDice) {
+            damageDieLabels.push(`${damageDie.number}d${damageDie.size}`)
+        }
+        let label = damageDieLabels.join(" + ");
+        if (label == "1d1") {
+            label = "1";
+        }
+        const numberModifier = Number(modifier);
+        if (numberModifier > 0) {
+            label += ` + ${numberModifier}`;
+        }
+        if (numberModifier < 0) {
+            label += ` - ${Math.abs(numberModifier)}`;
+        }
+        if (damageType) {
+            label += ` ${damageType}`;
+        }
+        label += " damage";
+        return label;
+    }
+
+    #canBeOffhand(inventoryIndex, weaponProperties) {
+        const isLight = weaponProperties.some(wp => wp.name == "light");
+        if (isLight) {
+            return true;
+        }
+        const modifiers = this.#getModifiers("off-hand-weapon", inventoryIndex, weaponProperties, null, false, false);
+        if (modifiers.length > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    #getDisplayModifiers(toHitModifiers, damageModifiers, hasSavingThrow) {
+        let displayModifiers = [];
+        const toHitOrDcLabel = hasSavingThrow ? "dc" : "to hit";
+        for (const toHitModifier of toHitModifiers) {
+            const value = Number(toHitModifier.value);
+            let label = null;
+            if (value > 0) {
+                label = `+${value} ${toHitOrDcLabel}`;
+            }
+            if (value < 0) {
+                label = `${value} ${toHitOrDcLabel}`;
+            }
+            if (label && toHitModifier.title) {
+                displayModifiers.push({
+                    name: toHitModifier.name,
+                    title: this.#getSubstring(toHitModifier.title, 40),
+                    toHitLabel: label
+                });
+            }
+        }
+        for (const damageModifier of damageModifiers) {
+            const value = Number(damageModifier.value);
+            let label = null;
+            if (value > 0) {
+                label = `+${value} damage`;
+            }
+            if (value < 0) {
+                label = `${value} damage`;
+            }
+            if (label) {
+                let displayModifier = displayModifiers.find(dm => dm.name == damageModifier.name);
+                if (displayModifier) {
+                    displayModifier.damageLabel = label;
+                }
+                else {
+                    displayModifiers.push({
+                        name: damageModifier.name,
+                        title: this.#getSubstring(damageModifier.title, 40),
+                        damageLabel: label
+                    });
+                }
+            } 
+        }
+        for (const displayModifier of displayModifiers) {
+            let label = `${displayModifier.toHitLabel ?? ""}, ${displayModifier.damageLabel ?? ""}`.trim();
+            if (label.startsWith(",") || label.endsWith(",")) {
+                label = label.replace(",", "").trim();
+            }
+            // console.log(label);
+            const title = this.#getSubstring(displayModifier.title, 40);
+            displayModifier.label = `${title}: ${label}`;
+        }
+        return displayModifiers.map(dm => dm.label);
     }
 
     toJSON() {

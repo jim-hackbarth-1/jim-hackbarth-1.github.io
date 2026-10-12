@@ -122,13 +122,13 @@ class DomainRaceModel {
         return this.#getRaceSelections();
     }
 
-    getRaceSelectionOptions(selectionModelName) {
+    getRaceSelectionOptions(selectionModelName, sources) {
         const character = DomainRaceModel.#character;
         let options = [];
         if (character.race?.value) {
             const race = Sources.getRaces(character.sources).find(r => r.name == character.race?.value);
             if (race?.getSelectionOptions) {
-                options = race.getSelectionOptions(character, selectionModelName);
+                options = race.getSelectionOptions(character, selectionModelName, sources);
             }
         }
         return options;
@@ -235,7 +235,7 @@ class DomainRaceModel {
         return this.#getSubRaceSelections();
     }
 
-    getSubRaceSelectionOptions(selectionModelName) {
+    getSubRaceSelectionOptions(selectionModelName, sources) {
         const character = DomainRaceModel.#character;
         let options = [];
         if (character.race?.value && character.subRace?.value) {
@@ -243,7 +243,7 @@ class DomainRaceModel {
                 .getSubRaces(character.sources, character.race.value)
                 .find(sr => sr.name == character.subRace?.value);
             if (subRace?.getSelectionOptions) {
-                options = subRace.getSelectionOptions(character, selectionModelName);
+                options = subRace.getSelectionOptions(character, selectionModelName, sources);
             }
         }
         return options;

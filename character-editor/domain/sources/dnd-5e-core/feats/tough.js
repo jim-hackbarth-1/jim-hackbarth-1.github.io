@@ -34,7 +34,7 @@ export class Tough {
         return [];
     }
 
-    static getSelectionOptions(character, classIndex, level, selectionName) {
+    static getSelectionOptions(character, classIndex, level, selectionName, sources) {
         return [];
     }
 

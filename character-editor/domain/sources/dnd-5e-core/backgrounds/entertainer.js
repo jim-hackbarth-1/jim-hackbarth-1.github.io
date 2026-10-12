@@ -69,7 +69,7 @@ export class Entertainer {
         return [];
     }
 
-    static getSelectionOptions(character, selectionName) {
+    static getSelectionOptions(character, selectionName, sources) {
         return [];
     }
 

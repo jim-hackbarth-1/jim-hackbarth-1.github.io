@@ -21,7 +21,7 @@ export class BarbarianPathOfTheBeast {
         return [];
     }
 
-    static getSelectionOptions(character, classIndex, selectionName) {
+    static getSelectionOptions(character, classIndex, selectionName, sources) {
         return [];
     }
 
@@ -50,10 +50,10 @@ export class BarbarianPathOfTheBeast {
                     `
             });
             const attackCard = character.getAttackCard({
-                name: "barbarian-path-of-the-beast-beast-form-attack",
                 title: "Beast Form Bite",
                 damageDieSize: 6,
-                damageType: "piercing"
+                damageType: "piercing",
+                notes: ["Bonus action"]
             });
             tempFeatures.push(attackCard);
         }

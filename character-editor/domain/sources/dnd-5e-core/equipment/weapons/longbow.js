@@ -45,7 +45,7 @@ export class Longbow {
         return []
     }
 
-    static getSelectionOptions(character, inventoryIndex, selectionName) {
+    static getSelectionOptions(character, inventoryIndex, selectionName, sources) {
         return [];
     }
 
@@ -58,11 +58,11 @@ export class Longbow {
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
             const attackCard = character.getAttackCard({
-                inventoryIndex: inventoryIndex,
                 title: Longbow.title,
+                inventoryIndex: inventoryIndex,
                 damageDieSize: 8,
                 damageType: "piercing",
-                range: "range 150/600 ft.",
+                range: "range 150/600 ft."
             });
             tempFeatures.push(attackCard);
         }

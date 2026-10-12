@@ -21,7 +21,7 @@ export class DragonbornSeaDrakken {
         return [];
     }
 
-    static getSelectionOptions(character, optionName) {
+    static getSelectionOptions(character, optionName, sources) {
         return [];
     }
 
@@ -69,40 +69,42 @@ export class DragonbornSeaDrakken {
         // bite
         const dexterity = Number(character.getAbilityScore("dexterity"));
         const strength = Number(character.getAbilityScore("strength"));
-        const biteAttackAbility = (dexterity > strength) ? "dexterity" : "strength";
-        const biteAttackCard = character.getAttackCard({
-            name: "dragonborn-sea-drakken-bite-attack",
+        const biteAttackAbility = (dexterity > strength)
+            ? { name: "dexterity", title: "Dexterity" }
+            : { name: "strength", title: "Strength" };
+        const attackCard = character.getAttackCard({
             title: "Sea Drakken Bite",
+            relevantAbility: biteAttackAbility,
             damageDieSize: 6,
             damageType: "piercing",
-            relevantAbility: biteAttackAbility
+            notes: ["Bonus action"]
         });
         tempFeatures.push(biteAttackCard);
        
         // kiss of the deep
-        let damageDice = 2;
-        if (character.level >= 6) {
-            damageDice++;
-        }
-        if (character.level >= 11) {
-            damageDice++;
-        }
-        if (character.level >= 16) {
-            damageDice++;
-        }
-        const dc = 8
-            + Number(character.getAbilityScoreModifier("constitution"))
-            + Number(character.getProficiencyBonus());
-        const kissAttackCard = character.getAttackCard({
-            name: "dragonborn-sea-drakken-kiss-of-the-deep-attack",
-            title: "Kiss of the Deep",
-            damageDice: [{ number: damageDice, size: 6 }],
-            damageType: "necrotic",
-            relevantAbility: biteAttackAbility,
-            dc: dc,
-            onFailedSave: "Half damage"
-        });
-        tempFeatures.push(kissAttackCard);
+        // let damageDice = 2;
+        // if (character.level >= 6) {
+        //     damageDice++;
+        // }
+        // if (character.level >= 11) {
+        //     damageDice++;
+        // }
+        // if (character.level >= 16) {
+        //     damageDice++;
+        // }
+        // const dc = 8
+        //     + Number(character.getAbilityScoreModifier("constitution"))
+        //     + Number(character.getProficiencyBonus());
+        // const kissAttackCard = character.getAttackCard({
+        //     name: "dragonborn-sea-drakken-kiss-of-the-deep-attack",
+        //     title: "Kiss of the Deep",
+        //     damageDice: [{ number: damageDice, size: 6 }],
+        //     damageType: "necrotic",
+        //     relevantAbility: biteAttackAbility,
+        //     dc: dc,
+        //     onFailedSave: "Half damage"
+        // });
+        // tempFeatures.push(kissAttackCard);
 
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = "subRace";

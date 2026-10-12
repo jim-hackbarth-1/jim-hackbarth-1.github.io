@@ -72,7 +72,9 @@ export class SelectionModel {
         const isHidden = sectionExpanded.classList.contains("hidden");
         this.hideExpandedSections();
         if (isHidden) {
-            this.#options = this.#selectionModel.getOptions(this.#selectionModel.name);
+            const sources = this.#selectionModel.sources;
+            this.#applySourceOptions(sources);
+            this.#options = this.#selectionModel.getOptions(this.#selectionModel.name, sources);
             await UIKit.renderer.renderElement(this.#kitElement.querySelector(".selection-expanded"));
             sectionExpanded = this.#kitElement.querySelector(".selection-expanded");
             sectionExpanded.classList.remove("hidden");
@@ -86,7 +88,7 @@ export class SelectionModel {
     }
 
     getOptions() {
-        return this.#getOptions();
+        return this.#options ?? [];
     }
 
     isMultiSelect() {
@@ -145,7 +147,10 @@ export class SelectionModel {
 
     async #onValueChanged(optionValue) {
         if (this.#selectionModel.updateSelection) {
-            const option = this.#getSelectedOption(optionValue);
+            if (optionValue == "null") {
+                optionValue = null;
+            }
+            const option = this.#options.find(o => o.value == optionValue);
             if (!option.isDisabled) {
                 if (this.#selectionModel.maxSelections == 1) {
                     this.#selectionModel.currentSelections = [{ value: option.value, text: option.text }];
@@ -174,36 +179,30 @@ export class SelectionModel {
         }
     }
 
-    #getOptions() {
-        if (this.#selectionModel.useLanguages) {
-            const character = EditorViewModel.character;
-            const selectedLanguages = character.selections.find(s => s.name == this.#selectionModel.name)?.values ?? [];
-            return this.#getLanguages(character, selectedLanguages);
+    #applySourceOptions(sources) {
+        const character = EditorViewModel.character;
+        if (sources) {
+            for (const source of sources) {
+                if (source.name == "language") {
+                    source.options = this.#getLanguages(character);
+                }
+            }
         }
-        return this.#options ?? [];
+    }
+
+    #getLanguages(character) {
+        let options = [...Sources.getLanguages(character.sources)];
+        for (const option of options) {
+            option.noteText = option.source.title;
+        }
+        return options;
     }
 
     #getSelectedOption(optionValue) {
         if (optionValue == "null") {
             optionValue = null;
         }
-        let option = null;
-        if (this.#selectionModel.useLanguages) {
-            const character = EditorViewModel.character;
-            return option = Sources.getLanguages(character.sources).find(l => l.value == optionValue);
-        }
         return this.#options.find(o => o.value == optionValue);
-    }
-
-    #getLanguages(character, selectedLanguages) {
-        let optionValues = [...Sources.getLanguages(character.sources)];
-        for (const optionValue of optionValues) {
-            optionValue.noteText = optionValue.source.title;
-            optionValue.isSelected = (selectedLanguages.includes(optionValue.value));
-        }
-        optionValues = Utilities.sort(optionValues, "text");
-        optionValues.unshift({ value: null, text: "Choose a language ..." });
-        return optionValues;
     }
 
 }

@@ -431,13 +431,13 @@ class DomainAlignmentAndBackgroundModel {
         return this.#getBackgroundSelections();
     }
 
-    getBackgroundSelectionOptions(selectionModelName) {
+    getBackgroundSelectionOptions(selectionModelName, sources) {
         const character = DomainAlignmentAndBackgroundModel.#character;
         let options = [];
         if (character.background?.value) {
             const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background?.value);
             if (background?.getSelectionOptions) {
-                options = background.getSelectionOptions(character, selectionModelName);
+                options = background.getSelectionOptions(character, selectionModelName, sources);
             }
         }
         return options;

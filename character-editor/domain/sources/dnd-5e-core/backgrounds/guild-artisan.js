@@ -69,7 +69,7 @@ export class GuildArtisan {
         return [];
     }
 
-    static getSelectionOptions(character, selectionName) {
+    static getSelectionOptions(character, selectionName, sources) {
         return [];
     }
 

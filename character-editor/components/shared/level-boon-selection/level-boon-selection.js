@@ -247,14 +247,14 @@ class LevelBoonSelectionModel {
         return this.#getFeatSelections();
     }
 
-    getFeatSelectionOptions = (selectionModelName) => {
+    getFeatSelectionOptions = (selectionModelName, sources) => {
         let options = [];
         if (this.#levelBoon.feat?.value) {
             const character = EditorViewModel.character;
             const feat = Sources.getFeats(character.sources).find(f => f.name == this.#levelBoon.feat.value);
             if (feat?.getSelectionOptions) {
                 options = feat.getSelectionOptions(
-                    character, this.#selectionModel.classIndex, this.#selectionModel.level, selectionModelName);
+                    character, this.#selectionModel.classIndex, this.#selectionModel.level, selectionModelName, sources);
             }
         }
         return options;

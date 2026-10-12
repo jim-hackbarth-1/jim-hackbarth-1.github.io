@@ -145,6 +145,7 @@ import { AcidVial } from "./equipment/adventuring-gear/acid-vial.js";
 import { Shield } from "./equipment/armor/shield.js";
 
 // equipment - weapons
+import { Handaxe } from "./equipment/weapons/handaxe.js";
 import { Longbow } from "./equipment/weapons/longbow.js";
 import { Longsword } from "./equipment/weapons/longsword.js";
 
@@ -292,7 +293,7 @@ export class DnD5ESource {
     static #equipment = [
         Abacus, AlchemistsFireFlask, AcidVial,
         Shield,
-        Longbow, Longsword,
+        Handaxe, Longbow, Longsword,
         BracersOfArchery
     ];
     static getEquipment() {

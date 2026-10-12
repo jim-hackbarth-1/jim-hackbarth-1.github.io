@@ -54,7 +54,7 @@ export class Athlete {
         return selections;
     }
 
-    static getSelectionOptions(character, classIndex, level, selectionName) {
+    static getSelectionOptions(character, classIndex, level, selectionName, sources) {
         let options = [];
         if (selectionName == "athlete-ability-score-increase") {
             options = [

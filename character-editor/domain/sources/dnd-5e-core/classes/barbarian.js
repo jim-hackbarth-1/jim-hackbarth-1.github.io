@@ -71,7 +71,7 @@ export class Barbarian {
         return selections;
     }
 
-    static getSelectionOptions(character, classIndex, selectionName) {
+    static getSelectionOptions(character, classIndex, selectionName, sources) {
         let options = [];
         if (selectionName == "barbarian-skill-proficiencies") {
             options = [...Barbarian.#skillProficiencies];
@@ -135,22 +135,22 @@ export class Barbarian {
             const proficiencyBonus = character.getProficiencyBonus();
             modifiers.push({
                 name: "barbarian-saving-throw-proficiency-strength",
-                target: "saving-throw-proficiency:strength",
-                value: proficiencyBonus,
+                target: "saving-throw-proficiency",
+                value: "strength",
                 title: Barbarian.title
             });
             modifiers.push({
                 name: "barbarian-saving-throw-proficiency-constitution",
-                target: "saving-throw-proficiency:constitution",
-                value: proficiencyBonus,
+                target: "saving-throw-proficiency",
+                value: "constitution",
                 title: Barbarian.title
             });
             const skillProficiencies = character.selections.find(s => s.name == "barbarian-skill-proficiencies")?.values ?? [];
             for (const skillProficiency of skillProficiencies) {
                 modifiers.push({
-                    name: `barbarian-skill-proficiency-${skillProficiency}`,
-                    target: `skill-proficiency:${skillProficiency}`,
-                    value: proficiencyBonus,
+                    name: `barbarian-skill-proficiency-${skillProficiency.value}`,
+                    target: "skill-proficiency",
+                    value: skillProficiency.value,
                     title: Barbarian.title
                 });
             }

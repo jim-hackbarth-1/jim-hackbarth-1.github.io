@@ -258,7 +258,7 @@ export class DomainClassAndLevelModel {
         return this.#getClassSelections(classIndex);
     }
 
-    getClassSelectionOptions(selectionModelName) {
+    getClassSelectionOptions(selectionModelName, sources) {
         const parts = selectionModelName.split(":");
         const classIndex = Number(parts[0].replace("class-", ""));
         const modelName = parts[1];
@@ -268,7 +268,7 @@ export class DomainClassAndLevelModel {
         if (characterClass.value) {
             const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.value);
             if (cls?.getSelectionOptions) {
-                options = cls.getSelectionOptions(character, classIndex, modelName);
+                options = cls.getSelectionOptions(character, classIndex, modelName, sources);
             }
         }
         return options;
@@ -390,7 +390,7 @@ export class DomainClassAndLevelModel {
         return this.#getSubClassSelections(classIndex);
     }
 
-    getSubClassSelectionOptions(selectionModelName) {
+    getSubClassSelectionOptions(selectionModelName, sources) {
         const parts = selectionModelName.split(":");
         const classIndex = Number(parts[0].replace("sub-class-", ""));
         const modelName = parts[1];
@@ -402,7 +402,7 @@ export class DomainClassAndLevelModel {
                 .getSubClasses(character.sources, characterClass.value)
                 .find(sc => sc.name == characterClass.subClass.value);
             if (subClass?.getSelectionOptions) {
-                options = subClass.getSelectionOptions(character, classIndex, modelName);
+                options = subClass.getSelectionOptions(character, classIndex, modelName, sources);
             }
         }
         return options;

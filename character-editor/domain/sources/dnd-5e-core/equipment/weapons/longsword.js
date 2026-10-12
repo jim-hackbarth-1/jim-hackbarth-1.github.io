@@ -44,7 +44,7 @@ export class Longsword {
         return []
     }
 
-    static getSelectionOptions(character, inventoryIndex, selectionName) {
+    static getSelectionOptions(character, inventoryIndex, selectionName, sources) {
         return [];
     }
 
@@ -57,8 +57,8 @@ export class Longsword {
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
             const attackCard = character.getAttackCard({
-                inventoryIndex: inventoryIndex,
                 title: Longsword.title,
+                inventoryIndex: inventoryIndex,
                 damageDieSize: 8,
                 damageType: "slashing"
             });

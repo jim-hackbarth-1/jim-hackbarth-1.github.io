@@ -74,14 +74,14 @@
                 overflow: hidden;
                 white-space: nowrap;
                 text-overflow: ellipsis;
-                font-size: larger;
+                font-size:x-large;
                 font-weight: bold;
                 color: darkred;
             }
 
             #class-and-race-cell {
                 flex: 1;
-                height: 330px;
+                height: 350px;
                 overflow: hidden;
             }
 
@@ -94,8 +94,8 @@
             }
 
             #portrait-container {
-                height: 330px;
-                width: 220px;
+                height: 350px;
+                width: 233px;
                 border: 1px solid black;
                 border-radius: 3px;
                 display: flex;
@@ -105,7 +105,7 @@
             }
 
             #portrait {
-                max-height: 300px;
+                max-height: 350px;
             }
 
             #classes {
@@ -132,9 +132,9 @@
                 color: saddlebrown;
             }
 
-            .ability-modifier,
-            .saving-throw-modifier {
-                font-size: smaller;
+            #skills {
+                height:480px;
+                min-width:180px;
             }
 
             #features-container {
@@ -178,7 +178,138 @@
                 padding: 5px;
             }
 
+            .ability-modifiers-container {
+                display: flex;
+                justify-content: center;
+            }
+
+            .ability-modifiers-container > div {
+                display: table;
+                margin-bottom: 5px;
+            }
+
+            .ability-modifiers-container > div > div {
+                display: table-row;
+            }
+
+            .ability-modifiers-container > div > div > div {
+                display: table-cell;
+                text-align: left;
+                vertical-align: middle;
+            }
+
+            .proficiency-icon {
+                margin-right: 3px;
+                width: 15px;
+                height: 15px;
+                background-color: #C2B08E;
+                border: 1px solid black;
+            }
+
+            .proficiency-icon .icon {
+                stroke-width: 4px;
+            }
+
+            .proficiency-icon .icon-text {
+                fill: black;
+            }
+
+            .ability-modifiers-container .proficiency-icon svg {
+                padding-bottom: 5px;
+            }
+
+            .ability-modifier-label {
+                font-style: italic;
+                padding-right: 3px;
+                font-size: small;
+            }
+
+            .ability-modifier-value {
+                font-weight: bold;
+                color: darkred;
+                font-size: small;
+            }
+
+            .hidden {
+                display:none;
+            }
+
+            #skill-table {
+                display:table;
+            }
+
+            #skill-table > div {
+                display:table-row;
+            }
+
+            #skill-table > div > div {
+                display: table-cell;
+                vertical-align: middle;
+                padding-bottom:3px;
+            }
+
+            #skill-table .proficiency-icon svg {
+                padding-bottom:5px;
+            }
+
+            .skill-modifier-label {
+                text-align: left;
+                padding-right: 3px;
+            }
+
+            .skill-modifier-value {
+                font-weight: bold;
+                color: darkred;
+                text-align: right;
+            }
+
+            .proficiency-note {
+                display: flex;
+                align-items: center;
+                margin-top: 10px;
+                font-size: small;
+                font-style: italic;
+                color:saddlebrown;
+            }
+
+            #attacks-container {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                padding:5px;
+            }
+
+            #attacks-title {
+                font-weight:bold;
+                font-size:larger;
+                border-bottom:3px double black;
+                margin-bottom:5px;
+            }
+
+            .attack-table {
+                display:table;
+            }
+
+            .attack-table > div {
+                display: table-row;
+            }
+
+            .attack-table > div > div {
+                display: table-cell;
+                padding-right:5px;
+            }
+
+            .attack-table .attack-modifier-container {
+                font-size:small;
+                font-style:italic;
+                color:saddlebrown;
+            }
+
             @media print {
+
+                .ability-modifier-label {
+                    font-size: x-small;
+                }
 
                 .page-content {
                     margin: 0;
@@ -197,6 +328,15 @@
                     max-height: 60px;
                     max-width: 60px;
                 }
+
+                #skills {
+                    height: 420px;
+                    min-width: 160px;
+                }
+
+                .cell {
+                    page-break-inside: avoid;
+                }
             }
         </style>
         <div class="page-content">
@@ -206,44 +346,54 @@
                      title="DnD Character Editor" 
                      kit-component="no-model:./resources/icons/logo.html">
                 </div>
+                <!-- name -->
                 <div class="cell no-border">
                     <h1 id="name-heading" class="no-wrap">&nbsp;</h1>
                 </div>
             </div>
             <div class="row">
+                <!-- portrait -->
                 <div class="cell" id="portrait-container">
                     <img id="portrait" src="" />
                 </div>
                 <div class="cell" id="class-and-race-cell">
                     <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
                     <div>
+                        <!-- classes -->
                         <div id="classes"></div>
+                        <!-- proficiency bonus -->
                         <div class="row">
                             <label class="field-label">Proficiency bonus:</label>
-                            <div id="proficiency-bonus" class="field-value no-wrap"></div>
+                            <div id="proficiency-bonus" class="field-value ability-modifier-value"></div>
                         </div>
+                        <!-- race -->
                         <div class="row">
                             <label class="field-label">Race:</label>
                             <div id="race" class="field-value no-wrap"></div>
                         </div>
+                        <!-- size -->
                         <div class="row">
                             <label class="field-label">Size:</label>
                             <div id="size" class="field-value no-wrap"></div>
                         </div>
+                        <!-- alignment -->
                         <div class="row">
                             <label class="field-label">Alignment:</label>
                             <div id="alignment" class="field-value no-wrap"></div>
                         </div>
+                        <!-- background -->
                         <div class="row">
                             <label class="field-label">Background:</label>
                             <div id="background" class="field-value no-wrap"></div>
                         </div>
+                        <!-- description -->
                         <div class="no-wrap field-label">Description:</div>
                         <div id="description">description</div>
                     </div>
                     <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                 </div>
                 <div id="initiative-speed-ac-hp">
+                    <!-- initiative -->
                     <div class="cell">
                         <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
                         <div class="stats-cell">
@@ -252,6 +402,7 @@
                         </div>
                         <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                     </div>
+                    <!-- speed -->
                     <div class="cell">
                         <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
                         <div class="stats-cell">
@@ -260,6 +411,7 @@
                         </div>
                         <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                     </div>
+                    <!-- armor class -->
                     <div class="cell">
                         <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
                         <div class="stats-cell">
@@ -268,6 +420,7 @@
                         </div>
                         <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                     </div>
+                    <!-- hit points and hit dice -->
                     <div class="cell" style="flex:1;">
                         <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
                             <div class="stats-cell">
@@ -296,94 +449,128 @@
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="cell" style="flex:1;">
-                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div class="stats-cell">
-                        <div id="strength" class="stat-label no-wrap">str</div>
-                        <div id="strength-modifier" class="no-wrap ability-modifier">mod</div>
-                        <div id="strength-saving-throw-modifier" class="no-wrap saving-throw-modifier">saving throw</div>
+            <!-- abilities -->
+            <div id="abilities-row" kit-element>
+                <div class="row" kit-array="#model.getAbilities()" kit-array-item-alias="abilityInfo">
+                    <div class="cell" style="flex:1;">
+                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                        <div class="stats-cell">
+                            <div>
+                                <div class="field-label">%{#abilityInfo.title}%</div>
+                            </div>
+                            <div>
+                                <div class="stat-value">%{#abilityInfo.value}%</div>
+                            </div>
+                            <div class="ability-modifiers-container">
+                                <div>
+                                    <div>
+                                        <div></div>
+                                        <div class="no-wrap ability-modifier-label">Modifier:</div>
+                                        <div class="no-wrap ability-modifier-value">%{#abilityInfo.modifier}%</div>
+                                    </div>
+                                    <div>
+                                        <div>
+                                            <div class="proficiency-icon %{#abilityInfo.isProficient ? '' : 'hidden'}%"
+                                                 title="Proficient"
+                                                 kit-component="no-model:./resources/icons/proficient.html">
+                                            </div>
+                                        </div>
+                                        <div class="no-wrap ability-modifier-label">Saving throw:</div>
+                                        <div class="no-wrap ability-modifier-value">%{#abilityInfo.savingThrow}%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                     </div>
-                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
-                </div>
-                <div class="cell" style="flex:1;">
-                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div class="stats-cell">
-                        <div id="intelligence" class="stat-label no-wrap">int</div>
-                        <div id="intelligence-modifier" class="no-wrap ability-modifier">mod</div>
-                        <div id="intelligence-saving-throw-modifier" class="no-wrap saving-throw-modifier">saving throw</div>
-                    </div>
-                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
-                </div>
-                <div class="cell" style="flex:1;">
-                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div class="stats-cell">
-                        <div id="wisdom" class="stat-label no-wrap">wis</div>
-                        <div id="wisdom-modifier" class="no-wrap ability-modifier">mod</div>
-                        <div id="wisdom-saving-throw-modifier" class="no-wrap saving-throw-modifier">saving throw</div>
-                    </div>
-                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
-                </div>
-                <div class="cell" style="flex:1;">
-                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div class="stats-cell">
-                        <div id="dexterity" class="stat-label no-wrap">dex</div>
-                        <div id="dexterity-modifier" class="no-wrap ability-modifier">mod</div>
-                        <div id="dexterity-saving-throw-modifier" class="no-wrap saving-throw-modifier">saving throw</div>
-                    </div>
-                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
-                </div>
-                <div class="cell" style="flex:1;">
-                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div class="stats-cell">
-                        <div id="constitution" class="stat-label no-wrap">con</div>
-                        <div id="constitution-modifier" class="no-wrap ability-modifier">mod</div>
-                        <div id="constitution-saving-throw-modifier" class="no-wrap saving-throw-modifier">saving throw</div>
-                    </div>
-                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
-                </div>
-                <div class="cell" style="flex:1;">
-                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div class="stats-cell">
-                        <div id="charisma" class="stat-label no-wrap">cha</div>
-                        <div id="charisma-modifier" class="no-wrap ability-modifier">mod</div>
-                        <div id="charisma-saving-throw-modifier" class="no-wrap saving-throw-modifier">saving throw</div>
-                    </div>
-                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                 </div>
             </div>
             <div class="row">
-                <div class="cell">
-                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div>skills</div>
-                    <div>
-                        <ul>
-                            <li>acrobatics</li>
-                            <li>animal handling</li>
-                            <li>arcana</li>
-                            <li>athletics</li>
-                            <li>deception</li>
-                            <li>history</li>
-                            <li>insight</li>
-                            <li>intimidation</li>
-                            <li>investigation</li>
-                            <li>medicine</li>
-                            <li>nature</li>
-                            <li>perception</li>
-                            <li>performance</li>
-                            <li>persuasion</li>
-                            <li>religion</li>
-                            <li>sleight of hand</li>
-                            <li>stealth</li>
-                            <li>survival</li>
-                        </ul>
+                <!-- skills -->
+                <div>
+                    <div id="skills" kit-element class="cell">
+                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                        <div class="field-label">Skill Proficiencies</div>
+                        <div id="skill-table" kit-array="#model.getSkills()" kit-array-item-alias="skillInfo">
+                            <div>
+                                <div>
+                                    <div class="proficiency-icon %{#skillInfo.isProficient ? '' : 'hidden'}%"
+                                         title="Proficient"
+                                         kit-component="no-model:./resources/icons/proficient.html">
+                                    </div>
+                                </div>
+                                <div class="no-wrap skill-modifier-label">%{#skillInfo.title}%</div>
+                                <div class="no-wrap skill-modifier-value">%{#skillInfo.modifier}%</div>
+                            </div>
+                        </div>
+                        <div class="proficiency-note">
+                            <div class="proficiency-icon"
+                                 title="Proficient"
+                                 kit-component="no-model:./resources/icons/proficient.html">
+                            </div>
+                            <div style="flex:1;">= proficient</div>
+                        </div>
+                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                     </div>
-                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                    <div id="languages" class="cell">
+                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                        <div class="field-label">Languages</div>
+                        <div kit-array="#model.getLanguages()" kit-array-item-alias="language">
+                            <div>%{#language}%</div>
+                        </div>
+                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                    </div>
                 </div>
-                <div class="cell" style="flex:1;">
-                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div>attacks</div>
-                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                
+                <div style="flex:1;">
+                    <div class="row">
+                        <!-- armor proficiencies -->
+                        <div class="cell" style="flex:1;">
+                            <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                            <div class="field-label">Armor Proficiencies</div>
+                            <div id="armor-proficiencies"></div>
+                            <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                        </div>
+                        <!-- weapon proficiencies -->
+                        <div class="cell" style="flex:1;">
+                            <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                            <div class="field-label">Weapon Proficiencies</div>
+                            <div id="weapon-proficiencies"></div>
+                            <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                        </div>
+                        <!-- tool proficiencies -->
+                        <div class="cell" style="flex:1;">
+                            <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                            <div class="field-label">Tool Proficiencies</div>
+                            <div id="tool-proficiencies"></div>
+                            <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                        </div>
+                    </div>
+                    <!-- attacks -->
+                    <div class="row">
+                        <div id="attacks-container" kit-element>
+                            <div id="attacks-title">Attacks</div>
+                            <div kit-array="#model.getAttackCards()" kit-array-item-alias="card">
+                                <div class="card">
+                                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                                    <div class="attack-table">
+                                        <div>
+                                            <div class="field-label no-wrap">%{#card.title}%:</div>
+                                            <div style="width:100%" kit-array="#card.lines" kit-array-item-alias="line">
+                                                <div>%{#line}%</div>
+                                            </div>
+                                            <div class="attack-modifier-container"
+                                                 kit-array="#card.modifiers ?? []" 
+                                                 kit-array-item-alias="modifier">
+                                                <div class="no-wrap">%{#modifier}%</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div id="features-container">

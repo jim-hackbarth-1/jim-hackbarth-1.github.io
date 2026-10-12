@@ -364,7 +364,7 @@ class DomainEquipmentModel {
         }
     }
 
-    getEquipmentSelectionOptions(selectionModelName) {
+    getEquipmentSelectionOptions(selectionModelName, sources) {
         const parts = selectionModelName.split(":");
         const index = Number(parts[0].replace("inventory-", ""));
         const modelName = parts[1];
@@ -373,7 +373,7 @@ class DomainEquipmentModel {
         const itemName = character.equipment[index].name;
         const item = Sources.getEquipment(character.sources).find(e => e.name == itemName);
         if (item?.getSelectionOptions) {
-            options = item.getSelectionOptions(character, index, modelName);
+            options = item.getSelectionOptions(character, index, modelName, sources);
         }
         return options;
     }

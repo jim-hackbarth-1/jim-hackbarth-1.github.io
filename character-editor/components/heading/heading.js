@@ -101,7 +101,13 @@ export class HeadingModel {
             title = "DnD Character";
         }
         UIKit.document.title = title;
-        UIKit.window.print();
+        try {
+            if (!UIKit.document.execCommand('print', false, null)) {
+                UIKit.window.print()
+            }
+        } catch {
+            UIKit.window.print()
+        }
         UIKit.window.location.reload();
     }
 

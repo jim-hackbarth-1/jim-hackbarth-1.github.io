@@ -153,8 +153,13 @@
                 padding: 5px 10px 5px 10px;
                 position: relative;
                 border: 1px solid black;
-                margin-bottom: 3px;
+                /*margin-bottom: 3px;*/
                 page-break-inside: avoid;
+            }
+
+            .attack-card {
+                flex: 1;
+                margin: 0 5px 5px 5px;
             }
 
             .fill-in-box {
@@ -272,19 +277,23 @@
                 color:saddlebrown;
             }
 
-            #attacks-container {
+            /*#attacks-container {
                 flex: 1;
                 display: flex;
                 flex-direction: column;
-                page-break-inside: auto;
+                page-break-inside: auto;*/
                 /*padding:5px;*/
-            }
+            /*}*/
 
             #attacks-title {
-                font-weight:bold;
-                font-size:larger;
-                border-bottom:3px double black;
-                margin-bottom:5px;
+                font-weight: bold;
+                font-size: larger;
+                border-bottom: 3px double black;
+                /*margin-bottom: 5px;*/
+                flex: 1;
+                /*margin-top: 3px;
+                margin-left: 3px;*/
+                margin: 5px;
             }
 
             .attack-table {
@@ -556,55 +565,9 @@
                     </div>
                     <!-- attacks -->
                     <div class="row">
-                        <div id="attacks-title" style="flex:1;margin-top:3px;margin-left:3px;">Attacks</div>
+                        <div id="attacks-title">Attacks</div>
                     </div>
-                    <div id="attacks-container" kit-element>
-                        <div kit-array="#model.getAttackCards()" kit-array-item-alias="card">
-                            <div class="row">
-                                <div class="card" style="flex:1;margin-left:3px;">
-                                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                                    <div class="attack-table">
-                                        <div>
-                                            <div class="field-label no-wrap">%{#card.title}%:</div>
-                                            <div style="width:100%" kit-array="#card.lines" kit-array-item-alias="line">
-                                                <div>%{#line}%</div>
-                                            </div>
-                                            <div class="attack-modifier-container"
-                                                 kit-array="#card.modifiers ?? []"
-                                                 kit-array-item-alias="modifier">
-                                                <div class="no-wrap">%{#modifier}%</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--<div class="row">
-        <div id="attacks-container" kit-element>
-            <div id="attacks-title">Attacks</div>
-            <div kit-array="#model.getAttackCards()" kit-array-item-alias="card">
-                <div class="card">
-                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                    <div class="attack-table">
-                        <div>
-                            <div class="field-label no-wrap">%{#card.title}%:</div>
-                            <div style="width:100%" kit-array="#card.lines" kit-array-item-alias="line">
-                                <div>%{#line}%</div>
-                            </div>
-                            <div class="attack-modifier-container"
-                                 kit-array="#card.modifiers ?? []"
-                                 kit-array-item-alias="modifier">
-                                <div class="no-wrap">%{#modifier}%</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
-                </div>
-            </div>
-        </div>
-    </div>-->
+                    <div id="attacks-placeholder"></div>
                 </div>
             </div>
             <div id="features-container">

@@ -153,7 +153,15 @@ class PrintViewModel {
         this.#kitElement.querySelector("#tool-proficiencies").innerHTML = toolProficiencyLabel;
 
         // attack cards
-        await UIKit.renderer.renderElement(this.#kitElement.querySelector("#attacks-container"));
+        const cards = Sources.getCharacterFeatures(character).filter(f => f.displayType == "attack-card");
+        const uniqueCardsByTitle = [];
+        for (const card of cards) {
+            if (!uniqueCardsByTitle.some(ucbt => ucbt.title == card.title)) {
+                uniqueCardsByTitle.push(card);
+            }
+        }
+        const cardsHtml = this.#getAttackCardsHtml(uniqueCardsByTitle);
+        this.#kitElement.querySelector("#attacks-placeholder").outerHTML = cardsHtml;
 
         // languages
         await UIKit.renderer.renderElement(this.#kitElement.querySelector("#languages"));
@@ -228,5 +236,43 @@ class PrintViewModel {
             .filter(m => m.target == target)
             .map(m => m.value)
             .reduce((a, b) => a + b, 0);
+    }
+
+    #getAttackCardsHtml(cards) {
+         let cardsHtml = "";
+         for (const card of cards) {
+             let linesHtml = "";
+             const lines = card.lines ?? [];
+             for (const line of lines) {
+                 linesHtml += `
+                 <div>${line}</div>`;
+             }
+             let modifiersHtml = "";
+             const modifiers = card.modifiers ?? [];
+             for (const modifier of modifiers) {
+                 modifiersHtml += `
+                 <div class="no-wrap">${modifier}</div>`;
+             }
+             cardsHtml += `
+                 <div id="attacks-placeholder" class="row">
+                     <div class="card attack-card">
+                         <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                         <div class="attack-table">
+                             <div>
+                                 <div class="field-label no-wrap">${card.title}:</div>
+                                 <div style="width:100%">
+                                     ${linesHtml}
+                                 </div>
+                                 <div class="attack-modifier-container">
+                                     ${modifiersHtml}
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                     </div>
+                 </div>
+             `;
+         }
+         return cardsHtml;
     }
 }

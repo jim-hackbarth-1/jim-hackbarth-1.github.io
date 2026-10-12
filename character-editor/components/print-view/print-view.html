@@ -154,7 +154,7 @@
                 position: relative;
                 border: 1px solid black;
                 margin-bottom: 3px;
-                /*page-break-inside: avoid;*/
+                page-break-inside: avoid;
             }
 
             .fill-in-box {
@@ -556,10 +556,12 @@
                     </div>
                     <!-- attacks -->
                     <div class="row">
-                        <div id="attacks-container" kit-element>
-                            <div id="attacks-title">Attacks</div>
-                            <div kit-array="#model.getAttackCards()" kit-array-item-alias="card">
-                                <div class="card">
+                        <div id="attacks-title" style="flex:1;margin-top:3px;margin-left:3px;">Attacks</div>
+                    </div>
+                    <div id="attacks-container" kit-element>
+                        <div kit-array="#model.getAttackCards()" kit-array-item-alias="card">
+                            <div class="row">
+                                <div class="card" style="flex:1;margin-left:3px;">
                                     <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
                                     <div class="attack-table">
                                         <div>
@@ -568,7 +570,7 @@
                                                 <div>%{#line}%</div>
                                             </div>
                                             <div class="attack-modifier-container"
-                                                 kit-array="#card.modifiers ?? []" 
+                                                 kit-array="#card.modifiers ?? []"
                                                  kit-array-item-alias="modifier">
                                                 <div class="no-wrap">%{#modifier}%</div>
                                             </div>
@@ -579,6 +581,30 @@
                             </div>
                         </div>
                     </div>
+                    <!--<div class="row">
+        <div id="attacks-container" kit-element>
+            <div id="attacks-title">Attacks</div>
+            <div kit-array="#model.getAttackCards()" kit-array-item-alias="card">
+                <div class="card">
+                    <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
+                    <div class="attack-table">
+                        <div>
+                            <div class="field-label no-wrap">%{#card.title}%:</div>
+                            <div style="width:100%" kit-array="#card.lines" kit-array-item-alias="line">
+                                <div>%{#line}%</div>
+                            </div>
+                            <div class="attack-modifier-container"
+                                 kit-array="#card.modifiers ?? []"
+                                 kit-array-item-alias="modifier">
+                                <div class="no-wrap">%{#modifier}%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
+                </div>
+            </div>
+        </div>
+    </div>-->
                 </div>
             </div>
             <div id="features-container">

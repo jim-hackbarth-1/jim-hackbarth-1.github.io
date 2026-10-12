@@ -160,6 +160,10 @@ class PrintViewModel {
                 uniqueCardsByTitle.push(card);
             }
         }
+        const attackRows = [...this.#kitElement.querySelectorAll(".attack-row")];
+        for (const attackRow of attackRows) {
+            attackRow.remove();
+        }
         const cardsHtml = this.#getAttackCardsHtml(uniqueCardsByTitle);
         this.#kitElement.querySelector("#attacks-placeholder").outerHTML = cardsHtml;
 
@@ -254,7 +258,7 @@ class PrintViewModel {
                  <div class="no-wrap">${modifier}</div>`;
              }
              cardsHtml += `
-                 <div id="attacks-placeholder" class="row">
+                 <div class="row attack-row">
                      <div class="card attack-card">
                          <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
                          <div class="attack-table">
@@ -273,6 +277,8 @@ class PrintViewModel {
                  </div>
              `;
          }
-         return cardsHtml;
+        return `
+            <div id="attacks-placeholder"></div>
+            ${cardsHtml}`;
     }
 }

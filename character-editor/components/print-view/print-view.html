@@ -305,7 +305,7 @@
                 color:saddlebrown;
             }
 
-            @media print {
+            /*@media print {*/
 
                 .ability-modifier-label {
                     font-size: x-small;
@@ -314,19 +314,11 @@
                 .page-content {
                     margin: 0;
                     font-size: smaller;
-                    min-width: unset;
+                    /*min-width: unset;*/
                 }
 
                 #name-heading {
                     margin-top: 5px;
-                }
-
-                #logo-container-print {
-                    display: block;
-                    min-width: 60px;
-                    min-height: 60px;
-                    max-height: 60px;
-                    max-width: 60px;
                 }
 
                 #skills {
@@ -337,7 +329,22 @@
                 .cell {
                     page-break-inside: avoid;
                 }
+            /*}*/
+
+            @media print {
+                #logo-container-print {
+                    display: block;
+                    min-width: 60px;
+                    min-height: 60px;
+                    max-height: 60px;
+                    max-width: 60px;
+                }
+
+                .page-content {
+                    min-width: unset;
+                }
             }
+
         </style>
         <div class="page-content">
             <div class="row">

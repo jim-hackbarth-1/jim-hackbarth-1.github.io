@@ -784,7 +784,16 @@ export class Sources {
             title: "Unarmed strike",
             damageDieSize: 1,
             damageType: "bludgeoning",
-            canBeOffHand: true
+            canBeOffHand: true,
+            notes: [
+                "note 1",
+                "note 1",
+                "note 1",
+                "note 1",
+                "note 1",
+                "note 1",
+                "note 1"
+            ]
         }));
         features.push(character.getAttackCard({
             title: "Improvised weapon",

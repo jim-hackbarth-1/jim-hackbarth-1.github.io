@@ -17,6 +17,8 @@ export class HeadingModel {
 
     async init(kitElement) {
         this.#kitElement = kitElement;
+        UIKit.window.addEventListener("beforeprint", (event) => HeadingModel.onBeforePrint(event));
+        UIKit.window.addEventListener("afterprint", (event) => HeadingModel.onAfterPrint(event));
     }
 
     static #hideMenuHandlerRegistered;
@@ -94,21 +96,16 @@ export class HeadingModel {
     }
 
     printCharacter() {
-        var html = UIKit.document.querySelector("#print-content").outerHTML;
-        UIKit.document.body.innerHTML = html;
-        let title = EditorViewModel.character?.name;
-        if (!title || title.length == 0) {
-            title = "DnD Character";
-        }
-        UIKit.document.title = title;
-        try {
-            if (!UIKit.document.execCommand('print', false, null)) {
-                UIKit.window.print()
-            }
-        } catch {
-            UIKit.window.print()
-        }
-        UIKit.window.location.reload();
+        UIKit.window.print();
+        // var html = UIKit.document.querySelector("#print-content").outerHTML;
+        // UIKit.document.body.innerHTML = html;
+        // let title = EditorViewModel.character?.name;
+        // if (!title || title.length == 0) {
+        //     title = "DnD Character";
+        // }
+        // UIKit.document.title = title;
+        // UIKit.window.print();
+        // UIKit.window.location.reload();
     }
 
     async closeCharacter() {
@@ -116,6 +113,22 @@ export class HeadingModel {
         EditorViewModel.character = null;
         const contentElement = UIKit.document.documentElement.querySelector("#content-component");
         await UIKit.renderer.renderElement(contentElement);
+    }
+
+    static onBeforePrint(event) {
+        console.log("before print");
+        var html = UIKit.document.querySelector("#print-content").outerHTML;
+        UIKit.document.body.innerHTML = html;
+        let title = EditorViewModel.character?.name;
+        if (!title || title.length == 0) {
+            title = "DnD Character";
+        }
+        UIKit.document.title = title;
+    }
+
+    static onAfterPrint(event) {
+        console.log("after print");
+        UIKit.window.location.reload();
     }
 
 }

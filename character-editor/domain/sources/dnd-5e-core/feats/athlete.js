@@ -97,23 +97,23 @@ export class Athlete {
     static applyFeatures(features, character, classIndex, level) {
         const tempFeatures = [];
         tempFeatures.push({
-            name: `class-${classIndex}-level-${level}-feat`,
-            displayType: "card",
+            name: Athlete.name,
+            title: Athlete.title,
             html: `
-                <h3>Athlete</h3>
-                <hr/>
-                <div class="content">
-                    <p>You have undergone extensive physical training to gain the following benefits:<p>
-                    <p>
-                        <ul>
-                            <li>Increase your Strength or Dexterity score by 1, to a maximum of 20.</li>
-                            <li>When you are prone, standing up uses only 5 feet of your movement.</li>
-                            <li>Climbing doesn't cost you extra movement.</li>
-                            <li>You can make a running long jump or a running high jump after moving only 5 feet on foot, rather than 10 feet.</li>
-                        </ul>
-                    </p>
-                </div>
-                `
+                <p>You have undergone extensive physical training to gain the following benefits:<p>
+                <p>
+                    <ul>
+                        <li>Increase your Strength or Dexterity score by 1, to a maximum of 20.</li>
+                        <li>When you are prone, standing up uses only 5 feet of your movement.</li>
+                        <li>Climbing doesn't cost you extra movement.</li>
+                        <li>You can make a running long jump or a running high jump after moving only 5 feet on foot, rather than 10 feet.</li>
+                    </ul>
+                </p>`,
+            source: {
+                name: "feat",
+                title: Athlete.title
+            },
+            displayType: "feature-card"
         });
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `class-${classIndex}-level-${level}-feat`;

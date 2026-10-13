@@ -22,7 +22,16 @@ export class BracersOfArchery {
     }
 
     static get html() {
-        return "<p>While wearing these bracers, you have proficiency with the longbow and shortbow, and you gain a +2 bonus to damage rolls on ranged attacks made with such weapons.</p>";
+        return `
+        <div class="dnd-5e-content">
+            <link rel="stylesheet" type="text/css" href="./domain/sources/dnd-5e-core/dnd-5e-core.css">
+            <h3>Explorer's Pack</h3>
+            <hr/>
+            <p class="content">
+                While wearing these bracers, you have proficiency with the longbow and shortbow, and you gain a +2 bonus to damage rolls on ranged attacks made with such weapons.
+            </p>
+        </div>
+        `;
     }
 
     static getSelections(character, inventoryIndex) {
@@ -74,13 +83,16 @@ export class BracersOfArchery {
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
             tempFeatures.push({
-                name: `equipment-${inventoryIndex}`,
-                displayType: "card",
+                name: BracersOfArchery.name,
+                title: BracersOfArchery.title,
                 html: `
-                    <h3>${BracersOfArchery.title}</h3>
-                    <hr/>
                     <p>While wearing these bracers, you have proficiency with the longbow and shortbow, and you gain a +2 bonus to damage rolls on ranged attacks made with such weapons.</p>
-                    `
+                    `,
+                source: {
+                    name: "equipment",
+                    title: BracersOfArchery.title
+                },
+                displayType: "feature-card"
             });
         }
         for (const feature of tempFeatures) {

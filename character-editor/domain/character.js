@@ -425,7 +425,22 @@ export class Character {
         return Number(armorClass) + Number(dexModifier) + Number(acModifiers);
     }
 
+    getModifiers({
+        target,
+        inventoryIndex,
+        weaponProperties,
+        relevantAbility,
+        applyAbilityModifier,
+        applyProficiencyModifier
+    }) {
+        return this.#getModifiers(
+            target, inventoryIndex, weaponProperties ?? [], relevantAbility, applyAbilityModifier, applyProficiencyModifier)
+            .map(m => m.value)
+            .reduce((a, b) => a + b, 0);
+    }
+
     getAttackCard({
+        name,
         title,
         inventoryIndex,
         hasSavingThrow,
@@ -440,7 +455,6 @@ export class Character {
         reach,
         range,
         target,
-        canBeOffHand,
         notes
     }) {
         const applyAbilityModifierInteral = this.#getApplyModifierValue(applyAbilityModifier, true);
@@ -449,7 +463,7 @@ export class Character {
         const applyProficiencyModifierForDamageInternal = this.#getApplyModifierValue(applyProficiencyModifierForDamage, false);
         const weaponProperties = this.equipment[Number(inventoryIndex)]?.properties ?? [];
         const toHitOrDcModifiers = this.#getModifiers(
-            "to-hit", inventoryIndex, weaponProperties, relevantAbility, applyAbilityModifierInteral, applyProficiencyModifierInternal);
+            hasSavingThrow ? "dc" : "to-hit", inventoryIndex, weaponProperties, relevantAbility, applyAbilityModifierInteral, applyProficiencyModifierInternal);
         const toHitOrDcModifier = Number(toHitOrDcModifiers.map(m => m.value).reduce((a, b) => a + b, 0));
         const damageModifiers = this.#getModifiers(
             "damage", inventoryIndex, weaponProperties, relevantAbility, applyAbilityModifierForDamageInternal, applyProficiencyModifierForDamageInternal);
@@ -484,7 +498,7 @@ export class Character {
             line1Parts.push(target);
         }
         const lines = [line1Parts.join(", ")];
-        if (canBeOffHand || this.#canBeOffhand(inventoryIndex, weaponProperties)) {
+        if (name == "basic-unarmed-strike" || this.#canBeOffhand(inventoryIndex, weaponProperties)) {
             const abilities = ["strength", "intelligence", "wisdom", "dexterity", "constitution", "charisma"];
             const offHandDamageModifiers = damageModifiers.filter(dm => !(abilities.includes(dm.name) && Number(dm.value) > 0));
             const offHandDamageModifier = Number(offHandDamageModifiers.map(m => m.value).reduce((a, b) => a + b, 0));
@@ -498,6 +512,7 @@ export class Character {
         }
         const modifiers = this.#getDisplayModifiers(toHitOrDcModifiers, damageModifiers, hasSavingThrow);
         return {
+            name: name,
             title: this.#getSubstring(title ?? "Attack", 40),
             displayType: "attack-card",
             lines: lines,

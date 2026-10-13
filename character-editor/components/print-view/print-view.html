@@ -38,7 +38,18 @@
             }
 
             #name-heading {
-                margin-top: 5px;
+                margin-top: 4px;
+                color:darkred;
+            }
+
+            #name-spacer {
+                background-image: linear-gradient(to right, black, rgba(0,0,0,0));
+                height: 6px;
+                margin-top: 24px;
+                margin-right: 5px;
+                flex: 1;
+                border-left: 1px solid black;
+                border-radius: 3px;
             }
 
             .corner {
@@ -288,9 +299,50 @@
             #features-container > div {
                 flex: 1;
                 overflow: hidden;
-                margin: 5px;
             }
-           
+
+            .feature-card {
+                min-width: 50px;
+                min-height: 50px;
+                margin:5px;
+                
+                padding: 5px 10px 5px 10px;
+                position: relative;
+                border: 1px solid black;
+                overflow: hidden;
+                page-break-inside: avoid;
+            }
+
+            .feature-card h2,
+            .feature-card h3,
+            .feature-card h4 {
+                color: darkred;
+            }
+
+            .feature-card hr {
+                border: 1px solid darkred;
+                margin-bottom: 10px;
+            }
+
+            .feature-card li,
+            .feature-card p {
+                font-family: Calibri, sans-serif;
+            }
+
+            .feature-card ul {
+                padding-left:20px;
+            }
+
+            .feature-card .feature-card-source {
+                font-size: smaller;
+                color: saddlebrown;
+                font-style: italic;
+            }
+
+            .feature-card .content {
+                margin-bottom:5px;
+            }
+
             @media print {
 
                 .page-content {
@@ -304,21 +356,25 @@
                     max-height: 60px;
                     max-width: 60px;
                 }
- 
+
+                #name-heading-container {
+                    padding-left: 0;
+                }
             }
 
         </style>
         <div class="page-content">
             <div class="row">
-                <div id="logo-container-print" 
-                     class="cell no-border" 
-                     title="DnD Character Editor" 
+                <div id="logo-container-print"
+                     class="cell no-border"
+                     title="DnD Character Editor"
                      kit-component="no-model:./resources/icons/logo.html">
                 </div>
                 <!-- name -->
-                <div class="cell no-border">
-                    <h1 id="name-heading" class="no-wrap">&nbsp;</h1>
+                <div id="name-heading-container" class="cell no-border">
+                    <h1 id="name-heading" class="no-wrap"></h1>
                 </div>
+                <div id="name-spacer"></div>
             </div>
             <div class="row">
                 <!-- portrait -->
@@ -392,28 +448,28 @@
                     <!-- hit points and hit dice -->
                     <div class="cell" style="flex:1;">
                         <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                            <div class="stats-cell">
-                                <div id="hit-point-table">
+                        <div class="stats-cell">
+                            <div id="hit-point-table">
+                                <div>
                                     <div>
-                                        <div>
-                                            <div class="no-wrap">Hit Points</div>
-                                            <div id="hit-points" class="stat-value no-wrap"></div>
-                                        </div>
-                                        <div>
-                                            <div class="fill-in-box"></div>
-                                        </div>
+                                        <div class="no-wrap">Hit Points</div>
+                                        <div id="hit-points" class="stat-value no-wrap"></div>
                                     </div>
                                     <div>
-                                        <div>
-                                            <div class="no-wrap">Hit Dice</div>
-                                            <div id="hit-dice" class="stat-value no-wrap"></div>
-                                        </div>
-                                        <div>
-                                            <div class="fill-in-box"></div>
-                                        </div>
+                                        <div class="fill-in-box"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div>
+                                        <div class="no-wrap">Hit Dice</div>
+                                        <div id="hit-dice" class="stat-value no-wrap"></div>
+                                    </div>
+                                    <div>
+                                        <div class="fill-in-box"></div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
                         <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                     </div>
                 </div>
@@ -490,7 +546,7 @@
                         <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                     </div>
                 </div>
-                
+
                 <div style="flex:1;">
                     <div class="row">
                         <!-- armor proficiencies -->
@@ -522,55 +578,19 @@
                     <div id="attacks-placeholder"></div>
                 </div>
             </div>
+            <!-- features -->
+            <div class="row">
+                <div id="attacks-title">Features</div>
+            </div>
             <div id="features-container">
                 <div id="features-col-1">
-                    <div class="card">
-                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                        <div>card</div>
-                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
-                    </div>
-                    <div class="card">
-                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                        <div>card</div>
-                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
-                    </div>
-                    <div class="card" style="height:100px;">
-                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                        <div>card</div>
-                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
-                    </div>
-                    <div class="card">
-                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                        <div>card</div>
-                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
-                    </div>
-                    <div class="card">
-                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                        <div>card</div>
-                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
-                    </div>
+                    <div id="features-col-1-placeholder"></div>
                 </div>
                 <div id="features-col-2">
-                    <div class="card">
-                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                        <div>card</div>
-                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
-                    </div>
-                    <div class="card">
-                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                        <div>card</div>
-                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
-                    </div>
-                    <div class="card">
-                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                        <div>card</div>
-                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
-                    </div>
-                    <div class="card">
-                        <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
-                        <div>card</div>
-                        <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
-                    </div>
+                    <div id="features-col-2-placeholder"></div>
+                </div>
+                <div id="features-col-3">
+                    <div id="features-col-3-placeholder"></div>
                 </div>
             </div>
         </div> 

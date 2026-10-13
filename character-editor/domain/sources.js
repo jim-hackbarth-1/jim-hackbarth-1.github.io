@@ -781,12 +781,13 @@ export class Sources {
 
         // basic attacks
         features.push(character.getAttackCard({
+            name: "basic-unarmed-strike",
             title: "Unarmed strike",
             damageDieSize: 1,
-            damageType: "bludgeoning",
-            canBeOffHand: true
+            damageType: "bludgeoning"
         }));
         features.push(character.getAttackCard({
+            name: "basic-improvised-weapon",
             title: "Improvised weapon",
             applyProficiencyModifier: false,
             damageDieSize: 4,
@@ -794,6 +795,7 @@ export class Sources {
             range: "range 20/60 ft."
         }));
         features.push({
+            name: "basic-grapple-shove",
             title: "Grapple/shove",
             displayType: "attack-card",
             lines: [

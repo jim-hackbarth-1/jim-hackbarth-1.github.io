@@ -31,7 +31,7 @@ export class Longbow {
     static equip(character, inventoryIndex) {
         const item = character.equipment[inventoryIndex];
         item.properties = [
-            { name: "weapon-name", value: "longbow" },
+            { name: "weapon-name", value: Longbow.name },
             { name: "weapon-type", value: "martial-ranged" }
         ];
         item.isEquipped = true;
@@ -58,6 +58,7 @@ export class Longbow {
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
             const attackCard = character.getAttackCard({
+                name: Longbow.name,
                 title: Longbow.title,
                 inventoryIndex: inventoryIndex,
                 damageDieSize: 8,

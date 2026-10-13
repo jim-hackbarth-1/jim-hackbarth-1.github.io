@@ -140,12 +140,21 @@ import { Urchin } from "./backgrounds/urchin.js";
 import { Abacus } from "./equipment/adventuring-gear/abacus.js";
 import { AlchemistsFireFlask } from "./equipment/adventuring-gear/alchemists-fire-flask.js";
 import { AcidVial } from "./equipment/adventuring-gear/acid-vial.js";
+import { Blanket } from "./equipment/adventuring-gear/blanket.js";
+import { CaseMapOrScroll } from "./equipment/adventuring-gear/case-map-or-scroll.js";
+import { ClothesCommon } from "./equipment/adventuring-gear/clothes-common.js";
+import { EquipmentPackExplorer } from "./equipment/adventuring-gear/equipment-pack-explorer.js";
 
 // equipment - armor
 import { Shield } from "./equipment/armor/shield.js";
 
+// equipment - tools
+import { HerbalismKit } from "./equipment/tools/herbalism-kit.js"
+
 // equipment - weapons
+import { Greataxe } from "./equipment/weapons/greataxe.js";
 import { Handaxe } from "./equipment/weapons/handaxe.js";
+import { Javelin } from "./equipment/weapons/javelin.js";
 import { Longbow } from "./equipment/weapons/longbow.js";
 import { Longsword } from "./equipment/weapons/longsword.js";
 
@@ -291,9 +300,11 @@ export class DnD5ESource {
     }
 
     static #equipment = [
-        Abacus, AlchemistsFireFlask, AcidVial,
+        Abacus, AlchemistsFireFlask, AcidVial, Blanket, CaseMapOrScroll,
+        ClothesCommon, EquipmentPackExplorer,
         Shield,
-        Handaxe, Longbow, Longsword,
+        HerbalismKit,
+        Greataxe, Handaxe, Javelin, Longbow, Longsword,
         BracersOfArchery
     ];
     static getEquipment() {

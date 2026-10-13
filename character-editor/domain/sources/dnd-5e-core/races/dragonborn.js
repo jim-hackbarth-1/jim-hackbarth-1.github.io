@@ -96,18 +96,22 @@ export class Dragonborn {
             draconicAncestry = draconicAncestries[0];
         }
         if (draconicAncestry) {
-            const draconicAncestryTitle = Dragonborn.#draconicAncestries.find(da => da.value == draconicAncestry)?.text;
             const breathWeaponDamageAndResistanceType = Dragonborn.#getBreathWeaponAndResistanceType(draconicAncestry);
             tempFeatures.push({
-                name: "dragonborn-draconic-ancestry",
-                displayType: "card",
-                html: `Draconic Ancestry: ${draconicAncestryTitle}`
+                name: "draconic-ancestry",
+                title: "Draconic Ancestry",
+                html: `
+                    <ul>
+                        <li>Draconic Ancestry: ${draconicAncestry.text}</li>
+                        <li>Damage resistance: ${breathWeaponDamageAndResistanceType}</li>
+                    </ul>
+                    `,
+                source: {
+                    name: "race",
+                    title: Dragonborn.title
+                },
+                displayType: "feature-card"
             });
-            tempFeatures.push({
-                name: "dragonborn-draconic-ancestry-damage-resistance",
-                displayType: "card",
-                html: `Damage resistance: ${breathWeaponDamageAndResistanceType}`,
-            })
             const breathWeaponFeature = Dragonborn.#getBreathWeaponFeature(
                 character, draconicAncestry, breathWeaponDamageAndResistanceType);
             tempFeatures.push(breathWeaponFeature);
@@ -170,7 +174,7 @@ export class Dragonborn {
     }
 
     static #getBreathWeaponFeature(character, draconicAncestry, breathWeaponDamageAndResistanceType) {
-        const dcAbility = (["green", "silver", "white"].includes(draconicAncestry))
+        const dcAbility = (["green", "silver", "white"].includes(draconicAncestry.value))
             ? { name: "constitution", title: "Constitution" }
             : { name: "dexterity", title: "Dexterity" };
         let damageDice = 2;
@@ -184,8 +188,9 @@ export class Dragonborn {
             damageDice = 5;
         }
         const areaOfEffect = (["gold", "green", "red", "silver", "white"]
-            .includes(draconicAncestry)) ? "15 ft cone" : "5 by 30 ft line";
+            .includes(draconicAncestry.value)) ? "15 ft cone" : "5 by 30 ft line";
         const attackCard = character.getAttackCard({
+            name: "dragonborn-breath-weapon",
             title: "Breath Weapon",
             hasSavingThrow: true,
             relevantAbility: dcAbility,

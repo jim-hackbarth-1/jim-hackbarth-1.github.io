@@ -1,5 +1,5 @@
 
-import { Character, Sources } from "../../domain/references.js";
+import { Character, Sources, Utilities } from "../../domain/references.js";
 import { EditorViewModel } from "../editor-view/editor-view.js";
 
 export function createModel() {
@@ -153,22 +153,36 @@ class PrintViewModel {
         this.#kitElement.querySelector("#tool-proficiencies").innerHTML = toolProficiencyLabel;
 
         // attack cards
-        const cards = Sources.getCharacterFeatures(character).filter(f => f.displayType == "attack-card");
-        const uniqueCardsByTitle = [];
-        for (const card of cards) {
-            if (!uniqueCardsByTitle.some(ucbt => ucbt.title == card.title)) {
-                uniqueCardsByTitle.push(card);
-            }
-        }
+        const attackCards = this.#getAttackCards(character);
         const attackRows = [...this.#kitElement.querySelectorAll(".attack-row")];
         for (const attackRow of attackRows) {
             attackRow.remove();
         }
-        const cardsHtml = this.#getAttackCardsHtml(uniqueCardsByTitle);
-        this.#kitElement.querySelector("#attacks-placeholder").outerHTML = cardsHtml;
+        const attackCardsHtml = this.#getAttackCardsHtml(attackCards);
+        this.#kitElement.querySelector("#attacks-placeholder").outerHTML = attackCardsHtml;
 
         // languages
         await UIKit.renderer.renderElement(this.#kitElement.querySelector("#languages"));
+
+        // feature cards
+        this.#kitElement.querySelector("#features-col-1").innerHTML = `<div id="features-col-1-placeholder"></div>`;
+        this.#kitElement.querySelector("#features-col-2").innerHTML = `<div id="features-col-2-placeholder"></div>`;
+        this.#kitElement.querySelector("#features-col-3").innerHTML = `<div id="features-col-3-placeholder"></div>`;
+        const featureCards = Sources.getCharacterFeatures(character).filter(f => f.displayType == "feature-card");
+        const length = featureCards.length;
+        for (let i = 0; i < length; i++) {
+            const displayColumn = this.#getNextFeatureColumn();
+            const index = this.#getNextFeatureCardIndex(featureCards, displayColumn);
+            if (index > -1) {
+                const featureCard = featureCards[index];
+                const featureCardHtml = this.#getFeatureCardHtml(featureCard, displayColumn);
+                this.#kitElement.querySelector(`#features-col-${displayColumn}-placeholder`).outerHTML = featureCardHtml;
+                featureCards.splice(index, 1);
+            }
+            else {
+                break;
+            }
+        }
 
     }
 
@@ -217,18 +231,6 @@ class PrintViewModel {
         return skills;
     }
 
-    getAttackCards() {
-        const character = EditorViewModel.character;
-        const cards = Sources.getCharacterFeatures(character).filter(f => f.displayType == "attack-card");
-        let uniqueTitles = [];
-        for (const card of cards) {
-            if (!uniqueTitles.some(ut => ut.title == card.title)) {
-                uniqueTitles.push(card);
-            }
-        }
-        return uniqueTitles;
-    }
-
     getLanguages() {
         const character = EditorViewModel.character;
         const languages = character.modifiers.filter(m => m.target == "language").map(m => m.value.text);
@@ -240,6 +242,22 @@ class PrintViewModel {
             .filter(m => m.target == target)
             .map(m => m.value)
             .reduce((a, b) => a + b, 0);
+    }
+
+    #getAttackCards(character) {
+        const attackCards = Sources.getCharacterFeatures(character).filter(f => f.displayType == "attack-card");
+        const uniqueAttackCards = [];
+        for (const card of attackCards) {
+            const existingTitle = uniqueAttackCards.some(ucbt => ucbt.title == card.title);
+            let existingLines = false;
+            if (existingTitle) {
+                existingLines = uniqueAttackCards.some(ucbt => Utilities.areArraysEqual(ucbt.lines, card.lines));
+            }
+            if (!existingTitle || !existingLines) {
+                uniqueAttackCards.push(card);
+            }
+        }
+        return uniqueAttackCards;
     }
 
     #getAttackCardsHtml(cards) {
@@ -280,5 +298,78 @@ class PrintViewModel {
         return `
             <div id="attacks-placeholder"></div>
             ${cardsHtml}`;
+    }
+
+    #getNextFeatureColumn() {
+        const col1Height = Number(this.#getColumnHeight(1));
+        const col2Height = Number(this.#getColumnHeight(2));
+        const col3Height = Number(this.#getColumnHeight(3));
+        let minHeight = col1Height;
+        let minColumn = 1;
+        if (col2Height < minHeight) {
+            minHeight = col2Height;
+            minColumn = 2;
+        }
+        if (col3Height < minHeight) {
+            minHeight = col3Height;
+            minColumn = 3;
+        }
+        return minColumn;
+    }
+
+    #getColumnHeight(index) {
+        return [...this.#kitElement.querySelector(`#features-col-${index}`).children]
+            .map(c => Number(c.clientHeight))
+            .reduce((a, b) => a + b, 0);
+    }
+
+    #getNextFeatureCardIndex(cards, columnIndex) {
+        let sources = [];
+        if (columnIndex == 1) {
+            sources = ["race", "sub-race", "background", "class", "sub-class", "feature", "equipment"];
+        }
+        if (columnIndex == 2) {
+            sources = ["class", "sub-class", "feature", "race", "sub-race", "background", "equipment"];
+        }
+        if (columnIndex == 3) {
+            sources = ["equipment", "class", "sub-class", "feature", "race", "sub-race", "background"];
+        }
+        let cardIndex = -1;
+        for (const source of sources) {
+            cardIndex = cards.findIndex(c => c.source?.name == source);
+            if (cardIndex > -1) {
+                break;
+            }
+        }
+        if (cardIndex < 0 && cards.length > 0) {
+            cardIndex = 0;
+        }
+        return cardIndex;
+    }
+
+    #getFeatureCardHtml(card, displayColumn) {
+        return `
+            <div class="card feature-card">
+                <div class="corner top-left">
+                    <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
+                        <path d=" M 0,0 l 100,0 a 100 100 0 0 0 -100 100 z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3>${card.title}</h3>
+                    <hr />
+                    <div class="feature-card-source">Source: ${card.source?.title ?? "[None]"}</div>
+                    <div class="content">
+                        ${card.html}
+                    </div>
+                </div>
+                <div class="corner bottom-right">
+                    <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
+                        <path d=" M 100,0 a 100 100 0 0 1 -100 100 l 100,0 z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div id="features-col-${displayColumn}-placeholder"></div>
+        `;
     }
 }

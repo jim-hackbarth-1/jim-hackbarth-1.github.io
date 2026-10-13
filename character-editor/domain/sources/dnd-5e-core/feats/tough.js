@@ -57,15 +57,16 @@ export class Tough {
     static applyFeatures(features, character, classIndex, level) {
         const tempFeatures = [];
         tempFeatures.push({
-            name: `class-${classIndex}-level-${level}-feat`,
-            displayType: "card",
+            name: Tough.name,
+            title: Tough.title,
             html: `
-                <h3>Tough</h3>
-                <hr/>
-                <div class="content">
-                    <p>Your hit point maximum increases by an amount equal to twice your level when you gain this feat. Whenever you gain a level thereafter, your hit point maximum increases by an additional 2 hit points.</p>
-                </div>
-                `
+                <p>Your hit point maximum increases by an amount equal to twice your level when you gain this feat. Whenever you gain a level thereafter, your hit point maximum increases by an additional 2 hit points.</p>
+                `,
+            source: {
+                name: "feat",
+                title: Tough.title
+            },
+            displayType: "feature-card"
         });
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `class-${classIndex}-level-${level}-feat`;

@@ -36,9 +36,8 @@ export class BarbarianPathOfTheBeast {
             // beast form
             tempFeatures.push({
                 name: "barbarian-path-of-the-beast-beast-form",
-                displayType: "card",
+                title: "Beast form",
                 html: `
-                    <h3>Beast form</h3>
                     <p>
                         You physically transform to an animal-hybrid form when entering a rage.  When entering this form you gain the following benefits:
                         <ul>
@@ -47,9 +46,16 @@ export class BarbarianPathOfTheBeast {
                             <li>As a bonus action, make an unarmed bite attack for 1d6 + Strength and Rage modifiers piercing damage.</li>
                         </ul>
                     </p>
-                    `
+                `,
+                source: {
+                    name: "sub-class",
+                    title: BarbarianPathOfTheBeast.title
+                },
+                displayType: "feature-card"
             });
+
             const attackCard = character.getAttackCard({
+                name: "barbarian-path-of-the-beast-bite-attack",
                 title: "Beast Form Bite",
                 damageDieSize: 6,
                 damageType: "piercing",
@@ -61,26 +67,30 @@ export class BarbarianPathOfTheBeast {
             // beast sense
             tempFeatures.push({
                 name: "barbarian-path-of-the-beast-beast-sense",
-                displayType: "card",
+                title: "Beast sense",
                 html: `
-                    <h3>Beast sense</h3>
-                    <p>
+                     <p>
                         You gain the following additional benefits when in beast form:
                         <ul>
                             <li>You have advantage on all Wisdom checks.</li>
                             <li>You gain darkvision.  You can see in dim light within 60 feet as if it were bright daylight and in darkness as if it were dim light.</li>
                         </ul>
-                    </p>`
+                    </p>
+                `,
+                source: {
+                    name: "sub-class",
+                    title: BarbarianPathOfTheBeast.title
+                },
+                displayType: "feature-card"
             });
         }
         if (characterClass.level >= 10) {
             // beast agility
             tempFeatures.push({
                 name: "barbarian-path-of-the-beast-beast-agility",
-                displayType: "card",
+                title: "Beast agility",
                 html: `
-                    <h3>Beast agility</h3>
-                    <p>
+                     <p>
                         You gain the following additional benefits when in beast form:
                         <ul>
                             <li>Movement through non-magical difficult terrain costs you no extra movement.</li>
@@ -88,23 +98,34 @@ export class BarbarianPathOfTheBeast {
                             <li>Opponents have disadvantage on opportunity attacks.</li>
                             <li>You can take the Dash action as a bonus action.</li>
                         </ul>
-                    </p>`
+                    </p>
+                `,
+                source: {
+                    name: "sub-class",
+                    title: BarbarianPathOfTheBeast.title
+                },
+                displayType: "feature-card"
             });
         }
         if (characterClass.level >= 14) {
             // blood sense
             tempFeatures.push({
                 name: "barbarian-path-of-the-beast-blood-sense",
-                displayType: "card",
+                title: "Blood sense",
                 html: `
-                    <h3>Blood sense</h3>
-                    <p>
+                     <p>
                         You gain the following additional benefits when in beast form:
                         <ul>
                             <li>You are aware of the location of creatures within 30 feet of you that you cannot see and attacking such a creature does not impose disadvantage.</li>
                             <li>After taking damage from a creature within 5 feet of you, you may use your reaction to make a bite attack.</li>
                         </ul>
-                    </p>`
+                    </p>
+                `,
+                source: {
+                    name: "sub-class",
+                    title: BarbarianPathOfTheBeast.title
+                },
+                displayType: "feature-card"
             });
         }
         for (const feature of tempFeatures) {

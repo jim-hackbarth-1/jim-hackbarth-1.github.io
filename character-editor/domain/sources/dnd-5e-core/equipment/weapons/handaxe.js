@@ -30,7 +30,7 @@ export class Handaxe {
     static equip(character, inventoryIndex) {
         const item = character.equipment[inventoryIndex];
         item.properties = [
-            { name: "weapon-name", value: "handaxe" },
+            { name: "weapon-name", value: Handaxe.name },
             { name: "weapon-type", value: "simple-melee" },
             { name: "light" },
             { name: "thrown" }
@@ -59,6 +59,7 @@ export class Handaxe {
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
             const attackCard = character.getAttackCard({
+                name: Handaxe.name,
                 title: Handaxe.title,
                 inventoryIndex: inventoryIndex,
                 damageDieSize: 6,

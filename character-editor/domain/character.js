@@ -434,9 +434,7 @@ export class Character {
         applyProficiencyModifier
     }) {
         return this.#getModifiers(
-            target, inventoryIndex, weaponProperties ?? [], relevantAbility, applyAbilityModifier, applyProficiencyModifier)
-            .map(m => m.value)
-            .reduce((a, b) => a + b, 0);
+            target, inventoryIndex, weaponProperties ?? [], relevantAbility, applyAbilityModifier, applyProficiencyModifier);
     }
 
     getAttackCard({

@@ -168,6 +168,8 @@ class PrintViewModel {
         this.#kitElement.querySelector("#features-col-1").innerHTML = `<div id="features-col-1-placeholder"></div>`;
         this.#kitElement.querySelector("#features-col-2").innerHTML = `<div id="features-col-2-placeholder"></div>`;
         this.#kitElement.querySelector("#features-col-3").innerHTML = `<div id="features-col-3-placeholder"></div>`;
+        this.#kitElement.querySelector("#features-col-1-placeholder").outerHTML = this.#getModifiersCardHtml(character);
+        this.#kitElement.querySelector("#features-col-3-placeholder").outerHTML = this.#getEquipmentCardHtml(character);
         const featureCards = Sources.getCharacterFeatures(character).filter(f => f.displayType == "feature-card");
         const length = featureCards.length;
         for (let i = 0; i < length; i++) {
@@ -371,5 +373,172 @@ class PrintViewModel {
             </div>
             <div id="features-col-${displayColumn}-placeholder"></div>
         `;
+    }
+
+    #getModifiersCardHtml(character) {
+
+        const strengthModifiers = character.modifiers.filter(m => m.target == "ability-score:strength");
+        const strengthLabel = this.#getModifiersSectionHtml("Strength", this.#getModifierLabels(strengthModifiers));
+
+        const intelligenceModifiers = character.modifiers.filter(m => m.target == "ability-score:intelligence");
+        const intelligenceLabel = this.#getModifiersSectionHtml("Intelligence", this.#getModifierLabels(intelligenceModifiers));
+
+        const wisdomModifiers = character.modifiers.filter(m => m.target == "ability-score:wisdom");
+        const wisdomLabel = this.#getModifiersSectionHtml("Wisdom", this.#getModifierLabels(wisdomModifiers));
+
+        const dexterityModifiers = character.modifiers.filter(m => m.target == "ability-score:dexterity");
+        const dexterityLabel = this.#getModifiersSectionHtml("Dexterity", this.#getModifierLabels(dexterityModifiers));
+
+        const constitutionModifiers = character.modifiers.filter(m => m.target == "ability-score:constitution");
+        const constitutionLabel = this.#getModifiersSectionHtml("Constitution", this.#getModifierLabels(constitutionModifiers));
+
+        const charismaModifiers = character.modifiers.filter(m => m.target == "ability-score:charisma");
+        const charismaLabel = this.#getModifiersSectionHtml("Charisma", this.#getModifierLabels(charismaModifiers));
+
+        const initModifiers = this.#getInitiativeModifiers(character);
+        const initLabel = this.#getModifiersSectionHtml("Initiative", initModifiers);
+
+        const speedModifiers = character.modifiers.filter(m => m.target == "speed");
+        const speedLabel = this.#getModifiersSectionHtml("Speed", speedModifiers);
+
+        const acModifiers = this.#getArmorClassModifiers(character);
+        const acLabel = this.#getModifiersSectionHtml("Armor Class", acModifiers);
+
+        const hpModifiers = character.modifiers.filter(m => m.target == "hit-points");
+        const hpLabel = this.#getModifiersSectionHtml("Hit Points", hpModifiers);
+        return `
+            <div class="card feature-card">
+                <div class="corner top-left">
+                    <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
+                        <path d=" M 0,0 l 100,0 a 100 100 0 0 0 -100 100 z"></path>
+                    </svg>
+                </div>
+                <div class="field-label">Modifiers</div>
+                <div>
+                    ${strengthLabel}
+                    ${intelligenceLabel}
+                    ${wisdomLabel}
+                    ${dexterityLabel}
+                    ${constitutionLabel}
+                    ${charismaLabel}
+                    ${initLabel}
+                    ${speedLabel}
+                    ${acLabel}
+                    ${hpLabel}
+                </div>
+                <div class="modifier-note">The modifiers above have been factored into the calculated values.</div>
+                <div class="corner bottom-right">
+                    <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
+                        <path d=" M 100,0 a 100 100 0 0 1 -100 100 l 100,0 z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div id="features-col-1-placeholder"></div>
+        `;
+    }
+
+    #getEquipmentCardHtml(character) {
+        const allEquipment = Sources.getEquipment(character.sources);
+        const items = character.equipment.map(e => allEquipment.find(ae => ae.name == e.name).title);
+        let equipmentList = "[None]";
+        if (items.length > 0) {
+            items.sort()
+            equipmentList = `<ul><li>${items.join("</li><li>")}</li></ul>`;
+        }
+        return `
+            <div class="card feature-card">
+                <div class="corner top-left">
+                    <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
+                        <path d=" M 0,0 l 100,0 a 100 100 0 0 0 -100 100 z"></path>
+                    </svg>
+                </div>
+                <div class="field-label">Equipment</div>
+                <div>
+                    ${equipmentList}
+                </div>
+                <div class="corner bottom-right">
+                    <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
+                        <path d=" M 100,0 a 100 100 0 0 1 -100 100 l 100,0 z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div id="features-col-3-placeholder"></div>
+        `;
+    }
+
+    #getArmorClassModifiers(character) {
+        const modifiers = character.modifiers.filter(m => m.target == "armor-class");
+        const labels = this.#getModifierLabels(modifiers);
+        let dexModifier = Number(character.getAbilityScoreModifier("dexterity"));
+        let dexModifierLabel = "";
+        if (dexModifier < 0) {
+            dexModifierLabel = `Dexterity: ${dexModifier}`;
+        }
+        if (dexModifier > 0) {
+            dexModifierLabel = `Dexterity: +${dexModifier}`;
+        }
+        const armorType = character.equipment.find(e => e.name == "armor-type" && e.value != "shield" && e.isEquipped);
+        if (armorType == "medium-armor" && dexModifier > 2) {
+            dexModifierLabel = "Dexterity: +2 (Medium Armor)";
+        }
+        if (armorType == "heavy-armor" && dexModifier > 0) {
+            dexModifierLabel = "Dexterity: 0 (Heavy Armor)";
+        }
+        if (dexModifierLabel) {
+            labels.unshift(dexModifierLabel);
+        }
+        return labels;
+    }
+
+    #getInitiativeModifiers(character) {
+        const modifiers = character.modifiers.filter(m => m.target == "initiative");
+        const labels = this.#getModifierLabels(modifiers);
+        let dexModifier = Number(character.getAbilityScoreModifier("dexterity"));
+        let dexModifierLabel = "";
+        if (dexModifier < 0) {
+            dexModifierLabel = `Dexterity: ${dexModifier}`;
+        }
+        if (dexModifier > 0) {
+            dexModifierLabel = `Dexterity: +${dexModifier}`;
+        }
+        if (dexModifierLabel) {
+            labels.unshift(dexModifierLabel);
+        }
+        return labels;
+    }
+
+    #getModifierLabels(modifiers) {
+        const labels = [];
+        for (const modifier of modifiers) {
+            let label = this.#getModifierLabel(modifier);
+            if (label) {
+                labels.push(label);
+            }
+        }
+        return labels;
+    }
+
+    #getModifierLabel(modifier) {
+        const value = Number(modifier.value);
+        let label = "";
+        if (value > 0) {
+            label = `${modifier.title}: +${modifier.value}`;
+        }
+        if (value < 0) {
+            label = `${modifier.title}: ${modifier.value}`;
+        }
+        return label;
+    }
+
+    #getModifiersSectionHtml(title, modifierLabels) {
+        if (modifierLabels.length > 0) {
+            return `
+            <div>${title}</div>
+            <ul>
+                <li>${modifierLabels.join("</li><li>")}</li>
+            </ul>
+            `;
+        }
+        return "";
     }
 }

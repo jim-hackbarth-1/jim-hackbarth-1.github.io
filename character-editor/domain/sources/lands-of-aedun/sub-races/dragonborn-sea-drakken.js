@@ -98,12 +98,15 @@ export class DragonbornSeaDrakken {
         if (character.level >= 16) {
             damageDice++;
         }
-        const dcModifiers = character.getModifiers({
+        const dcModifiersList = character.getModifiers({
             target: "dc",
             relevantAbility: { name: "constitution", title: "Constitution" },
             applyAbilityModifier: true,
             applyProficiencyModifier: true
         });
+        const dcModifiers = dcModifiersList
+            .map(m => m.value)
+            .reduce((a, b) => a + b, 0);
         const dc = 8 + Number(dcModifiers);
         tempFeatures.push({
             name: "dragonborn-sea-drakken-kiss-of-the-deep",

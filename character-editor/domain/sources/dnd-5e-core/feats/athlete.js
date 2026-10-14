@@ -82,7 +82,7 @@ export class Athlete {
             modifiers.push(
                 {
                     name: "athlete-ability-score-modifier",
-                    target: `ability-score:${abilityScore}`,
+                    target: `ability-score:${abilityScore.value}`,
                     value: 1,
                     title: Athlete.title,
                 });
@@ -103,7 +103,6 @@ export class Athlete {
                 <p>You have undergone extensive physical training to gain the following benefits:<p>
                 <p>
                     <ul>
-                        <li>Increase your Strength or Dexterity score by 1, to a maximum of 20.</li>
                         <li>When you are prone, standing up uses only 5 feet of your movement.</li>
                         <li>Climbing doesn't cost you extra movement.</li>
                         <li>You can make a running long jump or a running high jump after moving only 5 feet on foot, rather than 10 feet.</li>

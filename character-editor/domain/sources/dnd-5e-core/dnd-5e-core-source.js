@@ -161,6 +161,17 @@ import { Longsword } from "./equipment/weapons/longsword.js";
 // equipment - wondrous items
 import { BracersOfArchery } from "./equipment/wondrous-items/bracers-of-archery.js";
 
+// spells - cantrips
+
+// spells - level 1
+import { SpeakWithAnimals } from "./spells/level-1/speak-with-animals.js";
+
+// spells - level 2
+import { BeastSense } from "./spells/level-2/beast-sense.js";
+
+// spells - level 5
+import { CommuneWithNature } from "./spells/level-5/commune-with-nature.js";
+
 export class DnD5ESource {
 
     static get name() {
@@ -333,4 +344,12 @@ export class DnD5ESource {
         return DnD5ESource.#languages;
     }
 
+    static #spells = [
+        SpeakWithAnimals,
+        BeastSense,
+        CommuneWithNature
+    ];
+    static getSpells() {
+        return DnD5ESource.#spells;
+    }
 }

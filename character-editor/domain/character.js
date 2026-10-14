@@ -721,7 +721,6 @@ export class Character {
             if (label.startsWith(",") || label.endsWith(",")) {
                 label = label.replace(",", "").trim();
             }
-            // console.log(label);
             const title = this.#getSubstring(displayModifier.title, 40);
             displayModifier.label = `${title}: ${label}`;
         }

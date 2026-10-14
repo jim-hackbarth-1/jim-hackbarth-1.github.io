@@ -54,10 +54,7 @@ export class CaseMapOrScroll {
             html: `
                 <p>This cylindrical leather case can hold up to ten rolled-up sheets of paper or five rolled-up sheets of parchment.</p>
                 `,
-            source: {
-                name: "equipment",
-                title: CaseMapOrScroll.title
-            },
+            source: { name: "equipment" },
             displayType: "feature-card"
         });
         for (const feature of tempFeatures) {

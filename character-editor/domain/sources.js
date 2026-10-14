@@ -349,6 +349,30 @@ export class Sources {
         return Sources.#skills;
     }
 
+    static #allSpells;
+    static getSpells(sources) {
+        if (!Sources.#allSpells) {
+            const allSpells = [];
+            for (const source of Sources.getSources()) {
+                if (source.getSpells) {
+                    const spells = source.getSpells();
+                    for (const spell of spells) {
+                        const nameCollision = allSpells.find(s => s.name == spell.name);
+                        if (nameCollision) {
+                            console.warn(`Duplicate spell: ${spell.name}. Sources: ${nameCollision.source.name}, ${source.name}`);
+                        }
+                        else {
+                            spell.source = source;
+                            allSpells.push(spell);
+                        }
+                    }
+                }
+            }
+            Sources.#allSpells = allSpells;
+        }
+        return Sources.#allSpells.filter(s => sources.includes(s.source.name));
+    }
+
     static updateCharacterSources(character, sources) {
         if (character.race && !Sources.getRaces(sources).some(r => r.name == character.race)) {
             Sources.updateCharacterRace(character, null);
@@ -628,24 +652,7 @@ export class Sources {
                         continue;
                     }
                 }
-                if (cls.applyModifiers) {
-                    cls.applyModifiers(character, i);
-                }
-                if (characterClass.subClass?.value) {
-                    const subClass = Sources
-                        .getSubClasses(character.sources, characterClass.value)
-                        .find(sc => sc.name == characterClass.subClass.value);
-                    if (subClass.applyModifiers) {
-                        subClass.applyModifiers(character, i);
-                    }
-                }
-                for (const levelBoon of characterClass.levelBoons) {
-                    if (levelBoon.feat?.value) {
-                        const feat = Sources.getFeats(character.sources).find(f => f.name == levelBoon.feat.value);
-                        if (feat.applyModifiers) {
-                            feat.applyModifiers(character, i, levelBoon.level);
-                        }
-                    }
+                for (const levelBoon of characterClass.levelBoons) {  
                     if (levelBoon.abilityScore1) {
                         character.addModifier({
                             name: `${characterClass.value}-${levelBoon.level}-ability-score-modifier-1`,
@@ -665,6 +672,23 @@ export class Sources {
                             sourcePropertyValue: levelBoon.abilityScore2,
                             title: `${cls.title} Level ${levelBoon.level} ability score improvement`,
                         });
+                    }
+                    if (levelBoon.feat?.value) {
+                        const feat = Sources.getFeats(character.sources).find(f => f.name == levelBoon.feat.value);
+                        if (feat.applyModifiers) {
+                            feat.applyModifiers(character, i, levelBoon.level);
+                        }
+                    }
+                }
+                if (cls.applyModifiers) {
+                    cls.applyModifiers(character, i);
+                }
+                if (characterClass.subClass?.value) {
+                    const subClass = Sources
+                        .getSubClasses(character.sources, characterClass.value)
+                        .find(sc => sc.name == characterClass.subClass.value);
+                    if (subClass.applyModifiers) {
+                        subClass.applyModifiers(character, i);
                     }
                 }
             }
@@ -703,12 +727,16 @@ export class Sources {
     static getCharacterFeatures(character) {
 
         const features = [];
+        const spells = [];
 
         // race
         if (character.race?.value) {
             const race = Sources.getRaces(character.sources).find(r => r.name == character.race.value);
             if (race?.applyFeatures) {
                 race.applyFeatures(features, character);
+            }
+            if (race?.applySpells) {
+                race.applySpells(spells, character);
             }
         }
 
@@ -719,6 +747,9 @@ export class Sources {
                 .find(sr => sr.name == character.subRace.value);
             if (subRace?.applyFeatures) {
                 subRace.applyFeatures(features, character);
+            }
+            if (subRace?.applySpells) {
+                subRace.applySpells(spells, character);
             }
         }
 
@@ -745,6 +776,9 @@ export class Sources {
                 if (cls?.applyFeatures) {
                     cls.applyFeatures(features, character, i);
                 }
+                if (cls?.applySpells) {
+                    cls.applySpells(spells, character, i);
+                }
             }
             if (characterClass.value && characterClass.level && characterClass.subClass?.value) {
                 const subClass = Sources.getSubClasses(character.sources, characterClass.value)
@@ -752,12 +786,18 @@ export class Sources {
                 if (subClass?.applyFeatures) {
                     subClass.applyFeatures(features, character, i);
                 }
+                if (subClass?.applySpells) {
+                    subClass.applySpells(spells, character, i);
+                }
             }
             for (const levelBoon of characterClass.levelBoons) {
                 if (levelBoon.feat?.value) {
                     const feat = Sources.getFeats(character.sources).find(f => f.name == levelBoon.feat?.value);
                     if (feat?.applyFeatures) {
                         feat.applyFeatures(features, character, i, levelBoon.level);
+                    }
+                    if (feat?.applySpells) {
+                        feat.applySpells(spells, character, i, levelBoon.level);
                     }
                 }
             }
@@ -769,6 +809,9 @@ export class Sources {
             if (background?.applyFeatures) {
                 background.applyFeatures(features, character);
             }
+            if (background?.applySpells) {
+                background.applySpells(spells, character);
+            }
         }
 
         // equipment
@@ -776,6 +819,23 @@ export class Sources {
             const equipment = Sources.getEquipment(character.sources).find(e => e.name == character.equipment[i].name);
             if (equipment?.applyFeatures) {
                 equipment.applyFeatures(features, character, i);
+            }
+            if (equipment?.applySpells) {
+                equipment.applySpells(spells, character, i);
+            }
+        }
+
+        // spells
+        const uniqueSpells = [];
+        for (const spell of spells) {
+            if (!uniqueSpells.some(us => us == spell)) {
+                uniqueSpells.push(spell);
+            }
+        }
+        for (const spellName of uniqueSpells) {
+            const spell = Sources.getSpells(character.sources).find(s => s.name == spellName);
+            if (spell?.applyFeatures) {
+                spell.applyFeatures(features, character);
             }
         }
 

@@ -54,10 +54,7 @@ export class EquipmentPackExplorer {
             html: `
                 <p>Backpack, a bedroll, a mess kit, a tinderbox, 10 torches, 10 days of rations, and a waterskin. The pack also has 50 feet of hempen rope strapped to the side of it.</p>
                 `,
-            source: {
-                name: "equipment",
-                title: EquipmentPackExplorer.title
-            },
+            source: { name: "equipment" },
             displayType: "feature-card"
         });
         for (const feature of tempFeatures) {

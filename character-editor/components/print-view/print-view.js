@@ -171,8 +171,8 @@ class PrintViewModel {
         this.#kitElement.querySelector("#features-col-1-placeholder").outerHTML = this.#getModifiersCardHtml(character);
         this.#kitElement.querySelector("#features-col-3-placeholder").outerHTML = this.#getEquipmentCardHtml(character);
         const featureCards = Sources.getCharacterFeatures(character).filter(f => f.displayType == "feature-card");
-        const length = featureCards.length;
-        for (let i = 0; i < length; i++) {
+        const featuresLength = featureCards.length;
+        for (let i = 0; i < featuresLength; i++) {
             const displayColumn = this.#getNextFeatureColumn();
             const index = this.#getNextFeatureCardIndex(featureCards, displayColumn);
             if (index > -1) {
@@ -186,6 +186,36 @@ class PrintViewModel {
             }
         }
 
+        // spell cards
+        let spellCards = Sources.getCharacterFeatures(character).filter(f => f.displayType == "spell-card");
+        spellCards = Utilities.sort(spellCards, ["title"]);
+        const spellTitleRow = this.#kitElement.querySelector("#spells-title-row");
+        const spellContainerRow = this.#kitElement.querySelector("#spells-container-row");
+        if (spellCards.length > 0) {
+            spellTitleRow.classList.remove("hidden");
+            spellContainerRow.classList.remove("hidden");
+        }
+        else {
+            spellTitleRow.classList.add("hidden");
+            spellContainerRow.classList.add("hidden");
+        }
+        this.#kitElement.querySelector("#spells-col-1").innerHTML = `<div id="spells-col-1-placeholder"></div>`;
+        this.#kitElement.querySelector("#spells-col-2").innerHTML = `<div id="spells-col-2-placeholder"></div>`;
+        this.#kitElement.querySelector("#spells-col-3").innerHTML = `<div id="spells-col-3-placeholder"></div>`;
+        const spellsLength = spellCards.length;
+        for (let i = 0; i < spellsLength; i++) {
+            const displayColumn = this.#getNextSpellColumn();
+            const index = this.#getNextSpellCardIndex(spellCards, displayColumn);
+            if (index > -1) {
+                const spellCard = spellCards[index];
+                const spellCardHtml = this.#getFeatureCardHtml(spellCard, displayColumn);
+                this.#kitElement.querySelector(`#spells-col-${displayColumn}-placeholder`).outerHTML = spellCardHtml;
+                spellCards.splice(index, 1);
+            }
+            else {
+                break;
+            }
+        }
     }
 
     getAbilities() {
@@ -325,6 +355,29 @@ class PrintViewModel {
             .reduce((a, b) => a + b, 0);
     }
 
+    #getNextSpellColumn() {
+        const col1Height = Number(this.#getSpellColumnHeight(1));
+        const col2Height = Number(this.#getSpellColumnHeight(2));
+        const col3Height = Number(this.#getSpellColumnHeight(3));
+        let minHeight = col1Height;
+        let minColumn = 1;
+        if (col2Height < minHeight) {
+            minHeight = col2Height;
+            minColumn = 2;
+        }
+        if (col3Height < minHeight) {
+            minHeight = col3Height;
+            minColumn = 3;
+        }
+        return minColumn;
+    }
+
+    #getSpellColumnHeight(index) {
+        return [...this.#kitElement.querySelector(`#spells-col-${index}`).children]
+            .map(c => Number(c.clientHeight))
+            .reduce((a, b) => a + b, 0);
+    }
+
     #getNextFeatureCardIndex(cards, columnIndex) {
         let sources = [];
         if (columnIndex == 1) {
@@ -349,9 +402,43 @@ class PrintViewModel {
         return cardIndex;
     }
 
+    #getNextSpellCardIndex(cards, columnIndex) {
+        if (cards.length > 0) {
+            return 0;
+        }
+        return -1;
+    }
+
     #getFeatureCardHtml(card, displayColumn) {
+        let cardSourceClass = "";
+        let hr = "<hr />";
+        if (["race", "sub-race"].includes(card.source.name)) {
+            cardSourceClass = "race-card";
+        }
+        if (card.source.name == "feat") {
+            cardSourceClass = "feat-card";
+        }
+        if (card.source.name == "background") {
+            cardSourceClass = "background-card";
+        }
+        if (card.source.name == "equipment") {
+            cardSourceClass = "equipment-card";
+            hr = "";
+        }
+        if (card.source.name == "spell") {
+            cardSourceClass = "spell-card"
+            hr = "";
+        }
+        let sourceHtml = "";
+        if (card.source?.title) {
+            sourceHtml = `<div class="feature-card-source">Source: ${card.source.title}</div>`
+        }
+        let placeholderPrefix = "features";
+        if (card.source.name == "spell") {
+            placeholderPrefix = "spells";
+        }
         return `
-            <div class="card feature-card">
+            <div class="card feature-card ${cardSourceClass}">
                 <div class="corner top-left">
                     <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
                         <path d=" M 0,0 l 100,0 a 100 100 0 0 0 -100 100 z"></path>
@@ -359,8 +446,8 @@ class PrintViewModel {
                 </div>
                 <div>
                     <h3>${card.title}</h3>
-                    <hr />
-                    <div class="feature-card-source">Source: ${card.source?.title ?? "[None]"}</div>
+                    ${hr}
+                    ${sourceHtml}
                     <div class="content">
                         ${card.html}
                     </div>
@@ -371,7 +458,7 @@ class PrintViewModel {
                     </svg>
                 </div>
             </div>
-            <div id="features-col-${displayColumn}-placeholder"></div>
+            <div id="${placeholderPrefix}-col-${displayColumn}-placeholder"></div>
         `;
     }
 
@@ -399,34 +486,42 @@ class PrintViewModel {
         const initLabel = this.#getModifiersSectionHtml("Initiative", initModifiers);
 
         const speedModifiers = character.modifiers.filter(m => m.target == "speed");
-        const speedLabel = this.#getModifiersSectionHtml("Speed", speedModifiers);
+        const speedLabel = this.#getModifiersSectionHtml("Speed", this.#getModifierLabels(speedModifiers));
 
         const acModifiers = this.#getArmorClassModifiers(character);
         const acLabel = this.#getModifiersSectionHtml("Armor Class", acModifiers);
 
         const hpModifiers = character.modifiers.filter(m => m.target == "hit-points");
-        const hpLabel = this.#getModifiersSectionHtml("Hit Points", hpModifiers);
+        const hpLabel = this.#getModifiersSectionHtml("Hit Points", this.#getModifierLabels(hpModifiers));
+
+        // ${ strengthLabel }
+        // ${ intelligenceLabel }
+        // ${ wisdomLabel }
+        // ${ dexterityLabel }
+        // ${ constitutionLabel }
+        // ${ charismaLabel }
+
         return `
-            <div class="card feature-card">
+            <div class="card feature-card modifiers-card">
                 <div class="corner top-left">
                     <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
                         <path d=" M 0,0 l 100,0 a 100 100 0 0 0 -100 100 z"></path>
                     </svg>
                 </div>
-                <div class="field-label">Modifiers</div>
-                <div>
+                <div class="field-label">Modifiers<span class="modifier-note"> <b>*</b></span></div>
+                <div class="modifiers-content">
                     ${strengthLabel}
                     ${intelligenceLabel}
                     ${wisdomLabel}
                     ${dexterityLabel}
                     ${constitutionLabel}
-                    ${charismaLabel}
+                    ${charismaLabel }
                     ${initLabel}
                     ${speedLabel}
                     ${acLabel}
                     ${hpLabel}
                 </div>
-                <div class="modifier-note">The modifiers above have been factored into the calculated values.</div>
+                <div class="modifier-note"><b>*</b> The modifiers above have been applied to the calculated values.</div>
                 <div class="corner bottom-right">
                     <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
                         <path d=" M 100,0 a 100 100 0 0 1 -100 100 l 100,0 z"></path>

@@ -88,10 +88,7 @@ export class BracersOfArchery {
                 html: `
                     <p>While wearing these bracers, you have proficiency with the longbow and shortbow, and you gain a +2 bonus to damage rolls on ranged attacks made with such weapons.</p>
                     `,
-                source: {
-                    name: "equipment",
-                    title: BracersOfArchery.title
-                },
+                source: { name: "equipment" },
                 displayType: "feature-card"
             });
         }

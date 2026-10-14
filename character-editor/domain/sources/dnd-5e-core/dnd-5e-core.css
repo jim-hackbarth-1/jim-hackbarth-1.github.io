@@ -67,6 +67,10 @@
     background-color: #D6C29C;
 }
 
+.dnd-5e-content .spell-properties {
+    font-style:italic;
+}
+
 @container (width > 650px) {
     .dnd-5e-content .portrait {
         float: left;

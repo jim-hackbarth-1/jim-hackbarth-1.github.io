@@ -99,4 +99,11 @@ export class LandsOfAedunSource {
         return LandsOfAedunSource.#languages;
     }
 
+    static #spells = [
+
+    ];
+    static getSpells() {
+        return LandsOfAedunSource.#spells;
+    }
+
 }

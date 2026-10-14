@@ -67,6 +67,10 @@
     background-color: #D6C29C;
 }
 
+.lands-of-aedun-content .spell-properties {
+    font-style: italic;
+}
+
 @container (width > 650px) {
     .lands-of-aedun-content .portrait {
         float: left;

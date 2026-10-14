@@ -348,12 +348,21 @@ export class Barbarian {
             });
         }
         if (level >= 9) {
+            let brutalCriticalDamageDice = "one";
+            let die = "die";
+            if (level >= 13) {
+                brutalCriticalDamageDice = "two";
+                die = "dice"
+            }
+            if (level >= 17) {
+                brutalCriticalDamageDice = "three";
+                die = "dice"
+            }
             tempFeatures.push({
                 name: "barbarian-brutal-critical",
                 title: "Brutal Critical",
                 html: `
-                    <p>You can roll one additional weapon damage die when determining the extra damage for a critical hit with a melee attack.</p>
-                    <p>This increases to two additional dice at 13th level and three additional dice at 17th level.</p>
+                    <p>You can roll ${brutalCriticalDamageDice} additional weapon damage ${die} when determining the extra damage for a critical hit with a melee attack.</p>
                     `,
                 source: {
                     name: "class",

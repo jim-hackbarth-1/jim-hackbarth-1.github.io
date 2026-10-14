@@ -153,7 +153,7 @@ export class SelectionModel {
             const option = this.#options.find(o => o.value == optionValue);
             if (!option.isDisabled) {
                 if (this.#selectionModel.maxSelections == 1) {
-                    this.#selectionModel.currentSelections = [{ value: option.value, text: option.text }];
+                    this.#selectionModel.currentSelections = [{ value: option.value, text: option.text, source: option.source?.name }];
                     this.toggleDropDown();
                     this.#displayCurrentSelection();
                     await this.#selectionModel.updateSelection(
@@ -168,7 +168,7 @@ export class SelectionModel {
                     ) {
                         this.#selectionModel.currentSelections = this.#options
                             .filter(o => selectedValues.includes(o.value))
-                            .map(o => ({ value: o.value, text: o.text }));
+                            .map(o => ({ value: o.value, text: o.text, source: o.source?.name }));
                         this.toggleDropDown();
                         this.#displayCurrentSelection();
                         await this.#selectionModel.updateSelection(

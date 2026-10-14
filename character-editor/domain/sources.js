@@ -374,6 +374,7 @@ export class Sources {
     }
 
     static updateCharacterSources(character, sources) {
+        
         if (character.race && !Sources.getRaces(sources).some(r => r.name == character.race)) {
             Sources.updateCharacterRace(character, null);
         }
@@ -408,7 +409,7 @@ export class Sources {
             }
         }
 
-        // TODO: spells
+        character.selections = character.selections.filter(s => s.values.every(v => sources.includes(v.source)));
 
         character.sources = sources;
     }

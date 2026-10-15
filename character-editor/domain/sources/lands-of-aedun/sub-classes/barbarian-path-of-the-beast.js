@@ -34,6 +34,14 @@ export class BarbarianPathOfTheBeast {
         const characterClass = character.classes.find(c => c.value == "barbarian");
         if (characterClass.level >= 3) {
             // beast form
+            const conModifier = Number(character.getAbilityScoreModifier("constitution"));
+            let conModifierLabel = "";
+            if (conModifier > 0) {
+                conModifierLabel = ` + ${conModifier}`;
+            }
+            if (conModifier < 0) {
+                conModifierLabel = ` - ${Math.abs(conModifier)}`;
+            }
             tempFeatures.push({
                 name: "barbarian-path-of-the-beast-beast-form",
                 title: "Beast form",
@@ -41,7 +49,7 @@ export class BarbarianPathOfTheBeast {
                     <p>
                         You physically transform to an animal-hybrid form when entering a rage.  When entering this form you gain the following benefits:
                         <ul>
-                            <li>1d12 + Constitution modifier of temporary hit points which lasts while raging.</li>
+                            <li>1d12${conModifierLabel} of temporary hit points which lasts while raging.</li>
                             <li>+1 bonus to your armor class.</li>
                             <li>As a bonus action, make an unarmed bite attack for 1d6 + Strength and Rage modifiers piercing damage.</li>
                         </ul>

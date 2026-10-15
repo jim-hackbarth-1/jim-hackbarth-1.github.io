@@ -46,4 +46,8 @@ export class MountedCombatant {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

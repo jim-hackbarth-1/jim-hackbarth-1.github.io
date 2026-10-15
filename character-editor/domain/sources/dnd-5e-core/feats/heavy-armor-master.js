@@ -46,4 +46,8 @@ export class HeavyArmorMaster {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

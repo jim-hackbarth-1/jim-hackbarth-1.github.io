@@ -46,4 +46,7 @@ export class SavageAttacker {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
 }

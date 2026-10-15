@@ -68,4 +68,8 @@ export class AcidVial {
         }
     }
 
+    static applySpells(spells, character, inventoryIndex) {
+
+    }
+
 }

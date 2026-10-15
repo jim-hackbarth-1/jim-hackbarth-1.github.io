@@ -46,4 +46,8 @@ export class ElementalAdept {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

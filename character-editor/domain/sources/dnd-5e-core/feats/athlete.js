@@ -121,4 +121,8 @@ export class Athlete {
         }
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

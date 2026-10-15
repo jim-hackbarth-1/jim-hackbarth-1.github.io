@@ -46,4 +46,7 @@ export class Mobile {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
 }

@@ -75,4 +75,8 @@ export class Tough {
         }
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

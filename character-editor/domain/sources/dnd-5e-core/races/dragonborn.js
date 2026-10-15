@@ -123,6 +123,10 @@ export class Dragonborn {
         }
     }
 
+    static applySpells(spells, character) {
+
+    }
+
     static #draconicAncestries = [
         { value: "black", text: "Black" },
         { value: "blue", text: "Blue" },

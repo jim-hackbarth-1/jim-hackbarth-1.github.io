@@ -130,4 +130,8 @@ export class DragonbornSeaDrakken {
         }
     }
 
+    static applySpells(spells, character) {
+
+    }
+
 }

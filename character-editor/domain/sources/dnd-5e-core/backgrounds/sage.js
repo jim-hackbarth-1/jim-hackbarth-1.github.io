@@ -81,4 +81,8 @@ export class Sage {
 
     }
 
+    static applySpells(spells, character) {
+
+    }
+
 }

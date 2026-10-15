@@ -81,4 +81,8 @@ export class Entertainer {
 
     }
 
+    static applySpells(spells, character) {
+
+    }
+
 }

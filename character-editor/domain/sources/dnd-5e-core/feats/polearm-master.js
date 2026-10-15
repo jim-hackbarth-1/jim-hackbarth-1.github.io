@@ -91,4 +91,8 @@ export class PolearmMaster {
         }
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

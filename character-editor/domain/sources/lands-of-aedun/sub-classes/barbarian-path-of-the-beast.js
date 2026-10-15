@@ -135,6 +135,10 @@ export class BarbarianPathOfTheBeast {
         }
     }
 
+    static applySpells(spells, character, classIndex) {
+
+    }
+
     static #getRageDamage(level) {
         let rageDamage = 2;
         if (level >= 9) {

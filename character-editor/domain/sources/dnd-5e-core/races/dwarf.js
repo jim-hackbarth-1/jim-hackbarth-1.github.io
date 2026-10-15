@@ -21,7 +21,11 @@ export class Dwarf {
         return "medium";
     }
 
-    static getOptions(character) {
+    static getSelections(character) {
+        return [];
+    }
+
+    static getSelectionOptions(character, selectionName, sources) {
         return [];
     }
 
@@ -30,6 +34,10 @@ export class Dwarf {
     }
 
     static applyFeatures(features, character) {
+
+    }
+
+    static applySpells(spells, character) {
 
     }
 

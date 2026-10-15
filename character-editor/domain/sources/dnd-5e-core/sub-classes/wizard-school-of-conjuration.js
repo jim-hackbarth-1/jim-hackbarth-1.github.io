@@ -17,7 +17,11 @@ export class WizardSchoolOfConjuration{
         return "wizard";
     }
 
-    static getOptions(character, classIndex) {
+    static getSelections(character, classIndex) {
+        return [];
+    }
+
+    static getSelectionOptions(character, classIndex, selectionName, sources) {
         return [];
     }
 
@@ -26,6 +30,10 @@ export class WizardSchoolOfConjuration{
     }
 
     static applyFeatures(features, character, classIndex) {
+
+    }
+
+    static applySpells(spells, character, classIndex) {
 
     }
 

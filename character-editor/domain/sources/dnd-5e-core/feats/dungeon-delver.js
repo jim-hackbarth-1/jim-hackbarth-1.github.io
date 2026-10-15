@@ -46,4 +46,8 @@ export class DungeonDelver {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

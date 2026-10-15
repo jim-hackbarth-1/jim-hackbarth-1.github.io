@@ -17,7 +17,11 @@ export class GnomeForest {
         return "gnome";
     }
 
-    static getOptions(character) {
+    static getSelections(character) {
+        return [];
+    }
+
+    static getSelectionOptions(character, optionName, sources) {
         return [];
     }
 
@@ -26,6 +30,10 @@ export class GnomeForest {
     }
 
     static applyFeatures(features, character) {
+
+    }
+
+    static applySpells(spells, character) {
 
     }
 

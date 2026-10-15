@@ -46,4 +46,8 @@ export class WeaponMaster {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

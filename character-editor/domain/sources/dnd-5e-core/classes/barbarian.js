@@ -423,6 +423,10 @@ export class Barbarian {
            
     }
 
+    static applySpells(spells, character, classIndex) {
+
+    }
+
     static #skillProficiencies = [
         { value: "animal-handling", text: "Animal Handling" },
         { value: "athletics", text: "Athletics" },

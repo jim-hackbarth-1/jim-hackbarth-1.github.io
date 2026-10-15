@@ -80,4 +80,8 @@ export class FolkHero {
     static applyFeatures(features, character) {
 
     }
+
+    static applySpells(spells, character) {
+
+    }
 }

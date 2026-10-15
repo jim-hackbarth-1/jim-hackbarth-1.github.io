@@ -64,4 +64,8 @@ export class EquipmentPackExplorer {
         }
     }
 
+    static applySpells(spells, character, inventoryIndex) {
+
+    }
+
 }

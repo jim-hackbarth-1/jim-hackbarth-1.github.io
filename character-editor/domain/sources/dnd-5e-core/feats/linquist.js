@@ -46,4 +46,8 @@ export class Linguist {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

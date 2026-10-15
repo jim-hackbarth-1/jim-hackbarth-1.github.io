@@ -64,4 +64,8 @@ export class HerbalismKit {
         }
     }
 
+    static applySpells(spells, character, inventoryIndex) {
+
+    }
+
 }

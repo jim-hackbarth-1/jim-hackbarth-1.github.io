@@ -46,4 +46,8 @@ export class TavernBrawler {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

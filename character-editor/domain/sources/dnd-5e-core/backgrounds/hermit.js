@@ -179,4 +179,8 @@ export class Hermit {
         }
     }
 
+    static applySpells(spells, character) {
+
+    }
+
 }

@@ -46,4 +46,8 @@ export class Durable {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

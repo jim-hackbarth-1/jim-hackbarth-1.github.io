@@ -17,7 +17,11 @@ export class HalflingStout {
         return "halfling";
     }
 
-    static getOptions(character) {
+    static getSelections(character) {
+        return [];
+    }
+
+    static getSelectionOptions(character, optionName, sources) {
         return [];
     }
 
@@ -26,6 +30,10 @@ export class HalflingStout {
     }
 
     static applyFeatures(features, character) {
+
+    }
+
+    static applySpells(spells, character) {
 
     }
 

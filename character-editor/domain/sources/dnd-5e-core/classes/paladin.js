@@ -40,7 +40,11 @@ export class Paladin {
         return 3;
     }
 
-    static getOptions(character, classIndex) {
+    static getSelections(character, classIndex) {
+        return [];
+    }
+
+    static getSelectionOptions(character, classIndex, selectionName, sources) {
         return [];
     }
 
@@ -52,4 +56,7 @@ export class Paladin {
 
     }
 
+    static applySpells(spells, character, classIndex) {
+
+    }
 }

@@ -80,4 +80,8 @@ export class Urchin {
     static applyFeatures(features, character) {
 
     }
+
+    static applySpells(spells, character) {
+
+    }
 }

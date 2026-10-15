@@ -46,4 +46,8 @@ export class Healer {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

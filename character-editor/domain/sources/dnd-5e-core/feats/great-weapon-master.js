@@ -46,4 +46,8 @@ export class GreatWeaponMaster {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

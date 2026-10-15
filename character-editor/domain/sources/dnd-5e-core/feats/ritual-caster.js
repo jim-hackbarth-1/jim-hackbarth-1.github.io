@@ -46,4 +46,8 @@ export class RitualCaster {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

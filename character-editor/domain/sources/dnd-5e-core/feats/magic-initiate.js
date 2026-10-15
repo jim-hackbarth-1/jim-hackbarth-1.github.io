@@ -46,4 +46,8 @@ export class MagicInitiate {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

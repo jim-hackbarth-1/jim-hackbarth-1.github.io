@@ -46,4 +46,8 @@ export class WarCaster {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

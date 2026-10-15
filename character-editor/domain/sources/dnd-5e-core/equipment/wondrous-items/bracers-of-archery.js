@@ -99,4 +99,8 @@ export class BracersOfArchery {
         }
     }
 
+    static applySpells(spells, character, inventoryIndex) {
+
+    }
+
 }

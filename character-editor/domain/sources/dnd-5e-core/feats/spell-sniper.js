@@ -46,4 +46,8 @@ export class SpellSniper {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

@@ -41,4 +41,8 @@ export class Blanket {
 
     }
 
+    static applySpells(spells, character, inventoryIndex) {
+
+    }
+
 }

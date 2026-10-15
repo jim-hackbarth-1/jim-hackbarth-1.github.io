@@ -46,4 +46,8 @@ export class ShieldMaster {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

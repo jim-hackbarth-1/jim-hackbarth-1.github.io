@@ -75,4 +75,8 @@ export class Handaxe {
         }
     }
 
+    static applySpells(spells, character, inventoryIndex) {
+
+    }
+
 }

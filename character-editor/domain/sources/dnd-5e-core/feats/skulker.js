@@ -46,4 +46,8 @@ export class Skulker {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

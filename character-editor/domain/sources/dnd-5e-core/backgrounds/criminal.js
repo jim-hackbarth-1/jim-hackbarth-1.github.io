@@ -81,4 +81,8 @@ export class Criminal {
 
     }
 
+    static applySpells(spells, character) {
+
+    }
+
 }

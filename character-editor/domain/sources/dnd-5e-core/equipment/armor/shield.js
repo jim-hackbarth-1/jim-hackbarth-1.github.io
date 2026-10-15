@@ -68,4 +68,8 @@ export class Shield {
 
     }
 
+    static applySpells(spells, character, inventoryIndex) {
+
+    }
+
 }

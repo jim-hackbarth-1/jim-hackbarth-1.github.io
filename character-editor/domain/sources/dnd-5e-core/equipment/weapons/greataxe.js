@@ -74,4 +74,8 @@ export class Greataxe {
         }
     }
 
+    static applySpells(spells, character, inventoryIndex) {
+
+    }
+
 }

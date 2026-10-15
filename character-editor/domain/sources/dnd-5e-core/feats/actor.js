@@ -46,4 +46,8 @@ export class Actor {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

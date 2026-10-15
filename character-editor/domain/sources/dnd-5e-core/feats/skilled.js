@@ -46,4 +46,7 @@ export class Skilled {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
 }

@@ -46,4 +46,8 @@ export class KeenMind {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

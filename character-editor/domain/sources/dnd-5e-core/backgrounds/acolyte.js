@@ -81,4 +81,8 @@ export class Acolyte {
 
     }
 
+    static applySpells(spells, character) {
+
+    }
+
 }

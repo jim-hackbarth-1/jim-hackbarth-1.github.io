@@ -64,4 +64,8 @@ export class CaseMapOrScroll {
         }
     }
 
+    static applySpells(spells, character, inventoryIndex) {
+
+    }
+
 }

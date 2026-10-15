@@ -46,4 +46,8 @@ export class Lucky {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

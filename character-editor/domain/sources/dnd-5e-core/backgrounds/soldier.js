@@ -81,4 +81,8 @@ export class Soldier {
 
     }
 
+    static applySpells(spells, character) {
+
+    }
+
 }

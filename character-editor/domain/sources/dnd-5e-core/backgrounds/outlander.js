@@ -81,4 +81,7 @@ export class Outlander {
 
     }
 
+    static applySpells(spells, character) {
+
+    }
 }

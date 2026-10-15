@@ -81,4 +81,8 @@ export class Noble {
 
     }
 
+    static applySpells(spells, character) {
+
+    }
+
 }

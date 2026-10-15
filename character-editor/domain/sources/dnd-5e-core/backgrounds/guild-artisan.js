@@ -81,4 +81,8 @@ export class GuildArtisan {
 
     }
 
+    static applySpells(spells, character) {
+
+    }
+
 }

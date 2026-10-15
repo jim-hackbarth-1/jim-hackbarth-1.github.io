@@ -40,7 +40,11 @@ export class Monk {
         return 3;
     }
 
-    static getOptions(character, classIndex) {
+    static getSelections(character, classIndex) {
+        return [];
+    }
+
+    static getSelectionOptions(character, classIndex, selectionName, sources) {
         return [];
     }
 
@@ -49,6 +53,10 @@ export class Monk {
     }
 
     static applyFeatures(features, character, classIndex) {
+
+    }
+
+    static applySpells(spells, character, classIndex) {
 
     }
 

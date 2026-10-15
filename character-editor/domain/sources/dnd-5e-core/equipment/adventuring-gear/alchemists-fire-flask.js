@@ -70,4 +70,8 @@ export class AlchemistsFireFlask {
         }
     }
 
+    static applySpells(spells, character, inventoryIndex) {
+
+    }
+
 }

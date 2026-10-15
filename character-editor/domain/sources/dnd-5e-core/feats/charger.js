@@ -63,4 +63,8 @@ export class Charger {
         }
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

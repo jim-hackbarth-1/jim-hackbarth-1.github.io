@@ -46,4 +46,8 @@ export class Resilient {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

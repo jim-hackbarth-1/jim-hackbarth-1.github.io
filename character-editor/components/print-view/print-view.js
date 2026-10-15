@@ -112,43 +112,67 @@ class PrintViewModel {
         await UIKit.renderer.renderElement(this.#kitElement.querySelector("#skills"));
 
         // armor proficiencies
-        let armorProficiencyLabel = "[None]";
-        let armorProficiencies = [
+        let armorProficiencyLabel = "";
+        let armorTypeProficiencies = [
             { name: "light-armor", title: "Light Armor" },
             { name: "medium-armor", title: "Medium Armor" },
-            { name: "heavy-armor", title: "Heavy Armor" },
-            { name: "shield", title: "Shield" }
+            { name: "heavy-armor", title: "Heavy Armor" }
         ];
-        armorProficiencies = armorProficiencies.filter(p => character.modifiers.some(m => m.value == p.name)).map(p => p.title);
+        armorTypeProficiencies = armorTypeProficiencies
+            .filter(p => character.modifiers.some(m => m.target == "armor-proficiency" && m.value == p.name))
+            .map(p => p.title);
+        if (armorTypeProficiencies.length) {
+            armorProficiencyLabel += `<div>${armorTypeProficiencies.join("</div><div>")}</div>`
+        }
+        let armorProficiencies = Sources.getEquipment(character.sources, "armor");
+        armorProficiencies = armorProficiencies
+            .filter(p => character.modifiers.some(m => m.target == "armor-proficiency" && m.value == p.name))
+            .map(p => p.title);
         if (armorProficiencies.length) {
-            armorProficiencyLabel = `<div>${armorProficiencies.join("</div><div>")}</div>`
+            armorProficiencyLabel += `<div>${armorProficiencies.join(", ")}</div>`
+        }
+        if (!armorProficiencyLabel) {
+            armorProficiencyLabel = "[None]";
         }
         this.#kitElement.querySelector("#armor-proficiencies").innerHTML = armorProficiencyLabel;
 
         // weapon proficiencies
-        // TODO: handle individual weapon proficiencies (use equipment list?)
-        let weaponProficiencyLabel = "[None]";
-        let weaponProficiencies = [
+        let weaponProficiencyLabel = "";
+        let weaponTypeProficiencies = [
             { name: "simple-melee", title: "Simple melee weapons" },
             { name: "martial-melee", title: "Martial melee weapons" },
             { name: "simple-ranged", title: "Simple ranged weapons" },
             { name: "martial-ranged", title: "Martial ranged weapons" }
         ];
-        weaponProficiencies = weaponProficiencies.filter(p => character.modifiers.some(m => m.value == p.name)).map(p => p.title);
+        weaponTypeProficiencies = weaponTypeProficiencies
+            .filter(p => character.modifiers.some(m => m.target == "weapon-proficiency" && m.value == p.name))
+            .map(p => p.title);
+        if (weaponTypeProficiencies.length) {
+            weaponProficiencyLabel += `<div>${weaponTypeProficiencies.join("</div><div>")}</div>`
+        }
+        let weaponProficiencies = Sources.getEquipment(character.sources, "weapons");
+        weaponProficiencies = weaponProficiencies
+            .filter(p => character.modifiers.some(m => m.target == "weapon-proficiency" && m.value == p.name))
+            .map(p => p.title);
         if (weaponProficiencies.length) {
-            weaponProficiencyLabel = `<div>${weaponProficiencies.join("</div><div>")}</div>`
+            weaponProficiencyLabel += `<div>${weaponProficiencies.join(", ")}</div>`
+        }
+        if (!weaponProficiencyLabel) {
+            weaponProficiencyLabel = "[None]";
         }
         this.#kitElement.querySelector("#weapon-proficiencies").innerHTML = weaponProficiencyLabel;
 
         // tool proficiencies
-        // TODO: use equipment list?
-        let toolProficiencyLabel = "[None]";
-        let toolProficiencies = [
-            { name: "herbalism-kit", title: "Herbalism Kit" }
-        ];
-        toolProficiencies = toolProficiencies.filter(p => character.modifiers.some(m => m.value == p.name)).map(p => p.title);
+        let toolProficiencyLabel = "";
+        let toolProficiencies = Sources.getEquipment(character.sources, "tools");
+        toolProficiencies = toolProficiencies
+            .filter(p => character.modifiers.some(m => m.target == "tool-proficiency" && m.value == p.name))
+            .map(p => p.title);
         if (toolProficiencies.length) {
-            toolProficiencyLabel = `<div>${toolProficiencies.join("</div><div>")}</div>`
+            toolProficiencyLabel += `<div>${toolProficiencies.join("</div><div>")}</div>`
+        }
+        if (!toolProficiencyLabel) {
+            toolProficiencyLabel = "[None]";
         }
         this.#kitElement.querySelector("#tool-proficiencies").innerHTML = toolProficiencyLabel;
 
@@ -535,10 +559,28 @@ class PrintViewModel {
     #getEquipmentCardHtml(character) {
         const allEquipment = Sources.getEquipment(character.sources);
         const items = character.equipment.map(e => allEquipment.find(ae => ae.name == e.name).title);
+        let itemsWithCounts = [];
+        for (const item of items) {
+            const itemWithCount = itemsWithCounts.find(i => i.name == item);
+            if (itemWithCount) {
+                itemWithCount.count++;
+            }
+            else {
+                itemsWithCounts.push({ name: item, count: 1 });
+            }
+        }
+        for (const item of itemsWithCounts) {
+            let label = item.name;
+            if (item.count > 1) {
+                label += ` (x${item.count})`;
+            }
+            item.label = label;
+        }
+        itemsWithCounts = itemsWithCounts.map(i => i.label);
         let equipmentList = "[None]";
-        if (items.length > 0) {
-            items.sort()
-            equipmentList = `<ul><li>${items.join("</li><li>")}</li></ul>`;
+        if (itemsWithCounts.length > 0) {
+            itemsWithCounts.sort()
+            equipmentList = `<ul><li>${itemsWithCounts.join("</li><li>")}</li></ul>`;
         }
         return `
             <div class="card feature-card">

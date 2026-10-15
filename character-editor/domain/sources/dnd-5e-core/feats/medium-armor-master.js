@@ -46,4 +46,8 @@ export class MediumArmorMaster {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

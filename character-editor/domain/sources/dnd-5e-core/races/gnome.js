@@ -21,7 +21,11 @@ export class Gnome {
         return "small";
     }
 
-    static getOptions(character) {
+    static getSelections(character) {
+        return [];
+    }
+
+    static getSelectionOptions(character, selectionName, sources) {
         return [];
     }
 
@@ -33,4 +37,7 @@ export class Gnome {
 
     }
 
+    static applySpells(spells, character) {
+
+    }
 }

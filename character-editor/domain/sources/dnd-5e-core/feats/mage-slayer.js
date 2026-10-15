@@ -46,4 +46,8 @@ export class MageSlayer {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

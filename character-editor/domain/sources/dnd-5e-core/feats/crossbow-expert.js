@@ -46,4 +46,8 @@ export class CrossbowExpert {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

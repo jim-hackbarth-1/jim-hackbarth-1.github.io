@@ -80,4 +80,8 @@ export class Charlatan {
     static applyFeatures(features, character) {
 
     }
+
+    static applySpells(spells, character) {
+
+    }
 }

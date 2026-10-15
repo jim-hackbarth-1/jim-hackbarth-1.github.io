@@ -104,4 +104,8 @@ export class Abacus {
 
     }
 
+    static applySpells(spells, character, inventoryIndex) {
+
+    }
+
 }

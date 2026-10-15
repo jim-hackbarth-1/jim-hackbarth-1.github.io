@@ -46,4 +46,8 @@ export class Alert {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

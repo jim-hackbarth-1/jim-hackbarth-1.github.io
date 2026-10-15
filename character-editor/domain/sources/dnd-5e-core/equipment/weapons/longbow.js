@@ -74,4 +74,8 @@ export class Longbow {
         }
     }
 
+    static applySpells(spells, character, inventoryIndex) {
+
+    }
+
 }

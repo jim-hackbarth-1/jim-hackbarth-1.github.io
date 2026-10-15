@@ -16,7 +16,11 @@ export class WizardSchoolOfNecromancy {
         return "wizard";
     }
 
-    static getOptions(character, classIndex) {
+    static getSelections(character, classIndex) {
+        return [];
+    }
+
+    static getSelectionOptions(character, classIndex, selectionName, sources) {
         return [];
     }
 
@@ -28,4 +32,7 @@ export class WizardSchoolOfNecromancy {
 
     }
 
+    static applySpells(spells, character, classIndex) {
+
+    }
 }

@@ -17,7 +17,11 @@ export class MonkWayOfTheOpenHand {
         return "monk";
     }
 
-    static getOptions(character, classIndex) {
+    static getSelections(character, classIndex) {
+        return [];
+    }
+
+    static getSelectionOptions(character, classIndex, selectionName, sources) {
         return [];
     }
 
@@ -26,6 +30,10 @@ export class MonkWayOfTheOpenHand {
     }
 
     static applyFeatures(features, character, classIndex) {
+
+    }
+
+    static applySpells(spells, character, classIndex) {
 
     }
 

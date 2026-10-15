@@ -73,4 +73,8 @@ export class Javelin {
         }
     }
 
+    static applySpells(spells, character, inventoryIndex) {
+
+    }
+
 }

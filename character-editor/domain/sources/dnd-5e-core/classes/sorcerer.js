@@ -39,7 +39,11 @@ export class Sorcerer {
         return 1;
     }
 
-    static getOptions(character, classIndex) {
+    static getSelections(character, classIndex) {
+        return [];
+    }
+
+    static getSelectionOptions(character, classIndex, selectionName, sources) {
         return [];
     }
 
@@ -48,6 +52,10 @@ export class Sorcerer {
     }
 
     static applyFeatures(features, character, classIndex) {
+
+    }
+
+    static applySpells(spells, character, classIndex) {
 
     }
 

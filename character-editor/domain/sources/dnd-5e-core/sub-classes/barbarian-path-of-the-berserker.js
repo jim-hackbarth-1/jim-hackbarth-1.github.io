@@ -17,7 +17,11 @@ export class BarbarianPathOfTheBerserker {
         return "barbarian";
     }
 
-    static getOptions(character, classIndex) {
+    static getSelections(character, classIndex) {
+        return [];
+    }
+
+    static getSelectionOptions(character, classIndex, selectionName, sources) {
         return [];
     }
 
@@ -112,5 +116,9 @@ export class BarbarianPathOfTheBerserker {
             feature.sourcePropertyValue = BarbarianPathOfTheBerserker.name
             features.push(feature);
         }
+    }
+
+    static applySpells(spells, character, classIndex) {
+
     }
 }

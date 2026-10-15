@@ -46,4 +46,8 @@ export class InspiringLeader {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

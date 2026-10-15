@@ -46,4 +46,8 @@ export class DefensiveDuelist {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

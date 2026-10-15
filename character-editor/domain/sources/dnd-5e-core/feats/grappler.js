@@ -46,4 +46,8 @@ export class Grappler {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

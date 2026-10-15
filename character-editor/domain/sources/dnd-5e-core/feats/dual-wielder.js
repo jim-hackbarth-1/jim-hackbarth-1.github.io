@@ -46,4 +46,8 @@ export class DualWielder {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

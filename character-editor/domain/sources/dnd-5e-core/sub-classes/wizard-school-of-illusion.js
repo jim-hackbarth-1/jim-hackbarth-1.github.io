@@ -17,7 +17,11 @@ export class WizardSchoolOfIllusion {
         return "wizard";
     }
 
-    static getOptions(character, classIndex) {
+    static getSelections(character, classIndex) {
+        return [];
+    }
+
+    static getSelectionOptions(character, classIndex, selectionName, sources) {
         return [];
     }
 
@@ -29,4 +33,7 @@ export class WizardSchoolOfIllusion {
 
     }
 
+    static applySpells(spells, character, classIndex) {
+
+    }
 }

@@ -46,4 +46,8 @@ export class Sharpshooter {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

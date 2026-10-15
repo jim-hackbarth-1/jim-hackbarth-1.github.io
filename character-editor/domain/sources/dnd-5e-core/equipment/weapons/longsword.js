@@ -72,4 +72,8 @@ export class Longsword {
         }
     }
 
+    static applySpells(spells, character, inventoryIndex) {
+
+    }
+
 }

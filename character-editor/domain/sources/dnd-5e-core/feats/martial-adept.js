@@ -46,4 +46,8 @@ export class MartialAdept {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

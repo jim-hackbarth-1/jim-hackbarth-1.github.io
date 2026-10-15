@@ -80,4 +80,8 @@ export class Sailor {
     static applyFeatures(features, character) {
 
     }
+
+    static applySpells(spells, character) {
+
+    }
 }

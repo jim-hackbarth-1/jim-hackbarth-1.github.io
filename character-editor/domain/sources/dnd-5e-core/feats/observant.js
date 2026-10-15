@@ -46,4 +46,8 @@ export class Observant {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

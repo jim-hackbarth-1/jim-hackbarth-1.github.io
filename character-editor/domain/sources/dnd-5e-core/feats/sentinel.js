@@ -46,4 +46,8 @@ export class Sentinel {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

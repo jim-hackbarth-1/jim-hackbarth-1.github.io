@@ -46,4 +46,8 @@ export class LightlyArmored {
 
     }
 
+    static applySpells(spells, character, classIndex, level) {
+
+    }
+
 }

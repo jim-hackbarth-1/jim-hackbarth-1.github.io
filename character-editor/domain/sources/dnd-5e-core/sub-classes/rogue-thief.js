@@ -17,7 +17,11 @@ export class RogueThief {
         return "rogue";
     }
 
-    static getOptions(character, classIndex) {
+    static getSelections(character, classIndex) {
+        return [];
+    }
+
+    static getSelectionOptions(character, classIndex, selectionName, sources) {
         return [];
     }
 
@@ -26,6 +30,10 @@ export class RogueThief {
     }
 
     static applyFeatures(features, character, classIndex) {
+
+    }
+
+    static applySpells(spells, character, classIndex) {
 
     }
 

@@ -1,7 +1,20 @@
 
+.level-boon-selection {
+    background-color: #998B70;
+    border: 1px solid black;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.level-boon-selection .selection-title {
+    margin-bottom: 5px;
+}
+
 .level-boon-selection .selection-content {
-    border:1px dotted saddlebrown;
-    padding:5px;
+    border: 1px dotted black;
+    border-radius: 3px;
+    background-color: #C2B08E;
+    padding: 5px;
 }
 
 .level-boon-selection .selection-content > div,

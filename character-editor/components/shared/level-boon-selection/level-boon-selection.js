@@ -35,7 +35,7 @@ class LevelBoonSelectionModel {
     }
 
     getTitle() {
-        return `Level ${this.#selectionModel.level} ability score improvement or feat:`;
+        return `Level ${this.#selectionModel.level} ability score improvement or feat`;
     }
 
     getRadioGroupName() {

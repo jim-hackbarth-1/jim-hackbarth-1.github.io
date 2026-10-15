@@ -50,7 +50,8 @@
 
     #starting-equipment-container #starting-equipment-content {
         margin-bottom: 10px;
-        border: 1px dotted black;
+        border: 1px dotted saddlebrown;
+        border-radius:3px;
         padding: 5px;
     }
 
@@ -75,7 +76,7 @@
         cursor: pointer;
         width: 20px;
         height: 20px;
-        border: 1px dotted black;
+        border: 1px dotted saddlebrown;
     }
 
     .info-icon .icon {

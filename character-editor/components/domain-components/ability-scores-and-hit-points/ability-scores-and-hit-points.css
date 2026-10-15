@@ -17,12 +17,13 @@
     }
 
     #ability-scores-detail {
-        padding: 5px;
+        padding:5px 0 5px 5px;
     }
 
     #ability-score-table,
     #hit-points-table {
-        border: 1px solid saddlebrown;
+        border: 1px dotted saddlebrown;
+        border-radius:3px;
         padding: 5px;
         overflow: auto;
     }

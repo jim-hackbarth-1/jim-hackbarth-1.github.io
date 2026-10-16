@@ -508,11 +508,6 @@ export class Sources {
         currentLevelBoon.feat = levelBoon.feat;
     }
 
-    static updateCharacterSelection(character, selection) {
-        character.removeSelection(selection.name);
-        character.addSelection(selection);
-    }
-
     static updateCharacterUseAbilityScorePointsSystem(character) {
         character.useAbilityScorePointsSystem = !character.useAbilityScorePointsSystem;
         const min = character.useAbilityScorePointsSystem ? 8 : 3;
@@ -588,32 +583,9 @@ export class Sources {
         character.removeEquipment(index);
     }
 
-    static getMulticlassIneligibilityReasons(character, classIndex) {
-        const reasons = [];
-        const index = Number(classIndex);
-        if (index > 0) {
-            const primaryClassName = character.classes[0].value;
-            const className = character.classes[index].value;
-            if (primaryClassName && className) {
-                const primaryClass = Sources.getClasses(character.sources).find(c => c.name == primaryClassName);
-                if (primaryClass?.getMulticlassEligibility) {
-                    const primaryReason = primaryClass.getMulticlassEligibility(character).ineligibilityReason;
-                    if (primaryReason) {
-                        reasons.push(primaryReason);
-                    }
-                }
-            }
-            if (className) {
-                const cls = Sources.getClasses(character.sources).find(c => c.name == className);
-                if (cls.getMulticlassEligibility) {
-                    const reason = cls.getMulticlassEligibility(character).ineligibilityReason;
-                    if (reason) {
-                        reasons.push(reason);
-                    }
-                }
-            }
-        }
-        return reasons;
+    static updateCharacterSelection(character, selection) {
+        character.removeSelection(selection.name);
+        character.addSelection(selection);
     }
 
     static applyCharacterModifiers(character) {
@@ -631,6 +603,26 @@ export class Sources {
                     .find(sr => sr.name == character.subRace.value);
                 if (subRace.applyModifiers) {
                     subRace.applyModifiers(character);
+                }
+            }
+        }
+
+        // background
+        if (character.background?.value) {
+            const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background.value);
+            if (background.applyModifiers) {
+                background.applyModifiers(character);
+            }
+        }
+
+        // equipment
+        const allEquipment = Sources.getEquipment(character.sources);
+        for (let i = 0; i < character.equipment.length; i++) {
+            const characterItem = character.equipment[i];
+            if (characterItem.isEquipped) {
+                const item = allEquipment.find(e => e.name == character.equipment[i].name);
+                if (item.applyModifiers) {
+                    item.applyModifiers(character, i);
                 }
             }
         }
@@ -694,27 +686,6 @@ export class Sources {
                 }
             }
         }
-
-        // background
-        if (character.background?.value) {
-            const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background.value);
-            if (background.applyModifiers) {
-                background.applyModifiers(character);
-            }
-        }
-
-        // equipment
-        const allEquipment = Sources.getEquipment(character.sources);
-        for (let i = 0; i < character.equipment.length; i++) {
-            const characterItem = character.equipment[i];
-            if (characterItem.isEquipped) {
-                const item = allEquipment.find(e => e.name == character.equipment[i].name);
-                if (item.applyModifiers) {
-                    item.applyModifiers(character, i);
-                }
-            }
-        }
-
     }
 
     /*
@@ -867,16 +838,6 @@ export class Sources {
 
         return features;
 
-    }
-
-    static getHitDice(character) {
-        const labels = [];
-        const classes = character.classes.filter(c => c.value && c.level);
-        for (const characterClass of classes) {
-            const hitDieSize = Sources.getClasses(character.sources).find(c => c.name == characterClass.value).hitDieSize
-            labels.push(`${characterClass.level}d${hitDieSize}`);
-        }
-        return labels.join(", ");
     }
 
     static async #getHtml(basePath, path) {

@@ -136,12 +136,14 @@ export class SelectionModel {
             text = `${currentSelections.length} selected`;
         }
         const element = this.#kitElement.querySelector(".collapsed-option-label");
-        element.querySelector("label").innerText = text ?? "Choose an option ...";
-        if (value) {
-            element.classList.remove("selection-required");
-        }
-        else {
-            element.classList.add("selection-required");
+        if (element) {
+            element.querySelector("label").innerHTML = text ?? "Choose an option ...";
+            if (value) {
+                element.classList.remove("selection-required");
+            }
+            else {
+                element.classList.add("selection-required");
+            }
         }
     }
 

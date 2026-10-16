@@ -79,7 +79,7 @@ export class DomainClassAndLevelModel {
         if (characterClass.value) {
             currentSelection = { value: characterClass.value, text: characterClass.text };
         }
-        const reasons = Sources.getMulticlassIneligibilityReasons(character, index);
+        const reasons = DomainClassAndLevelModel.#getMulticlassIneligibilityReasons(character, index);
         let alertMessage = "";
         if (reasons.length > 0) {
             alertMessage = `<p>Multi-class elibility requirements not met:<br/>-${reasons.join("<br/>-")}</p>`;
@@ -550,6 +550,34 @@ export class DomainClassAndLevelModel {
             this.#levelBoons = levelBoons;
         }
         return this.#levelBoons.filter(lb => lb.classIndex == classIndex);
+    }
+
+    static #getMulticlassIneligibilityReasons(character, classIndex) {
+        const reasons = [];
+        const index = Number(classIndex);
+        if (index > 0) {
+            const primaryClassName = character.classes[0].value;
+            const className = character.classes[index].value;
+            if (primaryClassName && className) {
+                const primaryClass = Sources.getClasses(character.sources).find(c => c.name == primaryClassName);
+                if (primaryClass?.getMulticlassEligibility) {
+                    const primaryReason = primaryClass.getMulticlassEligibility(character).ineligibilityReason;
+                    if (primaryReason) {
+                        reasons.push(primaryReason);
+                    }
+                }
+            }
+            if (className) {
+                const cls = Sources.getClasses(character.sources).find(c => c.name == className);
+                if (cls.getMulticlassEligibility) {
+                    const reason = cls.getMulticlassEligibility(character).ineligibilityReason;
+                    if (reason) {
+                        reasons.push(reason);
+                    }
+                }
+            }
+        }
+        return reasons;
     }
 
 }

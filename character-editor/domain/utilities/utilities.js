@@ -40,8 +40,34 @@ export class Utilities {
             }
             return 0;
         }
-        array.sort(sortByProperty);
+        if (sortField) {
+            array.sort(sortByProperty);
+        }
+        else {
+            array.sort();
+        }
         return array;
+    }
+
+    static distinct(array, propertyNames) {
+        const distinct = [];
+        if (array) {
+            const hasProperties = (propertyNames && propertyNames.length > 0);
+            for (const item of array) {
+                if (hasProperties) {
+                    if (!distinct.some(x => Utilities.areArraysEqual(x, item, propertyNames))) {
+                        distinct.push(item);
+                    }
+                }
+                else {
+                    if (!distinct.some(x => x == item)) {
+                        distinct.push(item);
+                    }
+                }
+                
+            }
+        }
+        return distinct;
     }
 
 }

@@ -30,218 +30,6 @@ class PrintViewModel {
         await this.#updateView();
     }
 
-    async #updateView() {
-
-        const character = EditorViewModel.character;
-
-        // name
-        this.#kitElement.querySelector("#name-heading").innerText = character.name ?? "[character name]";
-
-        // portrait
-        this.#kitElement.querySelector("#portrait").src = character.portrait ?? "";
-
-        // classes
-        let classesHtml = "";
-        const characterClasses = character.classes.filter(c => c.value && c.text && c.level);
-        for (const characterClass of characterClasses) {
-            classesHtml += `<div class="row no-wrap">${characterClass.text}, Level ${characterClass.level}</div>`;
-        }
-        this.#kitElement.querySelector("#classes").innerHTML = classesHtml;
-
-        // proficiency bonus
-        this.#kitElement.querySelector("#proficiency-bonus").innerText = `+${character.getProficiencyBonus()}`;
-
-        // race
-        let race = "";
-        if (character.race?.value || character.subRace?.value) {
-            race = character.subRace?.text ?? character.race.text ?? "";
-        }
-        this.#kitElement.querySelector("#race").innerText = race;
-
-        // size
-        let size = "";
-        let baseSpeed = 30;
-        if (character.race?.value) {
-            const raceModel = Sources.getRaces(character.sources).find(r => r.name == character.race.value);
-            size = raceModel?.size ?? "";
-            baseSpeed = raceModel?.speed ?? baseSpeed;
-        }
-        this.#kitElement.querySelector("#size").innerText = size;
-
-        // alignment
-        let alignment = ""
-        if (character.alignment?.value) {
-            alignment = character.alignment.text ?? "";
-        }
-        this.#kitElement.querySelector("#alignment").innerText = alignment;
-
-        // background
-        let background = ""
-        if (character.background?.value) {
-            background = character.background.text ?? "";
-        }
-        this.#kitElement.querySelector("#background").innerText = background;
-
-        // description
-        this.#kitElement.querySelector("#description").innerHTML = character.description ?? "";
-
-        // initiative
-        const dexModifier = character.getAbilityScoreModifier("dexterity");
-        const initModifiers = this.#getModifiers(character, "initiative");
-        const initiative = Number(dexModifier) + Number(initModifiers);
-        this.#kitElement.querySelector("#initiative").innerHTML = (initiative < 0) ? `${initiative}` : `+${initiative}`;
-
-        // speed
-        const speedModifiers = this.#getModifiers(character, "speed");
-        const speed = Number(baseSpeed) + Number(speedModifiers);
-        this.#kitElement.querySelector("#speed").innerHTML = speed;
-
-        // ac
-        this.#kitElement.querySelector("#armor-class").innerHTML = character.getArmorClass();
-
-        // hp
-        this.#kitElement.querySelector("#hit-points").innerHTML = character.getHitPoints();
-
-        // hit dice
-        this.#kitElement.querySelector("#hit-dice").innerHTML = Sources.getHitDice(character);
-
-        // abilities
-        await UIKit.renderer.renderElement(this.#kitElement.querySelector("#abilities-row"));
-
-        // skills
-        await UIKit.renderer.renderElement(this.#kitElement.querySelector("#skills"));
-
-        // armor proficiencies
-        let armorProficiencyLabel = "";
-        let armorTypeProficiencies = [
-            { name: "light-armor", title: "Light Armor" },
-            { name: "medium-armor", title: "Medium Armor" },
-            { name: "heavy-armor", title: "Heavy Armor" }
-        ];
-        armorTypeProficiencies = armorTypeProficiencies
-            .filter(p => character.modifiers.some(m => m.target == "armor-proficiency" && m.value == p.name))
-            .map(p => p.title);
-        if (armorTypeProficiencies.length) {
-            armorProficiencyLabel += `<div>${armorTypeProficiencies.join("</div><div>")}</div>`
-        }
-        let armorProficiencies = Sources.getEquipment(character.sources, "armor");
-        armorProficiencies = armorProficiencies
-            .filter(p => character.modifiers.some(m => m.target == "armor-proficiency" && m.value == p.name))
-            .map(p => p.title);
-        if (armorProficiencies.length) {
-            armorProficiencyLabel += `<div>${armorProficiencies.join(", ")}</div>`
-        }
-        if (!armorProficiencyLabel) {
-            armorProficiencyLabel = "[None]";
-        }
-        this.#kitElement.querySelector("#armor-proficiencies").innerHTML = armorProficiencyLabel;
-
-        // weapon proficiencies
-        let weaponProficiencyLabel = "";
-        let weaponTypeProficiencies = [
-            { name: "simple-melee", title: "Simple melee weapons" },
-            { name: "martial-melee", title: "Martial melee weapons" },
-            { name: "simple-ranged", title: "Simple ranged weapons" },
-            { name: "martial-ranged", title: "Martial ranged weapons" }
-        ];
-        weaponTypeProficiencies = weaponTypeProficiencies
-            .filter(p => character.modifiers.some(m => m.target == "weapon-proficiency" && m.value == p.name))
-            .map(p => p.title);
-        if (weaponTypeProficiencies.length) {
-            weaponProficiencyLabel += `<div>${weaponTypeProficiencies.join("</div><div>")}</div>`
-        }
-        let weaponProficiencies = Sources.getEquipment(character.sources, "weapons");
-        weaponProficiencies = weaponProficiencies
-            .filter(p => character.modifiers.some(m => m.target == "weapon-proficiency" && m.value == p.name))
-            .map(p => p.title);
-        if (weaponProficiencies.length) {
-            weaponProficiencyLabel += `<div>${weaponProficiencies.join(", ")}</div>`
-        }
-        if (!weaponProficiencyLabel) {
-            weaponProficiencyLabel = "[None]";
-        }
-        this.#kitElement.querySelector("#weapon-proficiencies").innerHTML = weaponProficiencyLabel;
-
-        // tool proficiencies
-        let toolProficiencyLabel = "";
-        let toolProficiencies = Sources.getEquipment(character.sources, "tools");
-        toolProficiencies = toolProficiencies
-            .filter(p => character.modifiers.some(m => m.target == "tool-proficiency" && m.value == p.name))
-            .map(p => p.title);
-        if (toolProficiencies.length) {
-            toolProficiencyLabel += `<div>${toolProficiencies.join("</div><div>")}</div>`
-        }
-        if (!toolProficiencyLabel) {
-            toolProficiencyLabel = "[None]";
-        }
-        this.#kitElement.querySelector("#tool-proficiencies").innerHTML = toolProficiencyLabel;
-
-        // attack cards
-        const attackCards = this.#getAttackCards(character);
-        const attackRows = [...this.#kitElement.querySelectorAll(".attack-row")];
-        for (const attackRow of attackRows) {
-            attackRow.remove();
-        }
-        const attackCardsHtml = this.#getAttackCardsHtml(attackCards);
-        this.#kitElement.querySelector("#attacks-placeholder").outerHTML = attackCardsHtml;
-
-        // languages
-        await UIKit.renderer.renderElement(this.#kitElement.querySelector("#languages"));
-
-        // feature cards
-        this.#kitElement.querySelector("#features-col-1").innerHTML = `<div id="features-col-1-placeholder"></div>`;
-        this.#kitElement.querySelector("#features-col-2").innerHTML = `<div id="features-col-2-placeholder"></div>`;
-        this.#kitElement.querySelector("#features-col-3").innerHTML = `<div id="features-col-3-placeholder"></div>`;
-        this.#kitElement.querySelector("#features-col-1-placeholder").outerHTML = this.#getModifiersCardHtml(character);
-        this.#kitElement.querySelector("#features-col-3-placeholder").outerHTML = this.#getEquipmentCardHtml(character);
-        const featureCards = Sources.getCharacterFeatures(character).filter(f => f.displayType == "feature-card");
-        const featuresLength = featureCards.length;
-        for (let i = 0; i < featuresLength; i++) {
-            const displayColumn = this.#getNextFeatureColumn();
-            const index = this.#getNextFeatureCardIndex(featureCards, displayColumn);
-            if (index > -1) {
-                const featureCard = featureCards[index];
-                const featureCardHtml = this.#getFeatureCardHtml(featureCard, displayColumn);
-                this.#kitElement.querySelector(`#features-col-${displayColumn}-placeholder`).outerHTML = featureCardHtml;
-                featureCards.splice(index, 1);
-            }
-            else {
-                break;
-            }
-        }
-
-        // spell cards
-        let spellCards = Sources.getCharacterFeatures(character).filter(f => f.displayType == "spell-card");
-        spellCards = Utilities.sort(spellCards, ["title"]);
-        const spellTitleRow = this.#kitElement.querySelector("#spells-title-row");
-        const spellContainerRow = this.#kitElement.querySelector("#spells-container-row");
-        if (spellCards.length > 0) {
-            spellTitleRow.classList.remove("hidden");
-            spellContainerRow.classList.remove("hidden");
-        }
-        else {
-            spellTitleRow.classList.add("hidden");
-            spellContainerRow.classList.add("hidden");
-        }
-        this.#kitElement.querySelector("#spells-col-1").innerHTML = `<div id="spells-col-1-placeholder"></div>`;
-        this.#kitElement.querySelector("#spells-col-2").innerHTML = `<div id="spells-col-2-placeholder"></div>`;
-        this.#kitElement.querySelector("#spells-col-3").innerHTML = `<div id="spells-col-3-placeholder"></div>`;
-        const spellsLength = spellCards.length;
-        for (let i = 0; i < spellsLength; i++) {
-            const displayColumn = this.#getNextSpellColumn();
-            const index = this.#getNextSpellCardIndex(spellCards, displayColumn);
-            if (index > -1) {
-                const spellCard = spellCards[index];
-                const spellCardHtml = this.#getFeatureCardHtml(spellCard, displayColumn);
-                this.#kitElement.querySelector(`#spells-col-${displayColumn}-placeholder`).outerHTML = spellCardHtml;
-                spellCards.splice(index, 1);
-            }
-            else {
-                break;
-            }
-        }
-    }
-
     getAbilities() {
         const character = EditorViewModel.character;
         const proficiencyBonus = Number(character.getProficiencyBonus());
@@ -289,49 +77,239 @@ class PrintViewModel {
 
     getLanguages() {
         const character = EditorViewModel.character;
-        const languages = character.modifiers.filter(m => m.target == "language").map(m => m.value.text);
+        let languages = character.modifiers.filter(m => m.target == "language").map(m => m.value.text);
+        languages = Utilities.distinct(languages);
+        languages = Utilities.sort(languages);
         return languages;
     }
 
-    #getModifiers(character, target) {
-        return character.modifiers
-            .filter(m => m.target == target)
-            .map(m => m.value)
-            .reduce((a, b) => a + b, 0);
+    async #updateView() {
+
+        const character = EditorViewModel.character;
+
+        // name
+        this.#kitElement.querySelector("#name-heading").innerText = character.name ?? "[character name]";
+
+        // portrait
+        this.#kitElement.querySelector("#portrait").src = character.portrait ?? "";
+
+        // classes
+        this.#updateClasses(character);
+
+        // proficiency bonus
+        this.#kitElement.querySelector("#proficiency-bonus").innerText = `+${character.getProficiencyBonus()}`;
+
+        // race
+        this.#updateRace(character);
+
+        // size
+        const race = this.#getRace(character);
+        this.#kitElement.querySelector("#size").innerText = race?.size ?? "";
+
+        // alignment
+        this.#kitElement.querySelector("#alignment").innerText = character.alignment?.text ?? "";
+
+        // background
+        this.#kitElement.querySelector("#background").innerText = character.background?.text ?? "";
+
+        // description
+        this.#kitElement.querySelector("#description").innerHTML = character.description ?? "";
+
+        // initiative
+        this.#updateInitiative(character);
+
+        // speed
+        this.#updateSpeed(character, race);
+
+        // ac
+        this.#kitElement.querySelector("#armor-class").innerHTML = character.getArmorClass();
+
+        // hp
+        this.#kitElement.querySelector("#hit-points").innerHTML = character.getHitPoints();
+
+        // hit dice
+        this.#updateHitDice(character);
+
+        // abilities
+        await UIKit.renderer.renderElement(this.#kitElement.querySelector("#abilities-row"));
+
+        // skills
+        await UIKit.renderer.renderElement(this.#kitElement.querySelector("#skills"));
+
+        // armor proficiencies
+        this.#updateArmorProficiencies(character);
+
+        // weapon proficiencies
+        this.#updateWeaponProficiencies(character);
+
+        // tool proficiencies
+        this.#updateToolProficiencies(character);
+
+        // attack cards
+        this.#updateAttackCards(character);
+
+        // languages
+        await UIKit.renderer.renderElement(this.#kitElement.querySelector("#languages"));
+
+        // feature cards
+        this.#updateFeatureCards(character);
+
+        // spell cards
+        this.#updateSpellCards(character);
     }
 
-    #getAttackCards(character) {
-        const attackCards = Sources.getCharacterFeatures(character).filter(f => f.displayType == "attack-card");
-        const uniqueAttackCards = [];
-        for (const card of attackCards) {
-            const existingTitle = uniqueAttackCards.some(ucbt => ucbt.title == card.title);
+    #updateClasses(character) {
+        let classesHtml = "";
+        const characterClasses = character.classes.filter(c => c.value && c.text && c.level);
+        for (const characterClass of characterClasses) {
+            classesHtml += `<div class="row no-wrap">${characterClass.text}, Level ${characterClass.level}</div>`;
+        }
+        this.#kitElement.querySelector("#classes").innerHTML = classesHtml;
+    }
+
+    #updateRace(character) {
+        let race = "";
+        if (character.race?.value || character.subRace?.value) {
+            race = character.subRace?.text ?? character.race.text ?? "";
+        }
+        this.#kitElement.querySelector("#race").innerText = race;
+    }
+
+    #getRace(character) {
+        if (character.race?.value) {
+            return Sources.getRaces(character.sources).find(r => r.name == character.race.value);
+        }
+        return null;
+    }
+
+    #updateInitiative(character) {
+        const dexModifier = character.getAbilityScoreModifier("dexterity");
+        const initModifiers = this.#getModifiers(character, "initiative");
+        const initiative = Number(dexModifier) + Number(initModifiers);
+        this.#kitElement.querySelector("#initiative").innerHTML = (initiative < 0) ? `${initiative}` : `+${initiative}`;
+    }
+
+    #updateSpeed(character, race) {
+        const baseSpeed = race?.speed ?? 30;
+        const speedModifiers = this.#getModifiers(character, "speed");
+        this.#kitElement.querySelector("#speed").innerHTML = Number(baseSpeed) + Number(speedModifiers);
+    }
+
+    #updateHitDice(character) {
+        const labels = [];
+        const classes = character.classes.filter(c => c.value && c.level);
+        for (const characterClass of classes) {
+            const hitDieSize = Sources.getClasses(character.sources).find(c => c.name == characterClass.value).hitDieSize
+            labels.push(`${characterClass.level}d${hitDieSize}`);
+        }
+        this.#kitElement.querySelector("#hit-dice").innerHTML = labels.join(", ");
+    }
+
+    #updateArmorProficiencies(character) {
+        let armorProficiencyLabel = "";
+        let armorTypeProficiencies = [
+            { name: "light-armor", title: "Light Armor" },
+            { name: "medium-armor", title: "Medium Armor" },
+            { name: "heavy-armor", title: "Heavy Armor" }
+        ];
+        armorTypeProficiencies = armorTypeProficiencies
+            .filter(p => character.modifiers.some(m => m.target == "armor-proficiency" && m.value == p.name))
+            .map(p => p.title);
+        armorTypeProficiencies = Utilities.sort(armorTypeProficiencies);
+        if (armorTypeProficiencies.length) {
+            armorProficiencyLabel += `<div>${armorTypeProficiencies.join("</div><div>")}</div>`
+        }
+        let armorProficiencies = Sources.getEquipment(character.sources, "armor");
+        armorProficiencies = armorProficiencies
+            .filter(p => character.modifiers.some(m => m.target == "armor-proficiency" && m.value == p.name))
+            .map(p => p.title);
+        armorProficiencies = Utilities.sort(armorProficiencies);
+        if (armorProficiencies.length) {
+            armorProficiencyLabel += `<div>${armorProficiencies.join(", ")}</div>`
+        }
+        if (!armorProficiencyLabel) {
+            armorProficiencyLabel = "[None]";
+        }
+        this.#kitElement.querySelector("#armor-proficiencies").innerHTML = armorProficiencyLabel;
+    }
+
+    #updateWeaponProficiencies(character) {
+        let weaponProficiencyLabel = "";
+        let weaponTypeProficiencies = [
+            { name: "simple-melee", title: "Simple melee weapons" },
+            { name: "martial-melee", title: "Martial melee weapons" },
+            { name: "simple-ranged", title: "Simple ranged weapons" },
+            { name: "martial-ranged", title: "Martial ranged weapons" }
+        ];
+        weaponTypeProficiencies = weaponTypeProficiencies
+            .filter(p => character.modifiers.some(m => m.target == "weapon-proficiency" && m.value == p.name))
+            .map(p => p.title);
+        weaponTypeProficiencies = Utilities.sort(weaponTypeProficiencies);
+        if (weaponTypeProficiencies.length) {
+            weaponProficiencyLabel += `<div>${weaponTypeProficiencies.join("</div><div>")}</div>`
+        }
+        let weaponProficiencies = Sources.getEquipment(character.sources, "weapons");
+        weaponProficiencies = weaponProficiencies
+            .filter(p => character.modifiers.some(m => m.target == "weapon-proficiency" && m.value == p.name))
+            .map(p => p.title);
+        weaponProficiencies = Utilities.sort(weaponProficiencies);
+        if (weaponProficiencies.length) {
+            weaponProficiencyLabel += `<div>${weaponProficiencies.join(", ")}</div>`
+        }
+        if (!weaponProficiencyLabel) {
+            weaponProficiencyLabel = "[None]";
+        }
+        this.#kitElement.querySelector("#weapon-proficiencies").innerHTML = weaponProficiencyLabel;
+    }
+
+    #updateToolProficiencies(character) {
+        let toolProficiencyLabel = "";
+        let toolProficiencies = Sources.getEquipment(character.sources, "tools");
+        toolProficiencies = toolProficiencies
+            .filter(p => character.modifiers.some(m => m.target == "tool-proficiency" && m.value == p.name))
+            .map(p => p.title);
+        toolProficiencies = Utilities.sort(toolProficiencies);
+        if (toolProficiencies.length) {
+            toolProficiencyLabel += `<div>${toolProficiencies.join("</div><div>")}</div>`
+        }
+        if (!toolProficiencyLabel) {
+            toolProficiencyLabel = "[None]";
+        }
+        this.#kitElement.querySelector("#tool-proficiencies").innerHTML = toolProficiencyLabel;
+    }
+
+    #updateAttackCards(character) {
+        const attackRows = [...this.#kitElement.querySelectorAll(".attack-row")];
+        for (const attackRow of attackRows) {
+            attackRow.remove();
+        }
+        const allAttackCards = Sources.getCharacterFeatures(character).filter(f => f.displayType == "attack-card");
+        const attackCards = [];
+        for (const card of allAttackCards) {
+            const existingTitle = attackCards.some(ac => ac.title == card.title);
             let existingLines = false;
             if (existingTitle) {
-                existingLines = uniqueAttackCards.some(ucbt => Utilities.areArraysEqual(ucbt.lines, card.lines));
+                existingLines = attackCards.some(ac => Utilities.areArraysEqual(ac.lines, card.lines));
             }
             if (!existingTitle || !existingLines) {
-                uniqueAttackCards.push(card);
+                attackCards.push(card);
             }
         }
-        return uniqueAttackCards;
-    }
-
-    #getAttackCardsHtml(cards) {
-         let cardsHtml = "";
-         for (const card of cards) {
-             let linesHtml = "";
-             const lines = card.lines ?? [];
-             for (const line of lines) {
-                 linesHtml += `
+        let cardsHtml = "";
+        for (const card of attackCards) {
+            let linesHtml = "";
+            const lines = card.lines ?? [];
+            for (const line of lines) {
+                linesHtml += `
                  <div>${line}</div>`;
-             }
-             let modifiersHtml = "";
-             const modifiers = card.modifiers ?? [];
-             for (const modifier of modifiers) {
-                 modifiersHtml += `
+            }
+            let modifiersHtml = "";
+            const modifiers = card.modifiers ?? [];
+            for (const modifier of modifiers) {
+                modifiersHtml += `
                  <div class="no-wrap">${modifier}</div>`;
-             }
-             cardsHtml += `
+            }
+            cardsHtml += `
                  <div class="row attack-row">
                      <div class="card attack-card">
                          <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
@@ -350,39 +328,238 @@ class PrintViewModel {
                      </div>
                  </div>
              `;
-         }
-        return `
-            <div id="attacks-placeholder"></div>
-            ${cardsHtml}`;
+        }
+        cardsHtml += `
+            <div id="attacks-placeholder"></div>`;
+        this.#kitElement.querySelector("#attacks-placeholder").outerHTML = cardsHtml;
     }
 
-    #getNextFeatureColumn() {
-        const col1Height = Number(this.#getColumnHeight(1));
-        const col2Height = Number(this.#getColumnHeight(2));
-        const col3Height = Number(this.#getColumnHeight(3));
-        let minHeight = col1Height;
-        let minColumn = 1;
-        if (col2Height < minHeight) {
-            minHeight = col2Height;
-            minColumn = 2;
+    #updateFeatureCards(character) {
+        this.#kitElement.querySelector("#features-col-1").innerHTML = `<div id="features-col-1-placeholder"></div>`;
+        this.#kitElement.querySelector("#features-col-2").innerHTML = `<div id="features-col-2-placeholder"></div>`;
+        this.#kitElement.querySelector("#features-col-3").innerHTML = `<div id="features-col-3-placeholder"></div>`;
+        this.#kitElement.querySelector("#features-col-1-placeholder").outerHTML = this.#getModifiersCardHtml(character);
+        this.#kitElement.querySelector("#features-col-3-placeholder").outerHTML = this.#getEquipmentCardHtml(character);
+        const featureCards = Sources.getCharacterFeatures(character).filter(f => f.displayType == "feature-card");
+        const featuresLength = featureCards.length;
+        for (let i = 0; i < featuresLength; i++) {
+            const displayColumn = this.#getNextColumn("features");
+            const index = this.#getNextFeatureCardIndex(featureCards, displayColumn);
+            if (index > -1) {
+                const featureCard = featureCards[index];
+                const featureCardHtml = this.#getCardHtml(featureCard, displayColumn);
+                this.#kitElement.querySelector(`#features-col-${displayColumn}-placeholder`).outerHTML = featureCardHtml;
+                featureCards.splice(index, 1);
+            }
+            else {
+                break;
+            }
         }
-        if (col3Height < minHeight) {
-            minHeight = col3Height;
-            minColumn = 3;
-        }
-        return minColumn;
     }
 
-    #getColumnHeight(index) {
-        return [...this.#kitElement.querySelector(`#features-col-${index}`).children]
-            .map(c => Number(c.clientHeight))
+    #updateSpellCards(character) {
+        let spellCards = Sources.getCharacterFeatures(character).filter(f => f.displayType == "spell-card");
+        for (const card of spellCards) {
+            card.sortField = `${card.level}-${card.title}`;
+        }
+        spellCards = Utilities.sort(spellCards, ["sortField"]);
+        const spellTitleRow = this.#kitElement.querySelector("#spells-title-row");
+        const spellContainerRow = this.#kitElement.querySelector("#spells-container-row");
+        if (spellCards.length > 0) {
+            spellTitleRow.classList.remove("hidden");
+            spellContainerRow.classList.remove("hidden");
+        }
+        else {
+            spellTitleRow.classList.add("hidden");
+            spellContainerRow.classList.add("hidden");
+        }
+        this.#kitElement.querySelector("#spells-col-1").innerHTML = `<div id="spells-col-1-placeholder"></div>`;
+        this.#kitElement.querySelector("#spells-col-2").innerHTML = `<div id="spells-col-2-placeholder"></div>`;
+        this.#kitElement.querySelector("#spells-col-3").innerHTML = `<div id="spells-col-3-placeholder"></div>`;
+        const spellsLength = spellCards.length;
+        for (let i = 0; i < spellsLength; i++) {
+            const displayColumn = this.#getNextColumn("spells");
+            const index = (spellCards.length > 0) ? 0 : -1;
+            if (index > -1) {
+                const spellCard = spellCards[index];
+                const spellCardHtml = this.#getCardHtml(spellCard, displayColumn);
+                this.#kitElement.querySelector(`#spells-col-${displayColumn}-placeholder`).outerHTML = spellCardHtml;
+                spellCards.splice(index, 1);
+            }
+            else {
+                break;
+            }
+        }
+    }
+
+    #getModifiers(character, target) {
+        return character.modifiers
+            .filter(m => m.target == target)
+            .map(m => m.value)
             .reduce((a, b) => a + b, 0);
     }
 
-    #getNextSpellColumn() {
-        const col1Height = Number(this.#getSpellColumnHeight(1));
-        const col2Height = Number(this.#getSpellColumnHeight(2));
-        const col3Height = Number(this.#getSpellColumnHeight(3));
+    #getModifiersCardHtml(character) {
+        const strengthLabel = this.#getModifiersHtml(character, "ability-score:strength", "Strength")
+        const intelligenceLabel = this.#getModifiersHtml(character, "ability-score:intelligence", "Intelligence");
+        const wisdomLabel = this.#getModifiersHtml(character, "ability-score:wisdom", "Wisdom");
+        const dexterityLabel = this.#getModifiersHtml(character, "ability-score:dexterity", "Dexterity");
+        const constitutionLabel = this.#getModifiersHtml(character, "ability-score:constitution", "Constitution");
+        const charismaLabel = this.#getModifiersHtml(character, "ability-score:charisma", "Charisma");
+        const initModifiers = this.#getInitiativeModifiers(character);
+        const initLabel = this.#getModifierLabelsHtml("Initiative", initModifiers);
+        const speedLabel = this.#getModifiersHtml(character, "speed", "Speed")
+        const acModifiers = this.#getArmorClassModifiers(character);
+        const acLabel = this.#getModifierLabelsHtml("Armor Class", acModifiers);
+        const hpLabel = this.#getModifiersHtml(character, "hit-points", "Hit Points")
+        return `
+            <div class="card feature-card modifiers-card">
+                <div class="corner top-left">
+                    <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
+                        <path d=" M 0,0 l 100,0 a 100 100 0 0 0 -100 100 z"></path>
+                    </svg>
+                </div>
+                <div class="field-label">Modifiers<span class="modifier-note"> <b>*</b></span></div>
+                <div class="modifiers-content">
+                    ${strengthLabel}
+                    ${intelligenceLabel}
+                    ${wisdomLabel}
+                    ${dexterityLabel}
+                    ${constitutionLabel}
+                    ${charismaLabel }
+                    ${initLabel}
+                    ${speedLabel}
+                    ${acLabel}
+                    ${hpLabel}
+                </div>
+                <div class="modifier-note"><b>*</b> The modifiers above have been applied to the calculated values.</div>
+                <div class="corner bottom-right">
+                    <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
+                        <path d=" M 100,0 a 100 100 0 0 1 -100 100 l 100,0 z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div id="features-col-1-placeholder"></div>
+        `;
+    }
+
+    #getEquipmentCardHtml(character) {
+        const allEquipment = Sources.getEquipment(character.sources);
+        const items = character.equipment.map(e => allEquipment.find(ae => ae.name == e.name).title);
+        let itemsWithCounts = [];
+        for (const item of items) {
+            const itemWithCount = itemsWithCounts.find(i => i.name == item);
+            if (itemWithCount) {
+                itemWithCount.count++;
+            }
+            else {
+                itemsWithCounts.push({ name: item, count: 1 });
+            }
+        }
+        for (const item of itemsWithCounts) {
+            if (item.count > 1) {
+                item.name += ` (x${item.count})`;
+            }
+        }
+        itemsWithCounts = Utilities.sort(itemsWithCounts, "name");
+        let equipmentListHtml = "[None]";
+        if (itemsWithCounts.length > 0) {
+            equipmentListHtml = `<ul><li>${itemsWithCounts.map(i => i.name).join("</li><li>")}</li></ul>`;
+        }
+        return `
+            <div class="card feature-card">
+                <div class="corner top-left">
+                    <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
+                        <path d=" M 0,0 l 100,0 a 100 100 0 0 0 -100 100 z"></path>
+                    </svg>
+                </div>
+                <div class="field-label">Equipment</div>
+                <div>
+                    ${equipmentListHtml}
+                </div>
+                <div class="corner bottom-right">
+                    <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
+                        <path d=" M 100,0 a 100 100 0 0 1 -100 100 l 100,0 z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div id="features-col-3-placeholder"></div>
+        `;
+    }
+
+    #getModifiersHtml(character, value, title) {
+        const modifiers = character.modifiers.filter(m => m.target == `ability-score:${value}`);
+        const modifierLabels = this.#getModifierLabels(modifiers);
+        return this.#getModifierLabelsHtml(title, modifierLabels);
+    }
+
+    #getModifierLabels(modifiers) {
+        const labels = [];
+        for (const modifier of modifiers) {
+            const value = Number(modifier.value);
+            if (value > 0) {
+                labels.push(`${modifier.title}: +${modifier.value}`);
+            }
+            if (value < 0) {
+                labels.push(`${modifier.title}: ${modifier.value}`);
+            }
+        }
+        return labels;
+    }
+
+    #getModifierLabelsHtml(title, modifierLabels) {
+        if (modifierLabels.length > 0) {
+            return `
+                <div>${title}</div>
+                <ul>
+                    <li>${modifierLabels.join("</li><li>")}</li>
+                </ul>
+            `;
+        }
+        return "";
+    }
+
+    #getInitiativeModifiers(character) {
+        const modifiers = character.modifiers.filter(m => m.target == "initiative");
+        const labels = this.#getModifierLabels(modifiers);
+        let dexModifier = Number(character.getAbilityScoreModifier("dexterity"));
+        if (dexModifier < 0) {
+            labels.unshift(`Dexterity: ${dexModifier}`);
+        }
+        if (dexModifier > 0) {
+            labels.unshift(`Dexterity: +${dexModifier}`);
+        }
+        return labels;
+    }
+
+    #getArmorClassModifiers(character) {
+        const modifiers = character.modifiers.filter(m => m.target == "armor-class");
+        const labels = this.#getModifierLabels(modifiers);
+        let dexModifier = Number(character.getAbilityScoreModifier("dexterity"));
+        let dexModifierLabel = "";
+        if (dexModifier < 0) {
+            dexModifierLabel = `Dexterity: ${dexModifier}`;
+        }
+        if (dexModifier > 0) {
+            dexModifierLabel = `Dexterity: +${dexModifier}`;
+        }
+        const armorType = character.equipment.find(e => e.name == "armor-type" && e.value != "shield" && e.isEquipped);
+        if (armorType == "medium-armor" && dexModifier > 2) {
+            dexModifierLabel = "Dexterity: +2 (Medium Armor)";
+        }
+        if (armorType == "heavy-armor" && dexModifier > 0) {
+            dexModifierLabel = "Dexterity: 0 (Heavy Armor)";
+        }
+        if (dexModifierLabel) {
+            labels.unshift(dexModifierLabel);
+        }
+        return labels;
+    }
+
+    #getNextColumn(prefix) {
+        const col1Height = Number(this.#getColumnHeight(prefix, 1));
+        const col2Height = Number(this.#getColumnHeight(prefix, 2));
+        const col3Height = Number(this.#getColumnHeight(prefix, 3));
         let minHeight = col1Height;
         let minColumn = 1;
         if (col2Height < minHeight) {
@@ -396,17 +573,14 @@ class PrintViewModel {
         return minColumn;
     }
 
-    #getSpellColumnHeight(index) {
-        return [...this.#kitElement.querySelector(`#spells-col-${index}`).children]
+    #getColumnHeight(prefix, index) {
+        return [...this.#kitElement.querySelector(`#${prefix}-col-${index}`).children]
             .map(c => Number(c.clientHeight))
             .reduce((a, b) => a + b, 0);
     }
 
     #getNextFeatureCardIndex(cards, columnIndex) {
-        let sources = [];
-        if (columnIndex == 1) {
-            sources = ["race", "sub-race", "background", "class", "sub-class", "feature", "equipment"];
-        }
+        let sources = ["race", "sub-race", "background", "class", "sub-class", "feature", "equipment"];[];
         if (columnIndex == 2) {
             sources = ["class", "sub-class", "feature", "race", "sub-race", "background", "equipment"];
         }
@@ -426,14 +600,7 @@ class PrintViewModel {
         return cardIndex;
     }
 
-    #getNextSpellCardIndex(cards, columnIndex) {
-        if (cards.length > 0) {
-            return 0;
-        }
-        return -1;
-    }
-
-    #getFeatureCardHtml(card, displayColumn) {
+    #getCardHtml(card, displayColumn) {
         let cardSourceClass = "";
         let hr = "<hr />";
         if (["race", "sub-race"].includes(card.source.name)) {
@@ -486,196 +653,4 @@ class PrintViewModel {
         `;
     }
 
-    #getModifiersCardHtml(character) {
-
-        const strengthModifiers = character.modifiers.filter(m => m.target == "ability-score:strength");
-        const strengthLabel = this.#getModifiersSectionHtml("Strength", this.#getModifierLabels(strengthModifiers));
-
-        const intelligenceModifiers = character.modifiers.filter(m => m.target == "ability-score:intelligence");
-        const intelligenceLabel = this.#getModifiersSectionHtml("Intelligence", this.#getModifierLabels(intelligenceModifiers));
-
-        const wisdomModifiers = character.modifiers.filter(m => m.target == "ability-score:wisdom");
-        const wisdomLabel = this.#getModifiersSectionHtml("Wisdom", this.#getModifierLabels(wisdomModifiers));
-
-        const dexterityModifiers = character.modifiers.filter(m => m.target == "ability-score:dexterity");
-        const dexterityLabel = this.#getModifiersSectionHtml("Dexterity", this.#getModifierLabels(dexterityModifiers));
-
-        const constitutionModifiers = character.modifiers.filter(m => m.target == "ability-score:constitution");
-        const constitutionLabel = this.#getModifiersSectionHtml("Constitution", this.#getModifierLabels(constitutionModifiers));
-
-        const charismaModifiers = character.modifiers.filter(m => m.target == "ability-score:charisma");
-        const charismaLabel = this.#getModifiersSectionHtml("Charisma", this.#getModifierLabels(charismaModifiers));
-
-        const initModifiers = this.#getInitiativeModifiers(character);
-        const initLabel = this.#getModifiersSectionHtml("Initiative", initModifiers);
-
-        const speedModifiers = character.modifiers.filter(m => m.target == "speed");
-        const speedLabel = this.#getModifiersSectionHtml("Speed", this.#getModifierLabels(speedModifiers));
-
-        const acModifiers = this.#getArmorClassModifiers(character);
-        const acLabel = this.#getModifiersSectionHtml("Armor Class", acModifiers);
-
-        const hpModifiers = character.modifiers.filter(m => m.target == "hit-points");
-        const hpLabel = this.#getModifiersSectionHtml("Hit Points", this.#getModifierLabels(hpModifiers));
-
-        // ${ strengthLabel }
-        // ${ intelligenceLabel }
-        // ${ wisdomLabel }
-        // ${ dexterityLabel }
-        // ${ constitutionLabel }
-        // ${ charismaLabel }
-
-        return `
-            <div class="card feature-card modifiers-card">
-                <div class="corner top-left">
-                    <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
-                        <path d=" M 0,0 l 100,0 a 100 100 0 0 0 -100 100 z"></path>
-                    </svg>
-                </div>
-                <div class="field-label">Modifiers<span class="modifier-note"> <b>*</b></span></div>
-                <div class="modifiers-content">
-                    ${strengthLabel}
-                    ${intelligenceLabel}
-                    ${wisdomLabel}
-                    ${dexterityLabel}
-                    ${constitutionLabel}
-                    ${charismaLabel }
-                    ${initLabel}
-                    ${speedLabel}
-                    ${acLabel}
-                    ${hpLabel}
-                </div>
-                <div class="modifier-note"><b>*</b> The modifiers above have been applied to the calculated values.</div>
-                <div class="corner bottom-right">
-                    <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
-                        <path d=" M 100,0 a 100 100 0 0 1 -100 100 l 100,0 z"></path>
-                    </svg>
-                </div>
-            </div>
-            <div id="features-col-1-placeholder"></div>
-        `;
-    }
-
-    #getEquipmentCardHtml(character) {
-        const allEquipment = Sources.getEquipment(character.sources);
-        const items = character.equipment.map(e => allEquipment.find(ae => ae.name == e.name).title);
-        let itemsWithCounts = [];
-        for (const item of items) {
-            const itemWithCount = itemsWithCounts.find(i => i.name == item);
-            if (itemWithCount) {
-                itemWithCount.count++;
-            }
-            else {
-                itemsWithCounts.push({ name: item, count: 1 });
-            }
-        }
-        for (const item of itemsWithCounts) {
-            let label = item.name;
-            if (item.count > 1) {
-                label += ` (x${item.count})`;
-            }
-            item.label = label;
-        }
-        itemsWithCounts = itemsWithCounts.map(i => i.label);
-        let equipmentList = "[None]";
-        if (itemsWithCounts.length > 0) {
-            itemsWithCounts.sort()
-            equipmentList = `<ul><li>${itemsWithCounts.join("</li><li>")}</li></ul>`;
-        }
-        return `
-            <div class="card feature-card">
-                <div class="corner top-left">
-                    <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
-                        <path d=" M 0,0 l 100,0 a 100 100 0 0 0 -100 100 z"></path>
-                    </svg>
-                </div>
-                <div class="field-label">Equipment</div>
-                <div>
-                    ${equipmentList}
-                </div>
-                <div class="corner bottom-right">
-                    <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
-                        <path d=" M 100,0 a 100 100 0 0 1 -100 100 l 100,0 z"></path>
-                    </svg>
-                </div>
-            </div>
-            <div id="features-col-3-placeholder"></div>
-        `;
-    }
-
-    #getArmorClassModifiers(character) {
-        const modifiers = character.modifiers.filter(m => m.target == "armor-class");
-        const labels = this.#getModifierLabels(modifiers);
-        let dexModifier = Number(character.getAbilityScoreModifier("dexterity"));
-        let dexModifierLabel = "";
-        if (dexModifier < 0) {
-            dexModifierLabel = `Dexterity: ${dexModifier}`;
-        }
-        if (dexModifier > 0) {
-            dexModifierLabel = `Dexterity: +${dexModifier}`;
-        }
-        const armorType = character.equipment.find(e => e.name == "armor-type" && e.value != "shield" && e.isEquipped);
-        if (armorType == "medium-armor" && dexModifier > 2) {
-            dexModifierLabel = "Dexterity: +2 (Medium Armor)";
-        }
-        if (armorType == "heavy-armor" && dexModifier > 0) {
-            dexModifierLabel = "Dexterity: 0 (Heavy Armor)";
-        }
-        if (dexModifierLabel) {
-            labels.unshift(dexModifierLabel);
-        }
-        return labels;
-    }
-
-    #getInitiativeModifiers(character) {
-        const modifiers = character.modifiers.filter(m => m.target == "initiative");
-        const labels = this.#getModifierLabels(modifiers);
-        let dexModifier = Number(character.getAbilityScoreModifier("dexterity"));
-        let dexModifierLabel = "";
-        if (dexModifier < 0) {
-            dexModifierLabel = `Dexterity: ${dexModifier}`;
-        }
-        if (dexModifier > 0) {
-            dexModifierLabel = `Dexterity: +${dexModifier}`;
-        }
-        if (dexModifierLabel) {
-            labels.unshift(dexModifierLabel);
-        }
-        return labels;
-    }
-
-    #getModifierLabels(modifiers) {
-        const labels = [];
-        for (const modifier of modifiers) {
-            let label = this.#getModifierLabel(modifier);
-            if (label) {
-                labels.push(label);
-            }
-        }
-        return labels;
-    }
-
-    #getModifierLabel(modifier) {
-        const value = Number(modifier.value);
-        let label = "";
-        if (value > 0) {
-            label = `${modifier.title}: +${modifier.value}`;
-        }
-        if (value < 0) {
-            label = `${modifier.title}: ${modifier.value}`;
-        }
-        return label;
-    }
-
-    #getModifiersSectionHtml(title, modifierLabels) {
-        if (modifierLabels.length > 0) {
-            return `
-            <div>${title}</div>
-            <ul>
-                <li>${modifierLabels.join("</li><li>")}</li>
-            </ul>
-            `;
-        }
-        return "";
-    }
 }

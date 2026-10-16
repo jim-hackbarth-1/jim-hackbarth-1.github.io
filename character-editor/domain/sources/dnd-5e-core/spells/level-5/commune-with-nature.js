@@ -72,6 +72,7 @@ export class CommuneWithNature {
         tempFeatures.push({
             name: CommuneWithNature.name,
             title: CommuneWithNature.title,
+            level: 5,
             html: `
                 <div class="spell-properties">5th-level ${CommuneWithNature.school} (ritual)</div>
                 <div><b>Casting Time: </b>${CommuneWithNature.castingTime}</div>

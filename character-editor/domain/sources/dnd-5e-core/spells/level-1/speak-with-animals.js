@@ -46,7 +46,7 @@ export class SpeakWithAnimals {
             <div class="dnd-5e-content">
                 <link rel="stylesheet" type="text/css" href="./domain/sources/dnd-5e-core/dnd-5e-core.css">
                 <h3>${SpeakWithAnimals.title}</h3>
-                <div class="spell-properties">2nd-level ${SpeakWithAnimals.school} (ritual)</div>
+                <div class="spell-properties">1st-level ${SpeakWithAnimals.school} (ritual)</div>
                 <div><b>Casting Time: </b>${SpeakWithAnimals.castingTime}</div>
                 <div><b>Range: </b>${SpeakWithAnimals.range}</div>
                 <div><b>Components: </b>${SpeakWithAnimals.components}</div>
@@ -63,8 +63,9 @@ export class SpeakWithAnimals {
         tempFeatures.push({
             name: SpeakWithAnimals.name,
             title: SpeakWithAnimals.title,
+            level: 1,
             html: `
-                <div class="spell-properties">2nd-level ${SpeakWithAnimals.school} (ritual)</div>
+                <div class="spell-properties">1st-level ${SpeakWithAnimals.school} (ritual)</div>
                 <div><b>Casting Time: </b>${SpeakWithAnimals.castingTime}</div>
                 <div><b>Range: </b>${SpeakWithAnimals.range}</div>
                 <div><b>Components: </b>${SpeakWithAnimals.components}</div>

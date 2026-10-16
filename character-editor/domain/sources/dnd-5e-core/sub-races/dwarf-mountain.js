@@ -25,8 +25,42 @@ export class DwarfMountain {
         return [];
     }
 
-    static applyModifiers(character) {
+    static applyAbilityScoreModifiers(character) {
+        const modifiers = [];
+        modifiers.push({
+            name: "mountain-dwarf-ability-score-modifier-strength",
+            target: "ability-score:strength",
+            value: 2,
+            title: DwarfMountain.title
+        });
+        for (const modifier of modifiers) {
+            modifier.sourcePropertyName = "sub-race";
+            modifier.sourcePropertyValue = DwarfMountain.name;
+            character.addModifier(modifier);
+        }
+    }
 
+    static applyModifiers(character) {
+        const modifiers = [];
+
+        modifiers.push({
+            name: "mountain-dwarf-armor-profiency-light-armor",
+            target: "armor-proficiency",
+            value: "light-armor",
+            title: DwarfMountain.title
+        });
+        modifiers.push({
+            name: "mountain-dwarf-armor-profiency-medium-armor",
+            target: "armor-proficiency",
+            value: "medium-armor",
+            title: DwarfMountain.title
+        });
+
+        for (const modifier of modifiers) {
+            modifier.sourcePropertyName = "sub-race";
+            modifier.sourcePropertyValue = DwarfMountain.name;
+            character.addModifier(modifier);
+        }
     }
 
     static applyFeatures(features, character) {

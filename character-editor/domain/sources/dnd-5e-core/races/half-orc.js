@@ -29,6 +29,10 @@ export class HalfOrc {
         return [];
     }
 
+    static applyAbilityScoreModifiers(character) {
+
+    }
+
     static applyModifiers(character) {
 
     }

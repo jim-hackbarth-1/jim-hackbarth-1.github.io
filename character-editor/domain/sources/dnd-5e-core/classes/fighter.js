@@ -48,6 +48,10 @@ export class Fighter {
         return [];
     }
 
+    static applyAbilityScoreModifiers(character, classIndex) {
+
+    }
+
     static applyModifiers(character, classIndex) {
 
     }

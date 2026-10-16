@@ -29,6 +29,10 @@ export class Tiefling {
         return [];
     }
 
+    static applyAbilityScoreModifiers(character) {
+
+    }
+
     static applyModifiers(character) {
 
     }

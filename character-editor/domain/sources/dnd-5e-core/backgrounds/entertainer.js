@@ -73,6 +73,10 @@ export class Entertainer {
         return [];
     }
 
+    static applyAbilityScoreModifiers(character) {
+
+    }
+
     static applyModifiers(character) {
 
     }

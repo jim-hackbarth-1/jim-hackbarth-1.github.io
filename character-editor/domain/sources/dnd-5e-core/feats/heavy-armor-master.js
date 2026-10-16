@@ -38,6 +38,10 @@ export class HeavyArmorMaster {
         return [];
     }
 
+    static applyAbilityScoreModifiers(character, classIndex, level) {
+
+    }
+
     static applyModifiers(character, classIndex, level) {
 
     }

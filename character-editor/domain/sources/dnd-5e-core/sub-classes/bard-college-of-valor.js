@@ -25,6 +25,10 @@ export class BardCollegeOfValor {
         return [];
     }
 
+    static applyAbilityScoreModifiers(character, classIndex) {
+
+    }
+
     static applyModifiers(character, classIndex) {
 
     }

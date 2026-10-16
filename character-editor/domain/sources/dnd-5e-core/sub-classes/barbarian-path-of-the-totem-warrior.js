@@ -99,6 +99,10 @@ export class BarbarianPathOfTheTotemWarrior {
         return options;
     }
 
+    static applyAbilityScoreModifiers(character, classIndex) {
+
+    }
+
     static applyModifiers(character, classIndex) {
 
     }

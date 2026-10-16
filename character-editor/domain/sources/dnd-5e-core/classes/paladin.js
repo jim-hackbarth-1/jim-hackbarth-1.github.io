@@ -48,6 +48,10 @@ export class Paladin {
         return [];
     }
 
+    static applyAbilityScoreModifiers(character, classIndex) {
+
+    }
+
     static applyModifiers(character, classIndex) {
 
     }

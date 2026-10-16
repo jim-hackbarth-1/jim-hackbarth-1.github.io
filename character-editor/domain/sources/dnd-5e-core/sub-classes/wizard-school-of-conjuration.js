@@ -25,6 +25,10 @@ export class WizardSchoolOfConjuration{
         return [];
     }
 
+    static applyAbilityScoreModifiers(character, classIndex) {
+
+    }
+
     static applyModifiers(character, classIndex) {
 
     }

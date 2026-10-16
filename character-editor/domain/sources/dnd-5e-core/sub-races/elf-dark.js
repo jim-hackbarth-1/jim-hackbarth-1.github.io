@@ -25,6 +25,10 @@ export class ElfDark {
         return [];
     }
 
+    static applyAbilityScoreModifiers(character) {
+
+    }
+
     static applyModifiers(character) {
 
     }

@@ -38,6 +38,10 @@ export class Skulker {
         return [];
     }
 
+    static applyAbilityScoreModifiers(character, classIndex, level) {
+
+    }
+
     static applyModifiers(character, classIndex, level) {
 
     }

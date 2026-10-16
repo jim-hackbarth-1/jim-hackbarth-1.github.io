@@ -25,6 +25,10 @@ export class TieflingNightHaunt {
         return [];
     }
 
+    static applyAbilityScoreModifiers(character) {
+
+    }
+
     static applyModifiers(character) {
 
     }

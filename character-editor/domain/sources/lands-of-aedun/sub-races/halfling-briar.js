@@ -25,6 +25,10 @@ export class HalflingBriar {
         return [];
     }
 
+    static applyAbilityScoreModifiers(character) {
+
+    }
+
     static applyModifiers(character) {
 
     }

@@ -85,6 +85,44 @@ export class Barbarian {
         return options;
     }
 
+    static applyAbilityScoreModifiers(character, classIndex) {
+        const modifiers = [];
+
+        const level = Number(character.classes.find(c => c.value == "barbarian").level);
+        if (level == 20) {
+            modifiers.push({
+                name: "barbarian-primal-champion-ability-score-modifier-strength",
+                target: "ability-score:strength",
+                value: 4,
+                title: Barbarian.title
+            });
+            modifiers.push({
+                name: "barbarian-primal-champion-ability-score-modifier-constitution",
+                target: "ability-score:constitution",
+                value: 4,
+                title: Barbarian.title
+            });
+            modifiers.push({
+                name: "barbarian-primal-champion-modified-max-ability-score-modifier-strength",
+                target: "modified-max-ability-score:strength",
+                value: 4,
+                title: Barbarian.title
+            });
+            modifiers.push({
+                name: "barbarian-primal-champion-modified-max-ability-score-modifier-constitution",
+                target: "modified-max-ability-score:constitution",
+                value: 4,
+                title: Barbarian.title
+            });
+        }
+
+        for (const modifier of modifiers) {
+            modifier.sourcePropertyName = `class-${classIndex}`;
+            modifier.sourcePropertyValue = Barbarian.name;
+            character.addModifier(modifier);
+        }
+    }
+
     static applyModifiers(character, classIndex) {
         const modifiers = [];
         if (character.classes[0].value == "barbarian") {
@@ -181,33 +219,6 @@ export class Barbarian {
                 name: "barbarian-fast-movement-speed-modifier",
                 target: "speed",
                 value: 10,
-                title: Barbarian.title
-            });
-        }
-
-        if (level == 20) {
-            modifiers.push({
-                name: "barbarian-primal-champion-ability-score-modifier-strength",
-                target: "ability-score:strength",
-                value: 4,
-                title: Barbarian.title
-            });
-            modifiers.push({
-                name: "barbarian-primal-champion-ability-score-modifier-constitution",
-                target: "ability-score:constitution",
-                value: 4,
-                title: Barbarian.title
-            });
-            modifiers.push({
-                name: "barbarian-primal-champion-modified-max-ability-score-modifier-strength",
-                target: "modified-max-ability-score:strength",
-                value: 4,
-                title: Barbarian.title
-            });
-            modifiers.push({
-                name: "barbarian-primal-champion-modified-max-ability-score-modifier-constitution",
-                target: "modified-max-ability-score:constitution",
-                value: 4,
                 title: Barbarian.title
             });
         }

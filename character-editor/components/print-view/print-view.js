@@ -65,6 +65,9 @@ class PrintViewModel {
             if (isProficient) {
                 modifier += proficiencyBonus;
             }
+            // additional modifiers
+            const skillModifiers = this.#getModifiers(character, `skill:${skill.name}`);
+            modifier += Number(skillModifiers);
             const modifierLabel = (modifier >= 0) ? `+ ${modifier}` : `- ${Math.abs(modifier)}`;
             skills.push({
                 title: skill.title,
@@ -338,7 +341,7 @@ class PrintViewModel {
         this.#kitElement.querySelector("#features-col-1").innerHTML = `<div id="features-col-1-placeholder"></div>`;
         this.#kitElement.querySelector("#features-col-2").innerHTML = `<div id="features-col-2-placeholder"></div>`;
         this.#kitElement.querySelector("#features-col-3").innerHTML = `<div id="features-col-3-placeholder"></div>`;
-        this.#kitElement.querySelector("#features-col-1-placeholder").outerHTML = this.#getModifiersCardHtml(character);
+        // this.#kitElement.querySelector("#features-col-1-placeholder").outerHTML = this.#getModifiersCardHtml(character);
         this.#kitElement.querySelector("#features-col-3-placeholder").outerHTML = this.#getEquipmentCardHtml(character);
         const featureCards = Sources.getCharacterFeatures(character).filter(f => f.displayType == "feature-card");
         const featuresLength = featureCards.length;
@@ -400,18 +403,23 @@ class PrintViewModel {
     }
 
     #getModifiersCardHtml(character) {
-        const strengthLabel = this.#getModifiersHtml(character, "ability-score:strength", "Strength")
-        const intelligenceLabel = this.#getModifiersHtml(character, "ability-score:intelligence", "Intelligence");
-        const wisdomLabel = this.#getModifiersHtml(character, "ability-score:wisdom", "Wisdom");
-        const dexterityLabel = this.#getModifiersHtml(character, "ability-score:dexterity", "Dexterity");
-        const constitutionLabel = this.#getModifiersHtml(character, "ability-score:constitution", "Constitution");
-        const charismaLabel = this.#getModifiersHtml(character, "ability-score:charisma", "Charisma");
+        let abilityLabels = "";
+        const abilities = Sources.getAbilities();
+        for (const ability of abilities) {
+            abilityLabels += this.#getModifiersHtml(character, `ability-score:${ability.name}`, ability.title);
+        }
         const initModifiers = this.#getInitiativeModifiers(character);
         const initLabel = this.#getModifierLabelsHtml("Initiative", initModifiers);
         const speedLabel = this.#getModifiersHtml(character, "speed", "Speed")
         const acModifiers = this.#getArmorClassModifiers(character);
         const acLabel = this.#getModifierLabelsHtml("Armor Class", acModifiers);
         const hpLabel = this.#getModifiersHtml(character, "hit-points", "Hit Points")
+        let skillLabels = "";
+        const skills = Sources.getSkills();
+        for (const skill of skills) {
+            const skillModifiers = this.#getSkillModifiers(character, skill);
+            skillLabels += this.#getModifierLabelsHtml(skill.title, skillModifiers);
+        }
         return `
             <div class="card feature-card modifiers-card">
                 <div class="corner top-left">
@@ -421,16 +429,12 @@ class PrintViewModel {
                 </div>
                 <div class="field-label">Modifiers<span class="modifier-note"> <b>*</b></span></div>
                 <div class="modifiers-content">
-                    ${strengthLabel}
-                    ${intelligenceLabel}
-                    ${wisdomLabel}
-                    ${dexterityLabel}
-                    ${constitutionLabel}
-                    ${charismaLabel }
+                    ${abilityLabels}
                     ${initLabel}
                     ${speedLabel}
                     ${acLabel}
                     ${hpLabel}
+                    ${skillLabels}
                 </div>
                 <div class="modifier-note"><b>*</b> The modifiers above have been applied to the calculated values.</div>
                 <div class="corner bottom-right">
@@ -488,7 +492,7 @@ class PrintViewModel {
     }
 
     #getModifiersHtml(character, value, title) {
-        const modifiers = character.modifiers.filter(m => m.target == `ability-score:${value}`);
+        const modifiers = character.modifiers.filter(m => m.target == value);
         const modifierLabels = this.#getModifierLabels(modifiers);
         return this.#getModifierLabelsHtml(title, modifierLabels);
     }
@@ -528,6 +532,20 @@ class PrintViewModel {
         }
         if (dexModifier > 0) {
             labels.unshift(`Dexterity: +${dexModifier}`);
+        }
+        return labels;
+    }
+
+    #getSkillModifiers(character, skill) {
+        const modifiers = character.modifiers.filter(m => m.target == `skill:${skill.name}`);
+        const labels = this.#getModifierLabels(modifiers);
+        const abilityTitle = Sources.getAbilities().find(a => a.name == skill.ability).title;
+        let abilityModifier = Number(character.getAbilityScoreModifier(skill.ability));
+        if (abilityModifier < 0) {
+            labels.unshift(`${abilityTitle}: ${abilityModifier}`);
+        }
+        if (abilityModifier > 0) {
+            labels.unshift(`${abilityTitle}: +${abilityModifier}`);
         }
         return labels;
     }

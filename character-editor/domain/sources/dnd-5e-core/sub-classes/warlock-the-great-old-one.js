@@ -25,6 +25,10 @@ export class WarlockTheGreatOldOne {
         return [];
     }
 
+    static applyAbilityScoreModifiers(character, classIndex) {
+
+    }
+
     static applyModifiers(character, classIndex) {
 
     }

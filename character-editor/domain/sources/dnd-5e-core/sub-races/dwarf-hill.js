@@ -25,8 +25,37 @@ export class DwarfHill {
         return [];
     }
 
-    static applyModifiers(character) {
+    static applyAbilityScoreModifiers(character) {
+        const modifiers = [];
+        modifiers.push({
+            name: "hill-dwarf-ability-score-modifier-wisdom",
+            target: "ability-score:wisdom",
+            value: 1,
+            title: DwarfHill.title
+        });
+        for (const modifier of modifiers) {
+            modifier.sourcePropertyName = "sub-race";
+            modifier.sourcePropertyValue = DwarfHill.name;
+            character.addModifier(modifier);
+        }
+    }
 
+    static applyModifiers(character) {
+        const modifiers = [];
+
+        const hitPointMod = Number(character.level);
+        modifiers.push({
+            name: "hill-dwarf-toughness",
+            target: "hit-points",
+            value: hitPointMod,
+            title: DwarfHill.title
+        });
+
+        for (const modifier of modifiers) {
+            modifier.sourcePropertyName = "sub-race";
+            modifier.sourcePropertyValue = DwarfHill.name;
+            character.addModifier(modifier);
+        }
     }
 
     static applyFeatures(features, character) {

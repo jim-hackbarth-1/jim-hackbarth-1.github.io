@@ -38,6 +38,10 @@ export class Skilled {
         return [];
     }
 
+    static applyAbilityScoreModifiers(character, classIndex, level) {
+
+    }
+
     static applyModifiers(character, classIndex, level) {
 
     }

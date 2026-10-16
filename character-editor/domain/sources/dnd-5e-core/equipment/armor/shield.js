@@ -46,6 +46,10 @@ export class Shield {
         item.isEquipped = true;
     }
 
+    static applyAbilityScoreModifiers(character, inventoryIndex) {
+
+    }
+
     static applyModifiers(character, inventoryIndex) {
         const modifiers = [];
         const isEquipped = character.equipment[inventoryIndex].isEquipped;

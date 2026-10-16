@@ -116,6 +116,10 @@ export class Hermit {
         return array;
     }
 
+    static applyAbilityScoreModifiers(character) {
+
+    }
+
     static applyModifiers(character) {
 
         const modifiers = [];

@@ -38,6 +38,10 @@ export class Tough {
         return [];
     }
 
+    static applyAbilityScoreModifiers(character, classIndex, level) {
+
+    }
+
     static applyModifiers(character, classIndex, level) {
         const hitPointMod = Number(character.level) * 2;
         const modifiers = [

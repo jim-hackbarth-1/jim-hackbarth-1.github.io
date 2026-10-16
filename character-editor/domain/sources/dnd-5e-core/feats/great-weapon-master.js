@@ -38,6 +38,10 @@ export class GreatWeaponMaster {
         return [];
     }
 
+    static applyAbilityScoreModifiers(character, classIndex, level) {
+
+    }
+
     static applyModifiers(character, classIndex, level) {
 
     }

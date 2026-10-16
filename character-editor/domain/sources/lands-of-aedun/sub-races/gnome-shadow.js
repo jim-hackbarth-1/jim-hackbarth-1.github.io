@@ -25,6 +25,10 @@ export class GnomeShadow {
         return [];
     }
 
+    static applyAbilityScoreModifiers(character) {
+
+    }
+
     static applyModifiers(character) {
 
     }

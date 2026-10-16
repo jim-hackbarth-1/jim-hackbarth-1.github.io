@@ -48,6 +48,10 @@ export class Longsword {
         return [];
     }
 
+    static applyAbilityScoreModifiers(character, inventoryIndex) {
+
+    }
+
     static applyModifiers(character, inventoryIndex) {
         
     }

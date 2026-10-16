@@ -590,102 +590,8 @@ export class Sources {
 
     static applyCharacterModifiers(character) {
         character.modifiers = [];
-
-        // race and sub race
-        if (character.race?.value) {
-            const race = Sources.getRaces(character.sources).find(r => r.name == character.race?.value);
-            if (race?.applyModifiers) {
-                race.applyModifiers(character);
-            }
-            if (character.subRace?.value) {
-                const subRace = Sources
-                    .getSubRaces(character.sources, character.race.value)
-                    .find(sr => sr.name == character.subRace.value);
-                if (subRace.applyModifiers) {
-                    subRace.applyModifiers(character);
-                }
-            }
-        }
-
-        // background
-        if (character.background?.value) {
-            const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background.value);
-            if (background.applyModifiers) {
-                background.applyModifiers(character);
-            }
-        }
-
-        // equipment
-        const allEquipment = Sources.getEquipment(character.sources);
-        for (let i = 0; i < character.equipment.length; i++) {
-            const characterItem = character.equipment[i];
-            if (characterItem.isEquipped) {
-                const item = allEquipment.find(e => e.name == character.equipment[i].name);
-                if (item.applyModifiers) {
-                    item.applyModifiers(character, i);
-                }
-            }
-        }
-
-        // classes
-        let primaryMulticlassEligibility = true;
-        for (let i = 0; i < character.classes.length; i++) {
-            const characterClass = character.classes[i];
-            if (characterClass.value && characterClass.level) {
-                const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.value);
-                let multiclassEligibility = true;
-                if (cls.getMulticlassEligibility) {
-                    multiclassEligibility = cls.getMulticlassEligibility(character).isEligible;
-                }
-                if (i == 0) {
-                    primaryMulticlassEligibility = multiclassEligibility;
-                }
-                else {
-                    if (!primaryMulticlassEligibility || !multiclassEligibility) {
-                        continue;
-                    }
-                }
-                for (const levelBoon of characterClass.levelBoons) {  
-                    if (levelBoon.abilityScore1) {
-                        character.addModifier({
-                            name: `${characterClass.value}-${levelBoon.level}-ability-score-modifier-1`,
-                            target: `ability-score:${levelBoon.abilityScore1}`,
-                            value: 1,
-                            sourcePropertyName: `class-${i}-level-${levelBoon.level}-ability-score-1`,
-                            sourcePropertyValue: levelBoon.abilityScore1,
-                            title: `${cls.title} Level ${levelBoon.level} ability score improvement`
-                        });
-                    }
-                    if (levelBoon.abilityScore2) {
-                        character.addModifier({
-                            name: `${characterClass.value}-${levelBoon.level}-ability-score-modifier-2`,
-                            target: `ability-score:${levelBoon.abilityScore2}`,
-                            value: 1,
-                            sourcePropertyName: `class-${i}-level-${levelBoon.level}-ability-score-2`,
-                            sourcePropertyValue: levelBoon.abilityScore2,
-                            title: `${cls.title} Level ${levelBoon.level} ability score improvement`,
-                        });
-                    }
-                    if (levelBoon.feat?.value) {
-                        const feat = Sources.getFeats(character.sources).find(f => f.name == levelBoon.feat.value);
-                        if (feat.applyModifiers) {
-                            feat.applyModifiers(character, i, levelBoon.level);
-                        }
-                    }
-                }
-                if (cls.applyModifiers) {
-                    cls.applyModifiers(character, i);
-                }
-                if (characterClass.subClass?.value) {
-                    const subClass = Sources
-                        .getSubClasses(character.sources, characterClass.value)
-                        .find(sc => sc.name == characterClass.subClass.value);
-                    if (subClass.applyModifiers) {
-                        subClass.applyModifiers(character, i);
-                    }
-                }
-            }
-        }
+        Sources.#applyCharacterModifiers(character, true);
+        Sources.#applyCharacterModifiers(character, false);
     }
 
     /*
@@ -868,4 +774,157 @@ export class Sources {
         }
         return lastIndex + 1;
     }
+
+    static #applyCharacterModifiers(character, abilityScores) {
+        
+        // race and sub race
+        if (character.race?.value) {
+            const race = Sources.getRaces(character.sources).find(r => r.name == character.race?.value);
+            if (abilityScores) {
+                if (race?.applyAbilityScoreModifiers) {
+                    race.applyAbilityScoreModifiers(character);
+                }
+                if (character.subRace?.value) {
+                    const subRace = Sources
+                        .getSubRaces(character.sources, character.race.value)
+                        .find(sr => sr.name == character.subRace.value);
+                    if (subRace.applyAbilityScoreModifiers) {
+                        subRace.applyAbilityScoreModifiers(character);
+                    }
+                }
+            }
+            else {
+                if (race?.applyModifiers) {
+                    race.applyModifiers(character);
+                }
+                if (character.subRace?.value) {
+                    const subRace = Sources
+                        .getSubRaces(character.sources, character.race.value)
+                        .find(sr => sr.name == character.subRace.value);
+                    if (subRace.applyModifiers) {
+                        subRace.applyModifiers(character);
+                    }
+                }
+            }      
+        }
+
+        // background
+        if (character.background?.value) {
+            const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background.value);
+            if (abilityScores) {
+                if (background.applyAbilityScoreModifiers) {
+                    background.applyAbilityScoreModifiers(character);
+                }
+            }
+            else {
+                if (background.applyModifiers) {
+                    background.applyModifiers(character);
+                }
+            }
+        }
+
+        // classes
+        let primaryMulticlassEligibility = true;
+        for (let i = 0; i < character.classes.length; i++) {
+            const characterClass = character.classes[i];
+            if (characterClass.value && characterClass.level) {
+                const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.value);
+                let multiclassEligibility = true;
+                if (cls.getMulticlassEligibility) {
+                    multiclassEligibility = cls.getMulticlassEligibility(character).isEligible;
+                }
+                if (i == 0) {
+                    primaryMulticlassEligibility = multiclassEligibility;
+                }
+                else {
+                    if (!primaryMulticlassEligibility || !multiclassEligibility) {
+                        continue;
+                    }
+                }
+                if (abilityScores) {
+                    for (const levelBoon of characterClass.levelBoons) {
+                        if (levelBoon.abilityScore1) {
+                            character.addModifier({
+                                name: `${characterClass.value}-${levelBoon.level}-ability-score-modifier-1`,
+                                target: `ability-score:${levelBoon.abilityScore1}`,
+                                value: 1,
+                                sourcePropertyName: `class-${i}-level-${levelBoon.level}-ability-score-1`,
+                                sourcePropertyValue: levelBoon.abilityScore1,
+                                title: `${cls.title} Level ${levelBoon.level} ability score improvement`
+                            });
+                        }
+                        if (levelBoon.abilityScore2) {
+                            character.addModifier({
+                                name: `${characterClass.value}-${levelBoon.level}-ability-score-modifier-2`,
+                                target: `ability-score:${levelBoon.abilityScore2}`,
+                                value: 1,
+                                sourcePropertyName: `class-${i}-level-${levelBoon.level}-ability-score-2`,
+                                sourcePropertyValue: levelBoon.abilityScore2,
+                                title: `${cls.title} Level ${levelBoon.level} ability score improvement`,
+                            });
+                        }
+                        if (levelBoon.feat?.value) {
+                            const feat = Sources.getFeats(character.sources).find(f => f.name == levelBoon.feat.value);
+                            if (feat.applyAbilityScoreModifiers) {
+                                feat.applyAbilityScoreModifiers(character, i, levelBoon.level);
+                            }
+                        }
+                    }
+                    if (cls.applyAbilityScoreModifiers) {
+                        cls.applyAbilityScoreModifiers(character, i);
+                    }
+                    if (characterClass.subClass?.value) {
+                        const subClass = Sources
+                            .getSubClasses(character.sources, characterClass.value)
+                            .find(sc => sc.name == characterClass.subClass.value);
+                        if (subClass.applyAbilityScoreModifiers) {
+                            subClass.applyAbilityScoreModifiers(character, i);
+                        }
+                    }
+                }
+                else {
+                    for (const levelBoon of characterClass.levelBoons) {
+                        if (levelBoon.feat?.value) {
+                            const feat = Sources.getFeats(character.sources).find(f => f.name == levelBoon.feat.value);
+                            if (feat.applyModifiers) {
+                                feat.applyModifiers(character, i, levelBoon.level);
+                            }
+                        }
+                    }
+                    if (cls.applyModifiers) {
+                        cls.applyModifiers(character, i);
+                    }
+                    if (characterClass.subClass?.value) {
+                        const subClass = Sources
+                            .getSubClasses(character.sources, characterClass.value)
+                            .find(sc => sc.name == characterClass.subClass.value);
+                        if (subClass.applyModifiers) {
+                            subClass.applyModifiers(character, i);
+                        }
+                    }
+                }
+                
+            }
+        }
+
+        // equipment
+        const allEquipment = Sources.getEquipment(character.sources);
+        for (let i = 0; i < character.equipment.length; i++) {
+            const characterItem = character.equipment[i];
+            if (characterItem.isEquipped) {
+                const item = allEquipment.find(e => e.name == character.equipment[i].name);
+                if (abilityScores) {
+                    if (item.applyAbilityScoreModifiers) {
+                        item.applyAbilityScoreModifiers(character, i);
+                    }
+                }
+                else {
+                    if (item.applyModifiers) {
+                        item.applyModifiers(character, i);
+                    }
+                }
+            }
+        }
+    }
+
 }

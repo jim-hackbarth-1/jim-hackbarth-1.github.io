@@ -39,7 +39,7 @@ class DomainEquipmentModel {
         const oldCharacterClass = (oldCharacter.classes.length > 0) ? oldCharacter.classes[0].name : "";
         const currentCharacterClass = (currentCharacter.classes.length > 0) ? currentCharacter.classes[0].name : "";
         const classUpdated = (oldCharacterClass != currentCharacterClass);
-        const backgroundUpdated = (oldCharacter.background != currentCharacter.background);
+        const backgroundUpdated = (oldCharacter.background?.value != currentCharacter.background?.value);
         const removedEquipmentIndex = Number(message.equipmentRemoved);
         let removedItemName = null;
         if (removedEquipmentIndex >= 0) {

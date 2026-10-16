@@ -42,6 +42,10 @@ export class AcidVial {
         return [];
     }
 
+    static applyAbilityScoreModifiers(character, inventoryIndex) {
+
+    }
+
     static applyModifiers(character, inventoryIndex) {
 
     }

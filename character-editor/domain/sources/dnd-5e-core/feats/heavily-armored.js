@@ -38,6 +38,10 @@ export class HeavilyArmored {
         return [];
     }
 
+    static applyAbilityScoreModifiers(character, classIndex, level) {
+
+    }
+
     static applyModifiers(character, classIndex, level) {
 
     }

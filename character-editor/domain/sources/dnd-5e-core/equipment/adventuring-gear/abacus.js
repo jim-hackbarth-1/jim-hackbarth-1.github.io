@@ -96,6 +96,10 @@ export class Abacus {
         // return options;
     }
 
+    static applyAbilityScoreModifiers(character, inventoryIndex) {
+
+    }
+
     static applyModifiers(character, inventoryIndex) {
 
     }

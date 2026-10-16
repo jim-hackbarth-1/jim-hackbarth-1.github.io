@@ -71,7 +71,7 @@ export class Athlete {
         return options;
     }
 
-    static applyModifiers(character, classIndex, level) {
+    static applyAbilityScoreModifiers(character, classIndex, level) {
         const modifiers = [];
         let abilityScore = null;
         const values = character.selections.find(s => s.name == "athlete-ability-score-increase")?.values ?? [];
@@ -92,6 +92,10 @@ export class Athlete {
             modifier.sourcePropertyValue = "athlete";
             character.addModifier(modifier);
         }
+    }
+
+    static applyModifiers(character, classIndex, level) {
+        
     }
 
     static applyFeatures(features, character, classIndex, level) {

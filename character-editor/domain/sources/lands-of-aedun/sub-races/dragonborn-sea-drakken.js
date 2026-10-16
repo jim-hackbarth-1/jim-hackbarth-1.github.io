@@ -25,7 +25,7 @@ export class DragonbornSeaDrakken {
         return [];
     }
 
-    static applyModifiers(character) {
+    static applyAbilityScoreModifiers(character) {
         character.removeModifier("dragonborn-ability-score-modifier-strength");
         character.removeModifier("dragonborn-ability-score-modifier-charisma");
         const modifiers = [
@@ -47,6 +47,10 @@ export class DragonbornSeaDrakken {
             modifier.sourcePropertyValue = "dragonborn-sea-drakken";
             character.addModifier(modifier);
         }
+    }
+
+    static applyModifiers(character) {
+        
     }
 
     static applyFeatures(features, character) {

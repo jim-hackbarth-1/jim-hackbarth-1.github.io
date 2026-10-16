@@ -15,6 +15,7 @@
     border-radius: 3px;
     background-color: #C2B08E;
     padding: 5px;
+    margin-top:5px;
 }
 
 .level-boon-selection .selection-content > div,
@@ -48,4 +49,21 @@
 
 .level-boon-selection .details-section {
     margin-left:30px;
+}
+
+.level-boon-selection .toggle-button {
+    height: 20px;
+    width: 20px;
+    border: none;
+    background-color: transparent;
+    float: right;
+    cursor: pointer;
+}
+
+.level-boon-selection .toggle-button svg {
+    border: 1px dotted saddlebrown;
+}
+
+.completed-selection-display {
+    font-weight:bolder;
 }

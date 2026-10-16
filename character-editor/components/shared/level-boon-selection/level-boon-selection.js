@@ -34,16 +34,15 @@ class LevelBoonSelectionModel {
         return false;
     }
 
-    getTitle() {
-        return `Level ${this.#selectionModel.level} ability score improvement or feat`;
+    toggleDetail(event) {
+        this.#kitElement.querySelector(".toggle-button-expand").classList.toggle("hidden");
+        this.#kitElement.querySelector(".toggle-button-collapse").classList.toggle("hidden");
+        this.#kitElement.querySelector(".selection-content").classList.toggle("hidden");
+        this.#kitElement.querySelector(".completed-selection-display").innerHTML = this.#getCompletedSelection();
     }
 
     getRadioGroupName() {
         return `class-${this.#selectionModel.classIndex}-level-${this.#selectionModel.level}-boon`;
-    }
-
-    isAbilityScoresChecked() {
-        return true;
     }
 
     onAbilityScoresRadioClick() {
@@ -281,6 +280,14 @@ class LevelBoonSelectionModel {
     }
 
     #initializeDetails() {
+        this.#kitElement.querySelector(".selection-title").innerHTML = `Level ${this.#selectionModel.level} ability score improvement or feat`;
+        const completedSelection = this.#getCompletedSelection();
+        this.#kitElement.querySelector(".completed-selection-display").innerHTML = completedSelection;
+        if (!completedSelection) {
+            this.#kitElement.querySelector(".toggle-button-expand").classList.add("hidden");
+            this.#kitElement.querySelector(".toggle-button-collapse").classList.remove("hidden");
+            this.#kitElement.querySelector(".selection-content").classList.remove("hidden");
+        }
         if (this.#levelBoon?.feat) {
             this.#kitElement.querySelector(".data-radio-feat").click();
         }
@@ -310,6 +317,34 @@ class LevelBoonSelectionModel {
             this.#featSelections = featSelections;
         }
         return this.#featSelections;
+    }
+
+    #getCompletedSelection() {
+        const abilities = Sources.getAbilities();
+        const ability1 = abilities.find(a => a.name == this.#levelBoon.abilityScore1);
+        const ability2 = abilities.find(a => a.name == this.#levelBoon.abilityScore2);
+        const feat = this.#levelBoon.feat;
+        if (ability1 && ability2) {
+            if (ability1.name == ability2.name) {
+                return `Abilities: ${ability1.title} (x2)`
+            }
+            else {
+                return `Abilities: ${ability1.title}, ${ability2.title}`;
+            }
+        }
+        else {
+            if (feat?.value) {
+                let isFeatSelectionComplete = true;
+                const featSelections = this.#getFeatSelections();
+                if (featSelections.length > 0) {
+                    isFeatSelectionComplete = !featSelections.some(fs => fs.currentSelections.some(cs => !cs.value));
+                }
+                if (isFeatSelectionComplete) {
+                    return `Feat: ${feat.text}`;
+                }
+            }
+        }
+        return "";
     }
 
 }

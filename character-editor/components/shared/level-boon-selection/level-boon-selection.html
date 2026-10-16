@@ -1,15 +1,34 @@
 <section class="level-boon-selection" kit-if="#model?.hasSelectionModel()">
-    <div class="selection-title"><label>%{#model.getTitle()}%</label></div>
-    <div class="selection-content">
+    <div style="display:flex;">
+        <div style="flex: 1; display: flex; flex-direction:column;" class="no-wrap">
+            <div class="selection-title no-wrap"></div>
+            <div class="completed-selection-display no-wrap"></div>
+        </div>
+        <div>
+            <div>
+                <div title="Show Detail"
+                     class="toggle-button toggle-button-expand"
+                     onpointerdown="#model.toggleDetail(event)"
+                     kit-component="no-model:./resources/icons/expand.html">
+                </div>
+                <div title="Hide Detail"
+                     class="toggle-button toggle-button-collapse hidden"
+                     onpointerdown="#model.toggleDetail(event)"
+                     kit-component="no-model:./resources/icons/collapse.html">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="selection-content hidden">
         <div class="radio-row">
             <div class="radio-container">
                 <label class="radio-button">
                     <input type="radio"
                            class="data-radio-ability-scores"
                            kit-element
-                           name="#model.getRadioGroupName()"
+                           name="%{#model.getRadioGroupName()}%"
                            value="ability-scores"
-                           kit-attr-checked="checked:%{#model.isAbilityScoresChecked ? '' : null}%"
+                           checked
                            onclick="#model?.onAbilityScoresRadioClick()" />
                     <span class="checkmark"></span>
                 </label>
@@ -36,9 +55,8 @@
                     <input type="radio"
                            class="data-radio-feat"
                            kit-element
-                           name="#model.getRadioGroupName()"
+                           name="%{#model.getRadioGroupName()}%"
                            value="feat"
-                           kit-attr-checked="checked:%{#model.isAbilityScoresChecked ? null : ''}%"
                            onclick="#model.onFeatRadioClick()" />
                     <span class="checkmark"></span>
                 </label>

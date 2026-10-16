@@ -9,16 +9,36 @@
                 <div>
                     <button class="button toggle-button" onclick="#model.removeCharacterClass('%{#classInfo.index}%')">Remove Class</button>
                 </div>
+                <!-- class -->
                 <div id="class-row-%{#classInfo.index}%" kit-element>
                     <kit kit-component="./components/shared/selection/selection.html"
                          kit-obj-selection-model="selectionModel:#model.getClassSelectionModel('%{#classInfo.index}%')">
                     </kit>
                 </div>
+                <!-- level -->
                 <div id="level-row-%{#classInfo.index}%" kit-element>
                     <kit kit-component="./components/shared/selection/selection.html"
                          kit-obj-selection-model="selectionModel:#model.getLevelSelectionModel('%{#classInfo.index}%')">
                     </kit>
                 </div>
+                <!-- level boons -->
+                <div id="level-boons-row-%{#classInfo.index}%" kit-if="#model.hasLevelBoons('%{#classInfo.index}%')">
+                    <div kit-array="#model.getLevelBoons('%{#classInfo.index}%')"
+                         kit-array-item-alias="levelBoon">
+                        <div class="selection-control">
+                            <kit kit-component="./components/shared/level-boon-selection/level-boon-selection.html"
+                                 kit-obj-selection-model="selectionModel:#levelBoon">
+                            </kit>
+                        </div>
+                    </div>
+                </div>
+                <!-- sub class -->
+                <div id="sub-class-row-%{#classInfo.index}%" kit-if="#model.hasSubClasses('%{#classInfo.index}%')">
+                    <kit kit-component="./components/shared/selection/selection.html"
+                         kit-obj-selection-model="selectionModel:#model.getSubClassSelectionModel('%{#classInfo.index}%')">
+                    </kit>
+                </div>
+                <!-- class selections -->
                 <div id="class-selections-row-%{#classInfo.index}%" kit-if="#model.hasClassSelections('%{#classInfo.index}%')">
                     <div kit-array="#model.getClassSelections('%{#classInfo.index}%')"
                          kit-array-item-alias="selection">
@@ -29,27 +49,13 @@
                         </div>
                     </div>
                 </div>
-                <div id="sub-class-row-%{#classInfo.index}%" kit-if="#model.hasSubClasses('%{#classInfo.index}%')">
-                    <kit kit-component="./components/shared/selection/selection.html"
-                         kit-obj-selection-model="selectionModel:#model.getSubClassSelectionModel('%{#classInfo.index}%')">
-                    </kit>
-                </div>
+                <!-- sub class selections -->
                 <div id="sub-class-selections-row-%{#classInfo.index}%" kit-if="#model.hasSubClassSelections('%{#classInfo.index}%')">
                     <div kit-array="#model.getSubClassSelections('%{#classInfo.index}%')"
                          kit-array-item-alias="selection">
                         <div class="selection-control">
                             <kit kit-component="./components/shared/selection/selection.html"
                                  kit-obj-selection-model="selectionModel:#selection">
-                            </kit>
-                        </div>
-                    </div>
-                </div>
-                <div id="level-boons-row-%{#classInfo.index}%" kit-if="#model.hasLevelBoons('%{#classInfo.index}%')">
-                    <div kit-array="#model.getLevelBoons('%{#classInfo.index}%')"
-                         kit-array-item-alias="levelBoon">
-                        <div class="selection-control">
-                            <kit kit-component="./components/shared/level-boon-selection/level-boon-selection.html"
-                                 kit-obj-selection-model="selectionModel:#levelBoon">
                             </kit>
                         </div>
                     </div>

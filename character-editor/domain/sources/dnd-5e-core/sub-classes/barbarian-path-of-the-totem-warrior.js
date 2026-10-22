@@ -33,7 +33,7 @@ export class BarbarianPathOfTheTotemWarrior {
              }
              selections.push({
                  name: totemSpiritSelectionName,
-                 title: "Totem spirit",
+                 title: `${BarbarianPathOfTheTotemWarrior.title} - Totem spirit`,
                  maxSelections: 1,
                  currentSelections: [...currentSelections]
              })
@@ -46,7 +46,7 @@ export class BarbarianPathOfTheTotemWarrior {
              }
              selections.push({
                  name: aspectOfTheBeastSelectionName,
-                 title: "Aspect of the Beast",
+                 title: `${BarbarianPathOfTheTotemWarrior.title} - Aspect of the Beast`,
                  maxSelections: 1,
                  currentSelections: [...currentSelections]
              })
@@ -59,7 +59,7 @@ export class BarbarianPathOfTheTotemWarrior {
              }
              selections.push({
                  name: totemicAttunementSelectionName,
-                 title: "Totemic Attunement",
+                 title: `${BarbarianPathOfTheTotemWarrior.title} - Totemic Attunement`,
                  maxSelections: 1,
                  currentSelections: [...currentSelections]
              })
@@ -99,24 +99,20 @@ export class BarbarianPathOfTheTotemWarrior {
         return options;
     }
 
-    static applyAbilityScoreModifiers(character, classIndex) {
-
-    }
-
-    static applyModifiers(character, classIndex) {
+    static applyModifiers(character, classIndex, targetFilters) {
 
     }
 
     static applyFeatures(features, character, classIndex) {
         const tempFeatures = [];
-         const characterClass = character.classes.find(c => c.value == "barbarian");
+        const characterClass = character.classes.find(c => c.value == "barbarian");
 
-         let totemSpirit = null;
-         const totemSpirits = character.selections.find(o => o.name == "barbarian-path-of-the-totem-warrior-totem-spirit")?.values ?? [];
-         if (totemSpirits.length > 0) {
-             totemSpirit = totemSpirits[0];
-         }
-        if (totemSpirit) {
+        let totemSpirit = null;
+        const totemSpirits = character.selections.find(o => o.name == "barbarian-path-of-the-totem-warrior-totem-spirit")?.values ?? [];
+        if (totemSpirits.length > 0) {
+            totemSpirit = totemSpirits[0];
+        }
+        if (totemSpirit?.value) {
             let totemSpiritHtml = "";
             if (totemSpirit.value == "bear") {
                 totemSpiritHtml = "<p>While raging, you have resistance to all damage except psychic damage. The spirit of the bear makes you tough enough to stand up to any punishment.</p>";
@@ -145,7 +141,7 @@ export class BarbarianPathOfTheTotemWarrior {
          if (aspectOfTheBeasts.length > 0) {
              aspectOfTheBeast = aspectOfTheBeasts[0];
          }
-         if (aspectOfTheBeast) {
+         if (aspectOfTheBeast?.value) {
              let aspectOfTheBeastHtml = "";
              if (aspectOfTheBeast.value == "bear") {
                  aspectOfTheBeastHtml = "<p>You gain the might of a bear. Your carrying capacity (including maximum load and maximum lift) is doubled, and you have advantage on Strength checks made to push, pull, lift, or break objects.</p>";
@@ -174,7 +170,7 @@ export class BarbarianPathOfTheTotemWarrior {
          if (totemicAttunements.length > 0) {
              totemicAttunement = totemicAttunements[0];
          }
-         if (totemicAttunement) {
+         if (totemicAttunement?.value) {
              let totemicAttunementHtml = "";
              if (totemicAttunement.value == "bear") {
                  totemicAttunementHtml = "<p>While you're raging, any creature within 5 feet of you that's hostile to you has disadvantage on attack rolls against targets other than you or another character with this feature. An enemy is immune to this effect if it can't see or hear you or if it can't be frightened.</p>";

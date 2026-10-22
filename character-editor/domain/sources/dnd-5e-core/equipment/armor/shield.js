@@ -46,11 +46,7 @@ export class Shield {
         item.isEquipped = true;
     }
 
-    static applyAbilityScoreModifiers(character, inventoryIndex) {
-
-    }
-
-    static applyModifiers(character, inventoryIndex) {
+    static applyModifiers(character, inventoryIndex, targetFilters) {
         const modifiers = [];
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
@@ -62,9 +58,11 @@ export class Shield {
             });
         }
         for (const modifier of modifiers) {
-            modifier.sourcePropertyName = `equipment-${inventoryIndex}`;
-            modifier.sourcePropertyValue = Shield.name;
-            character.addModifier(modifier);
+            if (targetFilters.includeTarget(modifier.target)) {
+                modifier.sourcePropertyName = `equipment-${inventoryIndex}`;
+                modifier.sourcePropertyValue = Shield.name;
+                character.addModifier(modifier);
+            }
         }
     }
 

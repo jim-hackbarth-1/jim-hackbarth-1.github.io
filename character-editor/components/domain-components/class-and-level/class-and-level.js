@@ -33,6 +33,9 @@ export class DomainClassAndLevelModel {
         this.#subClassSelections = null;
         this.#levelBoons = null;
         await UIKit.renderer.renderElement(this.#kitElement.querySelector("#classes-array"));
+        if (message.section == "details-class-and-level") {
+            EditorViewModel.restoreScrollY();
+        }
     }
 
     async addCharacterClass() {

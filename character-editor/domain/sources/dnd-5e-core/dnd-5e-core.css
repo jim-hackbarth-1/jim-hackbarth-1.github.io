@@ -29,6 +29,10 @@
     width: 300px;
 }
 
+.dnd-5e-content ul {
+    margin-left:20px;
+}
+
 .dnd-5e-content li,
 .dnd-5e-content p {
     font-family: Calibri, sans-serif;
@@ -42,11 +46,17 @@
     font-style: italic;
 }
 
+.dnd-5e-content .table-container {
+    overflow-x:auto;
+}
+
 .dnd-5e-content table {
     width: 98%;
     border: 1px solid saddlebrown;
     border-collapse: collapse;
     margin-bottom: 5px;
+    position:sticky;
+    top:0;
 }
 
 .dnd-5e-content table caption {

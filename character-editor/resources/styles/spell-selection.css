@@ -1,0 +1,45 @@
+
+.spell-selection-container {
+    background-color: #C2B08E;
+    border: 1px solid black;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.spell-selection .selection-title-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.spell-selection .selection-title {
+    margin-bottom: 5px;
+}
+
+.spell-selection .completed-selection-display.incomplete {
+    color: darkred;
+}
+
+.spell-selection .toggle-button {
+    height: 20px;
+    width: 20px;
+    border: none;
+    background-color: transparent;
+    float: right;
+    cursor: pointer;
+}
+
+.spell-selection .toggle-button svg {
+    border: 1px dotted saddlebrown;
+}
+
+.spell-selection .selection-content {
+    border-radius: 3px;
+    background-color: #C2B08E;
+    padding: 5px;
+    margin-top: 5px;
+}
+
+.spell-selection .selection-content > div {
+    margin-bottom: 10px;
+}

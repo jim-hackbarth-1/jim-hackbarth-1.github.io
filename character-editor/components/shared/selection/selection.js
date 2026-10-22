@@ -68,19 +68,21 @@ export class SelectionModel {
     }
 
     async toggleDropDown(event) {
-        let sectionExpanded = this.#kitElement.querySelector(".selection-expanded");
-        const isHidden = sectionExpanded.classList.contains("hidden");
-        this.hideExpandedSections();
-        if (isHidden) {
-            const sources = this.#selectionModel.sources;
-            this.#applySourceOptions(sources);
-            this.#options = this.#selectionModel.getOptions(this.#selectionModel.name, sources);
-            await UIKit.renderer.renderElement(this.#kitElement.querySelector(".selection-expanded"));
-            sectionExpanded = this.#kitElement.querySelector(".selection-expanded");
-            sectionExpanded.classList.remove("hidden");
-        }
-        else {
-            sectionExpanded.classList.add("hidden");
+        if (!this.#selectionModel.locked) {
+            let sectionExpanded = this.#kitElement.querySelector(".selection-expanded");
+            const isHidden = sectionExpanded.classList.contains("hidden");
+            this.hideExpandedSections();
+            if (isHidden) {
+                const sources = this.#selectionModel.sources;
+                this.#applySourceOptions(sources);
+                this.#options = this.#selectionModel.getOptions(this.#selectionModel.name, sources);
+                await UIKit.renderer.renderElement(this.#kitElement.querySelector(".selection-expanded"));
+                sectionExpanded = this.#kitElement.querySelector(".selection-expanded");
+                sectionExpanded.classList.remove("hidden");
+            }
+            else {
+                sectionExpanded.classList.add("hidden");
+            }
         }
         if (event) {
             event.stopPropagation();
@@ -185,8 +187,17 @@ export class SelectionModel {
         const character = EditorViewModel.character;
         if (sources) {
             for (const source of sources) {
-                if (source.name == "language") {
+                if (source.name == "languages") {
                     source.options = this.#getLanguages(character);
+                }
+                if (source.name == "skills") {
+                    source.options = this.#getSkills();
+                }
+                if (source.name == "spells") {
+                    source.options = this.#getSpells(character);
+                }
+                if (source.name == "tools") {
+                    source.options = this.#getTools(character);
                 }
             }
         }
@@ -198,6 +209,25 @@ export class SelectionModel {
             option.noteText = option.source.title;
         }
         return options;
+    }
+
+    #getSkills(character) {
+        return [...Sources.getSkills()];
+    }
+
+    #getSpells(character) {
+        let options = [...Sources.getSpells(character.sources)];
+        for (const option of options) {
+            option.value = option.name,
+            option.text = option.title,
+            option.hasDetail = true,
+            option.noteText = `Level ${option.level} - ${option.source.title}`;
+        }
+        return options;
+    }
+
+    #getTools(character) {
+        return Sources.getEquipment(character.sources).filter(e => e.category == "tools");
     }
 
     #getSelectedOption(optionValue) {

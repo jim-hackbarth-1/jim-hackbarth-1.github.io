@@ -25,11 +25,7 @@ export class ClericNatureDomain {
         return [];
     }
 
-    static applyAbilityScoreModifiers(character, classIndex) {
-
-    }
-
-    static applyModifiers(character, classIndex) {
+    static applyModifiers(character, classIndex, targetFilters) {
 
     }
 

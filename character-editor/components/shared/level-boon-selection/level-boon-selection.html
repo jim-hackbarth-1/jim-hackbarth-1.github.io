@@ -1,83 +1,85 @@
 <section class="level-boon-selection" kit-if="#model?.hasSelectionModel()">
-    <div style="display:flex;">
-        <div style="flex: 1; display: flex; flex-direction:column;" class="no-wrap">
-            <div class="selection-title no-wrap"></div>
-            <div class="completed-selection-display no-wrap"></div>
-        </div>
-        <div>
+    <div class="selection-title no-wrap"></div>
+    <div class="level-boon-selection-container">
+        <div style="display:flex;">
+            <div class="selection-title-container no-wrap">
+                <div class="completed-selection-display no-wrap"></div>
+            </div>
             <div>
-                <div title="Show Detail"
-                     class="toggle-button toggle-button-expand"
-                     onpointerdown="#model.toggleDetail(event)"
-                     kit-component="no-model:./resources/icons/expand.html">
+                <div>
+                    <div title="Show Detail"
+                         class="toggle-button toggle-button-expand"
+                         onpointerdown="#model.toggleDetail(event)"
+                         kit-component="no-model:./resources/icons/expand.html">
+                    </div>
+                    <div title="Hide Detail"
+                         class="toggle-button toggle-button-collapse hidden"
+                         onpointerdown="#model.toggleDetail(event)"
+                         kit-component="no-model:./resources/icons/collapse.html">
+                    </div>
                 </div>
-                <div title="Hide Detail"
-                     class="toggle-button toggle-button-collapse hidden"
-                     onpointerdown="#model.toggleDetail(event)"
-                     kit-component="no-model:./resources/icons/collapse.html">
+            </div>
+        </div>
+        <div class="selection-content hidden">
+            <div class="radio-row">
+                <div class="radio-container">
+                    <label class="radio-button">
+                        <input type="radio"
+                               class="data-radio-ability-scores"
+                               kit-element
+                               name="%{#model.getRadioGroupName()}%"
+                               value="ability-scores"
+                               checked
+                               onclick="#model?.onAbilityScoresRadioClick()" />
+                        <span class="checkmark"></span>
+                    </label>
+                </div>
+                <div class="radio-label">
+                    <label>Ability score improvement</label>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="selection-content hidden">
-        <div class="radio-row">
-            <div class="radio-container">
-                <label class="radio-button">
-                    <input type="radio"
-                           class="data-radio-ability-scores"
-                           kit-element
-                           name="%{#model.getRadioGroupName()}%"
-                           value="ability-scores"
-                           checked
-                           onclick="#model?.onAbilityScoresRadioClick()" />
-                    <span class="checkmark"></span>
-                </label>
+            <div class="details-section ability-scores-container">
+                <div class="selection-container">
+                    <kit kit-component="./components/shared/selection/selection.html"
+                         kit-obj-selection-model="selectionModel:#model?.getAbilityScoreSelectionModel(1)">
+                    </kit>
+                </div>
+                <div class="selection-container">
+                    <kit kit-component="./components/shared/selection/selection.html"
+                         kit-obj-selection-model="selectionModel:#model?.getAbilityScoreSelectionModel(2)">
+                    </kit>
+                </div>
             </div>
-            <div class="radio-label">
-                <label>Ability score improvement</label>
+            <div class="radio-row">
+                <div class="radio-container">
+                    <label class="radio-button">
+                        <input type="radio"
+                               class="data-radio-feat"
+                               kit-element
+                               name="%{#model.getRadioGroupName()}%"
+                               value="feat"
+                               onclick="#model.onFeatRadioClick()" />
+                        <span class="checkmark"></span>
+                    </label>
+                </div>
+                <div class="radio-label">
+                    <label>Feat</label>
+                </div>
             </div>
-        </div>
-        <div class="details-section ability-scores-container">
-            <div class="selection-container">
-                <kit kit-component="./components/shared/selection/selection.html"
-                     kit-obj-selection-model="selectionModel:#model?.getAbilityScoreSelectionModel(1)">
-                </kit>
-            </div>
-            <div class="selection-container">
-                <kit kit-component="./components/shared/selection/selection.html"
-                     kit-obj-selection-model="selectionModel:#model?.getAbilityScoreSelectionModel(2)">
-                </kit>
-            </div>
-        </div>
-        <div class="radio-row">
-            <div class="radio-container">
-                <label class="radio-button">
-                    <input type="radio"
-                           class="data-radio-feat"
-                           kit-element
-                           name="%{#model.getRadioGroupName()}%"
-                           value="feat"
-                           onclick="#model.onFeatRadioClick()" />
-                    <span class="checkmark"></span>
-                </label>
-            </div>
-            <div class="radio-label">
-                <label>Feat</label>
-            </div>
-        </div>
-        <div class="details-section feats-container" kit-element>
-            <div class="selection-container">
-                <kit kit-component="./components/shared/selection/selection.html"
-                     kit-obj-selection-model="selectionModel:#model?.getFeatSelectionModel()">
-                </kit>
-            </div>
-            <div kit-if="#model.hasFeatSelections()">
-                <div kit-array="#model.getFeatSelections()"
-                     kit-array-item-alias="selection">
-                    <div>
-                        <kit kit-component="./components/shared/selection/selection.html"
-                             kit-obj-selection-model="selectionModel:#selection">
-                        </kit>
+            <div class="details-section feats-container" kit-element>
+                <div class="selection-container">
+                    <kit kit-component="./components/shared/selection/selection.html"
+                         kit-obj-selection-model="selectionModel:#model?.getFeatSelectionModel()">
+                    </kit>
+                </div>
+                <div kit-if="#model.hasFeatSelections()">
+                    <div kit-array="#model.getFeatSelections()"
+                         kit-array-item-alias="selection">
+                        <div>
+                            <kit kit-component="./components/shared/selection/selection.html"
+                                 kit-obj-selection-model="selectionModel:#selection">
+                            </kit>
+                        </div>
                     </div>
                 </div>
             </div>

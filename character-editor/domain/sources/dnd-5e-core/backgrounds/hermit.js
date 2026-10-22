@@ -81,7 +81,7 @@ export class Hermit {
                 name: selectionName,
                 title: "Language",
                 maxSelections: 1,
-                sources: [{name: "language"}],
+                sources: [{name: "languages"}],
                 currentSelections: currentSelections
             }
         ];
@@ -90,11 +90,16 @@ export class Hermit {
     static getSelectionOptions(character, selectionName, sources) {
         let options = [];
         if (selectionName == "hermit-language") {
-            options = [...sources.find(s => s.name == "language").options];
+            options = [...sources.find(s => s.name == "languages").options];
             const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
+            const disabledLanguages = character.modifiers
+                .filter(m => m.target == "language" && !selectedValues.includes(m.value?.name))
+                .map(m => m.value?.name);
             for (const option of options) {
-                option.noteText = option.source.title;
+                const isDisabled = disabledLanguages.includes(option.value);
                 option.isSelected = (selectedValues.includes(option.value));
+                option.isDisabled = isDisabled;
+                option.disabledReason = isDisabled ? "Disabled: Language granted by other feature" : ""
             }
             options = Hermit.#sortOptions(options, "text");
             options.unshift({ value: null, text: "Choose a language ..." });
@@ -116,11 +121,7 @@ export class Hermit {
         return array;
     }
 
-    static applyAbilityScoreModifiers(character) {
-
-    }
-
-    static applyModifiers(character) {
+    static applyModifiers(character, targetFilters) {
 
         const modifiers = [];
         modifiers.push({
@@ -157,9 +158,11 @@ export class Hermit {
         }
 
         for (const modifier of modifiers) {
-            modifier.sourcePropertyName = "background";
-            modifier.sourcePropertyValue = Hermit.name;
-            character.addModifier(modifier);
+            if (targetFilters.includeTarget(modifier.target)) {
+                modifier.sourcePropertyName = "background";
+                modifier.sourcePropertyValue = Hermit.name;
+                character.addModifier(modifier);
+            }
         }
 
     }

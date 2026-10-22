@@ -25,11 +25,7 @@ export class ClericLifeDomain {
         return [];
     }
 
-    static applyAbilityScoreModifiers(character, classIndex) {
-
-    }
-
-    static applyModifiers(character, classIndex) {
+    static applyModifiers(character, classIndex, targetFilters) {
 
     }
 

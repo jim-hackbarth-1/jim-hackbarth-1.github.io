@@ -25,24 +25,15 @@ export class DwarfMountain {
         return [];
     }
 
-    static applyAbilityScoreModifiers(character) {
+    static applyModifiers(character, targetFilters) {
         const modifiers = [];
+
         modifiers.push({
             name: "mountain-dwarf-ability-score-modifier-strength",
             target: "ability-score:strength",
             value: 2,
             title: DwarfMountain.title
         });
-        for (const modifier of modifiers) {
-            modifier.sourcePropertyName = "sub-race";
-            modifier.sourcePropertyValue = DwarfMountain.name;
-            character.addModifier(modifier);
-        }
-    }
-
-    static applyModifiers(character) {
-        const modifiers = [];
-
         modifiers.push({
             name: "mountain-dwarf-armor-profiency-light-armor",
             target: "armor-proficiency",
@@ -57,9 +48,11 @@ export class DwarfMountain {
         });
 
         for (const modifier of modifiers) {
-            modifier.sourcePropertyName = "sub-race";
-            modifier.sourcePropertyValue = DwarfMountain.name;
-            character.addModifier(modifier);
+            if (targetFilters.includeTarget(modifier.target)) {
+                modifier.sourcePropertyName = "sub-race";
+                modifier.sourcePropertyValue = DwarfMountain.name;
+                character.addModifier(modifier);
+            }
         }
     }
 

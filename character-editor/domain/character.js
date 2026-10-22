@@ -351,7 +351,13 @@ export class Character {
 
     getAbilityScoreModifier(ability) {
         const abilityScore = Number(this.getAbilityScore(ability));
-        return Math.floor((abilityScore - 10) / 2);
+
+        const abilityScoreModifiers = this.modifiers
+            .filter(m => m.target == `ability-score-modifier:${ability}`)
+            .map(m => m.value)
+            .reduce((a, b) => a + b, 0);
+
+        return Math.floor((abilityScore - 10) / 2) + Number(abilityScoreModifiers);
     }
 
     getConModifierForHitPoints(levelBoonIndex) {
@@ -411,11 +417,14 @@ export class Character {
     getArmorClass() {
         let armorClass = 10;
         let dexModifier = this.getAbilityScoreModifier("dexterity");
-        const armorType = this.equipment.find(e => e.name == "armor-type" && e.value != "shield" && e.isEquipped);
-        if (armorType == "medium-armor" && dexModifier > 2) {
+        const hasMediumArmor = this.#equipment
+            .some(e => e.isEquipped && e.properties && e.properties.some(p => p.name == "armor-type" && p.value == "medium-armor"));
+        const hasHeavyArmor = this.#equipment
+            .some(e => e.isEquipped && e.properties && e.properties.some(p => p.name == "armor-type" && p.value == "heavy-armor"));
+        if (hasMediumArmor && dexModifier > 2) {
             dexModifier = 2;
         }
-        if (armorType == "heavy-armor") {
+        if (hasHeavyArmor) {
             dexModifier = 0;
         }
         let acModifiers = this.modifiers

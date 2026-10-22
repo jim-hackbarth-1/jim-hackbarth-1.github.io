@@ -73,11 +73,7 @@ export class Outlander {
         return [];
     }
 
-    static applyAbilityScoreModifiers(character) {
-
-    }
-
-    static applyModifiers(character) {
+    static applyModifiers(character, targetFilters) {
 
     }
 

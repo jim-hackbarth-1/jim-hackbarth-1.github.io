@@ -25,11 +25,7 @@ export class FighterChampion {
         return [];
     }
 
-    static applyAbilityScoreModifiers(character, classIndex) {
-
-    }
-
-    static applyModifiers(character, classIndex) {
+    static applyModifiers(character, classIndex, targetFilters) {
 
     }
 

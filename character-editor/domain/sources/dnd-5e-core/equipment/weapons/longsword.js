@@ -48,11 +48,7 @@ export class Longsword {
         return [];
     }
 
-    static applyAbilityScoreModifiers(character, inventoryIndex) {
-
-    }
-
-    static applyModifiers(character, inventoryIndex) {
+    static applyModifiers(character, inventoryIndex, targetFilters) {
         
     }
 
@@ -61,7 +57,7 @@ export class Longsword {
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
             const attackCard = character.getAttackCard({
-                name: Longbow.name,
+                name: Longsword.name,
                 title: Longsword.title,
                 inventoryIndex: inventoryIndex,
                 damageDieSize: 8,

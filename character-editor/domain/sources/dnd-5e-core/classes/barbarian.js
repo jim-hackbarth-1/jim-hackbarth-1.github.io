@@ -59,14 +59,14 @@ export class Barbarian {
             const selectionName = "barbarian-skill-proficiencies";
             let currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
             if (currentSelections.length == 0) {
-                currentSelections = [{ value: null, text: "Choose skill proficiencies ..." }];
+                currentSelections = [{ value: null, text: "Skill proficiencies (choose 2) ..." }];
             }
             selections.push({
                 name: selectionName,
-                title: "Skill Proficiencies (choose two)",
+                title: "Skill Proficiencies",
                 maxSelections: 2,
                 currentSelections: currentSelections
-            })
+            });
         }
         return selections;
     }
@@ -75,55 +75,29 @@ export class Barbarian {
         let options = [];
         if (selectionName == "barbarian-skill-proficiencies") {
             options = [...Barbarian.#skillProficiencies];
-            options.unshift({ value: null, text: "Choose skill proficiencies ...", hideCheckbox: true });
-            let currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            currentSelections = currentSelections.map(cs => cs.value);
             for (const option of options) {
-                option.isSelected = currentSelections.includes(option.value);
+                option.noteText = `(${option.ability})`
+            }
+            options.unshift(
+                {
+                    value: null,
+                    text: "Skill proficiencies (choose 2) ...",
+                    hideCheckbox: true
+                });
+            const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
+            const disabledOptions = character.modifiers
+                .filter(m => m.target == "skill-proficiency" && !selectedValues.some(sv => sv.value == m.value))
+                .map(m => m.value);
+            for (const option of options) {
+                option.isSelected = selectedValues.some(sv => sv.value == option.value),
+                option.isDisabled = disabledOptions.includes(option.value),
+                option.disabledReason = disabledOptions.includes(option.value) ? "Proficiency granted by other feature" : ""
             }
         }
         return options;
     }
 
-    static applyAbilityScoreModifiers(character, classIndex) {
-        const modifiers = [];
-
-        const level = Number(character.classes.find(c => c.value == "barbarian").level);
-        if (level == 20) {
-            modifiers.push({
-                name: "barbarian-primal-champion-ability-score-modifier-strength",
-                target: "ability-score:strength",
-                value: 4,
-                title: Barbarian.title
-            });
-            modifiers.push({
-                name: "barbarian-primal-champion-ability-score-modifier-constitution",
-                target: "ability-score:constitution",
-                value: 4,
-                title: Barbarian.title
-            });
-            modifiers.push({
-                name: "barbarian-primal-champion-modified-max-ability-score-modifier-strength",
-                target: "modified-max-ability-score:strength",
-                value: 4,
-                title: Barbarian.title
-            });
-            modifiers.push({
-                name: "barbarian-primal-champion-modified-max-ability-score-modifier-constitution",
-                target: "modified-max-ability-score:constitution",
-                value: 4,
-                title: Barbarian.title
-            });
-        }
-
-        for (const modifier of modifiers) {
-            modifier.sourcePropertyName = `class-${classIndex}`;
-            modifier.sourcePropertyValue = Barbarian.name;
-            character.addModifier(modifier);
-        }
-    }
-
-    static applyModifiers(character, classIndex) {
+    static applyModifiers(character, classIndex, targetFilters) {
         const modifiers = [];
         if (character.classes[0].value == "barbarian") {
             modifiers.push({
@@ -223,10 +197,39 @@ export class Barbarian {
             });
         }
 
+        if (level == 20) {
+            modifiers.push({
+                name: "barbarian-primal-champion-ability-score-modifier-strength",
+                target: "ability-score:strength",
+                value: 4,
+                title: Barbarian.title
+            });
+            modifiers.push({
+                name: "barbarian-primal-champion-ability-score-modifier-constitution",
+                target: "ability-score:constitution",
+                value: 4,
+                title: Barbarian.title
+            });
+            modifiers.push({
+                name: "barbarian-primal-champion-modified-max-ability-score-modifier-strength",
+                target: "modified-max-ability-score:strength",
+                value: 4,
+                title: Barbarian.title
+            });
+            modifiers.push({
+                name: "barbarian-primal-champion-modified-max-ability-score-modifier-constitution",
+                target: "modified-max-ability-score:constitution",
+                value: 4,
+                title: Barbarian.title
+            });
+        }
+
         for (const modifier of modifiers) {
-            modifier.sourcePropertyName = `class-${classIndex}`;
-            modifier.sourcePropertyValue = Barbarian.name;
-            character.addModifier(modifier);
+            if (targetFilters.includeTarget(modifier.target)) {
+                modifier.sourcePropertyName = `class-${classIndex}`;
+                modifier.sourcePropertyValue = Barbarian.name;
+                character.addModifier(modifier);
+            }
         }
     }
 
@@ -242,8 +245,13 @@ export class Barbarian {
         if (!hasHeavyArmor) {
             const numberOfRages = Barbarian.#getNumberOfRages(level);
             let rageLimitLabel = "";
+            let useInfo = {
+                reset: "long-rest",
+                uses: numberOfRages
+            };
             if (numberOfRages != "unlimited") {
-                rageLimitLabel = `<p>Once you have raged ${numberOfRages} times, you must finish a long rest before you can rage again.</p>`
+                rageLimitLabel = `<p>Once you have raged ${numberOfRages} times, you must finish a long rest before you can rage again.</p>`;
+                useInfo = null;
             }
             const rageDamage = Barbarian.#getRageDamage(level);
             tempFeatures.push({
@@ -261,6 +269,7 @@ export class Barbarian {
                     <p>Your rage lasts for 1 minute. It ends early if you are knocked unconscious or if your turn ends and you haven't attacked a hostile creature since your last turn or taken damage since then. You can also end your rage on your turn as a bonus action.</p>
                     ${rageLimitLabel}
                 `,
+                useInfo: useInfo,
                 source: {
                     name: "class",
                     title: Barbarian.title
@@ -439,12 +448,12 @@ export class Barbarian {
     }
 
     static #skillProficiencies = [
-        { value: "animal-handling", text: "Animal Handling" },
-        { value: "athletics", text: "Athletics" },
-        { value: "intimidation", text: "Intimidation" },
-        { value: "nature", text: "Nature" },
-        { value: "perception", text: "Perception" },
-        { value: "survival", text: "Survival" }
+        { value: "animal-handling", text: "Animal Handling", ability: "wisdom" },
+        { value: "athletics", text: "Athletics", ability: "strength" },
+        { value: "intimidation", text: "Intimidation", ability: "charisma" },
+        { value: "nature", text: "Nature", ability: "intelligence" },
+        { value: "perception", text: "Perception", ability: "wisdom" },
+        { value: "survival", text: "Survival", ability: "wisdom" }
     ];
 
     static #getNumberOfRages(level) {

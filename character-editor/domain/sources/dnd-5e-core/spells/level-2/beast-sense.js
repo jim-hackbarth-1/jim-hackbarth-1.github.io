@@ -63,7 +63,7 @@ export class BeastSense {
         tempFeatures.push({
             name: BeastSense.name,
             title: BeastSense.title,
-            level: 2,
+            level: BeastSense.level,
             html: `
                 <div class="spell-properties">2nd-level ${BeastSense.school} (ritual)</div>
                 <div><b>Casting Time: </b>${BeastSense.castingTime}</div>

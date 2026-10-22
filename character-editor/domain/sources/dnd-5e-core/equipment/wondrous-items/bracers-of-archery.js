@@ -42,11 +42,7 @@ export class BracersOfArchery {
         return [];
     }
 
-    static applyAbilityScoreModifiers(character, inventoryIndex) {
-
-    }
-
-    static applyModifiers(character, inventoryIndex) {
+    static applyModifiers(character, inventoryIndex, targetFilters) {
         const modifiers = [];
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
@@ -76,9 +72,11 @@ export class BracersOfArchery {
             });
         }
         for (const modifier of modifiers) {
-            modifier.sourcePropertyName = `equipment-${inventoryIndex}`;
-            modifier.sourcePropertyValue = BracersOfArchery.name;
-            character.addModifier(modifier);
+            if (targetFilters.includeTarget(modifier.target)) {
+                modifier.sourcePropertyName = `equipment-${inventoryIndex}`;
+                modifier.sourcePropertyValue = BracersOfArchery.name;
+                character.addModifier(modifier);
+            }
         }
     }
 

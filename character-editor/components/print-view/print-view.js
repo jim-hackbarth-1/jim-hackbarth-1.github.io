@@ -344,6 +344,7 @@ class PrintViewModel {
         // this.#kitElement.querySelector("#features-col-1-placeholder").outerHTML = this.#getModifiersCardHtml(character);
         this.#kitElement.querySelector("#features-col-3-placeholder").outerHTML = this.#getEquipmentCardHtml(character);
         const featureCards = Sources.getCharacterFeatures(character).filter(f => f.displayType == "feature-card");
+        this.#kitElement.querySelector("#features-col-1-placeholder").outerHTML = this.#getFeaturesUseInfoCardHtml(featureCards);
         const featuresLength = featureCards.length;
         for (let i = 0; i < featuresLength; i++) {
             const displayColumn = this.#getNextColumn("features");
@@ -379,6 +380,7 @@ class PrintViewModel {
         this.#kitElement.querySelector("#spells-col-1").innerHTML = `<div id="spells-col-1-placeholder"></div>`;
         this.#kitElement.querySelector("#spells-col-2").innerHTML = `<div id="spells-col-2-placeholder"></div>`;
         this.#kitElement.querySelector("#spells-col-3").innerHTML = `<div id="spells-col-3-placeholder"></div>`;
+        this.#updateSpellSlotsCards(character);
         const spellsLength = spellCards.length;
         for (let i = 0; i < spellsLength; i++) {
             const displayColumn = this.#getNextColumn("spells");
@@ -445,6 +447,149 @@ class PrintViewModel {
             </div>
             <div id="features-col-1-placeholder"></div>
         `;
+    }
+
+    #getFeaturesUseInfoCardHtml(featureCards) {
+        const featuresWithUseInfo = featureCards.filter(fc => fc.useInfo).map(fc => ({
+            reset: fc.useInfo.reset,
+            uses: fc.useInfo.uses,
+            title: fc.title
+        }));
+        if (featuresWithUseInfo.length == 0) {
+            return `<div id="features-col-1-placeholder"></div>`;
+        }
+        let resetCategories = [
+            { name: "short-rest", title: "Per Short rest" },
+            { name: "long-rest", title: "Per Long rest" }
+        ];
+        const useInfoLabels = [];
+        for (const resetCategory of resetCategories) {
+            let label = `<div>${resetCategory.title}:</div><ul>`
+            const features = featuresWithUseInfo
+                .filter(f => f.reset == resetCategory.name)
+                .map(f => ({
+                    title: f.title,
+                    uses: f.uses
+                }));
+            if (features && features.length > 0) {
+                for (const feature of features) {
+                    const uses = Number(feature.uses);
+                    let useLabel = `${uses} use`;
+                    if (uses > 1) {
+                        useLabel += "s";
+                    }
+                    let fillInBoxes = "";
+                    for (let i = 0; i < uses; i++) {
+                        fillInBoxes += "<div class='fill-in-box-small'></div>";
+                    }
+                    label += `<li>${feature.title} (${useLabel}): ${fillInBoxes}</li>`;
+                }
+                label += "</ul>";
+                useInfoLabels.push(label);
+            }
+        }
+        const useInfoLabelsHtml = useInfoLabels.join("");
+        return `
+            <div class="card feature-card">
+                <div class="corner top-left">
+                    <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
+                        <path d=" M 0,0 l 100,0 a 100 100 0 0 0 -100 100 z"></path>
+                    </svg>
+                </div>
+                <div class="field-label">Feature uses</div>
+                <div>
+                    ${useInfoLabelsHtml}
+                </div>
+                <div class="corner bottom-right">
+                    <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
+                        <path d=" M 100,0 a 100 100 0 0 1 -100 100 l 100,0 z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div id="features-col-1-placeholder"></div>
+        `;
+    }
+
+    #updateSpellSlotsCards(character) {
+        const spellCastingInfoList = [];
+        const allSpells = Sources.getSpells(character.sources);
+        for (const characterClass of character.classes) {
+            if (characterClass.value) {
+                const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.value);
+                if (cls?.getSpellCastingInfo) {
+                    const classSpellCastingInfo = cls.getSpellCastingInfo(character, allSpells);
+                    if (classSpellCastingInfo) {
+                        spellCastingInfoList.push(classSpellCastingInfo);
+                    }
+                }
+                if (characterClass.subClass) {
+                    const subClass = Sources.getSubClasses(character.sources, characterClass.value)
+                        .find(sc => sc.name == characterClass.subClass);
+                    if (subClass?.getSpellCastingInfo) {
+                        const subClassSpellCastingInfo = subClass.getSpellCastingInfo(character, allSpells);
+                        if (subClassSpellCastingInfo) {
+                            spellCastingInfoList.push(subClassSpellCastingInfo);
+                        }
+                    }
+                }
+            }
+        }
+        for (const spellCastingInfo of spellCastingInfoList) {
+            const displayColumn = this.#getNextColumn("spells");
+            const levelLabels = [];
+            for (const level of spellCastingInfo.spellLevels) {
+                let fillInBoxes = "";
+                for (let i = 0; i < level.slots; i++) {
+                    fillInBoxes += "<div class='fill-in-box-small'></div>";
+                }
+                let levelHtml = `
+                    <div style="display:flex;align-items:center;">
+                        <div style="margin-right:5px;">Level ${level.level} spell slots (${level.slots}):</div>
+                        ${fillInBoxes}
+                    </div>
+                `;
+                let spellsHtml = "<ul>";
+                for (const spell of level.spells) {
+                    let spellFillIn = "";
+                    if (spellCastingInfo.prepareSpells) {
+                        spellFillIn = "<div class='fill-in-box-small'></div>";
+                    }
+                    if (spell.alwaysPrepared) {
+                        spellFillIn = `
+                            <div>
+                                <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
+                                    <text class="icon-text" x="35" y="70" stroke-width="1" style="font: 50px sans-serif;">A</text>
+                                </svg>
+                            </div>
+                        `;
+                    }
+                    spellsHtml += `<li>${spell.title}</li>`;
+                }
+                levelHtml += spellsHtml;
+                levelLabels.push(levelHtml);
+            }
+            const levelLabelsHtml = "<div>" + levelLabels.join("</div><div>") + "</div>";
+            let html = `
+                <div class="card feature-card">
+                    <div class="corner top-left">
+                        <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
+                            <path d=" M 0,0 l 100,0 a 100 100 0 0 0 -100 100 z"></path>
+                        </svg>
+                    </div>
+                    <div class="field-label">${spellCastingInfo.title}</div>
+                    <div>
+                        ${levelLabelsHtml}
+                    </div>
+                    <div class="corner bottom-right">
+                        <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
+                            <path d=" M 100,0 a 100 100 0 0 1 -100 100 l 100,0 z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div id="spells-col-${displayColumn}-placeholder"></div>
+            `;
+            this.#kitElement.querySelector(`#spells-col-${displayColumn}`).innerHTML = html;
+        }
     }
 
     #getEquipmentCardHtml(character) {

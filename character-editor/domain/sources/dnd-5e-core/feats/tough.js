@@ -38,11 +38,7 @@ export class Tough {
         return [];
     }
 
-    static applyAbilityScoreModifiers(character, classIndex, level) {
-
-    }
-
-    static applyModifiers(character, classIndex, level) {
+    static applyModifiers(character, classIndex, level, targetFilters) {
         const hitPointMod = Number(character.level) * 2;
         const modifiers = [
             {
@@ -52,9 +48,11 @@ export class Tough {
                 title: Tough.title,
             }];
         for (const modifier of modifiers) {
-            modifier.sourcePropertyName = `class-${classIndex}-level-${level}-feat`;
-            modifier.sourcePropertyValue = "tough";
-            character.addModifier(modifier);
+            if (targetFilters.includeTarget(modifier.target)) {
+                modifier.sourcePropertyName = `class-${classIndex}-level-${level}-feat`;
+                modifier.sourcePropertyValue = "tough";
+                character.addModifier(modifier);
+            }
         }
     }
 

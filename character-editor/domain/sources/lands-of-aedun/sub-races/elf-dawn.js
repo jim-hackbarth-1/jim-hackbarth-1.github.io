@@ -25,11 +25,7 @@ export class ElfDawn {
         return [];
     }
 
-    static applyAbilityScoreModifiers(character) {
-
-    }
-
-    static applyModifiers(character) {
+    static applyModifiers(character, targetFilters) {
 
     }
 

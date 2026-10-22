@@ -63,7 +63,7 @@ export class SpeakWithAnimals {
         tempFeatures.push({
             name: SpeakWithAnimals.name,
             title: SpeakWithAnimals.title,
-            level: 1,
+            level: SpeakWithAnimals.level,
             html: `
                 <div class="spell-properties">1st-level ${SpeakWithAnimals.school} (ritual)</div>
                 <div><b>Casting Time: </b>${SpeakWithAnimals.castingTime}</div>

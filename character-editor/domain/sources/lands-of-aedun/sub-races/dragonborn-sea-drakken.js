@@ -25,7 +25,7 @@ export class DragonbornSeaDrakken {
         return [];
     }
 
-    static applyAbilityScoreModifiers(character) {
+    static applyModifiers(character, targetFilters) {
         character.removeModifier("dragonborn-ability-score-modifier-strength");
         character.removeModifier("dragonborn-ability-score-modifier-charisma");
         const modifiers = [
@@ -43,14 +43,12 @@ export class DragonbornSeaDrakken {
             }
         ];
         for (const modifier of modifiers) {
-            modifier.sourcePropertyName = "subRace";
-            modifier.sourcePropertyValue = "dragonborn-sea-drakken";
-            character.addModifier(modifier);
+            if (targetFilters.includeTarget(modifier.target)) {
+                modifier.sourcePropertyName = "subRace";
+                modifier.sourcePropertyValue = "dragonborn-sea-drakken";
+                character.addModifier(modifier);
+            }
         }
-    }
-
-    static applyModifiers(character) {
-        
     }
 
     static applyFeatures(features, character) {
@@ -120,6 +118,10 @@ export class DragonbornSeaDrakken {
                 <p>Alternatively, after a successful bite attack, the creature makes a constitution save (DC ${dc}). Upon a failed save, the creature takes an additional ${damageDice}d6 necrotic damage and the dragonborn regains one half of the total necrotic damage.  Half-damage upon a successful save. </p>
                 <p>After using Kiss of the Deep, it can’t be used again until after completing a short or long rest.</p>
                 `,
+            useInfo: {
+                reset: "short-rest",
+                uses: 1
+            },
             source: {
                 name: "sub-race",
                 title: DragonbornSeaDrakken.title

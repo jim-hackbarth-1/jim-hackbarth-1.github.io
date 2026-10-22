@@ -25,7 +25,7 @@ export class DwarfFrost {
         return [];
     }
 
-    static applyAbilityScoreModifiers(character) {
+    static applyModifiers(character, targetFilters) {
         const modifiers = [];
         modifiers.push({
             name: "frost-dwarf-ability-score-modifier-strength",
@@ -33,16 +33,6 @@ export class DwarfFrost {
             value: 1,
             title: DwarfFrost.title
         });
-        for (const modifier of modifiers) {
-            modifier.sourcePropertyName = "sub-race";
-            modifier.sourcePropertyValue = DwarfFrost.name;
-            character.addModifier(modifier);
-        }
-    }
-
-    static applyModifiers(character) {
-        const modifiers = [];
-
         modifiers.push({
             name: "frost-dwarf-skill-bonus-medicine",
             target: "skill:medicine",
@@ -69,9 +59,11 @@ export class DwarfFrost {
         });
 
         for (const modifier of modifiers) {
-            modifier.sourcePropertyName = "sub-race";
-            modifier.sourcePropertyValue = DwarfFrost.name;
-            character.addModifier(modifier);
+            if (targetFilters.includeTarget(modifier.target)) {
+                modifier.sourcePropertyName = "sub-race";
+                modifier.sourcePropertyValue = DwarfFrost.name;
+                character.addModifier(modifier);
+            }
         }
     }
 

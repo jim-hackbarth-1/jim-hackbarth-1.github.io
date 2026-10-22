@@ -54,7 +54,7 @@ export class Dragonborn {
         return options;
     }
 
-    static applyAbilityScoreModifiers(character) {
+    static applyModifiers(character, targetFilters) {
         const modifiers = [
             {
                 name: "dragonborn-ability-score-modifier-strength",
@@ -67,17 +67,7 @@ export class Dragonborn {
                 target: "ability-score:charisma",
                 value: 1,
                 title: Dragonborn.title
-            }
-        ];
-        for (const modifier of modifiers) {
-            modifier.sourcePropertyName = "race";
-            modifier.sourcePropertyValue = "dragonborn";
-            character.addModifier(modifier);
-        }
-    }
-
-    static applyModifiers(character) {
-        const modifiers = [
+            },
             {
                 name: "dragonborn-language-common",
                 target: "language",
@@ -92,9 +82,11 @@ export class Dragonborn {
             }
         ];
         for (const modifier of modifiers) {
-            modifier.sourcePropertyName = "race";
-            modifier.sourcePropertyValue = "dragonborn";
-            character.addModifier(modifier);
+            if (targetFilters.includeTarget(modifier.target)) {
+                modifier.sourcePropertyName = "race";
+                modifier.sourcePropertyValue = "dragonborn";
+                character.addModifier(modifier);
+            }
         }
     }
 
@@ -214,7 +206,21 @@ export class Dragonborn {
             target: areaOfEffect,
             notes: ["Half damage on save.", "Use again after a short or long rest."]
         });
-        return attackCard;
+        const html = "<p>" + attackCard.lines.join("</p><p>") + "</p>";
+        return {
+            name: attackCard.name,
+            title: attackCard.title,
+            html: html,
+            useInfo: {
+                reset: "short-rest",
+                uses: 1
+            },
+            source: {
+                name: "race",
+                title: Dragonborn.title
+            },
+            displayType: "feature-card"
+        }
     }
 
 }

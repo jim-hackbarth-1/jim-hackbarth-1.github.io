@@ -71,7 +71,7 @@ export class Athlete {
         return options;
     }
 
-    static applyAbilityScoreModifiers(character, classIndex, level) {
+    static applyModifiers(character, classIndex, level, targetFilters) {
         const modifiers = [];
         let abilityScore = null;
         const values = character.selections.find(s => s.name == "athlete-ability-score-increase")?.values ?? [];
@@ -88,14 +88,12 @@ export class Athlete {
                 });
         }
         for (const modifier of modifiers) {
-            modifier.sourcePropertyName = `class-${classIndex}-level-${level}-feat`;
-            modifier.sourcePropertyValue = "athlete";
-            character.addModifier(modifier);
+            if (targetFilters.includeTarget(modifier.target)) {
+                modifier.sourcePropertyName = `class-${classIndex}-level-${level}-feat`;
+                modifier.sourcePropertyValue = "athlete";
+                character.addModifier(modifier);
+            }
         }
-    }
-
-    static applyModifiers(character, classIndex, level) {
-        
     }
 
     static applyFeatures(features, character, classIndex, level) {

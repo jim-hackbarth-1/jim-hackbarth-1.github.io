@@ -373,6 +373,16 @@ export class Sources {
         return Sources.#allSpells.filter(s => sources.includes(s.source.name));
     }
 
+    static async getSpellHtml(sources, spell) {
+        const basePath = "./domain/sources";
+        const spellModel = Sources.getSpells(sources).find(s => s.name == spell);
+        if (spellModel.html) {
+            return spellModel.html;
+        }
+        const html = await Sources.#getHtml(basePath, spellModel.htmlPath)
+        return html ?? "";
+    }
+
     static updateCharacterSources(character, sources) {
         
         if (character.race && !Sources.getRaces(sources).some(r => r.name == character.race)) {
@@ -589,9 +599,48 @@ export class Sources {
     }
 
     static applyCharacterModifiers(character) {
+
+        // reset modifiers
         character.modifiers = [];
-        Sources.#applyCharacterModifiers(character, true);
-        Sources.#applyCharacterModifiers(character, false);
+
+        // apply saving throw modifiers
+        const targetFilters = {
+            targets: ["saving-throw-proficiency"],
+            includeTarget: (target) => {
+                if (targetFilters.exclude && !targetFilters.targets.includes(target)) {
+                    return true;
+                }
+                if (!targetFilters.exlude && targetFilters.targets.includes(target)) {
+                    return true;
+                }
+                return false;
+            }
+        }
+        Sources.#applyCharacterModifiers(character, targetFilters);
+
+        // apply ability score modifiers
+        const abilityScoreTargets = [
+            "ability-score:strength",
+            "ability-score:intelligence",
+            "ability-score:wisdom",
+            "ability-score:dexterity",
+            "ability-score:constitution",
+            "ability-score:charisma",
+        ];
+        targetFilters.targets = abilityScoreTargets;
+        Sources.#applyCharacterModifiers(character, targetFilters);
+
+        // apply skill proficiency modifiers
+        targetFilters.targets = ["skill-proficiency"];
+        Sources.#applyCharacterModifiers(character, targetFilters);
+
+        // apply all other modifiers
+        const excludedTargets = [...abilityScoreTargets];
+        excludedTargets.push("saving-throw-proficiency");
+        excludedTargets.push("skill-proficiency")
+        targetFilters.targets = excludedTargets
+        targetFilters.exclude = true;
+        Sources.#applyCharacterModifiers(character, targetFilters);
     }
 
     /*
@@ -775,51 +824,29 @@ export class Sources {
         return lastIndex + 1;
     }
 
-    static #applyCharacterModifiers(character, abilityScores) {
+    static #applyCharacterModifiers(character, targetFilters) {
         
         // race and sub race
         if (character.race?.value) {
             const race = Sources.getRaces(character.sources).find(r => r.name == character.race?.value);
-            if (abilityScores) {
-                if (race?.applyAbilityScoreModifiers) {
-                    race.applyAbilityScoreModifiers(character);
-                }
-                if (character.subRace?.value) {
-                    const subRace = Sources
-                        .getSubRaces(character.sources, character.race.value)
-                        .find(sr => sr.name == character.subRace.value);
-                    if (subRace.applyAbilityScoreModifiers) {
-                        subRace.applyAbilityScoreModifiers(character);
-                    }
-                }
+            if (race?.applyModifiers) {
+                race.applyModifiers(character, targetFilters);
             }
-            else {
-                if (race?.applyModifiers) {
-                    race.applyModifiers(character);
+            if (character.subRace?.value) {
+                const subRace = Sources
+                    .getSubRaces(character.sources, character.race.value)
+                    .find(sr => sr.name == character.subRace.value);
+                if (subRace.applyModifiers) {
+                    subRace.applyModifiers(character, targetFilters);
                 }
-                if (character.subRace?.value) {
-                    const subRace = Sources
-                        .getSubRaces(character.sources, character.race.value)
-                        .find(sr => sr.name == character.subRace.value);
-                    if (subRace.applyModifiers) {
-                        subRace.applyModifiers(character);
-                    }
-                }
-            }      
+            }     
         }
 
         // background
         if (character.background?.value) {
             const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background.value);
-            if (abilityScores) {
-                if (background.applyAbilityScoreModifiers) {
-                    background.applyAbilityScoreModifiers(character);
-                }
-            }
-            else {
-                if (background.applyModifiers) {
-                    background.applyModifiers(character);
-                }
+            if (background.applyModifiers) {
+                background.applyModifiers(character, targetFilters);
             }
         }
 
@@ -841,9 +868,10 @@ export class Sources {
                         continue;
                     }
                 }
-                if (abilityScores) {
-                    for (const levelBoon of characterClass.levelBoons) {
-                        if (levelBoon.abilityScore1) {
+                for (const levelBoon of characterClass.levelBoons) {
+                    if (levelBoon.abilityScore1) {
+                        const includeAbility1Target = targetFilters.includeTarget(`ability-score:${levelBoon.abilityScore1}`);
+                        if (includeAbility1Target) {
                             character.addModifier({
                                 name: `${characterClass.value}-${levelBoon.level}-ability-score-modifier-1`,
                                 target: `ability-score:${levelBoon.abilityScore1}`,
@@ -853,7 +881,10 @@ export class Sources {
                                 title: `${cls.title} Level ${levelBoon.level} ability score improvement`
                             });
                         }
-                        if (levelBoon.abilityScore2) {
+                    }
+                    if (levelBoon.abilityScore2) {
+                        const includeAbility2Target = targetFilters.includeTarget(`ability-score:${levelBoon.abilityScore2}`);
+                        if (includeAbility2Target) {
                             character.addModifier({
                                 name: `${characterClass.value}-${levelBoon.level}-ability-score-modifier-2`,
                                 target: `ability-score:${levelBoon.abilityScore2}`,
@@ -862,48 +893,26 @@ export class Sources {
                                 sourcePropertyValue: levelBoon.abilityScore2,
                                 title: `${cls.title} Level ${levelBoon.level} ability score improvement`,
                             });
-                        }
-                        if (levelBoon.feat?.value) {
-                            const feat = Sources.getFeats(character.sources).find(f => f.name == levelBoon.feat.value);
-                            if (feat.applyAbilityScoreModifiers) {
-                                feat.applyAbilityScoreModifiers(character, i, levelBoon.level);
-                            }
-                        }
+                        } 
                     }
-                    if (cls.applyAbilityScoreModifiers) {
-                        cls.applyAbilityScoreModifiers(character, i);
-                    }
-                    if (characterClass.subClass?.value) {
-                        const subClass = Sources
-                            .getSubClasses(character.sources, characterClass.value)
-                            .find(sc => sc.name == characterClass.subClass.value);
-                        if (subClass.applyAbilityScoreModifiers) {
-                            subClass.applyAbilityScoreModifiers(character, i);
+                    if (levelBoon.feat?.value) {
+                        const feat = Sources.getFeats(character.sources).find(f => f.name == levelBoon.feat.value);
+                        if (feat.applyModifiers) {
+                            feat.applyModifiers(character, i, levelBoon.level, targetFilters);
                         }
                     }
                 }
-                else {
-                    for (const levelBoon of characterClass.levelBoons) {
-                        if (levelBoon.feat?.value) {
-                            const feat = Sources.getFeats(character.sources).find(f => f.name == levelBoon.feat.value);
-                            if (feat.applyModifiers) {
-                                feat.applyModifiers(character, i, levelBoon.level);
-                            }
-                        }
-                    }
-                    if (cls.applyModifiers) {
-                        cls.applyModifiers(character, i);
-                    }
-                    if (characterClass.subClass?.value) {
-                        const subClass = Sources
-                            .getSubClasses(character.sources, characterClass.value)
-                            .find(sc => sc.name == characterClass.subClass.value);
-                        if (subClass.applyModifiers) {
-                            subClass.applyModifiers(character, i);
-                        }
-                    }
+                if (cls.applyModifiers) {
+                    cls.applyModifiers(character, i, targetFilters);
                 }
-                
+                if (characterClass.subClass?.value) {
+                    const subClass = Sources
+                        .getSubClasses(character.sources, characterClass.value)
+                        .find(sc => sc.name == characterClass.subClass.value);
+                    if (subClass.applyModifiers) {
+                        subClass.applyModifiers(character, i, targetFilters);
+                    }
+                }               
             }
         }
 
@@ -913,15 +922,8 @@ export class Sources {
             const characterItem = character.equipment[i];
             if (characterItem.isEquipped) {
                 const item = allEquipment.find(e => e.name == character.equipment[i].name);
-                if (abilityScores) {
-                    if (item.applyAbilityScoreModifiers) {
-                        item.applyAbilityScoreModifiers(character, i);
-                    }
-                }
-                else {
-                    if (item.applyModifiers) {
-                        item.applyModifiers(character, i);
-                    }
+                if (item.applyModifiers) {
+                    item.applyModifiers(character, i, targetFilters);
                 }
             }
         }

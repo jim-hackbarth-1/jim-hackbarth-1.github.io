@@ -54,29 +54,22 @@ export class Dwarf {
         return options;
     }
 
-    static applyAbilityScoreModifiers(character) {
+    static applyModifiers(character, targetFilters) {
         const modifiers = [];
+
+        // constitution
         modifiers.push({
             name: "dwarven-ability-score-modifier-constitution",
             target: "ability-score:constitution",
             value: 2,
             title: Dwarf.title
         });
-        for (const modifier of modifiers) {
-            modifier.sourcePropertyName = "race";
-            modifier.sourcePropertyValue = Dwarf.name;
-            character.addModifier(modifier);
-        }
-    }
-
-    static applyModifiers(character) {
-        const modifiers = [];
 
         // speed
         let maxStrengthReq = 0;
         const armorItems = character.equipment.filter(e => e.isEquipped && e.properties && e.properties.some(p => p.name == "strength"));
         for (const armor of armorItems) {
-            const strengthReq = Number(armor.properties.find(p => p.name == "strength").map(p => p.value));
+            const strengthReq = Number(armor.properties.find(p => p.name == "strength").value);
             if (strengthReq > maxStrengthReq) {
                 maxStrengthReq = strengthReq;
             }
@@ -93,41 +86,41 @@ export class Dwarf {
 
         // weapon proficiencies
         modifiers.push({
-            name: "dwarven-weapon-profiency-battleaxe",
+            name: "dwarven-weapon-proficiency-battleaxe",
             target: "weapon-proficiency",
             value: "battleaxe",
             title: Dwarf.title
         });
         modifiers.push({
-            name: "dwarven-weapon-profiency-handaxe",
+            name: "dwarven-weapon-proficiency-handaxe",
             target: "weapon-proficiency",
             value: "handaxe",
             title: Dwarf.title
         });
         modifiers.push({
-            name: "dwarven-weapon-profiency-light-hammer",
+            name: "dwarven-weapon-proficiency-light-hammer",
             target: "weapon-proficiency",
             value: "light-hammer",
             title: Dwarf.title
         });
         modifiers.push({
-            name: "dwarven-weapon-profiency-warhammer",
+            name: "dwarven-weapon-proficiency-warhammer",
             target: "weapon-proficiency",
             value: "warhammer",
             title: Dwarf.title
         });
 
         // tool proficiency
-        let toolProfiency = null;
+        let toolProficiency = null;
         const toolProficiencies = character.selections.find(o => o.name == "dwarven-tool-proficiency")?.values ?? [];
         if (toolProficiencies.length > 0) {
-            toolProfiency = toolProficiencies[0];
+            toolProficiency = toolProficiencies[0];
         }
-        if (toolProfiency) {
+        if (toolProficiency) {
             modifiers.push({
-                name: "dwarven-tool-profiency",
+                name: "dwarven-tool-proficiency",
                 target: "tool-proficiency",
-                value: toolProfiency.value,
+                value: toolProficiency.value,
                 title: Dwarf.title
             });
         }
@@ -147,9 +140,11 @@ export class Dwarf {
         });
 
         for (const modifier of modifiers) {
-            modifier.sourcePropertyName = "race";
-            modifier.sourcePropertyValue = Dwarf.name;
-            character.addModifier(modifier);
+            if (targetFilters.includeTarget(modifier.target)) {
+                modifier.sourcePropertyName = "race";
+                modifier.sourcePropertyValue = Dwarf.name;
+                character.addModifier(modifier);
+            }
         }
     }
 
@@ -210,7 +205,7 @@ export class Dwarf {
 
     static #toolProficiencies = [
         { value: "smiths-tools", text: "Smith's tools" },
-        { value: "brewers-supplies", text: "Brewer's supplies" },
+        { value: "brewers-tools", text: "Brewer's tools" },
         { value: "masons-tools", text: "Mason's tools" }
     ];
 

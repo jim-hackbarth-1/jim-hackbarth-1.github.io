@@ -29,6 +29,10 @@
     width: 300px;
 }
 
+.lands-of-aedun-content ul {
+    margin-left: 20px;
+}
+
 .lands-of-aedun-content li,
 .lands-of-aedun-content p {
     font-family: Calibri, sans-serif;
@@ -42,11 +46,17 @@
     font-style: italic;
 }
 
+.lands-of-aedun-content .table-container {
+    overflow-x: auto;
+}
+
 .lands-of-aedun-content table {
     width: 98%;
     border: 1px solid saddlebrown;
     border-collapse: collapse;
     margin-bottom: 5px;
+    position: sticky;
+    top: 0;
 }
 
 .lands-of-aedun-content table caption {

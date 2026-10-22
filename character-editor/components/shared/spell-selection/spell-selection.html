@@ -1,0 +1,65 @@
+
+<section class="spell-selection" kit-if="#model?.hasSelectionModel()">
+    <div class="selection-title no-wrap"></div>
+    <div class="spell-selection-container">
+        <div style="display:flex;">
+            <div class="selection-title-container no-wrap">
+                <div class="completed-selection-display no-wrap"></div>
+            </div>
+            <div>
+                <div>
+                    <div title="Show Detail"
+                         class="toggle-button toggle-button-expand"
+                         onpointerdown="#model.toggleDetail(event)"
+                         kit-component="no-model:./resources/icons/expand.html">
+                    </div>
+                    <div title="Hide Detail"
+                         class="toggle-button toggle-button-collapse hidden"
+                         onpointerdown="#model.toggleDetail(event)"
+                         kit-component="no-model:./resources/icons/collapse.html">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="spell-replacement-only-container hidden" style="font-style:italic;">[Spell replacement only]</div>
+        <div class="selection-content hidden">
+            <div class="selection-container" kit-if="#model?.hasSpellSource('cantrips')">
+                <kit kit-component="./components/shared/selection/selection.html"
+                     kit-obj-selection-model="selectionModel:#model?.getCantripsSelectionModel()">
+                </kit>
+            </div>
+            <div class="selection-container" kit-if="#model?.hasSpellSource('spells')">
+                <kit kit-component="./components/shared/selection/selection.html"
+                     kit-obj-selection-model="selectionModel:#model?.getSpellsSelectionModel()">
+                </kit>
+            </div>
+            <div class="spell-replacement-expansion-container" style="margin-bottom:2px;">
+                <div>
+                    <div title="Show Replacement Info"
+                         class="toggle-button toggle-button-replace-expand"
+                         onpointerdown="#model.toggleReplacementDetail(event)"
+                         kit-component="no-model:./resources/icons/expand.html">
+                    </div>
+                    <div title="Hide Replacement Inf"
+                         class="toggle-button toggle-button-replace-collapse hidden"
+                         onpointerdown="#model.toggleReplacementDetail(event)"
+                         kit-component="no-model:./resources/icons/collapse.html">
+                    </div>
+                </div>
+                <div class="no-wrap">Replacement spells...</div>
+            </div>
+            <div class="spell-replacement-container hidden" style="border:1px dotted saddlebrown;padding:5px;">
+                <div class="selection-container" kit-if="#model?.hasSpellSource('replacedSpell')">
+                    <kit kit-component="./components/shared/selection/selection.html"
+                         kit-obj-selection-model="selectionModel:#model?.getReplacedSpellSelectionModel()">
+                    </kit>
+                </div>
+                <div class="selection-container" style="margin-top:5px;" kit-if="#model?.hasSpellSource('replacementSpell')">
+                    <kit kit-component="./components/shared/selection/selection.html"
+                         kit-obj-selection-model="selectionModel:#model?.getReplacementSpellSelectionModel()">
+                    </kit>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

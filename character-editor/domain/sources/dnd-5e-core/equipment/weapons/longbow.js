@@ -32,7 +32,9 @@ export class Longbow {
         const item = character.equipment[inventoryIndex];
         item.properties = [
             { name: "weapon-name", value: Longbow.name },
-            { name: "weapon-type", value: "martial-ranged" }
+            { name: "weapon-type", value: "martial-ranged" },
+            { name: "heavy" },
+            { name: "two-handed" }
         ];
         item.isEquipped = true;
     }
@@ -49,11 +51,7 @@ export class Longbow {
         return [];
     }
 
-    static applyAbilityScoreModifiers(character, inventoryIndex) {
-
-    }
-
-    static applyModifiers(character, inventoryIndex) {
+    static applyModifiers(character, inventoryIndex, targetFilters) {
 
     }
 

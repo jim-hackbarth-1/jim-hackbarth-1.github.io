@@ -1,36 +1,35 @@
 
-.level-boon-selection {
-    background-color: #998B70;
+.level-boon-selection-container {
+    background-color: #C2B08E;
     border: 1px solid black;
     padding: 5px;
     border-radius: 3px;
+}
+
+.level-boon-selection .selection-title-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .level-boon-selection .selection-title {
     margin-bottom: 5px;
 }
 
+.level-boon-selection .completed-selection-display.incomplete {
+    color: darkred;
+}
+
 .level-boon-selection .selection-content {
-    border: 1px dotted black;
     border-radius: 3px;
     background-color: #C2B08E;
     padding: 5px;
-    margin-top:5px;
+    margin-top: 5px;
 }
 
 .level-boon-selection .selection-content > div,
 .level-boon-selection .selection-container {
     margin-bottom: 10px;
-}
-
-.level-boon-selection .selection-title {
-    display: flex;
-}
-
-.level-boon-selection .selection-title label {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .level-boon-selection .radio-row {
@@ -62,8 +61,4 @@
 
 .level-boon-selection .toggle-button svg {
     border: 1px dotted saddlebrown;
-}
-
-.completed-selection-display {
-    font-weight:bolder;
 }

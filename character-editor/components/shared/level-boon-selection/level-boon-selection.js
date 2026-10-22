@@ -38,7 +38,7 @@ class LevelBoonSelectionModel {
         this.#kitElement.querySelector(".toggle-button-expand").classList.toggle("hidden");
         this.#kitElement.querySelector(".toggle-button-collapse").classList.toggle("hidden");
         this.#kitElement.querySelector(".selection-content").classList.toggle("hidden");
-        this.#kitElement.querySelector(".completed-selection-display").innerHTML = this.#getCompletedSelection();
+        this.#updateCompletedDisplay();
     }
 
     getRadioGroupName() {
@@ -280,10 +280,9 @@ class LevelBoonSelectionModel {
     }
 
     #initializeDetails() {
-        this.#kitElement.querySelector(".selection-title").innerHTML = `Level ${this.#selectionModel.level} ability score improvement or feat`;
-        const completedSelection = this.#getCompletedSelection();
-        this.#kitElement.querySelector(".completed-selection-display").innerHTML = completedSelection;
-        if (!completedSelection) {
+        this.#kitElement.querySelector(".selection-title").innerHTML = `Level ${this.#selectionModel.level} ability score improvement or feat:`;
+        const isComplete = this.#updateCompletedDisplay();
+        if (!isComplete) {
             this.#kitElement.querySelector(".toggle-button-expand").classList.add("hidden");
             this.#kitElement.querySelector(".toggle-button-collapse").classList.remove("hidden");
             this.#kitElement.querySelector(".selection-content").classList.remove("hidden");
@@ -344,7 +343,22 @@ class LevelBoonSelectionModel {
                 }
             }
         }
-        return "";
+        return null;
+    }
+
+    #updateCompletedDisplay() {
+        let isComplete = false;
+        const completedSelection = this.#kitElement.querySelector(".completed-selection-display");
+        const completedSelectionHtml = this.#getCompletedSelection();
+        if (completedSelectionHtml) {
+            completedSelection.classList.remove("incomplete");
+            isComplete = true;
+        }
+        else {
+            completedSelection.classList.add("incomplete");
+        }
+        this.#kitElement.querySelector(".completed-selection-display").innerHTML = completedSelectionHtml ?? "Choose option ...";
+        return isComplete;
     }
 
 }

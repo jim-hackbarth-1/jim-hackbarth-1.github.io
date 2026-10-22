@@ -38,11 +38,7 @@ export class Alert {
         return [];
     }
 
-    static applyAbilityScoreModifiers(character, classIndex, level) {
-
-    }
-
-    static applyModifiers(character, classIndex, level) {
+    static applyModifiers(character, classIndex, level, targetFilters) {
 
     }
 

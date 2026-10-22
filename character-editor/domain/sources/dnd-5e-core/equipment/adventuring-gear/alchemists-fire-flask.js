@@ -42,11 +42,7 @@ export class AlchemistsFireFlask {
         return [];
     }
 
-    static applyAbilityScoreModifiers(character, inventoryIndex) {
-
-    }
-
-    static applyModifiers(character, inventoryIndex) {
+    static applyModifiers(character, inventoryIndex, targetFilters) {
 
     }
 

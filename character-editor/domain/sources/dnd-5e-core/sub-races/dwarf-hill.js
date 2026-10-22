@@ -25,24 +25,15 @@ export class DwarfHill {
         return [];
     }
 
-    static applyAbilityScoreModifiers(character) {
+    static applyModifiers(character, targetFilters) {
         const modifiers = [];
+
         modifiers.push({
             name: "hill-dwarf-ability-score-modifier-wisdom",
             target: "ability-score:wisdom",
             value: 1,
             title: DwarfHill.title
         });
-        for (const modifier of modifiers) {
-            modifier.sourcePropertyName = "sub-race";
-            modifier.sourcePropertyValue = DwarfHill.name;
-            character.addModifier(modifier);
-        }
-    }
-
-    static applyModifiers(character) {
-        const modifiers = [];
-
         const hitPointMod = Number(character.level);
         modifiers.push({
             name: "hill-dwarf-toughness",
@@ -52,9 +43,11 @@ export class DwarfHill {
         });
 
         for (const modifier of modifiers) {
-            modifier.sourcePropertyName = "sub-race";
-            modifier.sourcePropertyValue = DwarfHill.name;
-            character.addModifier(modifier);
+            if (targetFilters.includeTarget(modifier.target)) {
+                modifier.sourcePropertyName = "sub-race";
+                modifier.sourcePropertyValue = DwarfHill.name;
+                character.addModifier(modifier);
+            }
         }
     }
 

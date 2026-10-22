@@ -146,28 +146,114 @@ import { ClothesCommon } from "./equipment/adventuring-gear/clothes-common.js";
 import { EquipmentPackExplorer } from "./equipment/adventuring-gear/equipment-pack-explorer.js";
 
 // equipment - armor
+import { BreastPlateArmor } from "./equipment/armor/breastplate-armor.js";
+import { ChainMailArmor } from "./equipment/armor/chain-mail-armor.js";
+import { ChainShirtArmor } from "./equipment/armor/chain-shirt-armor.js";
+import { HalfPlateArmor } from "./equipment/armor/half-plate-armor.js";
+import { HideArmor } from "./equipment/armor/hide-armor.js";
+import { LeatherArmor } from "./equipment/armor/leather-armor.js";
+import { PaddedArmor } from "./equipment/armor/padded-armor..js";
+import { PlateArmor } from "./equipment/armor/plate-armor.js";
+import { RingMailArmor } from "./equipment/armor/ring-mail-armor.js";
+import { ScaleMailArmor } from "./equipment/armor/scale-mail-armor.js";
 import { Shield } from "./equipment/armor/shield.js";
+import { SplintArmor } from "./equipment/armor/splint-armor.js";
+import { StuddedLeatherArmor } from "./equipment/armor/studded-leather.js";
 
 // equipment - tools
+import { BrewersTools } from "./equipment/tools/brewers-tools.js"
+import { MasonsTools } from "./equipment/tools/masons-tools.js"
+import { SmithsTools } from "./equipment/tools/smiths-tools.js"
+import { Bagpipes } from "./equipment/tools/bagpipes.js"
+import { Drum } from "./equipment/tools/drum.js"
+import { Dulcimer } from "./equipment/tools/dulcimer.js"
+import { Flute } from "./equipment/tools/flute.js"
 import { HerbalismKit } from "./equipment/tools/herbalism-kit.js"
+import { Horn } from "./equipment/tools/horn.js"
+import { Lute } from "./equipment/tools/lute.js"
+import { Lyre } from "./equipment/tools/lyre.js"
+import { PanFlute } from "./equipment/tools/pan-flute.js"
+import { Shawm } from "./equipment/tools/shawm.js"
+import { Viol } from "./equipment/tools/viol.js"
+
 
 // equipment - weapons
+import { Battleaxe } from "./equipment/weapons/battleaxe.js";
+import { Blowgun } from "./equipment/weapons/blowgun.js";
+import { Club } from "./equipment/weapons/club.js";
+import { CrossbowHand } from "./equipment/weapons/crossbow-hand.js";
+import { CrossbowHeavy } from "./equipment/weapons/crossbow-heavy.js";
+import { CrossbowLight } from "./equipment/weapons/crossbow-light.js";
+import { Dagger } from "./equipment/weapons/dagger.js";
+import { Dart } from "./equipment/weapons/dart.js";
+import { Flail } from "./equipment/weapons/flail.js";
+import { Glaive } from "./equipment/weapons/glaive.js";
 import { Greataxe } from "./equipment/weapons/greataxe.js";
+import { Greatclub } from "./equipment/weapons/greatclub.js";
+import { Greatsword } from "./equipment/weapons/greatsword.js";
+import { Halberd } from "./equipment/weapons/halberd.js";
 import { Handaxe } from "./equipment/weapons/handaxe.js";
 import { Javelin } from "./equipment/weapons/javelin.js";
+import { Lance } from "./equipment/weapons/lance.js";
+import { LightHammer } from "./equipment/weapons/light-hammer.js";
 import { Longbow } from "./equipment/weapons/longbow.js";
 import { Longsword } from "./equipment/weapons/longsword.js";
+import { Mace } from "./equipment/weapons/mace.js";
+import { Maul } from "./equipment/weapons/maul.js";
+import { Morningstar } from "./equipment/weapons/morningstar.js";
+import { Net } from "./equipment/weapons/net.js";
+import { Pike } from "./equipment/weapons/pike.js";
+import { Quarterstaff } from "./equipment/weapons/quarterstaff.js";
+import { Rapier } from "./equipment/weapons/rapier.js";
+import { Scimitar } from "./equipment/weapons/scimitar.js";
+import { Shortbow } from "./equipment/weapons/shortbow.js";
+import { Shortsword } from "./equipment/weapons/shortsword.js";
+import { Sickle } from "./equipment/weapons/sickle.js";
+import { Sling } from "./equipment/weapons/sling.js";
+import { Spear } from "./equipment/weapons/spear.js";
+import { Trident } from "./equipment/weapons/trident.js";
+import { WarPick } from "./equipment/weapons/war-pick.js";
+import { Warhammer } from "./equipment/weapons/warhammer.js";
+import { Whip } from "./equipment/weapons/whip.js";
 
 // equipment - wondrous items
 import { BracersOfArchery } from "./equipment/wondrous-items/bracers-of-archery.js";
 
 // spells - cantrips
+import { BladeWard } from "./spells/level-0/blade-ward.js";
+import { DancingLights } from "./spells/level-0/dancing-lignts.js";
+import { Friends } from "./spells/level-0/friends.js";
+import { Light } from "./spells/level-0/light.js";
+import { MageHand } from "./spells/level-0/mage-hand.js";
+import { Mending } from "./spells/level-0/mending.js";
+import { Message } from "./spells/level-0/message.js";
+import { MinorIllusion } from "./spells/level-0/minor-illusion.js";
+import { Prestidigitation } from "./spells/level-0/prestidigitation.js";
+import { TrueStrike } from "./spells/level-0/true-strike.js";
+import { ViciousMockery } from "./spells/level-0/vicious-mockery.js";
 
 // spells - level 1
+import { AnimalFriendship } from "./spells/level-1/animal-friendship.js";
+import { Bane } from "./spells/level-1/bane.js";
+import { CharmPerson } from "./spells/level-1/charm-person.js";
+import { ComprehendLanguages } from "./spells/level-1/comprehend-languages.js";
+import { CureWounds } from "./spells/level-1/cure-wounds.js";
 import { SpeakWithAnimals } from "./spells/level-1/speak-with-animals.js";
 
 // spells - level 2
+import { AnimalMessenger } from "./spells/level-2/animal-messenger.js";
 import { BeastSense } from "./spells/level-2/beast-sense.js";
+import { BlindnessDeafness } from "./spells/level-2/blindness-deafness.js";
+import { CalmEmotions } from "./spells/level-2/calm-emotions.js";
+import { CloudOfDaggers } from "./spells/level-2/cloud-of-daggers.js";
+import { CrownOfMadness } from "./spells/level-2/crown-of-madness.js";
+
+// spells - level 3
+import { BestowCurse } from "./spells/level-3/bestow-curse.js";
+import { Clairvoyance } from "./spells/level-3/clairvoyance.js";
+import { DispelMagic } from "./spells/level-3/dispel-magic.js";
+import { Fear } from "./spells/level-3/fear.js";
+import { FeignDeath } from "./spells/level-3/feign-death.js";
 
 // spells - level 5
 import { CommuneWithNature } from "./spells/level-5/commune-with-nature.js";
@@ -311,11 +397,32 @@ export class DnD5ESource {
     }
 
     static #equipment = [
+        // adventuring-gear
         Abacus, AlchemistsFireFlask, AcidVial, Blanket, CaseMapOrScroll,
         ClothesCommon, EquipmentPackExplorer,
-        Shield,
-        HerbalismKit,
-        Greataxe, Handaxe, Javelin, Longbow, Longsword,
+
+        // armor
+        BreastPlateArmor, ChainMailArmor, ChainShirtArmor, HalfPlateArmor, HideArmor,
+        LeatherArmor, PaddedArmor, PlateArmor, RingMailArmor, ScaleMailArmor,
+        Shield, SplintArmor, StuddedLeatherArmor,
+
+        // tools
+        BrewersTools, MasonsTools, SmithsTools,
+        Bagpipes, Drum, Dulcimer, Flute, HerbalismKit,
+        Horn, Lute, Lyre, PanFlute, Shawm,
+        Viol,
+
+        // weapons
+        Battleaxe, Blowgun, Club, CrossbowHand, CrossbowHeavy,
+        CrossbowLight, Dagger, Dart, Flail, Glaive,
+        Greataxe, Greatclub, Greatsword, Halberd, Handaxe,
+        Javelin, Lance, LightHammer, Longbow, Longsword,
+        Mace, Maul, Morningstar, Net, Pike,
+        Quarterstaff, Rapier, Scimitar, Shortbow, Shortsword,
+        Sickle, Sling, Spear, Trident, WarPick,
+        Warhammer, Whip,
+
+        // wondrous-items
         BracersOfArchery
     ];
     static getEquipment() {
@@ -345,8 +452,14 @@ export class DnD5ESource {
     }
 
     static #spells = [
+        BladeWard, DancingLights, Friends, Light, MageHand,
+        Mending, Message, MinorIllusion, Prestidigitation, TrueStrike,
+        ViciousMockery,
+        AnimalFriendship, Bane, CharmPerson, ComprehendLanguages, CureWounds,
         SpeakWithAnimals,
-        BeastSense,
+        AnimalMessenger, BeastSense, BlindnessDeafness, CalmEmotions, CloudOfDaggers,
+        CrownOfMadness,
+        BestowCurse, Clairvoyance, DispelMagic, Fear, FeignDeath,
         CommuneWithNature
     ];
     static getSpells() {

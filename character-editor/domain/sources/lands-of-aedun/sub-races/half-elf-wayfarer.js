@@ -25,11 +25,7 @@ export class HalfElfWayfarer {
         return [];
     }
 
-    static applyAbilityScoreModifiers(character) {
-
-    }
-
-    static applyModifiers(character) {
+    static applyModifiers(character, targetFilters) {
 
     }
 

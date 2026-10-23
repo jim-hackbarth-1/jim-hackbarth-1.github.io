@@ -90,16 +90,24 @@ export class Hermit {
     static getSelectionOptions(character, selectionName, sources) {
         let options = [];
         if (selectionName == "hermit-language") {
-            options = [...sources.find(s => s.name == "languages").options];
+            const languages = [...sources.find(s => s.name == "languages").options];
             const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
             const disabledLanguages = character.modifiers
-                .filter(m => m.target == "language" && !selectedValues.includes(m.value?.name))
-                .map(m => m.value?.name);
-            for (const option of options) {
-                const isDisabled = disabledLanguages.includes(option.value);
-                option.isSelected = (selectedValues.includes(option.value));
-                option.isDisabled = isDisabled;
-                option.disabledReason = isDisabled ? "Disabled: Language granted by other feature" : ""
+                .filter(m => m.target == "language" && !selectedValues.some(sv => sv.value == m.value?.value))
+                .map(m => m.value);
+            for (const language of languages) {
+                const isSelected = selectedValues.some(sv => sv.value == language.name);
+                const isDisabled = disabledLanguages.some(dl => dl.value == language.name);
+                const disabledReason = isDisabled ? "Disabled: Language granted by other feature" : "";
+                options.push({
+                    value: language.name,
+                    text: language.title,
+                    noteText: language.source.title,
+                    hasDetail: false,
+                    isSelected: isSelected,
+                    isDisabled: isDisabled,
+                    disabledReason: disabledReason
+                });
             }
             options = Hermit.#sortOptions(options, "text");
             options.unshift({ value: null, text: "Choose a language ..." });

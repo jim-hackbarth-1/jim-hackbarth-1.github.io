@@ -40,24 +40,27 @@ export class BardCollegeOfSecrets {
     static getSelectionOptions(character, classIndex, selectionName, sources) {
         let options = [];
         if (selectionName == `${BardCollegeOfSecrets.name}-languages`) {
-            options = [...sources.find(s => s.name == "languages").options];
+            const languages = [...sources.find(s => s.name == "languages").options];
             const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
             const disabledLanguages = character.modifiers
-                .filter(m => m.target == "language" && !selectedValues.some(sv => sv.value == m.value?.name))
-                .map(m => m.value?.name);
-            for (const option of options) {
-                const isDisabled = disabledLanguages.includes(option.value);
-                option.isSelected = (selectedValues.some(sv => sv.value == option.value));
-                option.isDisabled = isDisabled;
-                option.disabledReason = isDisabled ? "Disabled: Language granted by other feature" : ""
+                .filter(m => m.target == "language" && !selectedValues.some(sv => sv.value == m.value?.value))
+                .map(m => m.value);
+            for (const language of languages) {
+                const isSelected = selectedValues.some(sv => sv.value == language.name);
+                const isDisabled = disabledLanguages.some(dl => dl.value == language.name);
+                const disabledReason = isDisabled ? "Disabled: Language granted by other feature" : "";
+                options.push({
+                    value: language.name,
+                    text: language.title,
+                    noteText: language.source.title,
+                    hasDetail: false,
+                    isSelected: isSelected,
+                    isDisabled: isDisabled,
+                    disabledReason: disabledReason
+                });
             }
             options = BardCollegeOfSecrets.#sortOptions(options, "text");
-            options.unshift(
-                {
-                    value: null,
-                    text: "Languages (choose 3) ...",
-                    hideCheckbox: true
-                });
+            options.unshift({ value: null, text: "Languages (choose 3) ...", hideCheckbox: true });
         }
         return options;
     }
@@ -65,6 +68,11 @@ export class BardCollegeOfSecrets {
     static applyModifiers(character, classIndex, targetFilters) {
         const modifiers = [];
         const level = Number(character.classes.find(c => c.value == "bard").level);
+
+        if (level < 6) {
+            character.removeSelection(`${BardCollegeOfSecrets.name}-languages`);
+        }
+
         if (level >= 3) {
             modifiers.push({
                 name: `${BardCollegeOfSecrets.name}-modifier-perception`,

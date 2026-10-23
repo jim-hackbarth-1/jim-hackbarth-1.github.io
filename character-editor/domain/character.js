@@ -276,11 +276,11 @@ export class Character {
 
     /*
     - name
+    - value
+    - title
+    - target
     - sourcePropertyName
     - sourcePropertyValue
-    - target
-    - value
-    - text
     - conditions []
       - name
       - values []

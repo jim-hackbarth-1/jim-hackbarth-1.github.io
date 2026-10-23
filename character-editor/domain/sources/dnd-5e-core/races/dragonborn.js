@@ -71,13 +71,13 @@ export class Dragonborn {
             {
                 name: "dragonborn-language-common",
                 target: "language",
-                value: { name: "common", text: "Common"},
+                value: { value: "common", text: "Common"},
                 title: Dragonborn.title
             },
             {
                 name: "dragonborn-language-draconic",
                 target: "language",
-                value: { name: "draconic", text: "Draconic" },
+                value: { value: "draconic", text: "Draconic" },
                 title: Dragonborn.title
             }
         ];

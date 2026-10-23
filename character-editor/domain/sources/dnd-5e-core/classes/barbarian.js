@@ -55,6 +55,10 @@ export class Barbarian {
 
     static getSelections(character, classIndex) {
         const selections = [];
+        const level = Number(character.classes.find(c => c.value == "barbarian").level);
+        if (level < 1) {
+            return selections;
+        }
         if (Number(classIndex) == 0) {
             const selectionName = "barbarian-skill-proficiencies";
             let currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];

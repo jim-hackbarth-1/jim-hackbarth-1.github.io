@@ -16,8 +16,13 @@
     margin-bottom: 5px;
 }
 
-.level-boon-selection .completed-selection-display.incomplete {
+.level-boon-selection.incomplete .level-boon-selection-container {
     color: darkred;
+    background-color: #FFF8EB;
+}
+
+.level-boon-selection.incomplete .selection-content {
+    background-color: #FFF8EB;
 }
 
 .level-boon-selection .selection-content {

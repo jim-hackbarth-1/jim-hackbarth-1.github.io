@@ -56,18 +56,30 @@ export class Bard {
 
     static getSelections(character, classIndex) {
         let selections = [];
-        selections.push(Bard.#getMusicalInstrumentsSelections(character));
-        selections.push(Bard.#getSkillSelections(character));
         const level = Number(character.classes.find(c => c.value == "bard").level);
+        if (level >= 1) {
+            let maxSelections = 1;
+            let musicalInstrumentTitle = "Musical instrument";
+            let skillTitle = "Skill";
+            if (character.classes[0].value == "bard") {
+                maxSelections = 3;
+                musicalInstrumentTitle += "s";
+                skillTitle += "s";
+            }
+            selections.push(Bard.#getSelection(
+                character, `${Bard.name}-musical-instruments`, musicalInstrumentTitle, maxSelections, false, null, [{ name: "tools" }]));
+            selections.push(Bard.#getSelection(
+                character, `${Bard.name}-skills`, skillTitle, maxSelections, false, null, [{ name: "skills" }]));
+        }
         if (level >= 3) {
-            selections.push(Bard.#getExpertSkillSelections(character, 3)); 
+            selections.push(Bard.#getExpertSkillSelection(character, 3)); 
         }
         if (level >= 10) {
-            selections.push(Bard.#getExpertSkillSelections(character, 10));
+            selections.push(Bard.#getExpertSkillSelection(character, 10));
         }
         for (let i = 1; i <= 20; i++) {
             if (level >= i) {
-                selections.push(Bard.#getSpellSelections(character, i, classIndex));
+                selections.push(Bard.#getSpellSelection(character, i, classIndex));
             }
         }
         return selections;
@@ -102,100 +114,96 @@ export class Bard {
 
     static applyModifiers(character, classIndex, targetFilters) {
         const modifiers = [];
-        modifiers.push({
-            name: "bard-armor-proficiency-light-armor",
-            target: "armor-proficiency",
-            value: "light-armor",
-            title: Bard.title
-        });
-        const skillProficiencies = character.selections.find(s => s.name == `${Bard.name}-skills`)?.values ?? [];
-        for (const skillProficiency of skillProficiencies) {
-            modifiers.push({
-                name: `bard-skill-proficiency-${skillProficiency.value}`,
-                target: "skill-proficiency",
-                value: skillProficiency.value,
-                title: Bard.title
-            });
-        }
-        const musicalInstrumentProficiencies = character.selections.find(s => s.name == `${Bard.name}-musical-instruments`)?.values ?? [];
-        for (const musicalInstrumentProficiency of musicalInstrumentProficiencies) {
-            modifiers.push({
-                name: `bard-musical-instrument-proficiency-${musicalInstrumentProficiency.value}`,
-                target: "tool-proficiency",
-                value: musicalInstrumentProficiency.value,
-                title: Bard.title
-            });
-        }
-
-        if (character.classes[0].value == "bard") {
-            modifiers.push({
-                name: "bard-weapon-type-proficiency-simple-melee",
-                target: "weapon-proficiency",
-                value: "simple-melee",
-                title: Bard.title
-            });
-            modifiers.push({
-                name: "bard-weapon-proficiency-crossbow-hand",
-                target: "weapon-proficiency",
-                value: "crossbow-hand",
-                title: Bard.title
-            });
-            modifiers.push({
-                name: "bard-weapon-proficiency-longsword",
-                target: "weapon-proficiency",
-                value: "longsword",
-                title: Bard.title
-            });
-            modifiers.push({
-                name: "bard-weapon-proficiency-rapier",
-                target: "weapon-proficiency",
-                value: "rapier",
-                title: Bard.title
-            });
-            modifiers.push({
-                name: "bard-weapon-proficiency-shortsword",
-                target: "weapon-proficiency",
-                value: "shortsword",
-                title: Bard.title
-            });
-            modifiers.push({
-                name: "bard-saving-throw-proficiency-dexterity",
-                target: "saving-throw-proficiency",
-                value: "dexterity",
-                title: Bard.title
-            });
-            modifiers.push({
-                name: "bard-saving-throw-proficiency-charisma",
-                target: "saving-throw-proficiency",
-                value: "charisma",
-                title: Bard.title
-            });
-        }
-
-        const proficientSkills = character.modifiers.filter(m => m.target == "skill-proficiency").map(m => m.value);
-        const proficiencyBonus = character.getProficiencyBonus();
-        let expertSkillsLevel3 = character.selections.find(s => s.name == `${Bard.name}-skill-expertise-level-3`)?.values ?? [];
-        expertSkillsLevel3 = expertSkillsLevel3.filter(cs => proficientSkills.includes(cs.value));
-        for (const expertSkill of expertSkillsLevel3) {
-            modifiers.push({
-                name: `bard-level-3-expert-skill-${expertSkill.value}`,
-                target: `skill:${expertSkill.value}`,
-                value: proficiencyBonus,
-                title: Bard.title
-            });
-        }
-        let expertSkillsLevel10 = character.selections.find(s => s.name == `${Bard.name}-skill-expertise-level-10`)?.values ?? [];
-        expertSkillsLevel10 = expertSkillsLevel10.filter(cs => proficientSkills.includes(cs.value));
-        for (const expertSkill of expertSkillsLevel10) {
-            modifiers.push({
-                name: `bard-level-10-expert-skill-${expertSkill.value}`,
-                target: `skill:${expertSkill.value}`,
-                value: proficiencyBonus,
-                title: Bard.title
-            });
-        }
 
         const level = Number(character.classes.find(c => c.value == "bard").level);
+        if (level < 3) {
+            character.removeSelection(`${Bard.name}-skill-expertise-level-3`);
+        }
+        if (level < 10) {
+            character.removeSelection(`${Bard.name}-skill-expertise-level-10`);
+        }
+        for (let i = level + 1; i <= 20; i++) {
+            character.removeSelection(`${Bard.name}-level-${i}-cantrips`);
+            character.removeSelection(`${Bard.name}-level-${i}-spells`);
+            character.removeSelection(`${Bard.name}-level-${i}-replaced-spell`);
+            character.removeSelection(`${Bard.name}-level-${i}-replacement-spell`);
+        }
+
+        if (level >= 1) {
+            modifiers.push({
+                name: "bard-armor-proficiency-light-armor",
+                title: "Armor proficiency",
+                value: "light-armor",
+                target: "armor-proficiency"
+            });
+
+            const skillProficiencies = character.selections.find(s => s.name == `${Bard.name}-skills`)?.values ?? [];
+            for (const skillProficiency of skillProficiencies) {
+                modifiers.push({
+                    name: `bard-skill-proficiency-${skillProficiency.value}`,
+                    title: "Skill proficiency",
+                    value: skillProficiency.value,
+                    target: "skill-proficiency"
+                });
+            }
+
+            const musicalInstrumentProficiencies = character.selections.find(s => s.name == `${Bard.name}-musical-instruments`)?.values ?? [];
+            for (const musicalInstrumentProficiency of musicalInstrumentProficiencies) {
+                modifiers.push({
+                    name: `bard-musical-instrument-proficiency-${musicalInstrumentProficiency.value}`,
+                    title: "Musical instrument proficiency",
+                    value: musicalInstrumentProficiency.value,
+                    target: "tool-proficiency"
+                });
+            }
+
+            if (character.classes[0].value == "bard") {
+                modifiers.push({
+                    name: "bard-weapon-type-proficiency-simple-melee",
+                    title: "Weapon proficiency",
+                    value: "simple-melee",
+                    target: "weapon-proficiency"
+                });
+                modifiers.push({
+                    name: "bard-weapon-proficiency-crossbow-hand",
+                    title: "Weapon proficiency",
+                    value: "crossbow-hand",
+                    target: "weapon-proficiency"
+                });
+                modifiers.push({
+                    name: "bard-weapon-proficiency-longsword",
+                    title: "Weapon proficiency",
+                    value: "longsword",
+                    target: "weapon-proficiency"
+                });
+                modifiers.push({
+                    name: "bard-weapon-proficiency-rapier",
+                    title: "Weapon proficiency",
+                    value: "rapier",
+                    target: "weapon-proficiency"
+                });
+                modifiers.push({
+                    name: "bard-weapon-proficiency-shortsword",
+                    title: "Weapon proficiency",
+                    value: "shortsword",
+                    target: "weapon-proficiency"
+                });
+                modifiers.push({
+                    name: "bard-saving-throw-proficiency-dexterity",
+                    title: "Saving throw proficiency: Dexterity",
+                    value: "dexterity",
+                    target: "saving-throw-proficiency"
+                });
+                modifiers.push({
+                    name: "bard-saving-throw-proficiency-charisma",
+                    title: "Saving throw proficiency: Charisma",
+                    value: "charisma",
+                    target: "saving-throw-proficiency"
+                });
+            }
+        }
+
+        const proficiencyBonus = character.getProficiencyBonus();
         if (level >= 2) {
             const proficientAbilities = character.modifiers.filter(m => m.target == "saving-throw-proficiency").map(m => m.value);
             const abilities = ["strength", "intelligence", "wisdom", "dexterity", "constitution", "charisma"];
@@ -204,14 +212,41 @@ export class Bard {
                 if (!proficientAbilities.includes(ability)) {
                     modifiers.push({
                         name: `bard-jack-of-all-trades-${ability}`,
-                        target: `ability-score-modifier:${ability}`,
+                        title: "Jack of all trades",
                         value: jackOfAllTradesBonus,
-                        title: Bard.title
+                        target: `ability-score-modifier:${ability}`
                     });
                 }
             }
         }
 
+        const proficientSkills = character.modifiers.filter(m => m.target == "skill-proficiency").map(m => m.value);
+        if (level >= 3) {
+            let expertSkillsLevel3 = character.selections.find(s => s.name == `${Bard.name}-skill-expertise-level-3`)?.values ?? [];
+            expertSkillsLevel3 = expertSkillsLevel3.filter(cs => proficientSkills.includes(cs.value));
+            for (const expertSkill of expertSkillsLevel3) {
+                modifiers.push({
+                    name: `bard-level-3-expert-skill-${expertSkill.value}`,
+                    target: `skill:${expertSkill.value}`,
+                    value: proficiencyBonus,
+                    title: Bard.title
+                });
+            }
+        }
+
+        if (level >= 10) {
+            let expertSkillsLevel10 = character.selections.find(s => s.name == `${Bard.name}-skill-expertise-level-10`)?.values ?? [];
+            expertSkillsLevel10 = expertSkillsLevel10.filter(cs => proficientSkills.includes(cs.value));
+            for (const expertSkill of expertSkillsLevel10) {
+                modifiers.push({
+                    name: `bard-level-10-expert-skill-${expertSkill.value}`,
+                    target: `skill:${expertSkill.value}`,
+                    value: proficiencyBonus,
+                    title: Bard.title
+                });
+            }
+        }
+        
         for (const modifier of modifiers) {
             if (targetFilters.includeTarget(modifier.target)) {
                 modifier.sourcePropertyName = `class-${classIndex}`;
@@ -223,10 +258,8 @@ export class Bard {
 
     static applyFeatures(features, character, classIndex) {
         const tempFeatures = [];
-
         const level = Number(character.classes.find(c => c.value == "bard").level);
-        const charismaModifier = character.getAbilityScoreModifier("charisma");
-
+        
         // bardic inspiration
         let bardicInspirationDieSize = 6;
         if (level >= 5) {
@@ -238,6 +271,7 @@ export class Bard {
         if (level >= 15) {
             bardicInspirationDieSize = 12;
         }
+        const charismaModifier = character.getAbilityScoreModifier("charisma");
         let bardicInspirationUses = charismaModifier;
         if (bardicInspirationUses < 1) {
             bardicInspirationUses = 1;
@@ -371,112 +405,7 @@ export class Bard {
         };
     }
 
-    static #getMusicalInstrumentsSelections(character) {
-        let count = 1;
-        if (character.classes[0].value == "bard") {
-            count = 3;
-        }
-        const selectionName = `${Bard.name}-musical-instruments`;
-        const currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-        if (currentSelections.length == 0) {
-            currentSelections.push({
-                value: null,
-                text: (count == 3) ? "Musical instruments (choose 3) ..." : "Musical instrument ..."
-            });
-        }
-        return {
-            name: selectionName,
-            title: (count == 3) ? "Musical instruments" : "Musical instrument",
-            maxSelections: count,
-            sources: [{ name: "tools" }],
-            currentSelections: currentSelections
-        };
-    }
-
-    static #getMusicalInstrumentSelectionOptions(character, sources) {
-        let options = [];
-        let instruments = [...sources.find(s => s.name == "tools").options];
-        instruments = instruments.filter(i => i.properties && i.properties.some(p => p == "musical-instrument"));
-        const selectedValues = character.selections.find(s => s.name == `${Bard.name}-musical-instruments`)?.values ?? [];
-        const disabledOptions = character.modifiers
-            .filter(m => m.target == "tool-proficiency" && !selectedValues.some(sv => sv.value == m.value))
-            .map(m => m.value);
-        for (const instrument of instruments) {
-            const isSelected = (selectedValues.some(sv => sv.value == instrument.name));
-            const isDisabled = disabledOptions.includes(instrument.value);
-            const disabledReason = isDisabled ? "Disabled: Proficiency granted by other feature" : "";
-            options.push({
-                value: instrument.name,
-                text: instrument.title,
-                noteText: instrument.source.title,
-                hasDetail: false,
-                isSelected: isSelected,
-                isDisabled: isDisabled,
-                disabledReason: disabledReason
-            })
-        }
-        options = Bard.#sortOptions(options, "text");
-        let label = "Musical instrument ...";
-        if (character.classes[0].value == "bard") {
-            label = "Musical instruments (choose 3) ...";
-        }
-        options.unshift({ value: null, text: label, hideCheckbox: true });
-        return options;
-    }
-
-    static #getSkillSelections(character) {
-        let count = 1;
-        if (character.classes[0].value == "bard") {
-            count = 3;
-        }
-        const selectionName = `${Bard.name}-skills`;
-        const currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-        if (currentSelections.length == 0) {
-            currentSelections.push({
-                value: null,
-                text: (count == 3) ? "Skills (choose 3) ..." : "Skill ..."
-            });
-        }
-        return {
-            name: selectionName,
-            title: (count == 3) ? "Skills" : "Skill",
-            maxSelections: count,
-            sources: [{ name: "skills" }],
-            currentSelections: currentSelections
-        };
-    }
-
-    static #getSkillSelectionOptions(character, sources) {
-        let options = [];
-        let skills = [...sources.find(s => s.name == "skills").options];
-        const selectedValues = character.selections.find(s => s.name == `${Bard.name}-skills`)?.values ?? [];
-        const disabledOptions = character.modifiers
-            .filter(m => m.target == "skill-proficiency" && !selectedValues.some(sv => sv.value == m.value))
-            .map(m => m.value);
-        for (const skill of skills) {
-            const isSelected = (selectedValues.some(sv => sv.value == skill.name));
-            const isDisabled = disabledOptions.includes(skill.name);
-            const disabledReason = isDisabled ? "Disabled: Skill proficiency granted by other feature" : "";
-            options.push({
-                value: skill.name,
-                text: skill.title,
-                noteText: `(${skill.ability})`,
-                hasDetail: false,
-                isSelected: isSelected,
-                isDisabled: isDisabled,
-                disabledReason: disabledReason
-            })
-        }
-        options = Bard.#sortOptions(options, "text");
-        let label = "Skill ...";
-        if (character.classes[0].value == "bard") {
-            label = "Skills (choose 3)...";
-        }
-        options.unshift({ value: null, text: label, hideCheckbox: true });
-        return options;
-    }
-
-    static #getExpertSkillSelections(character, level) {
+    static #getExpertSkillSelection(character, level) {
         const selectionName = `${Bard.name}-skill-expertise-level-${level}`;
         let currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
         if (currentSelections.length == 0) {
@@ -498,318 +427,46 @@ export class Bard {
         };
     }
 
+    static #getMusicalInstrumentSelectionOptions(character, sources) {
+        let instruments = [...sources.find(s => s.name == "tools").options];
+        instruments = instruments.filter(i => i.properties && i.properties.some(p => p == "musical-instrument"));
+        const selectedValues = character.selections.find(s => s.name == `${Bard.name}-musical-instruments`)?.values ?? [];
+        const selectedElsewhere = character.modifiers
+            .filter(m => m.target == "tool-proficiency" && !selectedValues.some(sv => sv.value == m.value))
+            .map(m => m.value);
+        let label = "Musical instrument ...";
+        if (character.classes[0].value == "bard") {
+            label = "Musical instruments (choose 3) ...";
+        }
+        return Bard.#getSelectionOptions(instruments, selectedValues, selectedElsewhere, false, label);
+    }
+
+    static #getSkillSelectionOptions(character, sources) {
+        let skills = [...sources.find(s => s.name == "skills").options];
+        const selectedValues = character.selections.find(s => s.name == `${Bard.name}-skills`)?.values ?? [];
+        const selectedElsewhere = character.modifiers
+            .filter(m => m.target == "skill-proficiency" && !selectedValues.some(sv => sv.value == m.value))
+            .map(m => m.value);
+        let label = "Skill ...";
+        if (character.classes[0].value == "bard") {
+            label = "Skills (choose 3) ...";
+        }
+        return Bard.#getSelectionOptions(skills, selectedValues, selectedElsewhere, false, label);
+    }
+
     static #getExpertSkillSelectionOptions(character, level, sources) {
-        let options = [];
         let skills = [...sources.find(s => s.name == "skills").options];
         const proficientSkills = character.modifiers.filter(m => m.target == "skill-proficiency").map(m => m.value);
         skills = skills.filter(o => proficientSkills.includes(o.name));
         const selectedValues = character.selections.find(s => s.name == `${Bard.name}-skill-expertise-level-${level}`)?.values ?? [];
-        let disabledOptions = [];
+        let selectedElsewhere = [];
+        if (level == 3) {
+            selectedElsewhere = character.selections.find(s => s.name == `${Bard.name}-skill-expertise-level-10`)?.values ?? [];
+        }
         if (level == 10) {
-            disabledOptions = character.selections.find(s => s.name == `${Bard.name}-skill-expertise-level-3`)?.values ?? [];
+            selectedElsewhere = character.selections.find(s => s.name == `${Bard.name}-skill-expertise-level-3`)?.values ?? [];
         }
-        for (const skill of skills) {
-            const isSelected = selectedValues.some(sv => sv.value == skill.name);
-            const isDisabled = disabledOptions.some(sv => sv.value == skill.name);
-            const disabledReason = isDisabled ? "Disabled: Expertise granted by other feature" : "";
-            options.push({
-                value: skill.name,
-                text: skill.title,
-                noteText: `(${skill.ability})`,
-                hasDetail: false,
-                isSelected: isSelected,
-                isDisabled: isDisabled,
-                disabledReason: disabledReason
-            });
-        }
-        options = Bard.#sortOptions(options, "text");
-        options.unshift({ value: null, text: "Expert skills (choose 2) ....", hideCheckbox: true });
-        return options;
-    }
-
-    static #getSpellSelections(character, level, classIndex) {
-        const cantripCount = Bard.#getCantripCount(level);
-        const spellCount = Bard.#getSpellCount(level);
-        const canReplace = (level > 1);
-        const spellSelectionInfo = Bard.#getSpellSelectionInfo(character);
-
-        let cantripsSelection = null;
-        if (cantripCount > 0) {
-            let cantripSelections = character.selections.find(s => s.name == `${Bard.name}-level-${level}-cantrips`)?.values ?? [];
-            if (cantripSelections.length == 0) {
-                cantripSelections = [{ value: null, text: `Cantrips (choose ${cantripCount}) ...` }];
-            }
-            cantripsSelection = {
-                name: `${Bard.name}-level-${level}-cantrips`,
-                title: "Cantrips",
-                maxSelections: cantripCount,
-                currentSelections: cantripSelections,
-                sources: [{ name: "spells" }]
-            };
-        }
-
-        let spellsSelection = null;
-        if (spellCount > 0) {
-            let isReplaced = false;
-            let spellAlertMessage = null;
-            let spellSelections = character.selections.find(s => s.name == `${Bard.name}-level-${level}-spells`)?.values ?? [];
-            if (spellSelections.length == 0) {
-                spellSelections = [{ value: null, text: `Spells (choose ${spellCount}) ...` }];
-            }
-            else {
-                if (spellSelections.length == 1 && spellCount == 1) {
-                    const selectedValue = spellSelections[0].value;
-                    if (selectedValue) {
-                        const replacedSpell = spellSelectionInfo.find(i => i.isReplacedSpellSelection && i.spell?.value == selectedValue);
-                        if (replacedSpell) {
-                            isReplaced = true;
-                            spellAlertMessage = `Locked: ${spellSelections[0].text} has been replaced`;
-                            const replacementSpell = spellSelectionInfo
-                                .find(i => i.isReplacementSpellSelection && i.selectionLevel == replacedSpell.selectionLevel);
-                            if (replacementSpell?.spell?.value) {
-                                spellAlertMessage += ` by ${replacementSpell?.spell?.text ?? "another spell"}.`;
-                            }
-                            else {
-                                spellAlertMessage += ".";
-                            }
-                        }
-                    }
-                }
-            }
-            spellsSelection = {
-                name: `${Bard.name}-level-${level}-spells`,
-                title: "Spells",
-                maxSelections: spellCount,
-                locked: isReplaced,
-                alertMessage: spellAlertMessage,
-                currentSelections: spellSelections,
-                sources: [{ name: "spells" }]
-            };
-        }
-
-        let replacedSpellSelection = null;
-        if (canReplace) {
-            let replacedSpell = null;
-            let replacedSpellSelections = character.selections.find(s => s.name == `${Bard.name}-level-${level}-replaced-spell`)?.values ?? [];
-            if (replacedSpellSelections.length > 0) {
-                replacedSpell = replacedSpellSelections[0];
-            }
-            if (!replacedSpell) {
-                replacedSpellSelections = [{ value: null, text: "Choose a spell to replace (optional) ..." }];
-            }
-            const replacementSpell = spellSelectionInfo
-                .find(i => i.selectionName == `${Bard.name}-level-${level}-replacement-spell`)?.spell;
-            let replacedIsLocked = false;
-            let replacedAlertMessage = null;
-            if (replacementSpell?.value) {
-                replacedIsLocked = true;
-                replacedAlertMessage = `Locked: Replacement spell ${replacementSpell.text} selected`;
-            }
-            replacedSpellSelection = {
-                name: `${Bard.name}-level-${level}-replaced-spell`,
-                title: "Replaced spell",
-                maxSelections: 1,
-                locked: replacedIsLocked,
-                alertMessage: replacedAlertMessage,
-                currentSelections: replacedSpellSelections,
-                sources: [{ name: "spells" }]
-            };
-        }
-
-        let replacementSpellSelection = null;
-        if (canReplace) {
-            let isReplacementReplaced = false;
-            let replacementAlertMessage = null;
-            let replacementSpell = null;
-            let replacementSpellSelections = character.selections.find(s => s.name == `${Bard.name}-level-${level}-replacement-spell`)?.values ?? [];
-            if (replacementSpellSelections.length > 0) {
-                replacementSpell = replacementSpellSelections[0];
-            }
-            if (!replacementSpell) {
-                replacementSpellSelections = [{ value: null, text: "Choose a replacement spell (optional) ..." }];
-            }
-            else {
-                if (replacementSpellSelections.length == 1) {
-                    const selectedReplacementValue = replacementSpellSelections[0].value;
-                    if (selectedReplacementValue) {
-                        const replacedSpell2 = spellSelectionInfo
-                            .find(i => i.isReplacedSpellSelection && i.spell?.value == selectedReplacementValue);
-                        if (replacedSpell2) {
-                            isReplacementReplaced = true;
-                            replacementAlertMessage = `Locked: ${replacementSpellSelections[0].text} has been replaced`;
-                            const replacementSpell2 = spellSelectionInfo
-                                .find(i => i.isReplacementSpellSelection && i.selectionLevel == replacedSpell2.selectionLevel);
-                            if (replacementSpell2?.spell?.value) {
-                                replacementAlertMessage += ` by ${replacementSpell2?.spell?.text ?? "another spell"}.`;
-                            }
-                            else {
-                                replacementAlertMessage += ".";
-                            }
-                        }
-                    }
-                }
-            }
-            replacementSpellSelection = {
-                name: `${Bard.name}-level-${level}-replacement-spell`,
-                title: "Replacement spell",
-                maxSelections: 1,
-                locked: isReplacementReplaced,
-                alertMessage: replacementAlertMessage,
-                currentSelections: replacementSpellSelections,
-                sources: [{ name: "spells" }]
-            };
-        }
-
-        return {
-            name: `${Bard.name}-level-${level}-spell-selections`,
-            title: `Level ${level} spells`,
-            spellSelection: true,
-            classIndex: classIndex,
-            className: Bard.name,
-            subClassName: null,
-            defaultSummaryDisplay: "Choose spells...",
-            cantrips: cantripsSelection,
-            spells: spellsSelection,
-            replacedSpell: replacedSpellSelection,
-            replacementSpell: replacementSpellSelection
-        };
-    }
-
-    static #getSpellSelectionOptions(character, level, selectionName, sources) {
-        let spells = [...sources.find(s => s.name == "spells").options];
-        spells = spells.filter(s => s.classes.includes("bard"));
-        const selectionSource = selectionName.replace(`${Bard.name}-level-${level}-`, "");
-        if (selectionSource == "cantrips") {
-            spells = spells.filter(s => Number(s.level) == 0);
-        }
-        else {
-            spells = spells.filter(s => Number(s.level) >= 1 && Number(s.level) <= level);
-        }
-        const spellSelectionInfoList = Bard.#getSpellSelectionInfo(character);
-        const spellsSelectedElsewhere = spellSelectionInfoList
-            .filter(i => i.selectionName != selectionName && !i.isReplacedSpellSelection)
-            .map(i => i.spell);
-        const spellsReplacedElsewhere = spellSelectionInfoList
-            .filter(i => i.isReplacedSpellSelection && i.selectionName != selectionName)
-            .map(i => i.spell);
-        
-        if (selectionSource == "replaced-spell") {
-            const spellsSelectedAtLowerLevels = spellSelectionInfoList
-                .filter(i => i.selectionLevel < level && !i.isCantripSelection && !i.isReplacedSpellSelection)
-                .map(i => i.spell);
-            spells = spells.filter(s => spellsSelectedAtLowerLevels.some(ssatl => ssatl.value == s.name));
-            spells = spells.filter(s => !spellsReplacedElsewhere.some(sre => sre.value == s.name));
-        }
-        const hasReplacement = spellSelectionInfoList
-            .some(i => i.selectionName == `${Bard.name}-level-${level}-replacement-spell` && i.spell.value);
-        const currentSelections = spellSelectionInfoList.filter(i => i.selectionName == selectionName).map(i => i.spell);
-        let options = [];
-        for (const spell of spells) {
-            const isSelected = currentSelections.some(cs => cs.value == spell.name);
-            let isDisabled = false;
-            let disabledReason = null;
-            if (selectionSource == "replaced-spell") {
-                if (hasReplacement) {
-                    isDisabled = true;
-                    disabledReason = "Disabled: Has replacement selected";
-                }
-            }
-            else {
-                const isReplaced = spellsReplacedElsewhere.some(sre => sre.value == spell.name);
-                if (isReplaced) {
-                    isDisabled = true;
-                    disabledReason = "Disabled: Has been replaced";
-                }
-                if (!isDisabled) {
-                    const isSelectedElsewhere = spellsSelectedElsewhere.some(sse => sse.value == spell.name);
-                    if (isSelectedElsewhere) {
-                        isDisabled = true;
-                        disabledReason = "Disabled: Selected at other level or as replacement";
-                    }
-                }
-            }
-            let spellLevelLabel = `Level ${spell.level}`;
-            if (spell.level == 0) {
-                spellLevelLabel = "Cantrip";
-            }
-            options.push({
-                value: spell.name,
-                text: spell.title,
-                noteText: `${spellLevelLabel} (${spell.source.title})`,
-                sortField: `level-${spell.level}-${spell.title}`,
-                hasDetail: true,
-                isSelected: isSelected,
-                isDisabled: isDisabled,
-                disabledReason: disabledReason
-            });
-        }
-        options = Bard.#sortOptions(options, "sortField");
-        let choiceLabel = "Spells ...";
-        if (selectionName.endsWith("-cantrips")) {
-            choiceLabel = "Cantrips ...";
-            const cantripCount = Number(Bard.#getCantripCount(level));
-            choiceLabel = `Cantrips (choose ${cantripCount}) ...`;
-        }
-        if (selectionName.endsWith("-spells")) {
-            choiceLabel = "Spells ...";
-            const spellCount = Number(Bard.#getSpellCount(level));
-            choiceLabel = `Spells (choose ${spellCount}) ...`;
-        }
-        if (selectionName.endsWith("-replaced-spell")) {
-            choiceLabel = "Choose a spell to replace (optional) ...";
-        }
-        if (selectionName.endsWith("-replacement-spell")) {
-            choiceLabel = "Choose a replacement spell (optional) ...";;
-        }
-        options.unshift({ value: null, text: choiceLabel, hideCheckbox: true });
-        return options;
-    }
-
-    static #getSpellSelectionInfo(character) {
-        const selectionList = []
-        for (let i = 1; i <= 20; i++) {
-            let selectionName = `${Bard.name}-level-${i}-cantrips`
-            let selections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            for (const selection of selections) {
-                selectionList.push({
-                    spell: selection,
-                    selectionName: selectionName,
-                    selectionLevel: i,
-                    isCantripSelection: true
-                });
-            }
-            selectionName = `${Bard.name}-level-${i}-spells`
-            selections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            for (const selection of selections) {
-                selectionList.push({
-                    spell: selection,
-                    selectionName: selectionName,
-                    selectionLevel: i,
-                    isSpellSelection: true
-                });
-            }
-            selectionName = `${Bard.name}-level-${i}-replaced-spell`
-            selections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            for (const selection of selections) {
-                selectionList.push({
-                    spell: selection,
-                    selectionName: selectionName,
-                    selectionLevel: i,
-                    isReplacedSpellSelection: true
-                });
-            }
-            selectionName = `${Bard.name}-level-${i}-replacement-spell`
-            selections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            for (const selection of selections) {
-                selectionList.push({
-                    spell: selection,
-                    selectionName: selectionName,
-                    selectionLevel: i,
-                    isReplacementSpellSelection: true
-                });
-            }
-        }
-        return selectionList;
+        return Bard.#getSelectionOptions(skills, selectedValues, selectedElsewhere, false, "Expert skills (choose 2) ....");
     }
 
     static #getCantripCount(level) {
@@ -883,14 +540,6 @@ export class Bard {
         return Bard.#spellSlots;
     }
 
-    static #getSlotsForSpellLevel(level, spellLevel) {
-        const slot = Bard.spellSlots.find(ss => ss.level == level);
-        if (slot) {
-            return slot.spellLevels.find(sl => sl.spellLevel == spellLevel)?.slots ?? 0;
-        }
-        return 0;
-    }
-
     static #addSpellLevel(level, spellLevelsIn) {
         const spellLevels = [];
         for (let i = 0; i < spellLevelsIn.length; i++) {
@@ -903,6 +552,223 @@ export class Bard {
             level: level,
             spellLevels: spellLevels
         };
+    }
+
+    static #getSlotsForSpellLevel(level, spellLevel) {
+        const slot = Bard.spellSlots.find(ss => ss.level == level);
+        if (slot) {
+            return slot.spellLevels.find(sl => sl.spellLevel == spellLevel)?.slots ?? 0;
+        }
+        return 0;
+    }
+
+    static #getSpellSelection(character, level, classIndex) {
+        const cantripCount = Bard.#getCantripCount(level);
+        const spellCount = Bard.#getSpellCount(level);
+        const canReplace = (level > 1);
+        let selectionName = null;
+        let alertMessage = null;       
+        const spellSelectionInfo = Bard.#getSpellSelectionInfo(character);
+
+        let cantrips = null;
+        if (cantripCount > 0) {
+            cantrips = Bard.#getSelection(
+                character, `${Bard.name}-level-${level}-cantrips`, "Cantrips", cantripCount, false, null, [{ name: "spells" }]);
+        }
+        let spells = null;
+        if (spellCount > 0) {
+            selectionName = `${Bard.name}-level-${level}-spells`;
+            alertMessage = Bard.#getReplacedSpellAlertMessage(character, selectionName, spellSelectionInfo);
+            spells = Bard.#getSelection(
+                character, selectionName, "Spells", spellCount, alertMessage ? true : false, alertMessage, [{ name: "spells" }]);
+        }
+        let replacedSpell = null;
+        if (canReplace) {
+            selectionName = `${Bard.name}-level-${level}-replaced-spell`;
+            alertMessage = Bard.#getReplacedSpellAlertMessage(character, selectionName, spellSelectionInfo);
+            replacedSpell = Bard.#getSelection(
+                character, selectionName, "Replaced spell", 1, alertMessage ? true : false, alertMessage, [{ name: "spells" }]);
+        }
+        let replacementSpell = null;
+        if (canReplace) {
+            selectionName = `${Bard.name}-level-${level}-replacement-spell`;
+            alertMessage = Bard.#getReplacedSpellAlertMessage(character, selectionName, spellSelectionInfo);
+            replacementSpell = Bard.#getSelection(
+                character, selectionName, "Replacement spell", 1, alertMessage ? true : false, alertMessage, [{ name: "spells" }]);
+        }
+        return {
+            name: `${Bard.name}-level-${level}-spell-selections`,
+            title: `Level ${level} spells`,
+            spellSelection: true,
+            classIndex: classIndex,
+            className: Bard.name,
+            subClassName: null,
+            defaultSummaryDisplay: "Choose spells...",
+            cantrips: cantrips,
+            spells: spells,
+            replacedSpell: replacedSpell,
+            replacementSpell: replacementSpell
+        };
+    }
+
+    static #getSelectionOptions(sourceItems, selectedValues, sourceItemsSelectedElsewhere, hasDetail, choiceLabel) {
+        let options = [];
+        for (const sourceItem of sourceItems) {
+            const isSelected = selectedValues.some(sv => sv.value == sourceItem.name);
+            const isDisabled = sourceItemsSelectedElsewhere.some(sise => sise.value == sourceItem.name);
+            const disabledReason = isDisabled ? `Disabled: ${sourceItem.title} granted by other feature` : "";
+            options.push({
+                value: sourceItem.name,
+                text: sourceItem.title,
+                noteText: sourceItem.source?.title,
+                hasDetail: hasDetail,
+                isSelected: isSelected,
+                isDisabled: isDisabled,
+                disabledReason: disabledReason
+            });
+        }
+        options = Bard.#sortOptions(options, "text");
+        options.unshift({ value: null, text: choiceLabel ?? "Choose option(s) ...", hideCheckbox: true });
+        return options;
+    }
+
+    static #getSpellSelectionOptions(character, level, selectionName, sources) {
+        let spells = [...sources.find(s => s.name == "spells").options];
+        spells = spells.filter(s => s.classes.includes("bard"));
+        const selectionSource = selectionName.replace(`${Bard.name}-level-${level}-`, "");
+        if (selectionSource == "cantrips") {
+            spells = spells.filter(s => Number(s.level) == 0);
+        }
+        else {
+            spells = spells.filter(s => Number(s.level) >= 1 && Number(s.level) <= level);
+        }
+        const spellSelectionInfo = Bard.#getSpellSelectionInfo(character);
+        if (selectionSource == "replaced-spell") {
+            const spellsSelectedAtLowerLevels = spellSelectionInfo
+                .filter(i => i.selectionLevel < level && !i.isCantripSelection && !i.isReplacedSpellSelection)
+                .map(i => i.spell);
+            spells = spells.filter(s => spellsSelectedAtLowerLevels.some(ssatl => ssatl.value == s.name));
+        }
+        const currentSelections = spellSelectionInfo.filter(i => i.selectionName == selectionName).map(i => i.spell);
+        let options = [];
+        for (const spell of spells) {
+            const isSelected = currentSelections.some(cs => cs.value == spell.name);
+            let disabledReason = null
+            const replacementSpell = Bard.#getReplacementSpell(character, spell.name, spellSelectionInfo);
+            if (replacementSpell) {
+                disabledReason = `Disabled: ${spell.title} has been replaced by ${replacementSpell.text}.`
+            }
+            if (!disabledReason && selectionSource != "replaced-spell") {
+                const isSelectedElsewhere = Bard.#isSpellSelectedElsewhere(character, spell.name, selectionName, spellSelectionInfo);
+                if (isSelectedElsewhere) {
+                    disabledReason = `Disabled: ${spell.title} selected elsewhere.`
+                }
+            }
+            let spellLevelLabel = `Level ${spell.level}`;
+            if (spell.level == 0) {
+                spellLevelLabel = "Cantrip";
+            }
+            options.push({
+                value: spell.name,
+                text: spell.title,
+                noteText: `${spellLevelLabel} (${spell.source.title})`,
+                sortField: `level-${spell.level}-${spell.title}`,
+                hasDetail: true,
+                isSelected: isSelected,
+                isDisabled: disabledReason ? true : false,
+                disabledReason: disabledReason
+            });
+        }
+        options = Bard.#sortOptions(options, "sortField");
+        let choiceLabel = "Spells ...";
+        if (selectionName.endsWith("-cantrips")) {
+            choiceLabel = "Cantrips ...";
+            const cantripCount = Number(Bard.#getCantripCount(level));
+            choiceLabel = `Cantrips (choose ${cantripCount}) ...`;
+        }
+        if (selectionName.endsWith("-spells")) {
+            choiceLabel = "Spells ...";
+            const spellCount = Number(Bard.#getSpellCount(level));
+            choiceLabel = `Spells (choose ${spellCount}) ...`;
+        }
+        if (selectionName.endsWith("-replaced-spell")) {
+            choiceLabel = "Choose a spell to replace (optional) ...";
+        }
+        if (selectionName.endsWith("-replacement-spell")) {
+            choiceLabel = "Choose a replacement spell (optional) ...";;
+        }
+        options.unshift({ value: null, text: choiceLabel, hideCheckbox: true });
+        return options;
+    }
+
+    static #getSelection(character, name, title, maxSelections, locked, alertMessage, sources) {
+        const currentSelections = character.selections.find(s => s.name == name)?.values ?? [];
+        if (currentSelections.length == 0) {
+            currentSelections.push({ value: null, text: `${title} (choose ${maxSelections}) ...` });
+        }
+        return {
+            name: name,
+            title: title,
+            maxSelections: maxSelections,
+            locked: locked,
+            alertMessage: alertMessage,
+            sources: sources ?? [],
+            currentSelections: currentSelections
+        };
+    }
+
+    static #getSpellSelectionInfo(character) {
+        const selectionList = []
+        for (let i = 1; i <= 20; i++) {
+            let selectionName = `${Bard.name}-level-${i}-cantrips`
+            let selections = character.selections.find(s => s.name == selectionName)?.values ?? [];
+            for (const selection of selections) {
+                selectionList.push({ spell: selection, selectionName: selectionName, selectionLevel: i, isCantripSelection: true });
+            }
+            selectionName = `${Bard.name}-level-${i}-spells`
+            selections = character.selections.find(s => s.name == selectionName)?.values ?? [];
+            for (const selection of selections) {
+                selectionList.push({ spell: selection, selectionName: selectionName, selectionLevel: i, isSpellSelection: true });
+            }
+            selectionName = `${Bard.name}-level-${i}-replaced-spell`
+            selections = character.selections.find(s => s.name == selectionName)?.values ?? [];
+            for (const selection of selections) {
+                selectionList.push({ spell: selection, selectionName: selectionName, selectionLevel: i, isReplacedSpellSelection: true });
+            }
+            selectionName = `${Bard.name}-level-${i}-replacement-spell`
+            selections = character.selections.find(s => s.name == selectionName)?.values ?? [];
+            for (const selection of selections) {
+                selectionList.push({ spell: selection, selectionName: selectionName, selectionLevel: i, isReplacementSpellSelection: true });
+            }
+        }
+        return selectionList;
+    }
+
+    static #getReplacementSpell(character, spellName, spellSelectionInfo) {
+        const replacedSpell = spellSelectionInfo.find(i => i.isReplacedSpellSelection && i.spell?.value == spellName);
+        if (replacedSpell) {
+            return spellSelectionInfo
+                .find(i => i.isReplacementSpellSelection && i.selectionLevel == replacedSpell.selectionLevel)?.spell;
+        }
+        return null;
+    }
+
+    static #getReplacedSpellAlertMessage(character, selectionName, spellSelectionInfo) {
+        let selections = character.selections.find(s => s.name == selectionName)?.values ?? [];
+        if (selections.length == 1 && selections[0].value) {
+            const spellName = selections[0].value;
+            const spellText = selections[0].text;
+            const spellReplacement = Bard.#getReplacementSpell(character, spellName, spellSelectionInfo);
+            if (spellReplacement?.value) {
+                return `Locked: ${spellText} has been replaced by ${spellReplacement.text}.`;
+            }
+        }
+        return null;
+    }
+
+    static #isSpellSelectedElsewhere(character, spellName, selectionName, spellSelectionInfo,) {
+        return spellSelectionInfo.some(
+            i => i.spell?.value == spellName && !i.isReplacedSpellSelection && i.selectionName != selectionName);
     }
 
     static #sortOptions(array, sortField) {

@@ -129,13 +129,13 @@ export class Dwarf {
         modifiers.push({
             name: "dwarven-languages-common",
             target: "language",
-            value: { name: "common", text: "Common" },
+            value: { value: "common", text: "Common" },
             title: Dwarf.title
         });
         modifiers.push({
             name: "dwarven-languages-dwarvish",
             target: "language",
-            value: { name: "dwarvish", text: "Dwarvish" },
+            value: { value: "dwarvish", text: "Dwarvish" },
             title: Dwarf.title
         });
 

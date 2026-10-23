@@ -254,12 +254,13 @@ export class SpellSelectionModel {
         let isComplete = false;
         const completedSelection = this.#kitElement.querySelector(".completed-selection-display");
         const completedSelectionHtml = this.#getCompletedSelection();
+        const spellSelectionElement = this.#kitElement.querySelector(".spell-selection");
         if (completedSelectionHtml) {
-            completedSelection.classList.remove("incomplete");
+            spellSelectionElement.classList.remove("incomplete");
             isComplete = true;
         }
         else {
-            completedSelection.classList.add("incomplete");
+            spellSelectionElement.classList.add("incomplete");
         }
         let display = completedSelectionHtml ?? this.#selectionModel.defaultSummaryDisplay ?? "Choose spells ...";
         this.#kitElement.querySelector(".completed-selection-display").innerHTML = display;

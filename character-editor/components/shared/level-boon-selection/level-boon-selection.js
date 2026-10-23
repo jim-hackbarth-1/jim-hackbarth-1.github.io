@@ -350,12 +350,13 @@ class LevelBoonSelectionModel {
         let isComplete = false;
         const completedSelection = this.#kitElement.querySelector(".completed-selection-display");
         const completedSelectionHtml = this.#getCompletedSelection();
+        const selectionElement = this.#kitElement.querySelector(".level-boon-selection")
         if (completedSelectionHtml) {
-            completedSelection.classList.remove("incomplete");
+            selectionElement.classList.remove("incomplete");
             isComplete = true;
         }
         else {
-            completedSelection.classList.add("incomplete");
+            selectionElement.classList.add("incomplete");
         }
         this.#kitElement.querySelector(".completed-selection-display").innerHTML = completedSelectionHtml ?? "Choose option ...";
         return isComplete;

@@ -20,7 +20,7 @@
 .selection .selection-collapsed {
     border: 1px solid black;
     border-radius: 3px;
-    background-color: #FFF8EB;
+    background-color: #C2B08E;
     cursor: pointer;
     padding: 5px;
     display: flex;
@@ -37,8 +37,11 @@
     cursor: pointer;
 }
 
-.selection .collapsed-option-label.selection-required label {
+.selection.selection-required .collapsed-option-label label {
     color: darkred;
+}
+.selection.selection-required .selection-collapsed {
+    background-color: #FFF8EB;
 }
 
 .selection .selection-expanded {

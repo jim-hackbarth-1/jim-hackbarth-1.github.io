@@ -137,14 +137,15 @@ export class SelectionModel {
             value = "multiple";
             text = `${currentSelections.length} selected`;
         }
+        const selectionElement = this.#kitElement.querySelector(".selection");
         const element = this.#kitElement.querySelector(".collapsed-option-label");
         if (element) {
             element.querySelector("label").innerHTML = text ?? "Choose an option ...";
             if (value) {
-                element.classList.remove("selection-required");
+                selectionElement.classList.remove("selection-required");
             }
             else {
-                element.classList.add("selection-required");
+                selectionElement.classList.add("selection-required");
             }
         }
     }

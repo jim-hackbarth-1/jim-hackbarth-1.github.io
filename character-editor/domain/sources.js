@@ -15,23 +15,7 @@ export class Sources {
     static #allRaces;
     static getRaces(sources) {
         if (!Sources.#allRaces) {
-            const allRaces = [];
-            for (const source of Sources.getSources()) {
-                if (source.getRaces) {
-                    const races = source.getRaces();
-                    for (const race of races) {
-                        const nameCollision = allRaces.find(r => r.name == race.name);
-                        if (nameCollision) {
-                            console.warn(`Duplicate race: ${race.name}. Sources: ${nameCollision.source.name}, ${source.name}`);
-                        }
-                        else {
-                            race.source = source;
-                            allRaces.push(race);
-                        }
-                    }
-                }
-            }
-            Sources.#allRaces = allRaces;
+            Sources.#allRaces = Sources.#loadSources("getRaces", "race");
         }
         return Sources.#allRaces.filter(r => sources.includes(r.source.name));
     }
@@ -49,23 +33,7 @@ export class Sources {
     static #allSubRaces;
     static getSubRaces(sources, race) {
         if (!Sources.#allSubRaces) {
-            const allSubRaces = [];
-            for (const source of Sources.getSources()) {
-                if (source.getSubRaces) {
-                    const subRaces = source.getSubRaces();
-                    for (const subRace of subRaces) {
-                        const nameCollision = allSubRaces.find(sr => sr.name == subRace.name);
-                        if (nameCollision) {
-                            console.warn(`Duplicate sub-race: ${subRace.name}. Sources: ${nameCollision.source.name}, ${source.name}`);
-                        }
-                        else {
-                            subRace.source = source;
-                            allSubRaces.push(subRace);
-                        }
-                    }
-                }
-            }
-            Sources.#allSubRaces = allSubRaces;
+            Sources.#allSubRaces = Sources.#loadSources("getSubRaces", "sub-race");
         }
         return Sources.#allSubRaces.filter(sr => sources.includes(sr.source.name) && sr.race == race);
     }
@@ -83,23 +51,7 @@ export class Sources {
     static #allClasses;
     static getClasses(sources) {
         if (!Sources.#allClasses) {
-            const allClasses = [];
-            for (const source of Sources.getSources()) {
-                if (source.getClasses) {
-                    const classes = source.getClasses();
-                    for (const cls of classes) {
-                        const nameCollision = allClasses.find(c => c.name == cls.name);
-                        if (nameCollision) {
-                            console.warn(`Duplicate class: ${cls.name}. Sources: ${nameCollision.source.name}, ${source.name}`);
-                        }
-                        else {
-                            cls.source = source;
-                            allClasses.push(cls);
-                        }
-                    }
-                }
-            }
-            Sources.#allClasses = allClasses;
+            Sources.#allClasses = Sources.#loadSources("getClasses", "class");
         }
         return Sources.#allClasses.filter(c => sources.includes(c.source.name));
     }
@@ -117,23 +69,7 @@ export class Sources {
     static #allSubClasses;
     static getSubClasses(sources, className) {
         if (!Sources.#allSubClasses) {
-            const allSubClasses = [];
-            for (const source of Sources.getSources()) {
-                if (source.getSubClasses) {
-                    const subClasses = source.getSubClasses();
-                    for (const subClass of subClasses) {
-                        const nameCollision = allSubClasses.find(sc => sc.name == subClass.name);
-                        if (nameCollision) {
-                            console.warn(`Duplicate sub-class: ${subClass.name}. Sources: ${nameCollision.source.name}, ${source.name}`);
-                        }
-                        else {
-                            subClass.source = source;
-                            allSubClasses.push(subClass);
-                        }
-                    }
-                }
-            }
-            Sources.#allSubClasses = allSubClasses;
+            Sources.#allSubClasses = Sources.#loadSources("getSubClasses", "sub-class");
         }
         return Sources.#allSubClasses.filter(sc => sources.includes(sc.source.name) && sc.className == className);
     }
@@ -151,23 +87,7 @@ export class Sources {
     static #allFeats;
     static getFeats(sources) {
         if (!Sources.#allFeats) {
-            const allFeats = [];
-            for (const source of Sources.getSources()) {
-                if (source.getFeats) {
-                    const feats = source.getFeats();
-                    for (const feat of feats) {
-                        const nameCollision = allFeats.find(f => f.name == feat.name);
-                        if (nameCollision) {
-                            console.warn(`Duplicate feat: ${feat.name}. Sources: ${nameCollision.source.name}, ${source.name}`);
-                        }
-                        else {
-                            feat.source = source;
-                            allFeats.push(feat);
-                        }
-                    }
-                }
-            }
-            Sources.#allFeats = allFeats;
+            Sources.#allFeats = Sources.#loadSources("getFeats", "feat");
         }
         return Sources.#allFeats.filter(f => sources.includes(f.source.name));
     }
@@ -212,23 +132,7 @@ export class Sources {
     static #allBackgrounds;
     static getBackgrounds(sources) {
         if (!Sources.#allBackgrounds) {
-            const allBackgrounds = [];
-            for (const source of Sources.getSources()) {
-                if (source.getBackgrounds) {
-                    const backgrounds = source.getBackgrounds();
-                    for (const background of backgrounds) {
-                        const nameCollision = allBackgrounds.find(b => b.name == background.name);
-                        if (nameCollision) {
-                            console.warn(`Duplicate background: ${background.name}. Sources: ${nameCollision.source.name}, ${source.name}`);
-                        }
-                        else {
-                            background.source = source;
-                            allBackgrounds.push(background);
-                        }
-                    }
-                }
-            }
-            Sources.#allBackgrounds = allBackgrounds;
+            Sources.#allBackgrounds = Sources.#loadSources("getBackgrounds", "background");
         }
         return Sources.#allBackgrounds.filter(b => sources.includes(b.source.name));
     }
@@ -266,23 +170,7 @@ export class Sources {
     static #allEquipment;
     static getEquipment(sources, category) {
         if (!Sources.#allEquipment) {
-            const allEquipment = [];
-            for (const source of Sources.getSources()) {
-                if (source.getEquipment) {
-                    const equipment = source.getEquipment();
-                    for (const item of equipment) {
-                        const nameCollision = allEquipment.find(e => e.name == item.name);
-                        if (nameCollision) {
-                            console.warn(`Duplicate equipment: ${item.name}. Sources: ${nameCollision.source.name}, ${source.name}`);
-                        }
-                        else {
-                            item.source = source;
-                            allEquipment.push(item);
-                        }
-                    }
-                }
-            }
-            Sources.#allEquipment = allEquipment;
+            Sources.#allEquipment = Sources.#loadSources("getEquipment", "equipment");
         }
         let results = Sources.#allEquipment.filter(ei => sources.includes(ei.source.name));
         if (category) {
@@ -304,23 +192,7 @@ export class Sources {
     static #allLanguages;
     static getLanguages(sources) {
         if (!Sources.#allLanguages) {
-            const allLanguages = [];
-            for (const source of Sources.getSources()) {
-                if (source.getLanguages) {
-                    const languages = source.getLanguages();
-                    for (const language of languages) {
-                        const nameCollision = allLanguages.find(l => l.value == language.value);
-                        if (nameCollision) {
-                            console.warn(`Duplicate language: ${language.name}. Sources: ${nameCollision.source.name}, ${source.name}`);
-                        }
-                        else {
-                            language.source = source;
-                            allLanguages.push(language);
-                        }
-                    }
-                }
-            }
-            Sources.#allLanguages = allLanguages;
+            Sources.#allLanguages = Sources.#loadSources("getLanguages", "language");
         }
         return Sources.#allLanguages.filter(l => sources.includes(l.source.name));
     }
@@ -352,23 +224,7 @@ export class Sources {
     static #allSpells;
     static getSpells(sources) {
         if (!Sources.#allSpells) {
-            const allSpells = [];
-            for (const source of Sources.getSources()) {
-                if (source.getSpells) {
-                    const spells = source.getSpells();
-                    for (const spell of spells) {
-                        const nameCollision = allSpells.find(s => s.name == spell.name);
-                        if (nameCollision) {
-                            console.warn(`Duplicate spell: ${spell.name}. Sources: ${nameCollision.source.name}, ${source.name}`);
-                        }
-                        else {
-                            spell.source = source;
-                            allSpells.push(spell);
-                        }
-                    }
-                }
-            }
-            Sources.#allSpells = allSpells;
+            Sources.#allSpells = Sources.#loadSources("getSpells", "spell");
         }
         return Sources.#allSpells.filter(s => sources.includes(s.source.name));
     }
@@ -383,8 +239,7 @@ export class Sources {
         return html ?? "";
     }
 
-    static updateCharacterSources(character, sources) {
-        
+    static updateCharacterSources(character, sources) {      
         if (character.race && !Sources.getRaces(sources).some(r => r.name == character.race)) {
             Sources.updateCharacterRace(character, null);
         }
@@ -411,16 +266,13 @@ export class Sources {
         if (character.background?.value && !Sources.getBackgrounds(sources).some(b => b.name == character.background.value)) {
             Sources.updateCharacterBackground(character, null);
         }
-
         const allEquipment = Sources.getEquipment(sources);
         for (let i = 0; i < character.equipment.length; i++) {
             if (!allEquipment.some(e => e.name == character.equipment[i].name)) {
                 Sources.removeCharacterEquipment(character, i);
             }
         }
-
         character.selections = character.selections.filter(s => s.values.every(v => sources.includes(v.source)));
-
         character.sources = sources;
     }
 
@@ -603,7 +455,7 @@ export class Sources {
         // reset modifiers
         character.modifiers = [];
 
-        // apply saving throw modifiers
+        // apply saving throw proficiency modifiers
         const targetFilters = {
             targets: ["saving-throw-proficiency"],
             includeTarget: (target) => {
@@ -659,12 +511,7 @@ export class Sources {
         // race
         if (character.race?.value) {
             const race = Sources.getRaces(character.sources).find(r => r.name == character.race.value);
-            if (race?.applyFeatures) {
-                race.applyFeatures(features, character);
-            }
-            if (race?.applySpells) {
-                race.applySpells(spells, character);
-            }
+            Sources.#applyFeaturesAndSpells(race, features, spells, [character]);
         }
 
         // subRace
@@ -672,12 +519,7 @@ export class Sources {
             const subRace = Sources
                 .getSubRaces(character.sources, character.race.value)
                 .find(sr => sr.name == character.subRace.value);
-            if (subRace?.applyFeatures) {
-                subRace.applyFeatures(features, character);
-            }
-            if (subRace?.applySpells) {
-                subRace.applySpells(spells, character);
-            }
+            Sources.#applyFeaturesAndSpells(subRace, features, spells, [character]);
         }
 
         // classes, subclasses, and feats
@@ -686,7 +528,6 @@ export class Sources {
             const characterClass = character.classes[i];
             if (characterClass.value && characterClass.level) {
                 const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.value);
-
                 let multiclassEligibility = true;
                 if (cls.getMulticlassEligibility) {
                     multiclassEligibility = cls.getMulticlassEligibility(character).isEligible;
@@ -699,33 +540,17 @@ export class Sources {
                         continue;
                     }
                 }
-
-                if (cls?.applyFeatures) {
-                    cls.applyFeatures(features, character, i);
-                }
-                if (cls?.applySpells) {
-                    cls.applySpells(spells, character, i);
-                }
+                Sources.#applyFeaturesAndSpells(cls, features, spells, [character, i]);
             }
             if (characterClass.value && characterClass.level && characterClass.subClass?.value) {
                 const subClass = Sources.getSubClasses(character.sources, characterClass.value)
                     .find(sc => sc.name == characterClass.subClass.value);
-                if (subClass?.applyFeatures) {
-                    subClass.applyFeatures(features, character, i);
-                }
-                if (subClass?.applySpells) {
-                    subClass.applySpells(spells, character, i);
-                }
+                Sources.#applyFeaturesAndSpells(subClass, features, spells, [character, i]);
             }
             for (const levelBoon of characterClass.levelBoons) {
                 if (levelBoon.feat?.value) {
                     const feat = Sources.getFeats(character.sources).find(f => f.name == levelBoon.feat?.value);
-                    if (feat?.applyFeatures) {
-                        feat.applyFeatures(features, character, i, levelBoon.level);
-                    }
-                    if (feat?.applySpells) {
-                        feat.applySpells(spells, character, i, levelBoon.level);
-                    }
+                    Sources.#applyFeaturesAndSpells(feat, features, spells, [character, i, levelBoon.level]);
                 }
             }
         }
@@ -733,23 +558,13 @@ export class Sources {
         // background
         if (character.background?.value) {
             const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background.value);
-            if (background?.applyFeatures) {
-                background.applyFeatures(features, character);
-            }
-            if (background?.applySpells) {
-                background.applySpells(spells, character);
-            }
+            Sources.#applyFeaturesAndSpells(background, features, spells, [character]);
         }
 
         // equipment
         for (let i = 0; i < character.equipment.length; i++) {
             const equipment = Sources.getEquipment(character.sources).find(e => e.name == character.equipment[i].name);
-            if (equipment?.applyFeatures) {
-                equipment.applyFeatures(features, character, i);
-            }
-            if (equipment?.applySpells) {
-                equipment.applySpells(spells, character, i);
-            }
+            Sources.#applyFeaturesAndSpells(equipment, features, spells, [character, i]);
         }
 
         // spells
@@ -793,6 +608,35 @@ export class Sources {
 
         return features;
 
+    }
+
+    static #applyFeaturesAndSpells(domainSource, features, spells, parameters) {       
+        if (domainSource?.applyFeatures) {
+            domainSource.applyFeatures(features, ...parameters);
+        }
+        if (domainSource?.applySpells) {
+            domainSource.applySpells(spells, ...parameters);
+        }
+    }
+
+    static #loadSources(sourceMethodName, sourceName) {
+        const allSourceItems = [];
+        for (const source of Sources.getSources()) {
+            if (source[sourceMethodName]) {
+                const sourceItems = source[sourceMethodName]();
+                for (const sourceItem of sourceItems) {
+                    const nameCollision = allSourceItems.find(si => si.name == sourceItem.name);
+                    if (nameCollision) {
+                        console.warn(`Duplicate ${sourceName}: ${sourceItem.name}. Sources: ${nameCollision.source.name}, ${source.name}`);
+                    }
+                    else {
+                        sourceItem.source = source;
+                        allSourceItems.push(sourceItem);
+                    }
+                }
+            }
+        }
+        return allSourceItems;
     }
 
     static async #getHtml(basePath, path) {

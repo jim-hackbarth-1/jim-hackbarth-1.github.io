@@ -7,6 +7,11 @@
                  kit-obj-selection-model="selectionModel:#model.getRaceSelectionModel()">
             </kit>
         </div>
+        <div id="sub-race-row" kit-if="#model.hasSubRaces()">
+            <kit kit-component="./components/shared/selection/selection.html"
+                 kit-obj-selection-model="selectionModel:#model.getSubRaceSelectionModel()">
+            </kit>
+        </div>
         <div id="race-selections-row" kit-if="#model.hasRaceSelections()">
             <div kit-array="#model.getRaceSelections()"
                  kit-array-item-alias="selection">
@@ -16,11 +21,6 @@
                     </kit>
                 </div>
             </div>
-        </div>
-        <div id="sub-race-row" kit-if="#model.hasSubRaces()">
-            <kit kit-component="./components/shared/selection/selection.html"
-                 kit-obj-selection-model="selectionModel:#model.getSubRaceSelectionModel()">
-            </kit>
         </div>
         <div id="sub-race-selections-row" kit-if="#model.hasSubRaceSelections()">
             <div kit-array="#model.getSubRaceSelections()"

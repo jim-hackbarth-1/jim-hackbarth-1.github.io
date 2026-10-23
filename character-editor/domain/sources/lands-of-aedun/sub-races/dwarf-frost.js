@@ -48,7 +48,7 @@ export class DwarfFrost {
         modifiers.push({
             name: "frost-dwarf-languages-common",
             target: "language",
-            value: { name: "common", text: "Common" },
+            value: { value: "common", text: "Common" },
             title: DwarfFrost.title
         });
         modifiers.push({

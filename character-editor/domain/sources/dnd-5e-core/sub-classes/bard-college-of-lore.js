@@ -129,6 +129,14 @@ export class BardCollegeOfLore {
     static applyModifiers(character, classIndex, targetFilters) {
         const modifiers = [];
         const level = Number(character.classes.find(c => c.value == "bard").level);
+
+        if (level < 3) {
+            character.removeSelection(`${BardCollegeOfLore.name}-skill-proficiencies`);
+        }
+        if (level < 6) {
+            character.removeSelection(`${BardCollegeOfLore.name}-additional-magical-secrets-spells`);
+        }
+
         const skillProficiencies = character.selections.find(s => s.name == `${BardCollegeOfLore.name}-skill-proficiencies`)?.values ?? [];
         for (const skillProficiency of skillProficiencies) {
             modifiers.push({

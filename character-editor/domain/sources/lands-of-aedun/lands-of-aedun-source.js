@@ -86,14 +86,14 @@ export class LandsOfAedunSource {
     }
 
     static #languages = [
-        { value: "incanta", text: "Incanta" },
-        { value: "wullah", text: "Wullah" },
-        { value: "drow", text: "Drow" },
-        { value: "ruic", text: "Ruic" },
-        { value: "gaizhan", text: "Gaizhan" },
-        { value: "daymu", text: "Daymu" },
-        { value: "sea-bash", text: "Sea Bash" },
-        { value: "shadow-talk", text: "Shadow Talk" }
+        { name: "incanta", title: "Incanta" },
+        { name: "wullah", title: "Wullah" },
+        { name: "drow", title: "Drow" },
+        { name: "ruic", title: "Ruic" },
+        { name: "gaizhan", title: "Gaizhan" },
+        { name: "daymu", title: "Daymu" },
+        { name: "sea-bash", title: "Sea Bash" },
+        { name: "shadow-talk", title: "Shadow Talk" }
     ];
     static getLanguages() {
         return LandsOfAedunSource.#languages;

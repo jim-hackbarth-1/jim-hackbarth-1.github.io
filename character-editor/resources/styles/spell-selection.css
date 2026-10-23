@@ -16,8 +16,16 @@
     margin-bottom: 5px;
 }
 
-.spell-selection .completed-selection-display.incomplete {
+.spell-selection.incomplete .completed-selection-display {
     color: darkred;
+}
+
+.spell-selection.incomplete .spell-selection-container {
+    background-color: #FFF8EB;
+}
+
+.spell-selection.incomplete .selection-content {
+    background-color: #FFF8EB;
 }
 
 .spell-selection .toggle-button {

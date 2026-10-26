@@ -139,7 +139,7 @@ class DomainEquipmentModel {
             equipment = Sources.getEquipment(DomainEquipmentModel.#character.sources, DomainEquipmentModel.#equipmentCategory.value);
         }
         if (equipment.length == 0) {
-            equipment.push({ properties: ["[No equipment]"] });
+            equipment.push({ displayProperties: ["[No equipment]"] });
         }
         else {
             for (const item of equipment) {
@@ -231,19 +231,19 @@ class DomainEquipmentModel {
                     selection.updateSelection = this.updateEquipmentSelection;
                 }
             }
-            let properties = item.properties ?? [];
+            let displayProperties = item.displayProperties ?? [];
             if (item.armorType == "shield") {
-                properties.push("<span class='property-note'>(Only 1 shield may be equipped.)</span>");
+                displayProperties.push("<span class='property-note'>(Only 1 shield may be equipped.)</span>");
             }
             if (armorTypes.includes(item.armorType)) {
-                properties.push("<span class='property-note'>(Only 1 armor may be equipped.)</span>");
+                displayProperties.push("<span class='property-note'>(Only 1 armor may be equipped.)</span>");
             }
             inventory.push({
                 index: i,
                 name: item.name,
                 title: item.title,
                 source: item.source,
-                properties: properties,
+                displayProperties: item.displayProperties,
                 canBeEquipped: item.canBeEquipped,
                 selections: selections,
                 html: item.html,
@@ -252,7 +252,7 @@ class DomainEquipmentModel {
             });
         }
         if (inventory.length == 0) {
-            inventory.push({ properties: ["[No inventory]"] });
+            inventory.push({ displayProperties: ["[No inventory]"] });
         }
         else {
             inventory = Utilities.sort(inventory, "title");
@@ -269,7 +269,8 @@ class DomainEquipmentModel {
         }
         const isEquipped = event.srcElement.checked;
         if (isEquipped) {
-            const equipment = Sources.getEquipment(character.sources).find(e => e.name == character.equipment[index].name);
+            const allEquipment = Sources.getEquipment(character.sources);
+            const equipment = allEquipment.find(e => e.name == character.equipment[index].name);
             let canEquip = true;
             if (equipment.armorType == "shield") {
                 canEquip = !this.#hasEquippedShield(character, index);
@@ -280,7 +281,7 @@ class DomainEquipmentModel {
             }
             if (canEquip) {
                 if (equipment.equip) {
-                    equipment.equip(character, index);
+                    equipment.equip(character, index, allEquipment);
                 } else {
                     inventoryItem.isEquipped = true;
                 }
@@ -396,9 +397,10 @@ class DomainEquipmentModel {
         const inventoryItem = character.equipment[index];
         Sources.updateCharacterEquipmentSelection(inventoryItem, selection);
         if (inventoryItem.isEquipped) {
-            const equipment = Sources.getEquipment(character.sources).find(e => e.name == inventoryItem.name);
+            const allEquipment = Sources.getEquipment(character.sources);
+            const equipment = allEquipment.find(e => e.name == inventoryItem.name);
             if (equipment?.equip) {
-                equipment.equip(character, index);
+                equipment.equip(character, index, allEquipment);
             }
         }
         const message = {

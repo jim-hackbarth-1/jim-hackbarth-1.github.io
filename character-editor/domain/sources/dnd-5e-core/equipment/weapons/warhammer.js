@@ -15,10 +15,22 @@ export class Warhammer {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Warhammer.name },
+            { name: "weapon-title", value: Warhammer.title },
+            { name: "weapon-type", value: "martial-melee" },
+            { name: "damage-dice", value: "1d8" },
+            { name: "versatile-damage-dice", value: "1d10" },
+            { name: "damage-type", value: "bludgeoning" },
+            { name: "versatile" }
+        ];
+
+    }
+    static get displayProperties() {
+        return [
             "Cost: 15gp",
             "Damage: 1d8 bludgeoning",
-            "Versatile (1d10)",
-            "Martial melee weapon"
+            "Martial melee weapon",
+            "Properties: Versatile (1d10)"
         ];
     }
 
@@ -26,13 +38,9 @@ export class Warhammer {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Warhammer.name },
-            { name: "weapon-type", value: "martial-melee" },
-            { name: "versatile" }
-        ];
+        item.properties = Warhammer.properties;
         item.isEquipped = true;
     }
 

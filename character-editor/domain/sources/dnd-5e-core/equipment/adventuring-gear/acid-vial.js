@@ -14,6 +14,10 @@ export class AcidVial {
     }
 
     static get properties() {
+        return [];
+    }
+
+    static get displayProperties() {
         return ["Cost: 25gp"];
     }
 

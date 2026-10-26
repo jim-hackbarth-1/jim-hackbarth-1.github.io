@@ -15,10 +15,21 @@ export class Greatclub {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Greatclub.name },
+            { name: "weapon-title", value: Greatclub.title },
+            { name: "weapon-type", value: "simple-melee" },
+            { name: "damage-dice", value: "1d8" },
+            { name: "damage-type", value: "bludgeoning" },
+            { name: "two-handed" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 2sp",
             "Damage: 1d8 bludgeoning",
-            "Two-handed",
-            "Simple melee weapon"
+            "Simple melee weapon",
+            "Properties: Two-handed"
         ];
     }
 
@@ -26,13 +37,9 @@ export class Greatclub {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Greatclub.name },
-            { name: "weapon-type", value: "simple-melee" },
-            { name: "two-handed" }
-        ];
+        item.properties = Greatclub.properties;
         item.isEquipped = true;
     }
 

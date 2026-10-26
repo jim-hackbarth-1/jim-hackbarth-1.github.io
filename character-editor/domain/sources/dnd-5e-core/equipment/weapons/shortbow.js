@@ -15,11 +15,23 @@ export class Shortbow {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Shortbow.name },
+            { name: "weapon-title", value: Shortbow.title },
+            { name: "weapon-type", value: "simple-ranged" },
+            { name: "damage-dice", value: "1d6" },
+            { name: "damage-type", value: "piercing" },
+            { name: "range", value: "80/320" },
+            { name: "ammunition" },
+            { name: "two-handed" }
+        ];
+
+    }
+    static get displayProperties() {
+        return [
             "Cost: 25gp",
             "Damage: 1d6 piercing",
-            "Ammunition (range 80/320)",
-            "two-handed",
-            "Simple ranged weapon"
+            "Simple ranged weapon",
+            "Properties: Range 80/320, Ammunition, Two-handed"
         ];
     }
 
@@ -27,13 +39,9 @@ export class Shortbow {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Shortbow.name },
-            { name: "weapon-type", value: "simple-ranged" },
-            { name: "two-handed" }
-        ];
+        item.properties = Shortbow.properties;
         item.isEquipped = true;
     }
 

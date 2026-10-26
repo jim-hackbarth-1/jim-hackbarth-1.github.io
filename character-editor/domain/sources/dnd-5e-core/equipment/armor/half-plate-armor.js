@@ -19,6 +19,14 @@ export class HalfPlateArmor {
 
     static get properties() {
         return [
+            { name: "armor-name", value: HalfPlateArmor.name },
+            { name: "armor-title", value: HalfPlateArmor.title },
+            { name: "armor-type", value: "medium-armor" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 750gp",
             "Armor Class: 15 + Dex modifier (max 2)",
             "Stealth: Disadvantage"
@@ -41,12 +49,9 @@ export class HalfPlateArmor {
         return [];
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "armor-name", value: HalfPlateArmor.name },
-            { name: "armor-type", value: "medium-armor" }
-        ];
+        item.properties = HalfPlateArmor.properties;
         item.isEquipped = true;
     }
 

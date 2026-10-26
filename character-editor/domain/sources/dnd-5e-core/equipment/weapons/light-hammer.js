@@ -15,11 +15,23 @@ export class LightHammer {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: LightHammer.name },
+            { name: "weapon-title", value: LightHammer.title },
+            { name: "weapon-type", value: "simple-melee" },
+            { name: "damage-dice", value: "1d4" },
+            { name: "damage-type", value: "bludgeoning" },
+            { name: "range", value: "20/60" },
+            { name: "light" },
+            { name: "thrown" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 2gp",
             "Damage: 1d4 bludgeoning",
-            "Light",
-            "Thrown (range 20/60)",
-            "Simple melee weapon"
+            "Simple melee weapon",
+            "Properties: Range 20/60, Light, Thrown" 
         ];
     }
 
@@ -27,14 +39,9 @@ export class LightHammer {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Dagger.name },
-            { name: "weapon-type", value: "simple-melee" },
-            { name: "light" },
-            { name: "thrown" }
-        ];
+        item.properties = LightHammer.properties;
         item.isEquipped = true;
     }
 

@@ -15,11 +15,22 @@ export class Greataxe {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Greataxe.name },
+            { name: "weapon-title", value: Greataxe.title },
+            { name: "weapon-type", value: "martial-melee" },
+            { name: "damage-dice", value: "1d12" },
+            { name: "damage-type", value: "slashing" },
+            { name: "heavy" },
+            { name: "two-handed" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 30gp",
             "Damage: 1d12 slashing",
-            "Heavy",
-            "Two-handed",
-            "Martial melee weapon"
+            "Martial melee weapon",
+            "Properties: Heavy, Two-handed"
         ];
     }
 
@@ -27,14 +38,9 @@ export class Greataxe {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Greataxe.name },
-            { name: "weapon-type", value: "martial-melee" },
-            { name: "heavy" },
-            { name: "two-handed" }
-        ];
+        item.properties = Greataxe.properties;
         item.isEquipped = true;
     }
 

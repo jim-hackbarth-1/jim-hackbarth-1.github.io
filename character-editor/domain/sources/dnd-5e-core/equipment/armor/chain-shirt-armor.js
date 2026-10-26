@@ -18,6 +18,14 @@ export class ChainShirtArmor {
     }
 
     static get properties() {
+        return [
+            { name: "armor-name", value: ChainShirtArmor.name },
+            { name: "armor-title", value: ChainShirtArmor.title },
+            { name: "armor-type", value: "medium-armor" }
+        ];
+    }
+
+    static get displayProperties() {
         return ["Cost: 50gp", "Armor Class: 13 + Dex modifier (max 2)"];
     }
 
@@ -37,12 +45,9 @@ export class ChainShirtArmor {
         return [];
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "armor-name", value: ChainShirtArmor.name },
-            { name: "armor-type", value: "medium-armor" }
-        ];
+        item.properties = ChainShirtArmor.properties;
         item.isEquipped = true;
     }
 

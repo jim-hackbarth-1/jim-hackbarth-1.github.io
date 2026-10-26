@@ -17,6 +17,10 @@ export class HerbalismKit {
         return [];
     }
 
+    static get displayProperties() {
+        return [];
+    }
+
     static get canBeEquipped() {
         return false;
     }

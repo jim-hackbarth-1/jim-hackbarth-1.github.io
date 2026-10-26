@@ -15,6 +15,16 @@ export class Flail {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Flail.name },
+            { name: "weapon-title", value: Flail.title },
+            { name: "weapon-type", value: "martial-melee" },
+            { name: "damage-dice", value: "1d8" },
+            { name: "damage-type", value: "bludgeoning" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 10gp",
             "Damage: 1d8 bludgeoning",
             "Martial melee weapon"
@@ -25,12 +35,9 @@ export class Flail {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Flail.name },
-            { name: "weapon-type", value: "martial-melee" }
-        ];
+        item.properties = Flail.properties;
         item.isEquipped = true;
     }
 

@@ -19,6 +19,15 @@ export class PlateArmor {
 
     static get properties() {
         return [
+            { name: "armor-name", value: PlateArmor.name },
+            { name: "armor-title", value: PlateArmor.title },
+            { name: "armor-type", value: "heavy-armor" },
+            { name: "strength", value: "15" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 1,500gp",
             "Armor Class: 18",
             "Strength requirement: 15",
@@ -42,13 +51,9 @@ export class PlateArmor {
         return [];
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "armor-name", value: PlateArmor.name },
-            { name: "armor-type", value: "heavy-armor" },
-            { name: "strength", value: "15" }
-        ];
+        item.properties = PlateArmor.properties;
         item.isEquipped = true;
     }
 

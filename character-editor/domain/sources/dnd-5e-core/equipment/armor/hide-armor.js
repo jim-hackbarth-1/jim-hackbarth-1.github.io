@@ -19,6 +19,14 @@ export class HideArmor {
 
     static get properties() {
         return [
+            { name: "armor-name", value: HideArmor.name },
+            { name: "armor-title", value: HideArmor.title },
+            { name: "armor-type", value: "medium-armor" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 10gp",
             "Armor Class: 12 + Dex modifier (max 2)"
         ];
@@ -40,12 +48,9 @@ export class HideArmor {
         return [];
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "armor-name", value: HideArmor.name },
-            { name: "armor-type", value: "medium-armor" }
-        ];
+        item.properties = HideArmor.properties;
         item.isEquipped = true;
     }
 

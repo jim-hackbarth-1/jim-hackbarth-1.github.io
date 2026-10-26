@@ -15,6 +15,10 @@ export class BracersOfArchery {
 
     static get properties() {
         return [];
+
+    }
+    static get displayProperties() {
+        return [];
     }
 
     static get canBeEquipped() {

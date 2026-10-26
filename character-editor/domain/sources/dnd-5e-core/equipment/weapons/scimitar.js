@@ -15,11 +15,22 @@ export class Scimitar {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Scimitar.name },
+            { name: "weapon-title", value: Scimitar.title },
+            { name: "weapon-type", value: "martial-melee" },
+            { name: "damage-dice", value: "1d6" },
+            { name: "damage-type", value: "slashing" },
+            { name: "finesse" },
+            { name: "light" }
+        ];
+
+    }
+    static get displayProperties() {
+        return [
             "Cost: 25gp",
             "Damage: 1d6 slashing",
-            "Finesse",
-            "Light",
-            "Martial melee weapon"
+            "Martial melee weapon",
+            "Properties: Finesse, Light"
         ];
     }
 
@@ -27,14 +38,9 @@ export class Scimitar {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Scimitar.name },
-            { name: "weapon-type", value: "martial-melee" },
-            { name: "finesse" },
-            { name: "light" }
-        ];
+        item.properties = Scimitar.properties;
         item.isEquipped = true;
     }
 

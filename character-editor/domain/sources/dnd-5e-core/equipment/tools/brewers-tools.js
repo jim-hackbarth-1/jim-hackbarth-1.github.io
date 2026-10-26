@@ -17,6 +17,10 @@ export class BrewersTools {
         return ["artisans-tools"];
     }
 
+    static get displayProperties() {
+        return [];
+    }
+
     static get canBeEquipped() {
         return false;
     }

@@ -15,11 +15,22 @@ export class Maul {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Maul.name },
+            { name: "weapon-title", value: Maul.title },
+            { name: "weapon-type", value: "martial-melee" },
+            { name: "damage-dice", value: "2d6" },
+            { name: "damage-type", value: "bludgeoning" },
+            { name: "heavy" },
+            { name: "two-handed" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 10gp",
             "Damage: 2d6 bludgeoning",
-            "Heavy",
-            "Two-handed",
-            "Martial melee weapon"
+            "Martial melee weapon",
+            "Properties: Heavy, Two-handed"  
         ];
     }
 
@@ -27,14 +38,9 @@ export class Maul {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Maul.name },
-            { name: "weapon-type", value: "martial-melee" },
-            { name: "heavy" },
-            { name: "two-handed" }
-        ];
+        item.properties = Maul.properties;
         item.isEquipped = true;
     }
 

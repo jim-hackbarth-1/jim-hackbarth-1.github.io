@@ -15,11 +15,22 @@ export class Shortsword {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Shortsword.name },
+            { name: "weapon-title", value: Shortsword.title },
+            { name: "weapon-type", value: "martial-melee" },
+            { name: "damage-dice", value: "1d6" },
+            { name: "damage-type", value: "piercing" },
+            { name: "finesse" },
+            { name: "light" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 10gp",
             "Damage: 1d6 piercing",
-            "Finesse",
-            "Light",
-            "Martial melee weapon"
+            "Martial melee weapon",
+            "Properties: Finesse, Light"
         ];
     }
 
@@ -27,14 +38,9 @@ export class Shortsword {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Shortsword.name },
-            { name: "weapon-type", value: "martial-melee" },
-            { name: "finesse" },
-            { name: "light" }
-        ];
+        item.properties = Shortsword.properties;
         item.isEquipped = true;
     }
 

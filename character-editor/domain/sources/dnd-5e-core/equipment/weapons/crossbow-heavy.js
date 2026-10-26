@@ -15,13 +15,25 @@ export class CrossbowHeavy {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: CrossbowHeavy.name },
+            { name: "weapon-title", value: CrossbowHeavy.title },
+            { name: "weapon-type", value: "martial-ranged" },
+            { name: "damage-dice", value: "1d10" },
+            { name: "damage-type", value: "piercing" },
+            { name: "range", value: "100/400" },
+            { name: "ammunition" },
+            { name: "heavy" },
+            { name: "loading" },
+            { name: "two-handed" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 50gp",
             "Damage: 1d10 piercing",
-            "Ammunition (range 100/400)",
-            "heavy",
-            "loading",
-            "two-handed",
-            "Martial ranged weapon"
+            "Martial ranged weapon",
+            "Properties: Range 100/400, Ammunition, Heavy, Loading, Two-handed"
         ];
     }
 
@@ -29,14 +41,9 @@ export class CrossbowHeavy {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: CrossbowHeavy.name },
-            { name: "weapon-type", value: "martial-ranged" },
-            { name: "heavy" },
-            { name: "two-handed" }
-        ];
+        item.properties = CrossbowHeavy.properties;
         item.isEquipped = true;
     }
 

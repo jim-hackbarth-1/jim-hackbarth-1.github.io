@@ -15,12 +15,23 @@ export class Dart {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Dart.name },
+            { name: "weapon-title", value: Dart.title },
+            { name: "weapon-type", value: "simple-ranged" },
+            { name: "damage-dice", value: "1d4" },
+            { name: "damage-type", value: "piercing" },
+            { name: "range", value: "20/60" },
+            { name: "finesse" },
+            { name: "thrown" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 5cp",
             "Damage: 1d4 piercing",
-            "Range 20/60",
-            "finesse",
-            "thrown",
-            "Simple ranged weapon"
+            "Simple ranged weapon",
+            "Properties: Range 20/60, Finesse, Thrown"
         ];
     }
 
@@ -28,14 +39,9 @@ export class Dart {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Dart.name },
-            { name: "weapon-type", value: "simple-ranged" },
-            { name: "finesse" },
-            { name: "thrown" }
-        ];
+        item.properties = Dart.properties;
         item.isEquipped = true;
     }
 

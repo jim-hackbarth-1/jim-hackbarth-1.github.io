@@ -14,6 +14,10 @@ export class Reliquary {
     }
 
     static get properties() {
+        return [];
+    }
+
+    static get displayProperties() {
         return ["Cost: 5gp"];
     }
 

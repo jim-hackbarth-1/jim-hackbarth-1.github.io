@@ -15,11 +15,23 @@ export class Blowgun {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Blowgun.name },
+            { name: "weapon-title", value: Blowgun.title },
+            { name: "weapon-type", value: "martial-ranged" },
+            { name: "damage-dice", value: "1d1" },
+            { name: "damage-type", value: "piercing" },
+            { name: "range", value: "25/100" },
+            { name: "ammunition" },
+            { name: "loading" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 10gp",
             "Damage: 1 piercing",
-            "Ammunition (range 25/100)",
-            "loading",
-            "Martial ranged weapon"
+            "Martial ranged weapon",
+            "Properties: Range 25/100, Ammunition, Loading"
         ];
     }
 
@@ -27,12 +39,9 @@ export class Blowgun {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Blowgun.name },
-            { name: "weapon-type", value: "martial-ranged" }
-        ];
+        item.properties = Blowgun.properties;
         item.isEquipped = true;
     }
 

@@ -15,12 +15,25 @@ export class CrossbowLight {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: CrossbowLight.name },
+            { name: "weapon-title", value: CrossbowLight.title },
+            { name: "weapon-type", value: "simple-ranged" },
+            { name: "damage-dice", value: "1d8" },
+            { name: "versatile-damage-dice", value: "1d10" },
+            { name: "damage-type", value: "piercing" },
+            { name: "range", value: "80/320" },
+            { name: "ammunition" },
+            { name: "loading" },
+            { name: "two-handed" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 25gp",
             "Damage: 1d8 piercing",
-            "Ammunition (range 80/320)",
-            "loading",
-            "two-handed",
-            "Simple ranged weapon"
+            "Simple ranged weapon",
+            "Properties: Range 80/320, Ammunition, Loading, Two-handed"
         ];
     }
 
@@ -28,13 +41,9 @@ export class CrossbowLight {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: CrossbowLight.name },
-            { name: "weapon-type", value: "simple-ranged" },
-            { name: "two-handed" }
-        ];
+        item.properties = CrossbowLight.properties;
         item.isEquipped = true;
     }
 

@@ -15,10 +15,21 @@ export class Sickle {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Sickle.name },
+            { name: "weapon-title", value: Sickle.title },
+            { name: "weapon-type", value: "simple-melee" },
+            { name: "damage-dice", value: "1d4" },
+            { name: "damage-type", value: "slashing" },
+            { name: "light" }
+        ];
+
+    }
+    static get displayProperties() {
+        return [
             "Cost: 1gp",
             "Damage: 1d4 slashing",
-            "Light",
-            "Simple melee weapon"
+            "Simple melee weapon",
+            "Properties: Light"
         ];
     }
 
@@ -26,13 +37,9 @@ export class Sickle {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Sickle.name },
-            { name: "weapon-type", value: "simple-melee" },
-            { name: "light" },
-        ];
+        item.properties = Sickle.properties;
         item.isEquipped = true;
     }
 

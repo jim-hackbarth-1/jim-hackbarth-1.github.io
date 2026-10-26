@@ -15,12 +15,24 @@ export class Longbow {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Longbow.name },
+            { name: "weapon-title", value: Longbow.title },
+            { name: "weapon-type", value: "martial-ranged" },
+            { name: "damage-dice", value: "1d8" },
+            { name: "damage-type", value: "piercing" },
+            { name: "range", value: "150/600" },
+            { name: "ammunition" },
+            { name: "heavy" },
+            { name: "two-handed" }
+        ];
+
+    }
+    static get displayProperties() {
+        return [
             "Cost: 50gp",
             "Damage: 1d8 piercing",
-            "Ammunition (range 150/600)",
-            "heavy",
-            "two-handed",
-            "Martial ranged weapon"
+            "Martial ranged weapon",
+            "Properties: Range 150/600, Ammunition, Heavy, Two-handed" 
         ];
     }
 
@@ -28,14 +40,9 @@ export class Longbow {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Longbow.name },
-            { name: "weapon-type", value: "martial-ranged" },
-            { name: "heavy" },
-            { name: "two-handed" }
-        ];
+        item.properties = Longbow.properties;
         item.isEquipped = true;
     }
 

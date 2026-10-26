@@ -17,6 +17,10 @@ export class Flute {
         return ["musical-instrument"];
     }
 
+    static get displayProperties() {
+        return [];
+    }
+
     static get canBeEquipped() {
         return true;
     }

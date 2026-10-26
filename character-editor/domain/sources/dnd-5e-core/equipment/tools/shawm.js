@@ -17,6 +17,10 @@ export class Shawm {
         return ["musical-instrument"];
     }
 
+    static get displayProperties() {
+        return [];
+    }
+
     static get canBeEquipped() {
         return true;
     }

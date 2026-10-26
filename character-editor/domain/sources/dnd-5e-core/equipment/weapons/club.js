@@ -15,10 +15,21 @@ export class Club {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Club.name },
+            { name: "weapon-title", value: Club.title },
+            { name: "weapon-type", value: "simple-melee" },
+            { name: "damage-dice", value: "1d4" },
+            { name: "damage-type", value: "bludgeoning" },
+            { name: "light" }
+        ];
+
+    }
+    static get displayProperties() {
+        return [
             "Cost: 1sp",
             "Damage: 1d4 bludgeoning",
-            "Light",
-            "Simple melee weapon"
+            "Simple melee weapon",
+            "Properties: Light"
         ];
     }
 
@@ -26,13 +37,9 @@ export class Club {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Club.name },
-            { name: "weapon-type", value: "simple-melee" },
-            { name: "light" }
-        ];
+        item.properties = Club.properties;
         item.isEquipped = true;
     }
 

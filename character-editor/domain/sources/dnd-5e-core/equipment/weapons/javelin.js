@@ -15,10 +15,22 @@ export class Javelin {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Javelin.name },
+            { name: "weapon-title", value: Javelin.title },
+            { name: "weapon-type", value: "simple-melee" },
+            { name: "damage-dice", value: "1d6" },
+            { name: "damage-type", value: "piercing" },
+            { name: "range", value: "30/120" },
+            { name: "thrown" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 5sp",
             "Damage: 1d6 piercing",
-            "Thrown (range 30/120)",
-            "Simple melee weapon"
+            "Simple melee weapon",
+            "Properties: Range 30/120, Thrown"
         ];
     }
 
@@ -26,13 +38,9 @@ export class Javelin {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Javelin.name },
-            { name: "weapon-type", value: "simple-melee" },
-            { name: "thrown" }
-        ];
+        item.properties = Javelin.properties;
         item.isEquipped = true;
     }
 

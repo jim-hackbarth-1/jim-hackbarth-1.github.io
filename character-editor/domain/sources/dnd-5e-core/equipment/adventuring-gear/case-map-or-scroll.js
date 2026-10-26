@@ -14,6 +14,10 @@ export class CaseMapOrScroll {
     }
 
     static get properties() {
+        return [];
+    }
+
+    static get displayProperties() {
         return ["Cost: 1gp"];
     }
 

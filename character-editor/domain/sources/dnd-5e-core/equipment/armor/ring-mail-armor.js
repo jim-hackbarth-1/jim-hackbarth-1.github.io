@@ -19,6 +19,14 @@ export class RingMailArmor {
 
     static get properties() {
         return [
+            { name: "armor-name", value: RingMailArmor.name },
+            { name: "armor-title", value: RingMailArmor.title },
+            { name: "armor-type", value: "heavy-armor" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 30gp",
             "Armor Class: 14",
             "Stealth: Disadvantage"
@@ -41,12 +49,9 @@ export class RingMailArmor {
         return [];
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "armor-name", value: RingMailArmor.name },
-            { name: "armor-type", value: "heavy-armor" }
-        ];
+        item.properties = RingMailArmor.properties;
         item.isEquipped = true;
     }
 

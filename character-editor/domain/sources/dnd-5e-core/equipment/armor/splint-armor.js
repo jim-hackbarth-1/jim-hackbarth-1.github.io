@@ -19,6 +19,15 @@ export class SplintArmor {
 
     static get properties() {
         return [
+            { name: "armor-name", value: SplintArmor.name },
+            { name: "armor-title", value: SplintArmor.title },
+            { name: "armor-type", value: "heavy-armor" },
+            { name: "strength", value: "15" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 200gp",
             "Armor Class: 17",
             "Strength requirement: 15",
@@ -42,13 +51,9 @@ export class SplintArmor {
         return [];
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "armor-name", value: SplintArmor.name },
-            { name: "armor-type", value: "heavy-armor" },
-            { name: "strength", value: "15" }
-        ];
+        item.properties = SplintArmor.properties;
         item.isEquipped = true;
     }
 

@@ -15,56 +15,33 @@ export class MagicWeapon {
 
     static get properties() {
         return [];
+
+    }
+    static get displayProperties() {
+        return [];
     }
 
     static get canBeEquipped() {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
         let selectedWeapon = null;
         const selectedValues = item.selections.find(s => s.name == "weapon")?.values ?? []; 
         if (selectedValues.length > 0) {
-            selectedWeapon = MagicWeapon.#weapons.find(w => w.name == selectedValues[0].value);
+            selectedWeapon = allEquipment.find(ae => ae.name == selectedValues[0].value);
         }
+        item.properties = [];
         if (selectedWeapon) {
-            item.properties = [];
-            item.properties.push({ name: "weapon-name", value: selectedWeapon.name });
-            item.properties.push({ name: "weapon-type", value: selectedWeapon.weaponType });
-            if (selectedWeapon.versatileDamageDice) {
-                item.properties.push({ name: "versatile" });
-            }
-            if (selectedWeapon.isLoading) {
-                item.properties.push({ name: "loading" });
-            }
-            if (selectedWeapon.ammunition) {
-                item.properties.push({ name: "ammunition" });
-            }
-            if (selectedWeapon.isLight) {
-                item.properties.push({ name: "light" });
-            }
-            if (selectedWeapon.isLoading) {
-                item.properties.push({ name: "loading" });
-            }
-            if (selectedWeapon.isTwoHanded) {
-                item.properties.push({ name: "two-handed" });
-            }
-            if (selectedWeapon.isHeavy) {
-                item.properties.push({ name: "heavy" });
-            }
-            if (selectedWeapon.isFinesse) {
-                item.properties.push({ name: "finesse" });
-            }
-            if (selectedWeapon.isThrown) {
-                item.properties.push({ name: "thrown" });
-            }
-            if (selectedWeapon.isReach) {
-                item.properties.push({ name: "reach" });
-            }
-            if (selectedWeapon.isSpecial) {
-                item.properties.push({ name: "special" });
-            }
+            item.properties = [...selectedWeapon.properties];
+        }
+        let bonus = 0;
+        let bonusLabel = "";
+        const selectedBonuses = item.selections.find(s => s.name == "bonus")?.values ?? [];
+        if (selectedBonuses.length > 0 && selectedBonuses[0].value) {
+            bonus = Number(selectedBonuses[0].text);
+            bonusLabel = selectedBonuses[0].text;
         }
         item.isEquipped = true;
     }
@@ -111,7 +88,7 @@ export class MagicWeapon {
             let weaponName = null;
             const selectedValues = item.selections.find(s => s.name == "weapon")?.values ?? [];
             if (selectedValues.length > 0) {
-                weaponName = MagicWeapon.#weapons.find(w => w.name == selectedValues[0].value)?.name;
+                weaponName = selectedValues[0].value;
             }
 
             let bonus = 0;
@@ -163,10 +140,11 @@ export class MagicWeapon {
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
             const item = character.equipment[inventoryIndex];
+
             let selectedWeapon = null;
             const selectedValues = item.selections.find(s => s.name == "weapon")?.values ?? [];
             if (selectedValues.length > 0) {
-                selectedWeapon = MagicWeapon.#weapons.find(w => w.name == selectedValues[0].value);
+                selectedWeapon = selectedValues[0].value;
             }
             if (selectedWeapon) {
                 let bonusLabel = "";
@@ -176,12 +154,23 @@ export class MagicWeapon {
                     bonusLabel = selectedBonuses[0].text;
                     bonusValue = Number(selectedBonuses[0].text);
                 }
+                const weaponTitle = item.properties.find(p => p.name == "weapon-title")?.value ?? MagicWeapon.title;
+                const damageDice = [];
+                const damageDiceSerial = item.properties.find(p => p.name == "damage-dice")?.value ?? "";
+                const damageDiceSerialArray = damageDiceSerial.split(","); 
+                for (const item of damageDiceSerialArray) {
+                    const parts = item.split("d");
+                    if (parts.length == 2) {
+                        damageDice.push({ number: Number(parts[0]), size: Number(parts[1]) });
+                    }
+                }
+                const damageType = item.properties.find(p => p.name == "damage-type")?.value ?? "";
                 const attackCard = character.getAttackCard({
-                    name: `magic-${selectedWeapon.name}-plus-${bonusValue}`,
-                    title: `${bonusLabel} ${selectedWeapon.title}`.trim(),
+                    name: `magic-${selectedWeapon}-plus-${bonusValue}`,
+                    title: `${bonusLabel} ${weaponTitle}`.trim(),
                     inventoryIndex: inventoryIndex,
-                    damageDice: selectedWeapon.damageDice,
-                    damageType: selectedWeapon.damageType
+                    damageDice: damageDice,
+                    damageType: damageType
                 });
                 tempFeatures.push(attackCard);
             }
@@ -196,345 +185,4 @@ export class MagicWeapon {
     static applySpells(spells, character, inventoryIndex) {
 
     }
-
-    static #weapons = [
-        {
-            name: "battleaxe",
-            title: "Battleaxe", 
-            weaponType: "martial-melee",
-            damageDice: [{ number: 1, size: 8 }],
-            damageType: "slashing",
-            versatileDamageDice: [{ number: 1, size: 10 }]
-        },
-        {
-            name: "blowgun",
-            title: "Blowgun",
-            weaponType: "martial-ranged",
-            damageDice: [{ number: 1, size: 1 }],
-            damageType: "piercing",
-            range: "25/100",
-            isLoading: true,
-            ammunition: true
-        },
-        {
-            name: "club",
-            title: "Club",
-            weaponType: "simple-melee",
-            damageDice: [{ number: 1, size: 4 }],
-            damageType: "bludgeoning",
-            isLight: true
-        },
-        {
-            name: "crossbow-hand",
-            title: "Crossbow, hand",
-            weaponType: "martial-ranged",
-            damageDice: [{ number: 1, size: 6 }],
-            damageType: "piercing",
-            isLight: true,
-            range: "30/120",
-            isLoading: true,
-            ammunition: true
-        },
-        {
-            name: "crossbow-heavy",
-            title: "Crossbow, heavy",
-            weaponType: "martial-ranged",
-            damageDice: [{ number: 1, size: 10 }],
-            damageType: "piercing",
-            range: "100/400",
-            isTwoHanded: true,
-            isLoading: true,
-            ammunition: true,
-            isHeavy: true
-        },
-        {
-            name: "crossbow-light",
-            title: "Crossbow, light",
-            weaponType: "simple-ranged",
-            damageDice: [{ number: 1, size: 8 }],
-            damageType: "piercing",
-            range: "80/320",
-            isTwoHanded: true,
-            isLoading: true,
-            ammunition: true
-        },
-        {
-            name: "dagger",
-            title: "Dagger",
-            weaponType: "simple-melee",
-            damageDice: [{ number: 1, size: 4 }],
-            damageType: "piercing",
-            isLight: true,
-            isFinesse: true,
-            isThrown: true,
-            range: "20/60"
-        },
-        {
-            name: "dart",
-            title: "Dart",
-            weaponType: "simple-ranged",
-            damageDice: [{ number: 1, size: 4 }],
-            damageType: "piercing",
-            isFinesse: true,
-            isThrown: true,
-            range: "20/60"
-        },
-        {
-            name: "flail",
-            title: "Flail",
-            weaponType: "martial-melee",
-            damageDice: [{ number: 1, size: 8 }],
-            damageType: "bludgeoning"
-        },
-        {
-            name: "glaive",
-            title: "Glaive",
-            weaponType: "martial-melee",
-            damageDice: [{ number: 1, size: 10 }],
-            damageType: "slashing",
-            isTwoHanded: true,
-            isHeavy: true,
-            isReach: true
-        },
-        {
-            name: "greataxe",
-            title: "Greataxe",
-            weaponType: "martial-melee",
-            damageDice: [{ number: 1, size: 12 }],
-            damageType: "slashing",
-            isTwoHanded: true,
-            isHeavy: true
-        },
-        {
-            name: "greatclub",
-            title: "Greatclub",
-            weaponType: "simple-melee",
-            damageDice: [{ number: 1, size: 8 }],
-            damageType: "bludgeoning",
-            isTwoHanded: true
-        },
-        {
-            name: "greatsword",
-            title: "Greatsword",
-            weaponType: "martial-melee",
-            damageDice: [{ number: 2, size: 6 }],
-            damageType: "slashing",
-            isTwoHanded: true,
-            isHeavy: true
-        },
-        {
-            name: "halberd",
-            title: "Halberd",
-            weaponType: "martial-melee",
-            damageDice: [{ number: 1, size: 10 }],
-            damageType: "slashing",
-            isTwoHanded: true,
-            isHeavy: true,
-            isReach: true
-        },
-        {
-            name: "handaxe",
-            title: "Handaxe",
-            weaponType: "simple-melee",
-            damageDice: [{ number: 1, size: 6 }],
-            damageType: "slashing",
-            isLight: true,
-            isThrown: true,
-            range: "20/60"
-        },
-        {
-            name: "javelin",
-            title: "Javelin",
-            weaponType: "simple-melee",
-            damageDice: [{ number: 1, size: 6 }],
-            damageType: "piercing",
-            isThrown: true,
-            range: "30/120"
-        },
-        {
-            name: "lance",
-            title: "Lance",
-            weaponType: "martial-melee",
-            damageDice: [{ number: 1, size: 12 }],
-            damageType: "piercing",
-            isReach: true,
-            isSpecial: true
-        },
-        {
-            name: "light-hammer",
-            title: "Light hammer",
-            weaponType: "simple-melee",
-            damageDice: [{ number: 1, size: 4 }],
-            damageType: "bludgeoning",
-            isLight: true,
-            isThrown: true,
-            range: "20/60"
-        },
-        {
-            name: "longbow",
-            title: "Longbow",
-            weaponType: "martial-ranged",
-            damageDice: [{ number: 1, size: 8 }],
-            damageType: "piercing",
-            range: "150/600",
-            isTwoHanded: true,
-            ammunition: true,
-            isHeavy: true
-        },
-        {
-            name: "longsword",
-            title: "Longsword",
-            weaponType: "martial-melee",
-            damageDice: [{ number: 1, size: 8 }],
-            damageType: "slashing",
-            versatileDamageDice: [{ number: 1, size: 10 }]
-        },
-        {
-            name: "mace",
-            title: "Mace",
-            weaponType: "simple-melee",
-            damageDice: [{ number: 1, size: 6 }],
-            damageType: "bludgeoning"
-        },
-        {
-            name: "maul",
-            title: "Maul",
-            weaponType: "martial-melee",
-            damageDice: [{ number: 2, size: 6 }],
-            damageType: "bludgeoning",
-            isTwoHanded: true,
-            isHeavy: true
-        },
-        {
-            name: "morningstar",
-            title: "Morningstar",
-            weaponType: "martial-melee",
-            damageDice: [{ number: 1, size: 8 }],
-            damageType: "piercing"
-        },
-        {
-            name: "net",
-            title: "Net",
-            weaponType: "martial-ranged",
-            isThrown: true,
-            range: "5/15",
-            isSpecial: true
-        },
-        {
-            name: "pike",
-            title: "Pike",
-            weaponType: "martial-melee",
-            damageDice: [{ number: 1, size: 10 }],
-            damageType: "piercing",
-            isTwoHanded: true,
-            isHeavy: true,
-            isReach: true
-        },
-        {
-            name: "quarterstaff",
-            title: "Quarterstaff",
-            weaponType: "simple-melee",
-            damageDice: [{ number: 1, size: 6 }],
-            damageType: "bludgeoning",
-            versatileDamageDice: [{ number: 1, size: 8 }]
-        },
-        {
-            name: "rapier",
-            title: "Rapier",
-            weaponType: "martial-melee",
-            damageDice: [{ number: 1, size: 8 }],
-            damageType: "piercing",
-            isFinesse: true
-        },
-        {
-            name: "scimitar",
-            title: "Scimitar",
-            weaponType: "martial-melee",
-            damageDice: [{ number: 1, size: 6 }],
-            damageType: "slashing",
-            isLight: true,
-            isFinesse: true
-        },
-        {
-            name: "shortbow",
-            title: "Shortbow",
-            weaponType: "simple-ranged",
-            damageDice: [{ number: 1, size: 6 }],
-            damageType: "piercing",
-            range: "80/320",
-            isTwoHanded: true,
-            ammunition: true
-        },
-        {
-            name: "shortsword",
-            title: "Shortsword",
-            weaponType: "martial-melee",
-            damageDice: [{ number: 1, size: 6 }],
-            damageType: "piercing",
-            isLight: true,
-            isFinesse: true
-        },
-        {
-            name: "sickle",
-            title: "Sickle",
-            weaponType: "simple-melee",
-            damageDice: [{ number: 1, size: 4 }],
-            damageType: "slashing",
-            isLight: true
-        },
-        {
-            name: "sling",
-            title: "Sling",
-            weaponType: "simple-ranged",
-            damageDice: [{ number: 1, size: 4 }],
-            damageType: "bludgeoning",
-            range: "30/120",
-            ammunition: true
-        },
-        {
-            name: "spear",
-            title: "Spear",
-            weaponType: "simple-melee",
-            damageDice: [{ number: 1, size: 6 }],
-            damageType: "piercing",
-            versatileDamageDice: [{ number: 1, size: 8 }],
-            isThrown: true,
-            range: "20/60"
-        },
-        {
-            name: "trident",
-            title: "Trident",
-            weaponType: "martial-melee",
-            damageDice: [{ number: 1, size: 6 }],
-            damageType: "piercing",
-            versatileDamageDice: [{ number: 1, size: 8 }],
-            isThrown: true,
-            range: "20/60"
-        },
-        {
-            name: "war-pick",
-            title: "War pick",
-            weaponType: "martial-melee",
-            damageDice: [{ number: 1, size: 8 }],
-            damageType: "piercing"
-        },
-        {
-            name: "warhammer",
-            title: "Warhammer",
-            weaponType: "martial-melee",
-            damageDice: [{ number: 1, size: 8 }],
-            damageType: "bludgeoning",
-            versatileDamageDice: [{ number: 1, size: 10 }]
-        },
-        {
-            name: "whip",
-            title: "Whip",
-            weaponType: "martial-melee",
-            damageDice: [{ number: 1, size: 4 }],
-            damageType: "slashing",
-            isFinesse: true,
-            isReach: true
-        }
-    ]
-
 }

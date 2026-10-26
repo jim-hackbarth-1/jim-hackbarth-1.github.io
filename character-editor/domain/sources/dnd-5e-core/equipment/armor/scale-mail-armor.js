@@ -19,6 +19,14 @@ export class ScaleMailArmor {
 
     static get properties() {
         return [
+            { name: "armor-name", value: ScaleMailArmor.name },
+            { name: "armor-title", value: ScaleMailArmor.title },
+            { name: "armor-type", value: "medium-armor" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 50gp",
             "Armor Class: 14 + Dex modifier (max 2)",
             "Stealth: Disadvantage"
@@ -41,12 +49,9 @@ export class ScaleMailArmor {
         return [];
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "armor-name", value: ScaleMailArmor.name },
-            { name: "armor-type", value: "medium-armor" }
-        ];
+        item.properties = ScaleMailArmor.properties;
         item.isEquipped = true;
     }
 

@@ -15,12 +15,23 @@ export class Halberd {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Halberd.name },
+            { name: "weapon-title", value: Halberd.title },
+            { name: "weapon-type", value: "martial-melee" },
+            { name: "damage-dice", value: "1d10" },
+            { name: "damage-type", value: "slashing" },
+            { name: "heavy" },
+            { name: "reach" },
+            { name: "two-handed" }
+        ];
+
+    }
+    static get displayProperties() {
+        return [
             "Cost: 20gp",
             "Damage: 1d10 slashing",
-            "Heavy",
-            "Reach",
-            "Two-handed",
-            "Martial melee weapon"
+            "Martial melee weapon",
+            "Properties: Heavy, Reach, Two-handed"  
         ];
     }
 
@@ -28,15 +39,9 @@ export class Halberd {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Halberd.name },
-            { name: "weapon-type", value: "martial-melee" },
-            { name: "heavy" },
-            { name: "reach" },
-            { name: "two-handed" }
-        ];
+        item.properties = Halberd.properties;
         item.isEquipped = true;
     }
 

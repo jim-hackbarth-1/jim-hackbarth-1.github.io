@@ -15,10 +15,22 @@ export class Longsword {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Longsword.name },
+            { name: "weapon-title", value: Longsword.title },
+            { name: "weapon-type", value: "martial-melee" },
+            { name: "damage-dice", value: "1d8" },
+            { name: "versatile-damage-dice", value: "1d10" },
+            { name: "damage-type", value: "slashing" },
+            { name: "versatile" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 15gp",
             "Damage: 1d8 slashing",
-            "Versatile (1d10)",
-            "Martial melee weapon"
+            "Martial melee weapon",
+            "Properties: Versatile (1d10)"
         ];
     }
 
@@ -26,13 +38,9 @@ export class Longsword {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Longsword.name },
-            { name: "weapon-type", value: "martial-melee" },
-            { name: "versatile" }
-        ];
+        item.properties = Longsword.properties;
         item.isEquipped = true;
     }
 

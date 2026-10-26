@@ -15,11 +15,23 @@ export class Handaxe {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Handaxe.name },
+            { name: "weapon-title", value: Handaxe.title },
+            { name: "weapon-type", value: "simple-melee" },
+            { name: "damage-dice", value: "1d6" },
+            { name: "damage-type", value: "slashing" },
+            { name: "range", value: "20/60" },
+            { name: "light" },
+            { name: "thrown" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 5gp",
             "Damage: 1d6 slashing",
-            "Light",
-            "Thrown (range 20/60)",
-            "Simple melee weapon"
+            "Simple melee weapon",
+            "Properties: Range 20/60, Light, Thrown"
         ];
     }
 
@@ -27,14 +39,9 @@ export class Handaxe {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Handaxe.name },
-            { name: "weapon-type", value: "simple-melee" },
-            { name: "light" },
-            { name: "thrown" }
-        ];
+        item.properties = Handaxe.properties;
         item.isEquipped = true;
     }
 

@@ -15,6 +15,16 @@ export class WarPick {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: WarPick.name },
+            { name: "weapon-title", value: WarPick.title },
+            { name: "weapon-type", value: "martial-melee" },
+            { name: "damage-dice", value: "1d8" },
+            { name: "damage-type", value: "piercing" }
+        ];
+
+    }
+    static get displayProperties() {
+        return [
             "Cost: 5gp",
             "Damage: 1d8 piercing",
             "Martial melee weapon"
@@ -25,12 +35,9 @@ export class WarPick {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: WarPick.name },
-            { name: "weapon-type", value: "martial-melee" }
-        ];
+        item.properties = WarPick.properties;
         item.isEquipped = true;
     }
 

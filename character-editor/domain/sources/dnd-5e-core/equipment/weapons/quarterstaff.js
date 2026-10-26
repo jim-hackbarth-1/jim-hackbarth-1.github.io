@@ -15,10 +15,22 @@ export class Quarterstaff {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Quarterstaff.name },
+            { name: "weapon-title", value: Quarterstaff.title },
+            { name: "weapon-type", value: "simple-melee" },
+            { name: "damage-dice", value: "1d6" },
+            { name: "versatile-damage-dice", value: "1d8" },
+            { name: "damage-type", value: "bludgeoning" },
+            { name: "versatile" }
+        ];
+
+    }
+    static get displayProperties() {
+        return [
             "Cost: 22p",
             "Damage: 1d6 bludgeoning",
-            "Versatile (1d8)",
-            "Simple melee weapon"
+            "Simple melee weapon",
+            "Properties: Versatile (1d8)"
         ];
     }
 
@@ -26,13 +38,9 @@ export class Quarterstaff {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Quarterstaff.name },
-            { name: "weapon-type", value: "simple-melee" },
-            { name: "versatile" }
-        ];
+        item.properties = Quarterstaff.properties;
         item.isEquipped = true;
     }
 

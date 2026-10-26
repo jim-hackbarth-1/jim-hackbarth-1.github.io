@@ -15,11 +15,22 @@ export class Lance {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Lance.name },
+            { name: "weapon-title", value: Lance.title },
+            { name: "weapon-type", value: "martial-melee" },
+            { name: "damage-dice", value: "1d12" },
+            { name: "damage-type", value: "piercing" },
+            { name: "reach" },
+            { name: "special" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 10gp",
             "Damage: 1d12 piercing",
-            "Reach",
-            "Special",
-            "Martial melee weapon"
+            "Martial melee weapon",
+            "Properties: Reach, Special"
         ];
     }
 
@@ -27,14 +38,9 @@ export class Lance {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Lance.name },
-            { name: "weapon-type", value: "martial-melee" },
-            { name: "reach" },
-            { name: "special" }
-        ];
+        item.properties = Lance.properties;
         item.isEquipped = true;
     }
 

@@ -18,6 +18,14 @@ export class BreastPlateArmor {
     }
 
     static get properties() {
+        return [
+            { name: "armor-name", value: BreastPlateArmor.name },
+            { name: "armor-title", value: BreastPlateArmor.title },
+            { name: "armor-type", value: "medium-armor" }
+        ];
+    }
+
+    static get displayProperties() {
         return ["Cost: 400gp", "Armor Class: 14 + Dex modifier (max 2)"];
     }
 
@@ -37,12 +45,9 @@ export class BreastPlateArmor {
         return [];
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "armor-name", value: BreastPlateArmor.name },
-            { name: "armor-type", value: "medium-armor" }
-        ];
+        item.properties = BreastPlateArmor.properties;
         item.isEquipped = true;
     }
 

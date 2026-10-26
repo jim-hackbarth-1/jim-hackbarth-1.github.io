@@ -15,11 +15,22 @@ export class Whip {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Whip.name },
+            { name: "weapon-title", value: Whip.title },
+            { name: "weapon-type", value: "martial-melee" },
+            { name: "damage-dice", value: "1d4" },
+            { name: "damage-type", value: "slashing" },
+            { name: "finesse" },
+            { name: "reach" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 2gp",
             "Damage: 1d4 slashing",
-            "Finesse",
-            "Reach",
-            "Martial melee weapon"
+            "Martial melee weapon",
+            "Properties: Finesse, Reach"
         ];
     }
 
@@ -27,14 +38,9 @@ export class Whip {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Whip.name },
-            { name: "weapon-type", value: "martial-melee" },
-            { name: "finesse" },
-            { name: "reach" }
-        ];
+        item.properties = Whip.properties;
         item.isEquipped = true;
     }
 

@@ -14,6 +14,10 @@ export class EquipmentPackExplorer {
     }
 
     static get properties() {
+        return [];
+    }
+
+    static get displayProperties() {
         return ["Cost: 10gp"];
     }
 

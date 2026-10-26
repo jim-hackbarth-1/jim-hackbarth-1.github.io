@@ -15,6 +15,16 @@ export class Mace {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Mace.name },
+            { name: "weapon-title", value: Mace.title },
+            { name: "weapon-type", value: "simple-melee" },
+            { name: "damage-dice", value: "1d6" },
+            { name: "damage-type", value: "bludgeoning" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 5gp",
             "Damage: 1d6 bludgeoning",
             "Simple melee weapon"
@@ -25,12 +35,9 @@ export class Mace {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Mace.name },
-            { name: "weapon-type", value: "simple-melee" }
-        ];
+        item.properties = Mace.properties;
         item.isEquipped = true;
     }
 

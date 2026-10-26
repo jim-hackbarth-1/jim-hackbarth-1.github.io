@@ -15,11 +15,22 @@ export class Greatsword {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Greatsword.name },
+            { name: "weapon-title", value: Greatsword.title },
+            { name: "weapon-type", value: "martial-melee" },
+            { name: "damage-dice", value: "2d6" },
+            { name: "damage-type", value: "slashing" },
+            { name: "heavy" },
+            { name: "two-handed" }
+        ];
+
+    }
+    static get displayProperties() {
+        return [
             "Cost: 50gp",
             "Damage: 2d6 slashing",
-            "Heavy",
-            "Two-handed",
-            "Martial melee weapon"
+            "Martial melee weapon",
+            "Properties: Heavy, Two-handed" 
         ];
     }
 
@@ -27,14 +38,9 @@ export class Greatsword {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Longsword.name },
-            { name: "weapon-type", value: "martial-melee" },
-            { name: "heavy" },
-            { name: "two-handed" }
-        ];
+        item.properties = Greatsword.properties;
         item.isEquipped = true;
     }
 

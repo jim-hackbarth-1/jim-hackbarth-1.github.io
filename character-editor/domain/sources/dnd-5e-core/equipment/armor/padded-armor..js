@@ -19,6 +19,14 @@ export class PaddedArmor {
 
     static get properties() {
         return [
+            { name: "armor-name", value: PaddedArmor.name },
+            { name: "armor-title", value: PaddedArmor.title },
+            { name: "armor-type", value: "light-armor" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 5gp",
             "Armor Class: 11 + Dex modifier",
             "Stealth: Disadvantage"
@@ -41,12 +49,9 @@ export class PaddedArmor {
         return [];
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "armor-name", value: PaddedArmor.name },
-            { name: "armor-type", value: "light-armor" }
-        ];
+        item.properties = PaddedArmor.properties;
         item.isEquipped = true;
     }
 

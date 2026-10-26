@@ -19,6 +19,14 @@ export class StuddedLeatherArmor {
 
     static get properties() {
         return [
+            { name: "armor-name", value: StuddedLeatherArmor.name },
+            { name: "armor-title", value: StuddedLeatherArmor.title },
+            { name: "armor-type", value: "light-armor" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 45gp",
             "Armor Class: 12 + Dex modifier"
         ];
@@ -40,12 +48,9 @@ export class StuddedLeatherArmor {
         return [];
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "armor-name", value: StuddedLeatherArmor.name },
-            { name: "armor-type", value: "light-armor" }
-        ];
+        item.properties = StuddedLeatherArmor.properties;
         item.isEquipped = true;
     }
 

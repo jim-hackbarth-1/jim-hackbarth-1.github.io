@@ -18,6 +18,14 @@ export class Shield {
     }
 
     static get properties() {
+        return [
+            { name: "armor-name", value: "shield" },
+            { name: "armor-title", value: Shield.title },
+            { name: "armor-type", value: "shield" }
+        ];
+    }
+
+    static get displayProperties() {
         return ["Cost: 10gp", "Armor Class: +2"];
     }
 
@@ -37,12 +45,9 @@ export class Shield {
         return [];
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "armor-name", value: "shield" },
-            { name: "armor-type", value: "shield" }
-        ];
+        item.properties = Shield.properties;
         item.isEquipped = true;
     }
 

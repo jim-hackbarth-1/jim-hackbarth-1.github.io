@@ -15,11 +15,24 @@ export class Trident {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Trident.name },
+            { name: "weapon-title", value: Trident.title },
+            { name: "weapon-type", value: "martial-melee" },
+            { name: "damage-dice", value: "1d6" },
+            { name: "versatile-damage-dice", value: "1d8" },
+            { name: "damage-type", value: "piercing" },
+            { name: "range", value: "20/60" },
+            { name: "thrown" },
+            { name: "versatile" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 5gp",
             "Damage: 1d6 piercing",
-            "Versatile (1d8)",
-            "Thrown (range 20/60)",
-            "Martial melee weapon"
+            "Martial melee weapon",
+            "Properties: Range 20/60, Thrown, Versatile (1d8)"
         ];
     }
 
@@ -27,14 +40,9 @@ export class Trident {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Trident.name },
-            { name: "weapon-type", value: "martial-melee" },
-            { name: "versatile" },
-            { name: "thrown" }
-        ];
+        item.properties = Trident.properties;
         item.isEquipped = true;
     }
 

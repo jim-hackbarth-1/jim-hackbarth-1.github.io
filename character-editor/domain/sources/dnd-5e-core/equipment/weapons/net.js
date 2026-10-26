@@ -15,12 +15,21 @@ export class Net {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Net.name },
+            { name: "weapon-title", value: Net.title },
+            { name: "weapon-type", value: "martial-ranged" },
+            { name: "range", value: "5/15" },
+            { name: "special" },
+            { name: "thrown" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 1gp",
             "Damage: -",
-            "Range 5/15",
-            "special",
-            "thrown",
-            "Martial ranged weapon"
+            "Martial ranged weapon",
+            "Properties: Range 5/15, Special, Thrown"
         ];
     }
 
@@ -28,14 +37,9 @@ export class Net {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Net.name },
-            { name: "weapon-type", value: "martial-ranged" },
-            { name: "special" },
-            { name: "thrown" }
-        ];
+        item.properties = Net.properties;
         item.isEquipped = true;
     }
 

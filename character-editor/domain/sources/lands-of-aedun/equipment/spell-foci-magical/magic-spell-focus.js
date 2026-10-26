@@ -17,11 +17,15 @@ export class MagicSpellFocus {
         return [];
     }
 
+    static get displayProperties() {
+        return [];
+    }
+
     static get canBeEquipped() {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         // const item = character.equipment[inventoryIndex];
         // let selectedWeapon = null;
         // const selectedValues = item.selections.find(s => s.name == "weapon")?.values ?? [];

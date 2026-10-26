@@ -14,6 +14,10 @@ export class Orb {
     }
 
     static get properties() {
+        return [];
+    }
+
+    static get displayProperties() {
         return ["Cost: 20gp"];
     }
 

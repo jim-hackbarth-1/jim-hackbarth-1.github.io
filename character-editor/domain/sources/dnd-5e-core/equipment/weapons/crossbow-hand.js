@@ -15,12 +15,24 @@ export class CrossbowHand {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: CrossbowHand.name },
+            { name: "weapon-title", value: CrossbowHand.title },
+            { name: "weapon-type", value: "martial-ranged" },
+            { name: "damage-dice", value: "1d6" },
+            { name: "damage-type", value: "piercing" },
+            { name: "range", value: "30/120" },
+            { name: "ammunition" },
+            { name: "light" },
+            { name: "loading" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 75gp",
             "Damage: 1d6 piercing",
-            "Ammunition (range 30/120)",
-            "light",
-            "loading",
-            "Martial ranged weapon"
+            "Martial ranged weapon",
+            "Properties: Range 30/120, Ammunition, Light, Loading"
         ];
     }
 
@@ -28,13 +40,9 @@ export class CrossbowHand {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: CrossbowHand.name },
-            { name: "weapon-type", value: "martial-ranged" },
-            { name: "light" }
-        ];
+        item.properties = CrossbowHand.properties;
         item.isEquipped = true;
     }
 

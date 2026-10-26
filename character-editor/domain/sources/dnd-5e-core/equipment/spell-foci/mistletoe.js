@@ -14,6 +14,10 @@ export class Mistletoe {
     }
 
     static get properties() {
+        return [];
+    }
+
+    static get displayProperties() {
         return ["Cost: 1gp"];
     }
 

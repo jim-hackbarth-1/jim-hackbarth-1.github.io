@@ -15,10 +15,21 @@ export class Rapier {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Rapier.name },
+            { name: "weapon-title", value: Rapier.title },
+            { name: "weapon-type", value: "martial-melee" },
+            { name: "damage-dice", value: "1d8" },
+            { name: "damage-type", value: "piercing" },
+            { name: "finesse" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 25gp",
             "Damage: 1d8 piercing",
-            "Finesse",
-            "Martial melee weapon"
+            "Martial melee weapon",
+            "Properties: Finesse"
         ];
     }
 
@@ -26,13 +37,9 @@ export class Rapier {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Rapier.name },
-            { name: "weapon-type", value: "martial-melee" },
-            { name: "finesse" }
-        ];
+        item.properties = Rapier.properties;
         item.isEquipped = true;
     }
 

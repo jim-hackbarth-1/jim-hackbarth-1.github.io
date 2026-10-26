@@ -15,10 +15,22 @@ export class Sling {
 
     static get properties() {
         return [
+            { name: "weapon-name", value: Sling.name },
+            { name: "weapon-title", value: Sling.title },
+            { name: "weapon-type", value: "simple-ranged" },
+            { name: "damage-dice", value: "1d4" },
+            { name: "damage-type", value: "bludgeoning" },
+            { name: "range", value: "30/120" },
+            { name: "ammunition" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 1sp",
             "Damage: 1d4 bludgeoning",
-            "Ammunition (range 30/120)",
-            "Simple ranged weapon"
+            "Simple ranged weapon",
+            "Properties: Range 30/120, Ammunition"
         ];
     }
 
@@ -26,12 +38,9 @@ export class Sling {
         return true;
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "weapon-name", value: Sling.name },
-            { name: "weapon-type", value: "simple-ranged" }
-        ];
+        item.properties = Sling.properties;
         item.isEquipped = true;
     }
 

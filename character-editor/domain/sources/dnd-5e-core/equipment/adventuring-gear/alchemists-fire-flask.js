@@ -14,6 +14,10 @@ export class AlchemistsFireFlask {
     }
 
     static get properties() {
+        return [];
+    }
+
+    static get displayProperties() {
         return ["Cost: 50gp"];
     }
 

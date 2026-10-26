@@ -19,6 +19,15 @@ export class ChainMailArmor {
 
     static get properties() {
         return [
+            { name: "armor-name", value: ChainMailArmor.name },
+            { name: "armor-title", value: ChainMailArmor.title },
+            { name: "armor-type", value: "heavy-armor" },
+            { name: "strength", value: "13" }
+        ];
+    }
+
+    static get displayProperties() {
+        return [
             "Cost: 50gp",
             "Armor Class: 16",
             "Strength requirement: 13",
@@ -41,13 +50,9 @@ export class ChainMailArmor {
         return [];
     }
 
-    static equip(character, inventoryIndex) {
+    static equip(character, inventoryIndex, allEquipment) {
         const item = character.equipment[inventoryIndex];
-        item.properties = [
-            { name: "armor-name", value: ChainMailArmor.name },
-            { name: "armor-type", value: "heavy-armor" },
-            { name: "strength", value: "13" }
-        ];
+        item.properties = ChainMailArmor.properties;
         item.isEquipped = true;
     }
 

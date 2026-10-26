@@ -59,4 +59,8 @@ export class Paladin {
     static applySpells(spells, character, classIndex) {
 
     }
+
+    static getSpellCastingInfo(character, allSpells) {
+        return null;
+    }
 }

@@ -17,8 +17,11 @@
 }
 
 .level-boon-selection.incomplete .level-boon-selection-container {
-    color: darkred;
     background-color: #FFF8EB;
+}
+
+.level-boon-selection.incomplete .selection-title-container {
+    color: darkred;
 }
 
 .level-boon-selection.incomplete .selection-content {
@@ -67,3 +70,4 @@
 .level-boon-selection .toggle-button svg {
     border: 1px dotted saddlebrown;
 }
+

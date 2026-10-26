@@ -60,4 +60,8 @@ export class Fighter {
 
     }
 
+    static getSpellCastingInfo(character, allSpells) {
+        return null;
+    }
+
 }

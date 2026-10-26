@@ -37,4 +37,7 @@ export class MonkWayOfShadow {
 
     }
 
+    static getSpellCastingInfo(character, allSpells, classSpellCastingInfo) {
+        return classSpellCastingInfo;
+    }
 }

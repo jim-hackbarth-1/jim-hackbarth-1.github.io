@@ -22,34 +22,19 @@ export class Dwarf {
     }
 
     static getSelections(character) {
-        const selectionName = "dwarven-tool-proficiency";
-        const currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-        if (currentSelections.length == 0) {
-            currentSelections.push({ value: null, text: "Choose a tool proficiency ..." });
-        }
-        return [
-            {
-                name: selectionName,
-                title: "Tool Proficiency",
-                maxSelections: 1,
-                currentSelections: currentSelections
-            }
-        ];
+        const selections = [];
+        selections.push(character.selectionUtilities.getSelection(
+            character.selections, `${Dwarf.name}-tool-proficiency`, "Tool Proficiency", 1));
+        return selections;
     }
 
     static getSelectionOptions(character, selectionName, sources) {
         let options = [];
-        if (selectionName == "dwarven-tool-proficiency") {
-            options = [...Dwarf.#toolProficiencies];
-            options.unshift({ value: null, text: "Choose a tool proficiency ..." });
-            let proficiency = null;
-            const currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            if (currentSelections.length > 0) {
-                proficiency = currentSelections[0].value;
-            }
-            for (const option of options) {
-                option.isSelected = (option.value == proficiency);
-            }
+        if (selectionName == `${Dwarf.name}-tool-proficiency`) {
+            const proficiencies = [...Dwarf.#toolProficiencies];
+            const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
+            options = character.selectionUtilities.getSelectionOptions(
+                proficiencies, selectedValues, [], "Tool proficiency (choose 1) ...");
         }
         return options;
     }
@@ -60,9 +45,9 @@ export class Dwarf {
         // constitution
         modifiers.push({
             name: "dwarven-ability-score-modifier-constitution",
-            target: "ability-score:constitution",
+            title: "Ability score",
             value: 2,
-            title: Dwarf.title
+            target: "ability-score:constitution"
         });
 
         // speed
@@ -78,65 +63,65 @@ export class Dwarf {
         if (strength < maxStrengthReq) {
             modifiers.push({
                 name: "dwarven-heavy-armor-speed",
-                target: "speed",
+                title: "Speed",
                 value: 10,
-                title: Dwarf.title
+                target: "speed"
             });
         }
 
         // weapon proficiencies
         modifiers.push({
             name: "dwarven-weapon-proficiency-battleaxe",
-            target: "weapon-proficiency",
+            title: "Weapon proficiency",
             value: "battleaxe",
-            title: Dwarf.title
+            target: "weapon-proficiency"
         });
         modifiers.push({
             name: "dwarven-weapon-proficiency-handaxe",
-            target: "weapon-proficiency",
+            title: "Weapon proficiency",
             value: "handaxe",
-            title: Dwarf.title
+            target: "weapon-proficiency"
         });
         modifiers.push({
             name: "dwarven-weapon-proficiency-light-hammer",
-            target: "weapon-proficiency",
+            title: "Weapon proficiency",
             value: "light-hammer",
-            title: Dwarf.title
+            target: "weapon-proficiency"
         });
         modifiers.push({
             name: "dwarven-weapon-proficiency-warhammer",
-            target: "weapon-proficiency",
+            title: "Weapon proficiency",
             value: "warhammer",
-            title: Dwarf.title
+            target: "weapon-proficiency"
         });
 
         // tool proficiency
         let toolProficiency = null;
-        const toolProficiencies = character.selections.find(o => o.name == "dwarven-tool-proficiency")?.values ?? [];
+        const toolProficiencies = character.selections.find(o => o.name == `${Dwarf.name}-tool-proficiency`)?.values ?? [];
         if (toolProficiencies.length > 0) {
             toolProficiency = toolProficiencies[0];
         }
         if (toolProficiency) {
             modifiers.push({
                 name: "dwarven-tool-proficiency",
-                target: "tool-proficiency",
+                title: "Tool proficiency",
                 value: toolProficiency.value,
-                title: Dwarf.title
+                target: "tool-proficiency"
             });
         }
 
         // languages
         modifiers.push({
             name: "dwarven-languages-common",
-            target: "language",
+            title: "Language",
             value: { value: "common", text: "Common" },
-            title: Dwarf.title
+            target: "language"
         });
         modifiers.push({
             name: "dwarven-languages-dwarvish",
-            target: "language",
+            title: "Language",
             value: { value: "dwarvish", text: "Dwarvish" },
-            title: Dwarf.title
+            target: "language"
         });
 
         for (const modifier of modifiers) {
@@ -204,9 +189,9 @@ export class Dwarf {
     }
 
     static #toolProficiencies = [
-        { value: "smiths-tools", text: "Smith's tools" },
-        { value: "brewers-tools", text: "Brewer's tools" },
-        { value: "masons-tools", text: "Mason's tools" }
+        { name: "smiths-tools", title: "Smith's tools" },
+        { name: "brewers-tools", title: "Brewer's tools" },
+        { name: "masons-tools", title: "Mason's tools" }
     ];
 
 }

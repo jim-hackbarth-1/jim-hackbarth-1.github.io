@@ -670,7 +670,8 @@ export class KitRenderer {
         const kitTemplateKey = element.getAttribute("kit-template-key");
         let template = KitRenderer.#getTemplate(templatePath, kitTemplateKey);
         if (!template && templatePath) {
-            const response = await UIKit.resourceManager.fetch(templatePath, { cache: "no-cache" });
+            // const response = await UIKit.resourceManager.fetch(templatePath, { cache: "no-cache" });
+            const response = await UIKit.resourceManager.fetch(templatePath);
             template = await response.text();
             const temp = UIKit.document.createElement("temp");
             temp.innerHTML = template;

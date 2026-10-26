@@ -37,4 +37,7 @@ export class DruidCircleOfTheMoon {
 
     }
 
+    static getSpellCastingInfo(character, allSpells, classSpellCastingInfo) {
+        return classSpellCastingInfo;
+    }
 }

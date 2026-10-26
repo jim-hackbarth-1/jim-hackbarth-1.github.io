@@ -37,4 +37,7 @@ export class FighterEldritchKnight {
 
     }
 
+    static getSpellCastingInfo(character, allSpells, classSpellCastingInfo) {
+        return classSpellCastingInfo;
+    }
 }

@@ -152,16 +152,15 @@ export class Sources {
         { name: "armor-magical", title: "Armor, Magical" },
         { name: "potions", title: "Potions" },
         { name: "rings", title: "Rings" },
-        { name: "rods", title: "Rods" },
+        { name: "spell-foci", title: "Spell Foci" },
+        { name: "spell-foci-magical", title: "Spell Foci, Magical" },
         { name: "scrolls", title: "Scrolls" },
-        { name: "staffs", title: "Staffs" },
-        { name: "wands", title: "Wands" },
         { name: "weapons", title: "Weapons" },
         { name: "weapons-magical", title: "Weapons, Magical" },
         { name: "wondrous-items", title: "Wondrous Items" },
         { name: "adventuring-gear", title: "Adventuring Gear" },
         { name: "tools", title: "Tools" },
-        { name: "mounts-and-vehicls", title: "Mounts and Vehicles" }
+        { name: "mounts-and-vehicles", title: "Mounts and Vehicles" }
     ];
     static getEquipmentCategories() {
         return Sources.#equipmentCategories;
@@ -448,6 +447,16 @@ export class Sources {
     static updateCharacterSelection(character, selection) {
         character.removeSelection(selection.name);
         character.addSelection(selection);
+    }
+
+    static updateCharacterEquipmentSelection(equipment, selection) {
+        const index = equipment.selections.findIndex(s => s.name === selection.name);
+        if (index > -1) {
+            equipment.selections.splice(index, 1);
+        }
+        if (!equipment.selections.some(s => s.name == selection.name)) {
+            equipment.selections.push(selection);
+        }
     }
 
     static applyCharacterModifiers(character) {

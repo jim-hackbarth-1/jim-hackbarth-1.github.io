@@ -29,33 +29,33 @@ export class DwarfFrost {
         const modifiers = [];
         modifiers.push({
             name: "frost-dwarf-ability-score-modifier-strength",
-            target: "ability-score:strength",
+            title: "Ability score",
             value: 1,
-            title: DwarfFrost.title
+            target: "ability-score:strength"
         });
         modifiers.push({
             name: "frost-dwarf-skill-bonus-medicine",
-            target: "skill:medicine",
+            title: "Skill modifier",
             value: 5,
-            title: DwarfFrost.title
+            target: "skill:medicine"
         });
         modifiers.push({
             name: "frost-dwarf-skill-bonus-survival",
-            target: "skill:survival",
+            title: "Skill modifier",
             value: 5,
-            title: DwarfFrost.title
+            target: "skill:survival"
         });
         modifiers.push({
             name: "frost-dwarf-languages-common",
-            target: "language",
+            title: "Language",
             value: { value: "common", text: "Common" },
-            title: DwarfFrost.title
+            target: "language"
         });
         modifiers.push({
             name: "frost-dwarf-languages-dwarvish",
-            target: "language",
+            title: "Language",
             value: { value: "ruic", text: "Ruic" },
-            title: DwarfFrost.title
+            target: "language"
         });
 
         for (const modifier of modifiers) {

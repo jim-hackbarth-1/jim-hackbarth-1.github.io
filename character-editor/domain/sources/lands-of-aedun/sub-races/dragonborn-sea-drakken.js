@@ -31,15 +31,15 @@ export class DragonbornSeaDrakken {
         const modifiers = [
             {
                 name: "dragonborn-sea-drakken-ability-score-modifier-strength",
-                target: "ability-score:strength",
+                title: "Ability score",
                 value: 1,
-                title: DragonbornSeaDrakken.title
+                target: "ability-score:strength"
             },
             {
                 name: "dragonborn-sea-drakken-ability-score-modifier-constitution",
-                target: "ability-score:constitution",
+                title: "Ability score",
                 value: 2,
-                title: DragonbornSeaDrakken.title
+                target: "ability-score:constitution"
             }
         ];
         for (const modifier of modifiers) {

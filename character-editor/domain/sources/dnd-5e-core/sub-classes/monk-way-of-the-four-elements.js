@@ -37,4 +37,7 @@ export class MonkWayOfTheFourElements {
 
     }
 
+    static getSpellCastingInfo(character, allSpells, classSpellCastingInfo) {
+        return classSpellCastingInfo;
+    }
 }

@@ -30,16 +30,16 @@ export class DwarfHill {
 
         modifiers.push({
             name: "hill-dwarf-ability-score-modifier-wisdom",
-            target: "ability-score:wisdom",
+            title: "Ability score",
             value: 1,
-            title: DwarfHill.title
+            target: "ability-score:wisdom"
         });
         const hitPointMod = Number(character.level);
         modifiers.push({
             name: "hill-dwarf-toughness",
-            target: "hit-points",
+            title: "Hill dwarf toughness",
             value: hitPointMod,
-            title: DwarfHill.title
+            target: "hit-points"
         });
 
         for (const modifier of modifiers) {

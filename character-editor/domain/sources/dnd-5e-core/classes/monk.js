@@ -60,4 +60,8 @@ export class Monk {
 
     }
 
+    static getSpellCastingInfo(character, allSpells) {
+        return null;
+    }
+
 }

@@ -6,7 +6,7 @@ export class LightHammer {
     }
 
     static get title() {
-        return "Light Hammer";
+        return "Light hammer";
     }
 
     static get category() {

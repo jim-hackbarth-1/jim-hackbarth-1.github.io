@@ -21,18 +21,12 @@ export class BardCollegeOfLore {
         const selections = [];
         const level = Number(character.classes.find(c => c.value == "bard").level);
         if (level >= 3) {
-            const selectionName = `${BardCollegeOfLore.name}-skill-proficiencies`;
-            let currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            if (currentSelections.length == 0) {
-                currentSelections = [{ value: null, text: "Skill proficiencies (choose 3)..." }];
-            }
-            selections.push({
-                name: selectionName,
-                title: `${BardCollegeOfLore.title} - Skill proficiencies`,
-                maxSelections: 3,
-                sources: [{ name: "skills" }],
-                currentSelections: currentSelections
-            });
+            selections.push(character.selectionUtilities.getSelection(
+                character.selections,
+                `${BardCollegeOfLore.name}-skill-proficiencies`,
+                `${BardCollegeOfLore.title} - Skill proficiencies`,
+                3,
+                [{ name: "skills" }]));
         }
         if (level >= 6) {
             let spellSelections = character.selections
@@ -66,45 +60,25 @@ export class BardCollegeOfLore {
     static getSelectionOptions(character, classIndex, selectionName, sources) {
         let options = [];
         if (selectionName == `${BardCollegeOfLore.name}-skill-proficiencies`) {
-            const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            const disabledOptions = character.modifiers
-                .filter(m => m.target == "skill-proficiency" && !selectedValues.some(sv => sv.value == m.value))
-                .map(m => m.value);
-            options = [...sources.find(s => s.name == "skills").options];
-            options = options.map(o =>
-            ({
-                value: o.name,
-                text: o.title,
-                noteText: `(${o.ability})`,
-                hasDetail: false,
-                isSelected: selectedValues.some(sv => sv.value == o.name),
-                isDisabled: disabledOptions.includes(o.name),
-                disabledReason: disabledOptions.includes(o.name) ? "Proficiency granted by other feature" : ""
-            }));
-            options.unshift(
-                {
-                    value: null,
-                    text: "Skill proficiencies (choose 3)...",
-                    hideCheckbox: true
-                });
-            let currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            currentSelections = currentSelections.map(cs => cs.value);
-            for (const option of options) {
-                option.isSelected = currentSelections.includes(option.value);
+            const skills = [...sources.find(s => s.name == "skills").options];
+            for (const skill of skills) {
+                skill.source = { title: skill.ability }
             }
+            const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
+            const selectedElsewhere = character.modifiers
+                .filter(m => m.target == "skill-proficiency" && !selectedValues.some(sv => sv.value == m.value?.value))
+                .map(m => m.value);
+            options = character.selectionUtilities.getSelectionOptions(
+                skills, selectedValues, selectedElsewhere, `${BardCollegeOfLore.title} - Skill proficiencies (choose 3)...`);
         }
-        if (selectionName == `${BardCollegeOfLore.name}-additional-magical-secrets-spells`) {
-            
+        if (selectionName == `${BardCollegeOfLore.name}-additional-magical-secrets-spells`) {   
             let spells = [...sources.find(s => s.name == "spells").options];
             const level = Number(character.classes.find(c => c.value == "bard").level);
             const maxSpellLevel = Number(BardCollegeOfLore.#getMaxSpellLevel(level));
             spells = spells.filter(s => Number(s.level) <= maxSpellLevel);
-
             let currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
             for (const spell of spells) {
                 const isSelected = currentSelections.some(cs => cs.value == spell.name);
-                let isDisabled = false;
-                let disabledReason = null;
                 let spellLevelLabel = `Level ${spell.level}`;
                 if (spell.level == 0) {
                     spellLevelLabel = "Cantrip";
@@ -115,9 +89,7 @@ export class BardCollegeOfLore {
                     noteText: `${spellLevelLabel} (${spell.source.title})`,
                     sortField: `level-${spell.level}-${spell.title}`,
                     hasDetail: true,
-                    isSelected: isSelected,
-                    isDisabled: isDisabled,
-                    disabledReason: disabledReason
+                    isSelected: isSelected
                 });
             }
             options = BardCollegeOfLore.#sortOptions(options, "sortField");
@@ -141,9 +113,9 @@ export class BardCollegeOfLore {
         for (const skillProficiency of skillProficiencies) {
             modifiers.push({
                 name: `${BardCollegeOfLore.name}-skill-proficiency-${skillProficiency.value}`,
-                target: "skill-proficiency",
+                title: "Skill proficiency",
                 value: skillProficiency.value,
-                title: BardCollegeOfLore.title
+                target: "skill-proficiency"
             });
         }
         for (const modifier of modifiers) {
@@ -221,6 +193,25 @@ export class BardCollegeOfLore {
         for (const spell of tempSpells) {
             spells.push(spell);
         }
+    }
+
+    static getSpellCastingInfo(character, allSpells, classSpellCastingInfo) {
+        if (!classSpellCastingInfo) {
+            return classSpellCastingInfo;
+        }
+        const selectedValues = character.selections
+            .find(s => s.name == `${BardCollegeOfLore.name}-additional-magical-secrets-spells`)?.values ?? [];
+        const selectedSpells = allSpells.filter(s => selectedValues.some(sv => sv.value == s.name));
+        for (const spell of selectedSpells) {
+            const spellLevel = classSpellCastingInfo.spellLevels.find(sl => sl.level == spell.level);
+            if (spellLevel) {
+                if (!spellLevel.spells) {
+                    spellLevel.spells = [];
+                }
+                spellLevel.spells.push({ title: spell.title, alwaysPrepared: true });
+            }
+        }
+        return classSpellCastingInfo;
     }
 
     static #getMaxSpellLevel(level) {

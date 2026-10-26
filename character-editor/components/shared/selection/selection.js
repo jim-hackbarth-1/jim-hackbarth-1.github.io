@@ -200,6 +200,12 @@ export class SelectionModel {
                 if (source.name == "tools") {
                     source.options = this.#getTools(character);
                 }
+                if (source.name == "weapons") {
+                    source.options = this.#getWeapons(character);
+                }
+                if (source.name == "spell-foci") {
+                    source.options = this.#getSpellFoci(character);
+                }
             }
         }
     }
@@ -229,6 +235,14 @@ export class SelectionModel {
 
     #getTools(character) {
         return Sources.getEquipment(character.sources).filter(e => e.category == "tools");
+    }
+
+    #getWeapons(character) {
+        return Sources.getEquipment(character.sources).filter(e => e.category == "weapons");
+    }
+
+    #getSpellFoci(character) {
+        return Sources.getEquipment(character.sources).filter(e => e.category == "spell-foci");
     }
 
     #getSelectedOption(optionValue) {

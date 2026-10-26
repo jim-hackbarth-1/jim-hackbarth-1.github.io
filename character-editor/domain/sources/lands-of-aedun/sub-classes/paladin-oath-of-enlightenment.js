@@ -37,4 +37,8 @@ export class PaladinOathOfEnlightenment {
 
     }
 
+    static getSpellCastingInfo(character, allSpells, classSpellCastingInfo) {
+        return classSpellCastingInfo;
+    }
+
 }

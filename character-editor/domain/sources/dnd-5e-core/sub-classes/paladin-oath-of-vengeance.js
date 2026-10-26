@@ -37,4 +37,7 @@ export class PaladinOathOfVengeance{
 
     }
 
+    static getSpellCastingInfo(character, allSpells, classSpellCastingInfo) {
+        return classSpellCastingInfo;
+    }
 }

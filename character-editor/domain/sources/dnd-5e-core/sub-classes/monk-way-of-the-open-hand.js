@@ -37,4 +37,7 @@ export class MonkWayOfTheOpenHand {
 
     }
 
+    static getSpellCastingInfo(character, allSpells, classSpellCastingInfo) {
+        return classSpellCastingInfo;
+    }
 }

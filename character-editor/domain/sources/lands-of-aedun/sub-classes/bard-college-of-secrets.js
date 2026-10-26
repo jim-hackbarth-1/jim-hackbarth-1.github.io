@@ -21,18 +21,12 @@ export class BardCollegeOfSecrets {
         const selections = [];
         const level = Number(character.classes.find(c => c.value == "bard").level);
         if (level >= 6) {
-            const selectionName = `${BardCollegeOfSecrets.name}-languages`;
-            const currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            if (currentSelections.length == 0) {
-                currentSelections.push({ value: null, text: "Languages (choose 3) ..." });
-            }
-            selections.push({
-                name: selectionName,
-                title: `${BardCollegeOfSecrets.title} - Languages`,
-                maxSelections: 3,
-                sources: [{ name: "languages" }],
-                currentSelections: currentSelections
-            });
+            selections.push(character.selectionUtilities.getSelection(
+                character.selections,
+                `${BardCollegeOfSecrets.name}-languages`,
+                `${BardCollegeOfSecrets.title} - Languages`,
+                3,
+                [{ name: "languages" }]));
         }
         return selections;
     }
@@ -42,25 +36,11 @@ export class BardCollegeOfSecrets {
         if (selectionName == `${BardCollegeOfSecrets.name}-languages`) {
             const languages = [...sources.find(s => s.name == "languages").options];
             const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            const disabledLanguages = character.modifiers
+            const selectedElsewhere = character.modifiers
                 .filter(m => m.target == "language" && !selectedValues.some(sv => sv.value == m.value?.value))
                 .map(m => m.value);
-            for (const language of languages) {
-                const isSelected = selectedValues.some(sv => sv.value == language.name);
-                const isDisabled = disabledLanguages.some(dl => dl.value == language.name);
-                const disabledReason = isDisabled ? "Disabled: Language granted by other feature" : "";
-                options.push({
-                    value: language.name,
-                    text: language.title,
-                    noteText: language.source.title,
-                    hasDetail: false,
-                    isSelected: isSelected,
-                    isDisabled: isDisabled,
-                    disabledReason: disabledReason
-                });
-            }
-            options = BardCollegeOfSecrets.#sortOptions(options, "text");
-            options.unshift({ value: null, text: "Languages (choose 3) ...", hideCheckbox: true });
+            options = character.selectionUtilities.getSelectionOptions(
+                languages, selectedValues, selectedElsewhere, `${BardCollegeOfSecrets.title} - Languages (choose 3) ...`);
         }
         return options;
     }
@@ -76,37 +56,39 @@ export class BardCollegeOfSecrets {
         if (level >= 3) {
             modifiers.push({
                 name: `${BardCollegeOfSecrets.name}-modifier-perception`,
-                target: "skill:perception",
+                title: "Skill modifier",
                 value: 5,
-                title: BardCollegeOfSecrets.title
+                target: "skill:perception"
             });
             modifiers.push({
                 name: `${BardCollegeOfSecrets.name}-modifier-insight`,
-                target: "skill:insight",
+                title: "Skill modifier",
                 value: 5,
-                title: BardCollegeOfSecrets.title
+                target: "skill:insight"
             });
         }
         if (level >= 6) {
             modifiers.push({
                 name: `${BardCollegeOfSecrets.name}-modifier-deception`,
-                target: "skill:deception",
+                title: "Skill modifier",
                 value: 5,
-                title: BardCollegeOfSecrets.title
+                target: "skill:deception"
             });
             modifiers.push({
                 name: `${BardCollegeOfSecrets.name}-modifier-performance`,
-                target: "skill:performance",
+                title: "Skill modifier",
                 value: 5,
-                title: BardCollegeOfSecrets.title
+                target: "skill:performance"
             });
         }
         const languages = character.selections.find(s => s.name == `${BardCollegeOfSecrets.name}-languages`)?.values ?? [];
         for (const language of languages) {
             modifiers.push({
                 name: `${BardCollegeOfSecrets.name}-language-${language.value}`,
-                target: "language",
+                title: "Language",
                 value: language,
+                target: "language",
+                
                 title: BardCollegeOfSecrets.title
             });
         }
@@ -214,18 +196,8 @@ export class BardCollegeOfSecrets {
         }
     }
 
-    static #sortOptions(array, sortField) {
-        function sortByProperty(item1, item2) {
-            if (item1[sortField] < item2[sortField]) {
-                return -1;
-            }
-            if (item1[sortField] > item2[sortField]) {
-                return 1;
-            }
-            return 0;
-        }
-        array.sort(sortByProperty);
-        return array;
+    static getSpellCastingInfo(character, allSpells, classSpellCastingInfo) {
+        return classSpellCastingInfo;
     }
 
 }

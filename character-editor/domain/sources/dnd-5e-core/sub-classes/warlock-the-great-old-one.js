@@ -37,4 +37,8 @@ export class WarlockTheGreatOldOne {
 
     }
 
+    static getSpellCastingInfo(character, allSpells, classSpellCastingInfo) {
+        return classSpellCastingInfo;
+    }
+
 }

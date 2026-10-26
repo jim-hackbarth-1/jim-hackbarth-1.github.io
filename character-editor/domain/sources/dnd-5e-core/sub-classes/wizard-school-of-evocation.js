@@ -37,4 +37,8 @@ export class WizardSchoolOfEvocation{
 
     }
 
+    static getSpellCastingInfo(character, allSpells, classSpellCastingInfo) {
+        return classSpellCastingInfo;
+    }
+
 }

@@ -40,33 +40,21 @@ export class Athlete {
 
     static getSelections(character, classIndex, level) {
         const selections = [];
-        const selectionName = "athlete-ability-score-increase";
-        let currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-        if (currentSelections.length == 0) {
-            currentSelections = [{ value: null, text: "Choose ability ..." }];
-        }
-        selections.push({
-            name: selectionName,
-            title: "Ability",
-            maxSelections: 1,
-            currentSelections: currentSelections
-        })
+        selections.push(character.selectionUtilities.getSelection(
+            character.selections, `${Athlete.name}-ability-score-increase`, "Ability", 1));
         return selections;
     }
 
     static getSelectionOptions(character, classIndex, level, selectionName, sources) {
         let options = [];
         if (selectionName == "athlete-ability-score-increase") {
-            options = [
-                { value: null, text: "Choose ability ..." },
-                { value: "strength", text: "Strength" },
-                { value: "dexterity", text: "Dexterity" }
+            const abilities = [
+                { name: "strength", title: "Strength" },
+                { name: "dexterity", title: "Dexterity" }
             ];
-            let currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            currentSelections = currentSelections.map(cs => cs.value);
-            for (const option of options) {
-                option.isSelected = currentSelections.includes(option.value);
-            }
+            const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
+            options = character.selectionUtilities.getSelectionOptions(
+                abilities, selectedValues, [], "Ability (choose 1) ...");
         }
         return options;
     }

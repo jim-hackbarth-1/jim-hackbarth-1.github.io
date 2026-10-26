@@ -174,7 +174,7 @@ class DomainEquipmentModel {
             return;
         }
         const character = Character.currentCharacter;
-        Sources.addCharacterEquipment(character, { name: itemName });
+        Sources.addCharacterEquipment(character, { name: itemName, selections: [] });
         const message = {
             character: character,
             section: "details-equipment",
@@ -393,10 +393,10 @@ class DomainEquipmentModel {
             sourcePropertyValue: character.equipment[index].name,
             values: selectedOptions
         };
-        Sources.updateCharacterSelection(character, selection);
         const inventoryItem = character.equipment[index];
+        Sources.updateCharacterEquipmentSelection(inventoryItem, selection);
         if (inventoryItem.isEquipped) {
-            const equipment = Sources.getEquipment(character.sources).find(e => e.name == e.inventoryItem.name);
+            const equipment = Sources.getEquipment(character.sources).find(e => e.name == inventoryItem.name);
             if (equipment?.equip) {
                 equipment.equip(character, index);
             }

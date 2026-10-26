@@ -59,4 +59,8 @@ export class Sorcerer {
 
     }
 
+    static getSpellCastingInfo(character, allSpells) {
+        return null;
+    }
+
 }

@@ -37,4 +37,7 @@ export class RangerBeastMaster {
 
     }
 
+    static getSpellCastingInfo(character, allSpells, classSpellCastingInfo) {
+        return classSpellCastingInfo;
+    }
 }

@@ -60,17 +60,8 @@ export class Barbarian {
             return selections;
         }
         if (Number(classIndex) == 0) {
-            const selectionName = "barbarian-skill-proficiencies";
-            let currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            if (currentSelections.length == 0) {
-                currentSelections = [{ value: null, text: "Skill proficiencies (choose 2) ..." }];
-            }
-            selections.push({
-                name: selectionName,
-                title: "Skill Proficiencies",
-                maxSelections: 2,
-                currentSelections: currentSelections
-            });
+            selections.push(character.selectionUtilities.getSelection(
+                character.selections, `${Barbarian.name}-skill-proficiencies`, "Skill Proficiencies", 2));
         }
         return selections;
     }
@@ -78,25 +69,16 @@ export class Barbarian {
     static getSelectionOptions(character, classIndex, selectionName, sources) {
         let options = [];
         if (selectionName == "barbarian-skill-proficiencies") {
-            options = [...Barbarian.#skillProficiencies];
-            for (const option of options) {
-                option.noteText = `(${option.ability})`
+            const proficiencies = [...Barbarian.#skillProficiencies];
+            for (const proficiency of proficiencies) {
+                proficiency.source = { title: proficiency.ability }
             }
-            options.unshift(
-                {
-                    value: null,
-                    text: "Skill proficiencies (choose 2) ...",
-                    hideCheckbox: true
-                });
             const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            const disabledOptions = character.modifiers
-                .filter(m => m.target == "skill-proficiency" && !selectedValues.some(sv => sv.value == m.value))
+            const selectedElsewhere = character.modifiers
+                .filter(m => m.target == "skill-proficiency" && !selectedValues.some(sv => sv.value == m.value?.value))
                 .map(m => m.value);
-            for (const option of options) {
-                option.isSelected = selectedValues.some(sv => sv.value == option.value),
-                option.isDisabled = disabledOptions.includes(option.value),
-                option.disabledReason = disabledOptions.includes(option.value) ? "Proficiency granted by other feature" : ""
-            }
+            options = character.selectionUtilities.getSelectionOptions(
+                proficiencies, selectedValues, selectedElsewhere, "Skill proficiencies (choose 2) ...");
         }
         return options;
     }
@@ -106,68 +88,68 @@ export class Barbarian {
         if (character.classes[0].value == "barbarian") {
             modifiers.push({
                 name: "barbarian-armor-proficiency-light-armor",
-                target: "armor-proficiency",
+                title: "Armor proficiency",
                 value: "light-armor",
-                title: Barbarian.title
+                target: "armor-proficiency"
             });
             modifiers.push({
                 name: "barbarian-armor-proficiency-medium-armor",
-                target: "armor-proficiency",
+                title: "Armor proficiency",
                 value: "medium-armor",
-                title: Barbarian.title
+                target: "armor-proficiency"
             });
         }
         modifiers.push({
             name: "barbarian-armor-proficiency-shield",
-            target: "armor-proficiency",
+            title: "Armor proficiency",
             value: "shield",
-            title: Barbarian.title
+            target: "armor-proficiency"
         });
         modifiers.push({
             name: "barbarian-weapon-type-proficiency-simple-melee",
-            target: "weapon-proficiency",
+            title: "Weapon proficiency",
             value: "simple-melee",
-            title: Barbarian.title
+            target: "weapon-proficiency"
         });
         modifiers.push({
             name: "barbarian-weapon-type-proficiency-martial-melee",
-            target: "weapon-proficiency",
+            title: "Weapon proficiency",
             value: "martial-melee",
-            title: Barbarian.title
+            target: "weapon-proficiency"
         });
         modifiers.push({
             name: "barbarian-weapon-type-proficiency-simple-ranged",
-            target: "weapon-proficiency",
+            title: "Weapon proficiency",
             value: "simple-ranged",
-            title: Barbarian.title
+            target: "weapon-proficiency"
         });
         modifiers.push({
             name: "barbarian-weapon-type-proficiency-martial-ranged",
-            target: "weapon-proficiency",
+            title: "Weapon proficiency",
             value: "martial-ranged",
-            title: Barbarian.title
+            target: "weapon-proficiency"
         });
         if (character.classes[0].value == "barbarian") {
             const proficiencyBonus = character.getProficiencyBonus();
             modifiers.push({
                 name: "barbarian-saving-throw-proficiency-strength",
-                target: "saving-throw-proficiency",
+                title: "Saving throw proficiency",
                 value: "strength",
-                title: Barbarian.title
+                target: "saving-throw-proficiency"
             });
             modifiers.push({
                 name: "barbarian-saving-throw-proficiency-constitution",
-                target: "saving-throw-proficiency",
+                title: "Saving throw proficiency",
                 value: "constitution",
-                title: Barbarian.title
+                target: "saving-throw-proficiency"
             });
             const skillProficiencies = character.selections.find(s => s.name == "barbarian-skill-proficiencies")?.values ?? [];
             for (const skillProficiency of skillProficiencies) {
                 modifiers.push({
                     name: `barbarian-skill-proficiency-${skillProficiency.value}`,
-                    target: "skill-proficiency",
+                    title: "Skill proficiency",
                     value: skillProficiency.value,
-                    title: Barbarian.title
+                    target: "skill-proficiency"
                 });
             }
         }
@@ -181,9 +163,9 @@ export class Barbarian {
             const acModifier = Number(character.getAbilityScoreModifier("constitution"));
             modifiers.push({
                 name: "barbarian-unarmored-defense-armor-class-modifier",
-                target: "armor-class",
+                title: "Unarmored defense",
                 value: acModifier,
-                title: Barbarian.title
+                target: "armor-class"
             });
         }
 
@@ -195,36 +177,36 @@ export class Barbarian {
         if (level >= 5 && !hasHeavyArmor) {
             modifiers.push({
                 name: "barbarian-fast-movement-speed-modifier",
-                target: "speed",
+                title: "Fast movement",
                 value: 10,
-                title: Barbarian.title
+                target: "speed"
             });
         }
 
         if (level == 20) {
             modifiers.push({
                 name: "barbarian-primal-champion-ability-score-modifier-strength",
-                target: "ability-score:strength",
+                title: "Primal champion",
                 value: 4,
-                title: Barbarian.title
+                target: "ability-score:strength"
             });
             modifiers.push({
                 name: "barbarian-primal-champion-ability-score-modifier-constitution",
-                target: "ability-score:constitution",
+                title: "Primal champion",
                 value: 4,
-                title: Barbarian.title
+                target: "ability-score:constitution"
             });
             modifiers.push({
                 name: "barbarian-primal-champion-modified-max-ability-score-modifier-strength",
-                target: "modified-max-ability-score:strength",
+                title: "Primal champion",
                 value: 4,
-                title: Barbarian.title
+                target: "modified-max-ability-score:strength"
             });
             modifiers.push({
                 name: "barbarian-primal-champion-modified-max-ability-score-modifier-constitution",
-                target: "modified-max-ability-score:constitution",
+                title: "Primal champion",
                 value: 4,
-                title: Barbarian.title
+                target: "modified-max-ability-score:constitution"
             });
         }
 
@@ -451,13 +433,17 @@ export class Barbarian {
 
     }
 
+    static getSpellCastingInfo(character, allSpells) {
+        return null;
+    }
+
     static #skillProficiencies = [
-        { value: "animal-handling", text: "Animal Handling", ability: "wisdom" },
-        { value: "athletics", text: "Athletics", ability: "strength" },
-        { value: "intimidation", text: "Intimidation", ability: "charisma" },
-        { value: "nature", text: "Nature", ability: "intelligence" },
-        { value: "perception", text: "Perception", ability: "wisdom" },
-        { value: "survival", text: "Survival", ability: "wisdom" }
+        { name: "animal-handling", title: "Animal Handling", ability: "wisdom" },
+        { name: "athletics", title: "Athletics", ability: "strength" },
+        { name: "intimidation", title: "Intimidation", ability: "charisma" },
+        { name: "nature", title: "Nature", ability: "intelligence" },
+        { name: "perception", title: "Perception", ability: "wisdom" },
+        { name: "survival", title: "Survival", ability: "wisdom" }
     ];
 
     static #getNumberOfRages(level) {

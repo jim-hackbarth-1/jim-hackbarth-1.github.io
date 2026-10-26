@@ -1,4 +1,6 @@
 
+import { SelectionUtilities } from "./references.js";
+
 export class Character {
 
     static get currentCharacter() {
@@ -272,6 +274,14 @@ export class Character {
         if (index > -1) {
             this.selections.splice(index, 1);
         }
+    }
+
+    static #selectionUtilities;
+    get selectionUtilities() {
+        if (!Character.#selectionUtilities) {
+            Character.#selectionUtilities = new SelectionUtilities();
+        }
+        return Character.#selectionUtilities;
     }
 
     /*

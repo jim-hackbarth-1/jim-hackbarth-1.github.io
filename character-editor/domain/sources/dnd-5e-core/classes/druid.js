@@ -59,4 +59,8 @@ export class Druid {
 
     }
 
+    static getSpellCastingInfo(character, allSpells) {
+        return null;
+    }
+
 }

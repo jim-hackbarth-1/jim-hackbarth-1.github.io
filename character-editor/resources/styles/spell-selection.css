@@ -51,3 +51,16 @@
 .spell-selection .selection-content > div {
     margin-bottom: 10px;
 }
+
+.spell-replacement-only-container {
+    font-style: italic;
+}
+
+.spell-replacement-expansion-container {
+    margin-bottom: 2px;
+}
+
+.spell-replacement-container {
+    border: 1px dotted saddlebrown;
+    padding: 5px;
+}

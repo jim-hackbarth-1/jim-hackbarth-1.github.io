@@ -37,4 +37,7 @@ export class PaladinOathOfTheAncients{
 
     }
 
+    static getSpellCastingInfo(character, allSpells, classSpellCastingInfo) {
+        return classSpellCastingInfo;
+    }
 }

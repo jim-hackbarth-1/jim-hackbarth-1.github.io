@@ -30,21 +30,21 @@ export class DwarfMountain {
 
         modifiers.push({
             name: "mountain-dwarf-ability-score-modifier-strength",
-            target: "ability-score:strength",
+            title: "Ability score",
             value: 2,
-            title: DwarfMountain.title
+            target: "ability-score:strength"
         });
         modifiers.push({
             name: "mountain-dwarf-armor-profiency-light-armor",
-            target: "armor-proficiency",
+            title: "Armor proficiency",
             value: "light-armor",
-            title: DwarfMountain.title
+            target: "armor-proficiency"
         });
         modifiers.push({
             name: "mountain-dwarf-armor-profiency-medium-armor",
-            target: "armor-proficiency",
+            title: "Armor proficiency",
             value: "medium-armor",
-            title: DwarfMountain.title
+            target: "armor-proficiency"
         });
 
         for (const modifier of modifiers) {

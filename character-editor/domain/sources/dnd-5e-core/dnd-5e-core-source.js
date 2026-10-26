@@ -160,6 +160,18 @@ import { Shield } from "./equipment/armor/shield.js";
 import { SplintArmor } from "./equipment/armor/splint-armor.js";
 import { StuddedLeatherArmor } from "./equipment/armor/studded-leather.js";
 
+// equipment - spell-foci
+import { Amulet } from "./equipment/spell-foci/amulet.js"
+import { Crystal } from "./equipment/spell-foci/crystal.js"
+import { Emblem } from "./equipment/spell-foci/emblem.js"
+import { Mistletoe } from "./equipment/spell-foci/mistletoe.js"
+import { Orb } from "./equipment/spell-foci/orb.js"
+import { Reliquary } from "./equipment/spell-foci/reliquary.js"
+import { Rod } from "./equipment/spell-foci/rod.js"
+import { Staff } from "./equipment/spell-foci/staff.js"
+import { Totem } from "./equipment/spell-foci/totem.js"
+import { Wand } from "./equipment/spell-foci/wand.js"
+
 // equipment - tools
 import { BrewersTools } from "./equipment/tools/brewers-tools.js"
 import { MasonsTools } from "./equipment/tools/masons-tools.js"
@@ -216,7 +228,10 @@ import { WarPick } from "./equipment/weapons/war-pick.js";
 import { Warhammer } from "./equipment/weapons/warhammer.js";
 import { Whip } from "./equipment/weapons/whip.js";
 
-// equipment - wondrous items
+// equipment - weapons-magical
+import { MagicWeapon } from "./equipment/weapons-magical/magic-weapon.js";
+
+// equipment - wondrous-items
 import { BracersOfArchery } from "./equipment/wondrous-items/bracers-of-archery.js";
 
 // spells - cantrips
@@ -406,6 +421,10 @@ export class DnD5ESource {
         LeatherArmor, PaddedArmor, PlateArmor, RingMailArmor, ScaleMailArmor,
         Shield, SplintArmor, StuddedLeatherArmor,
 
+        // spell-foci
+        Amulet, Crystal, Emblem, Mistletoe, Orb,
+        Reliquary, Rod, Staff, Totem, Wand,
+
         // tools
         BrewersTools, MasonsTools, SmithsTools,
         Bagpipes, Drum, Dulcimer, Flute, HerbalismKit,
@@ -421,6 +440,9 @@ export class DnD5ESource {
         Quarterstaff, Rapier, Scimitar, Shortbow, Shortsword,
         Sickle, Sling, Spear, Trident, WarPick,
         Warhammer, Whip,
+
+        // weapons-magical
+        MagicWeapon,
 
         // wondrous-items
         BracersOfArchery

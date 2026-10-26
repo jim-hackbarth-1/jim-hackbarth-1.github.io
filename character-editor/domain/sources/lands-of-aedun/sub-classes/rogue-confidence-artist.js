@@ -37,4 +37,7 @@ export class RogueConfidenceArtist {
 
     }
 
+    static getSpellCastingInfo(character, allSpells, classSpellCastingInfo) {
+        return classSpellCastingInfo;
+    }
 }

@@ -37,4 +37,7 @@ export class DruidCircleOfFire {
 
     }
 
+    static getSpellCastingInfo(character, allSpells, classSpellCastingInfo) {
+        return classSpellCastingInfo;
+    }
 }

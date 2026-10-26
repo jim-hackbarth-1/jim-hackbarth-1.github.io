@@ -59,4 +59,8 @@ export class Rogue {
 
     }
 
+    static getSpellCastingInfo(character, allSpells) {
+        return null;
+    }
+
 }

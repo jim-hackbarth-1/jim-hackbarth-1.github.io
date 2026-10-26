@@ -37,4 +37,7 @@ export class ClericShadowDomain {
 
     }
 
+    static getSpellCastingInfo(character, allSpells, classSpellCastingInfo) {
+        return classSpellCastingInfo;
+    }
 }

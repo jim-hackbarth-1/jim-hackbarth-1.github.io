@@ -21,7 +21,7 @@
                 </div>
             </div>
         </div>
-        <div class="spell-replacement-only-container hidden" style="font-style:italic;">[Spell replacement only]</div>
+        <div class="spell-replacement-only-container hidden">[Spell replacement only]</div>
         <div class="selection-content hidden">
             <div class="selection-container" kit-if="#model?.hasSpellSource('cantrips')">
                 <kit kit-component="./components/shared/selection/selection.html"
@@ -33,7 +33,7 @@
                      kit-obj-selection-model="selectionModel:#model?.getSpellsSelectionModel()">
                 </kit>
             </div>
-            <div class="spell-replacement-expansion-container" style="margin-bottom:2px;">
+            <div class="spell-replacement-expansion-container">
                 <div>
                     <div title="Show Replacement Info"
                          class="toggle-button toggle-button-replace-expand"
@@ -48,7 +48,7 @@
                 </div>
                 <div class="no-wrap">Replacement spells...</div>
             </div>
-            <div class="spell-replacement-container hidden" style="border:1px dotted saddlebrown;padding:5px;">
+            <div class="spell-replacement-container hidden">
                 <div class="selection-container" kit-if="#model?.hasSpellSource('replacedSpell')">
                     <kit kit-component="./components/shared/selection/selection.html"
                          kit-obj-selection-model="selectionModel:#model?.getReplacedSpellSelectionModel()">

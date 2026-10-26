@@ -36,4 +36,8 @@ export class FighterChampion {
     static applySpells(spells, character, classIndex) {
 
     }
+
+    static getSpellCastingInfo(character, allSpells, classSpellCastingInfo) {
+        return classSpellCastingInfo;
+    }
 }

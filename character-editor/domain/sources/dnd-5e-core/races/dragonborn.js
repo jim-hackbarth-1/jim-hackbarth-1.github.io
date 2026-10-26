@@ -22,34 +22,19 @@ export class Dragonborn {
     }
 
     static getSelections(character) { 
-        const selectionName = "dragonborn-draconic-ancestry";
-        const currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-        if (currentSelections.length == 0) {
-            currentSelections.push({ value: null, text: "Choose a draconic ancestry ..." });
-        }
-        return [
-            {
-                name: selectionName,
-                title: "Draconic Ancestry",
-                maxSelections: 1,
-                currentSelections: currentSelections
-            }
-        ];
+        const selections = [];
+        selections.push(character.selectionUtilities.getSelection(
+            character.selections, `${Dragonborn.name}-draconic-ancestry`, "Draconic Ancestry", 1));
+        return selections;
     }
 
     static getSelectionOptions(character, selectionName, sources) {
         let options = [];
         if (selectionName == "dragonborn-draconic-ancestry") {
-            options = [...Dragonborn.#draconicAncestries];
-            options.unshift({ value: null, text: "Choose a draconic ancestry ..." });
-            let draconicAncestry = null;
-            const currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            if (currentSelections.length > 0) {
-                draconicAncestry = currentSelections[0].value;
-            }
-            for (const option of options) {
-                option.isSelected = (option.value == draconicAncestry);
-            }
+            const draconicAncestries = [...Dragonborn.#draconicAncestries];
+            const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
+            options = character.selectionUtilities.getSelectionOptions(
+                draconicAncestries, selectedValues, [], "Draconic Ancestry (choose 1) ...");
         }
         return options;
     }
@@ -58,27 +43,27 @@ export class Dragonborn {
         const modifiers = [
             {
                 name: "dragonborn-ability-score-modifier-strength",
-                target: "ability-score:strength",
+                title: "Ability score",
                 value: 2,
-                title: Dragonborn.title
+                target: "ability-score:strength"
             },
             {
                 name: "dragonborn-ability-score-modifier-charisma",
-                target: "ability-score:charisma",
+                title: "Ability score",
                 value: 1,
-                title: Dragonborn.title
+                target: "ability-score:charisma"
             },
             {
                 name: "dragonborn-language-common",
-                target: "language",
-                value: { value: "common", text: "Common"},
-                title: Dragonborn.title
+                title: "Language",
+                value: { value: "common", text: "Common" },
+                target: "language"
             },
             {
                 name: "dragonborn-language-draconic",
-                target: "language",
+                title: "Language",
                 value: { value: "draconic", text: "Draconic" },
-                title: Dragonborn.title
+                target: "language"
             }
         ];
         for (const modifier of modifiers) {
@@ -130,16 +115,16 @@ export class Dragonborn {
     }
 
     static #draconicAncestries = [
-        { value: "black", text: "Black" },
-        { value: "blue", text: "Blue" },
-        { value: "brass", text: "Brass" },
-        { value: "bronze", text: "Bronze" },
-        { value: "copper", text: "Copper" },
-        { value: "gold", text: "Gold" },
-        { value: "green", text: "Green" },
-        { value: "red", text: "Red" },
-        { value: "silver", text: "Silver" },
-        { value: "white", text: "White" }
+        { name: "black", title: "Black" },
+        { name: "blue", title: "Blue" },
+        { name: "brass", title: "Brass" },
+        { name: "bronze", title: "Bronze" },
+        { name: "copper", title: "Copper" },
+        { name: "gold", title: "Gold" },
+        { name: "green", title: "Green" },
+        { name: "red", title: "Red" },
+        { name: "silver", title: "Silver" },
+        { name: "white", title: "White" }
     ];
 
     static #getBreathWeaponAndResistanceType(draconicAncestry) {
@@ -194,7 +179,7 @@ export class Dragonborn {
             damageDice = 5;
         }
         const areaOfEffect = (["gold", "green", "red", "silver", "white"]
-            .includes(draconicAncestry.value)) ? "15 ft cone" : "5 by 30 ft line";
+            .includes(draconicAncestry.name)) ? "15 ft cone" : "5 by 30 ft line";
         const attackCard = character.getAttackCard({
             name: "dragonborn-breath-weapon",
             title: "Breath Weapon",

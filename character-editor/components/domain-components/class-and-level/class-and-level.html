@@ -21,6 +21,12 @@
                          kit-obj-selection-model="selectionModel:#model.getLevelSelectionModel('%{#classInfo.index}%')">
                     </kit>
                 </div>
+                <!-- sub class -->
+                <div id="sub-class-row-%{#classInfo.index}%" kit-if="#model.hasSubClasses('%{#classInfo.index}%')">
+                    <kit kit-component="./components/shared/selection/selection.html"
+                         kit-obj-selection-model="selectionModel:#model.getSubClassSelectionModel('%{#classInfo.index}%')">
+                    </kit>
+                </div>
                 <!-- level boons -->
                 <div id="level-boons-row-%{#classInfo.index}%" kit-if="#model.hasLevelBoons('%{#classInfo.index}%')">
                     <div kit-array="#model.getLevelBoons('%{#classInfo.index}%')"
@@ -31,12 +37,6 @@
                             </kit>
                         </div>
                     </div>
-                </div>
-                <!-- sub class -->
-                <div id="sub-class-row-%{#classInfo.index}%" kit-if="#model.hasSubClasses('%{#classInfo.index}%')">
-                    <kit kit-component="./components/shared/selection/selection.html"
-                         kit-obj-selection-model="selectionModel:#model.getSubClassSelectionModel('%{#classInfo.index}%')">
-                    </kit>
                 </div>
                 <!-- class selections -->
                 <div id="class-selections-row-%{#classInfo.index}%" kit-if="#model.hasClassSelections('%{#classInfo.index}%')">

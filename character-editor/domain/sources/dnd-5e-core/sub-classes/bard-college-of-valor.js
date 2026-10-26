@@ -31,27 +31,27 @@ export class BardCollegeOfValor {
         if (level >= 3) {
             modifiers.push({
                 name: `${BardCollegeOfValor.name}-armor-proficiency-medium-armor`,
-                target: "armor-proficiency",
+                title: "Armor proficiency",
                 value: "medium-armor",
-                title: BardCollegeOfValor.title
+                target: "armor-proficiency"
             });
             modifiers.push({
                 name: `${BardCollegeOfValor.name}-armor-proficiency-shield`,
-                target: "armor-proficiency",
+                title: "Armor proficiency",
                 value: "shield",
-                title: BardCollegeOfValor.title
+                target: "armor-proficiency"
             });
             modifiers.push({
                 name: `${BardCollegeOfValor.name}-weapon-proficiency-martial-melee-weapons`,
-                target: "weapon-proficiency",
+                title: "Weapon proficiency",
                 value: "martial-melee",
-                title: BardCollegeOfValor.title
+                target: "weapon-proficiency"
             });
             modifiers.push({
                 name: `${BardCollegeOfValor.name}-weapon-proficiency-martial-ranged-weapons`,
-                target: "weapon-proficiency",
+                title: "Weapon proficiency",
                 value: "martial-ranged",
-                title: BardCollegeOfValor.title
+                target: "weapon-proficiency"
             });
         }
         for (const modifier of modifiers) {
@@ -121,5 +121,9 @@ export class BardCollegeOfValor {
 
     static applySpells(spells, character, classIndex) {
 
+    }
+
+    static getSpellCastingInfo(character, allSpells, classSpellCastingInfo) {
+        return classSpellCastingInfo;
     }
 }

@@ -71,20 +71,10 @@ export class Hermit {
     }
 
     static getSelections(character) {
-        const selectionName = "hermit-language";
-        const currentSelections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-        if (currentSelections.length == 0) {
-            currentSelections.push({ value: null, text: "Choose a language ..." });
-        }
-        return [
-            {
-                name: selectionName,
-                title: "Language",
-                maxSelections: 1,
-                sources: [{name: "languages"}],
-                currentSelections: currentSelections
-            }
-        ];
+        const selections = [];
+        selections.push(character.selectionUtilities.getSelection(
+            character.selections, `${Hermit.name}-language`, "Language", 1, [{ name: "languages" }]));
+        return selections;
     }
 
     static getSelectionOptions(character, selectionName, sources) {
@@ -92,63 +82,34 @@ export class Hermit {
         if (selectionName == "hermit-language") {
             const languages = [...sources.find(s => s.name == "languages").options];
             const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            const disabledLanguages = character.modifiers
+            const selectedElsewhere = character.modifiers
                 .filter(m => m.target == "language" && !selectedValues.some(sv => sv.value == m.value?.value))
                 .map(m => m.value);
-            for (const language of languages) {
-                const isSelected = selectedValues.some(sv => sv.value == language.name);
-                const isDisabled = disabledLanguages.some(dl => dl.value == language.name);
-                const disabledReason = isDisabled ? "Disabled: Language granted by other feature" : "";
-                options.push({
-                    value: language.name,
-                    text: language.title,
-                    noteText: language.source.title,
-                    hasDetail: false,
-                    isSelected: isSelected,
-                    isDisabled: isDisabled,
-                    disabledReason: disabledReason
-                });
-            }
-            options = Hermit.#sortOptions(options, "text");
-            options.unshift({ value: null, text: "Choose a language ..." });
+            options = character.selectionUtilities.getSelectionOptions(
+                languages, selectedValues, selectedElsewhere, "Language (choose 1) ...");
         }
         return options;
     }
 
-    static #sortOptions(array, sortField) {
-        function sortByProperty(item1, item2) {
-            if (item1[sortField] < item2[sortField]) {
-                return -1;
-            }
-            if (item1[sortField] > item2[sortField]) {
-                return 1;
-            }
-            return 0;
-        }
-        array.sort(sortByProperty);
-        return array;
-    }
-
     static applyModifiers(character, targetFilters) {
-
         const modifiers = [];
         modifiers.push({
             name: "hermit-skill-proficiency-medicine",
-            target: "skill-proficiency",
+            title: "Skill proficiency",
             value: "medicine",
-            title: Hermit.title
+            target: "skill-proficiency"
         });
         modifiers.push({
             name: "hermit-skill-proficiency-religion",
-            target: "skill-proficiency",
+            title: "Skill proficiency",
             value: "religion",
-            title: Hermit.title
+            target: "skill-proficiency"
         });
         modifiers.push({
             name: "hermit-tool-proficiency-herbalism-kit",
-            target: "tool-proficiency",
+            title: "Tool proficiency",
             value: "herbalism-kit",
-            title: Hermit.title
+            target: "tool-proficiency"
         });
 
         let language = null;
@@ -159,9 +120,9 @@ export class Hermit {
         if (language) {
             modifiers.push({
                 name: `hermit-language-${language}`,
-                target: "language",
+                title: "Language",
                 value: language,
-                title: Hermit.title
+                target: "language"
             });
         }
 

@@ -60,4 +60,8 @@ export class Ranger {
 
     }
 
+    static getSpellCastingInfo(character, allSpells) {
+        return null;
+    }
+
 }

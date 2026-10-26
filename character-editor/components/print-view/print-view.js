@@ -515,22 +515,20 @@ class PrintViewModel {
         const allSpells = Sources.getSpells(character.sources);
         for (const characterClass of character.classes) {
             if (characterClass.value) {
+                let spellCastingInfo = null;
                 const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.value);
                 if (cls?.getSpellCastingInfo) {
-                    const classSpellCastingInfo = cls.getSpellCastingInfo(character, allSpells);
-                    if (classSpellCastingInfo) {
-                        spellCastingInfoList.push(classSpellCastingInfo);
-                    }
+                    spellCastingInfo = cls.getSpellCastingInfo(character, allSpells);
                 }
                 if (characterClass.subClass) {
                     const subClass = Sources.getSubClasses(character.sources, characterClass.value)
-                        .find(sc => sc.name == characterClass.subClass);
+                        .find(sc => sc.name == characterClass.subClass.value);
                     if (subClass?.getSpellCastingInfo) {
-                        const subClassSpellCastingInfo = subClass.getSpellCastingInfo(character, allSpells);
-                        if (subClassSpellCastingInfo) {
-                            spellCastingInfoList.push(subClassSpellCastingInfo);
-                        }
+                        spellCastingInfo = subClass.getSpellCastingInfo(character, allSpells, spellCastingInfo);
                     }
+                }
+                if (spellCastingInfo) {
+                    spellCastingInfoList.push(spellCastingInfo);
                 }
             }
         }
@@ -543,8 +541,8 @@ class PrintViewModel {
                     fillInBoxes += "<div class='fill-in-box-small'></div>";
                 }
                 let levelHtml = `
-                    <div style="display:flex;align-items:center;">
-                        <div style="margin-right:5px;">Level ${level.level} spell slots (${level.slots}):</div>
+                    <div class="fill-in-box-small-container">
+                        <div class="spell-slots-label">Level ${level.level} spell slots (${level.slots}):</div>
                         ${fillInBoxes}
                     </div>
                 `;

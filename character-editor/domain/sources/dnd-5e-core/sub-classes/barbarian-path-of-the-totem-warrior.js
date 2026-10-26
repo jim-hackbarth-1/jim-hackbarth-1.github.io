@@ -17,84 +17,55 @@ export class BarbarianPathOfTheTotemWarrior {
         return "barbarian";
     }
 
-    static getOptions(character, classIndex) {
-        return [];
-    }
-
     static getSelections(character, classIndex) {
         const selections = [];
          let currentSelections = [];
          const characterClass = character.classes.find(c => c.value == "barbarian");
-         if (characterClass.level >= 3) {
-             const totemSpiritSelectionName = "barbarian-path-of-the-totem-warrior-totem-spirit";
-             currentSelections = character.selections.find(s => s.name == totemSpiritSelectionName)?.values ?? [];
-             if (currentSelections.length == 0) {
-                 currentSelections.push({ value: null, text: "Choose a totem spirit ..." });
-             }
-             selections.push({
-                 name: totemSpiritSelectionName,
-                 title: `${BarbarianPathOfTheTotemWarrior.title} - Totem spirit`,
-                 maxSelections: 1,
-                 currentSelections: [...currentSelections]
-             })
+        if (characterClass.level >= 3) {
+            selections.push(character.selectionUtilities.getSelection(
+                character.selections,
+                `${BarbarianPathOfTheTotemWarrior.name}-totem-spirit`,
+                `${BarbarianPathOfTheTotemWarrior.title} - Totem spirit`,
+                1));
          }
-         if (characterClass.level >= 6) {
-             const aspectOfTheBeastSelectionName = "barbarian-path-of-the-totem-warrior-aspect-of-the-beast";
-             currentSelections = character.selections.find(s => s.name == aspectOfTheBeastSelectionName)?.values ?? [];
-             if (currentSelections.length == 0) {
-                 currentSelections.push({ value: null, text: "Choose an aspect of the beast ..." });
-             }
-             selections.push({
-                 name: aspectOfTheBeastSelectionName,
-                 title: `${BarbarianPathOfTheTotemWarrior.title} - Aspect of the Beast`,
-                 maxSelections: 1,
-                 currentSelections: [...currentSelections]
-             })
+        if (characterClass.level >= 6) {
+            selections.push(character.selectionUtilities.getSelection(
+                character.selections,
+                `${BarbarianPathOfTheTotemWarrior.name}-aspect-of-the-beast`,
+                `${BarbarianPathOfTheTotemWarrior.title} - Aspect of the Beast`,
+                1));
          }
-         if (characterClass.level >= 14) {
-             const totemicAttunementSelectionName = "barbarian-path-of-the-totem-warrior-totemic-attunement";
-             currentSelections = character.selections.find(s => s.name == totemicAttunementSelectionName)?.values ?? [];
-             if (currentSelections.length == 0) {
-                 currentSelections.push({ value: null, text: "Choose a totemic attunement ..." });
-             }
-             selections.push({
-                 name: totemicAttunementSelectionName,
-                 title: `${BarbarianPathOfTheTotemWarrior.title} - Totemic Attunement`,
-                 maxSelections: 1,
-                 currentSelections: [...currentSelections]
-             })
+        if (characterClass.level >= 14) {
+            selections.push(character.selectionUtilities.getSelection(
+                character.selections,
+                `${BarbarianPathOfTheTotemWarrior.name}-totemic-attunement`,
+                `${BarbarianPathOfTheTotemWarrior.title} - Totemic Attunement`,
+                1));
          }
         return selections;
     }
 
     static getSelectionOptions(character, classIndex, selectionName, sources) {
         let options = [];
-         const selectionInfoList = [
-             {
-                 name: "barbarian-path-of-the-totem-warrior-totem-spirit",
-                 choiceLabel: "Choose a totem spirit ..."
-             },
-             {
-                 name: "barbarian-path-of-the-totem-warrior-aspect-of-the-beast",
-                 choiceLabel: "Choose an aspect of the beast  ..."
-             },
-             {
-                 name: "barbarian-path-of-the-totem-warrior-totemic-attunement",
-                 choiceLabel: "Choose a totemic attunement ..."
-             },
-         ];
-         const selectionInfo = selectionInfoList.find(x => x.name == selectionName);
-         if (selectionInfo) {
-             options = [...BarbarianPathOfTheTotemWarrior.#totemSpirits];
-             options.unshift({ value: null, text: selectionInfo.choiceLabel });
-             let totemSpirit = null;
-             const currentSelections = character.selections.find(s => s.name == selectionInfo.name)?.values ?? [];
-             if (currentSelections.length > 0) {
-                 totemSpirit = currentSelections[0].value;
-             }
-             for (const option of options) {
-                 option.isSelected = (option.value == totemSpirit);
-             }
+        const selectionInfoList = [
+            {
+                name: `${BarbarianPathOfTheTotemWarrior.name}-totem-spirit`,
+                choiceLabel: `${BarbarianPathOfTheTotemWarrior.title} - Totem spirit (choose 1)...`
+            },
+            {
+                name: `${BarbarianPathOfTheTotemWarrior.name}-aspect-of-the-beast`,
+                choiceLabel: `${BarbarianPathOfTheTotemWarrior.title} - Aspect of the beast (choose 1) ...`
+            },
+            {
+                name: `${BarbarianPathOfTheTotemWarrior.name}-totemic-attunement`,
+                choiceLabel: `${BarbarianPathOfTheTotemWarrior.title} - Totemic attunement (choose 1) ...`
+            },
+        ];
+        const selectionInfo = selectionInfoList.find(x => x.name == selectionName);
+        if (selectionInfo) {
+            const totemSpirits = [...BarbarianPathOfTheTotemWarrior.#totemSpirits];
+            const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
+            options = character.selectionUtilities.getSelectionOptions(totemSpirits, selectedValues, [], selectionInfo.choiceLabel);
          }
         return options;
     }
@@ -215,10 +186,14 @@ export class BarbarianPathOfTheTotemWarrior {
          }
     }
 
+    static getSpellCastingInfo(character, allSpells, classSpellCastingInfo) {
+        return classSpellCastingInfo;
+    }
+
     static #totemSpirits = [
-        { value: "bear", text: "Bear" },
-        { value: "eagle", text: "Eagle" },
-        { value: "wolf", text: "Wolf" }
+        { name: "bear", title: "Bear" },
+        { name: "eagle", title: "Eagle" },
+        { name: "wolf", title: "Wolf" }
     ];
 
 }

@@ -37,4 +37,7 @@ export class WarlockTheArchfey {
 
     }
 
+    static getSpellCastingInfo(character, allSpells, classSpellCastingInfo) {
+        return classSpellCastingInfo;
+    }
 }

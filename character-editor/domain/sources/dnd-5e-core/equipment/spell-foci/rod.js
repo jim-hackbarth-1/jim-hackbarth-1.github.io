@@ -1,0 +1,48 @@
+
+export class Rod {
+
+    static get name() {
+        return "rod";
+    }
+
+    static get title() {
+        return "Rod";
+    }
+
+    static get category() {
+        return "spell-foci";
+    }
+
+    static get properties() {
+        return ["Cost: 10gp"];
+    }
+
+    static get canBeEquipped() {
+        return true;
+    }
+
+    static get html() {
+        return "";
+    }
+
+    static getSelections(character, inventoryIndex) {
+        return [];
+    }
+
+    static getSelectionOptions(character, inventoryIndex, selectionName, sources) {
+        return [];
+    }
+
+    static applyModifiers(character, inventoryIndex, targetFilters) {
+
+    }
+
+    static applyFeatures(features, character, inventoryIndex) {
+
+    }
+
+    static applySpells(spells, character, inventoryIndex) {
+
+    }
+
+}

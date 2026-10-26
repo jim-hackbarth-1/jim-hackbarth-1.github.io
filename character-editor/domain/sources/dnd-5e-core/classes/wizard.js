@@ -59,4 +59,8 @@ export class Wizard {
 
     }
 
+    static getSpellCastingInfo(character, allSpells) {
+        return null;
+    }
+
 }

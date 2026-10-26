@@ -123,3 +123,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.selection .option-disabled,
+.selection .option-disabled:hover {
+    background-color: #F2ECDF;
+}

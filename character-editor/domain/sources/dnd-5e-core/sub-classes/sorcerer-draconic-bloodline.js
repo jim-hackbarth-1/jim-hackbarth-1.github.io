@@ -37,4 +37,7 @@ export class SorcererDraconicBloodline {
 
     }
 
+    static getSpellCastingInfo(character, allSpells, classSpellCastingInfo) {
+        return classSpellCastingInfo;
+    }
 }

@@ -59,4 +59,7 @@ export class Warlock {
 
     }
 
+    static getSpellCastingInfo(character, allSpells) {
+        return null;
+    }
 }

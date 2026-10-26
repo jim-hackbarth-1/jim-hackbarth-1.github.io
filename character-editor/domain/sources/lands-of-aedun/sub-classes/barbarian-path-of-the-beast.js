@@ -147,6 +147,10 @@ export class BarbarianPathOfTheBeast {
 
     }
 
+    static getSpellCastingInfo(character, allSpells, classSpellCastingInfo) {
+        return classSpellCastingInfo;
+    }
+
     static #getRageDamage(level) {
         let rageDamage = 2;
         if (level >= 9) {

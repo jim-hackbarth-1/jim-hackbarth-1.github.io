@@ -59,4 +59,8 @@ export class Cleric {
 
     }
 
+    static getSpellCastingInfo(character, allSpells) {
+        return null;
+    }
+
 }

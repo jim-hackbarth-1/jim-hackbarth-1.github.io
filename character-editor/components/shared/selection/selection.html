@@ -1,8 +1,7 @@
 
 <section class="selection" kit-if="#model?.hasSelectionModel()">
     <div class="selection-title"><label>%{#model.getTitle()}%</label></div>
-    <div class="selection-collapsed" 
-         onpointerdown="#model.toggleDropDown(event)">
+    <div class="selection-collapsed" onpointerdown="#model.toggleDropDown(event)">
         <div class="collapsed-option-label">
             <label></label>
         </div>
@@ -11,13 +10,13 @@
         </div>
     </div>
     <div class="alert-message">
-        %{#model.getAlertMessage()}%
+        <div class="no-wrap">%{#model.getAlertMessage()}%</div>
     </div>
     <div class="selection-expanded hidden">
         <div onpointerdown="event.stopPropagation();"
              kit-array="#model.getOptions()"
              kit-array-item-alias="option">
-            <div class="option data-option-value-%{#option.value}%"
+            <div class="option data-option-value-%{#option.value}% %{#option.isDisabled ? 'option-disabled' : ''}%"
                  title="%{#option.text}%">
                 <div class="option-summary">
                     <div class="option-checkbox" kit-if="#model.isMultiSelect() && !#option.hideCheckbox">

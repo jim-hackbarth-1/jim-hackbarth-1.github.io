@@ -429,7 +429,7 @@ export class Bard {
 
     static #getMusicalInstrumentSelectionOptions(character, sources) {
         let instruments = [...sources.find(s => s.name == "tools").options];
-        instruments = instruments.filter(i => i.properties && i.properties.some(p => p == "musical-instrument"));
+        instruments = instruments.filter(i => i.properties && i.properties.some(p => p.name == "musical-instrument"));
         const selectedValues = character.selections.find(s => s.name == `${Bard.name}-musical-instruments`)?.values ?? [];
         const selectedElsewhere = character.modifiers
             .filter(m => m.target == "tool-proficiency" && !selectedValues.some(sv => sv.value == m.value))
@@ -444,7 +444,7 @@ export class Bard {
     static #getSkillSelectionOptions(character, sources) {
         let skills = [...sources.find(s => s.name == "skills").options];
         for (const skill of skills) {
-            skill.source = { title: skill.ability }
+            skill.data = skill.ability;
         }
         const selectedValues = character.selections.find(s => s.name == `${Bard.name}-skills`)?.values ?? [];
         const selectedElsewhere = character.modifiers
@@ -454,7 +454,11 @@ export class Bard {
         if (character.classes[0].value == "bard") {
             label = "Skills (choose 3) ...";
         }
-        return character.selectionUtilities.getSelectionOptions(skills, selectedValues, selectedElsewhere, label);
+        const options = character.selectionUtilities.getSelectionOptions(skills, selectedValues, selectedElsewhere, label);
+        for (const option of options) {
+            option.noteText = option.data;
+        }
+        return options;
     }
 
     static #getExpertSkillSelectionOptions(character, level, sources) {
@@ -462,7 +466,7 @@ export class Bard {
         const proficientSkills = character.modifiers.filter(m => m.target == "skill-proficiency").map(m => m.value);
         skills = skills.filter(o => proficientSkills.includes(o.name));
         for (const skill of skills) {
-            skill.source = { title: skill.ability }
+            skill.data = skill.ability;
         }
         const selectedValues = character.selections.find(s => s.name == `${Bard.name}-skill-expertise-level-${level}`)?.values ?? [];
         let selectedElsewhere = [];
@@ -472,7 +476,12 @@ export class Bard {
         if (level == 10) {
             selectedElsewhere = character.selections.find(s => s.name == `${Bard.name}-skill-expertise-level-3`)?.values ?? [];
         }
-        return character.selectionUtilities.getSelectionOptions(skills, selectedValues, selectedElsewhere, "Expert skills (choose 2) ....");
+        const options = character.selectionUtilities.getSelectionOptions(
+            skills, selectedValues, selectedElsewhere, "Expert skills (choose 2) ....");
+        for (const option of options) {
+            option.noteText = option.data;
+        }
+        return options;
     }
 
     static #getCantripCount(level) {
@@ -671,7 +680,8 @@ export class Bard {
                 hasDetail: true,
                 isSelected: isSelected,
                 isDisabled: disabledReason ? true : false,
-                disabledReason: disabledReason
+                disabledReason: disabledReason,
+                source: spell.source.name
             });
         }
         options = Bard.#sortOptions(options, "sortField");

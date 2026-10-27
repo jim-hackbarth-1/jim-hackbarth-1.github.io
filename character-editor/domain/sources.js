@@ -239,10 +239,10 @@ export class Sources {
     }
 
     static updateCharacterSources(character, sources) {      
-        if (character.race && !Sources.getRaces(sources).some(r => r.name == character.race)) {
+        if (character.race?.value && !Sources.getRaces(sources).some(r => r.name == character.race?.value)) {
             Sources.updateCharacterRace(character, null);
         }
-        if (character.subRace && !Sources.getSubRaces(sources, character.race).some(sr => sr.name == character.subRace)) {
+        if (character.subRace?.value && !Sources.getSubRaces(sources, character.race?.value).some(sr => sr.name == character.subRace?.value)) {
             Sources.updateCharacterSubRace(character, null);
         }
         const classes = Sources.getClasses(sources);
@@ -271,7 +271,7 @@ export class Sources {
                 Sources.removeCharacterEquipment(character, i);
             }
         }
-        character.selections = character.selections.filter(s => s.values.every(v => sources.includes(v.source)));
+        character.selections = character.selections.filter(s => s.values.every(v => !v.source || sources.includes(v.source)));
         character.sources = sources;
     }
 

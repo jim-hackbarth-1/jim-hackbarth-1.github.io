@@ -64,12 +64,14 @@ export class Battleaxe {
         const tempFeatures = [];
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
+            const versatileDamageDice = Battleaxe.properties.find(p => p.name == "versatile-damage-dice").value;
             const attackCard = character.getAttackCard({
                 name: Battleaxe.name,
                 title: Battleaxe.title,
                 inventoryIndex: inventoryIndex,
                 damageDieSize: 8,
-                damageType: "slashing"
+                damageType: "slashing",
+                notes: [`(${versatileDamageDice} damage two-handed)`]
             });
             tempFeatures.push(attackCard);
         }

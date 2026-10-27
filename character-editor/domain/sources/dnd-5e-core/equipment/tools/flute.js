@@ -14,7 +14,11 @@ export class Flute {
     }
 
     static get properties() {
-        return ["musical-instrument"];
+        return [
+            { name: "arcane-focus-title", value: Flute.title + " (spell focus)" },
+            { name: "spell-classes", value: "bard" },
+            { name: "musical-instrument" }
+        ];
     }
 
     static get displayProperties() {

@@ -32,7 +32,9 @@ export class SelectionUtilities {
                 hasDetail: hasDetail ?? false,
                 isSelected: isSelected,
                 isDisabled: isDisabled,
-                disabledReason: disabledReason
+                disabledReason: disabledReason,
+                source: sourceItem.source?.name,
+                data: sourceItem.data
             });
         }
         options = SelectionUtilities.#sortOptions(options, "text");

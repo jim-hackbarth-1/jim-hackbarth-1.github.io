@@ -26,50 +26,25 @@ export class MagicSpellFocus {
     }
 
     static equip(character, inventoryIndex, allEquipment) {
-        // const item = character.equipment[inventoryIndex];
-        // let selectedWeapon = null;
-        // const selectedValues = item.selections.find(s => s.name == "weapon")?.values ?? [];
-        // if (selectedValues.length > 0) {
-        //     selectedWeapon = MagicWeapon.#weapons.find(w => w.name == selectedValues[0].value);
-        // }
-        // if (selectedWeapon) {
-        //     item.properties = [];
-        //     item.properties.push({ name: "weapon-name", value: selectedWeapon.name });
-        //     item.properties.push({ name: "weapon-type", value: selectedWeapon.weaponType });
-        //     if (selectedWeapon.versatileDamageDice) {
-        //         item.properties.push({ name: "versatile" });
-        //     }
-        //     if (selectedWeapon.isLoading) {
-        //         item.properties.push({ name: "loading" });
-        //     }
-        //     if (selectedWeapon.ammunition) {
-        //         item.properties.push({ name: "ammunition" });
-        //     }
-        //     if (selectedWeapon.isLight) {
-        //         item.properties.push({ name: "light" });
-        //     }
-        //     if (selectedWeapon.isLoading) {
-        //         item.properties.push({ name: "loading" });
-        //     }
-        //     if (selectedWeapon.isTwoHanded) {
-        //         item.properties.push({ name: "two-handed" });
-        //     }
-        //     if (selectedWeapon.isHeavy) {
-        //         item.properties.push({ name: "heavy" });
-        //     }
-        //     if (selectedWeapon.isFinesse) {
-        //         item.properties.push({ name: "finesse" });
-        //     }
-        //     if (selectedWeapon.isThrown) {
-        //         item.properties.push({ name: "thrown" });
-        //     }
-        //     if (selectedWeapon.isReach) {
-        //         item.properties.push({ name: "reach" });
-        //     }
-        //     if (selectedWeapon.isSpecial) {
-        //         item.properties.push({ name: "special" });
-        //     }
-        // }
+        const item = character.equipment[inventoryIndex];
+        let selectedFocus = null;
+        const selectedValues = item.selections.find(s => s.name == "spell-focus")?.values ?? [];
+        if (selectedValues.length > 0) {
+            selectedFocus = allEquipment.find(ae => ae.name == selectedValues[0].value);
+        }
+        item.properties = [];
+        if (selectedFocus) {
+            item.properties = [...selectedFocus.properties];
+        }
+
+        let bonusLabel = "";
+        const selectedBonuses = item.selections.find(s => s.name == "bonus")?.values ?? [];
+        if (selectedBonuses.length > 0 && selectedBonuses[0].value) {
+            bonusLabel = selectedBonuses[0].text;
+        }
+        const arcaneFocusTitle = item.properties.find(p => p.name == "arcane-focus-title")?.value ?? MagicSpellFocus.title;
+        item.properties.push({ name: "title", value: `${bonusLabel} ${arcaneFocusTitle}`.trim() });
+
         item.isEquipped = true;
     }
 
@@ -80,7 +55,8 @@ export class MagicSpellFocus {
     static getSelections(character, inventoryIndex) {
         const selections = [];
         const item = character.equipment[inventoryIndex];
-        selections.push(character.selectionUtilities.getSelection(item.selections, `spell-focus`, "Spell Focus", 1, [{ name: "spell-foci" }]));
+        selections.push(character.selectionUtilities.getSelection(
+            item.selections, `spell-focus`, "Spell Focus", 1, [{ name: "spell-foci" }, { name: "tools" }]));
         selections.push(character.selectionUtilities.getSelection(item.selections, `bonus`, "Bonus", 1));
         return selections;
     }
@@ -88,8 +64,14 @@ export class MagicSpellFocus {
     static getSelectionOptions(character, inventoryIndex, selectionName, sources) {
         let options = [];
         const item = character.equipment[inventoryIndex];
-        if (selectionName == "spell-foci") {
+        if (selectionName == "spell-focus") {
             const spellFoci = [...sources.find(s => s.name == "spell-foci").options];
+            const tools = [...sources.find(s => s.name == "tools").options];
+            for (const tool of tools) {
+                if (tool.properties.some(p => p.name == "musical-instrument")) {
+                    spellFoci.push(tool);
+                }
+            }
             const selectedValues = item.selections.find(s => s.name == selectionName)?.values ?? [];
             options = character.selectionUtilities.getSelectionOptions(
                 spellFoci, selectedValues, [], "Spell Focus (choose 1) ...");
@@ -109,96 +91,79 @@ export class MagicSpellFocus {
 
     static applyModifiers(character, inventoryIndex, targetFilters) {
         const modifiers = [];
-        // const item = character.equipment[inventoryIndex];
-        // let bonus = 0;
-        // const selectedBonuses = item.selections.find(s => s.name == "bonus")?.values ?? [];
-        // if (selectedBonuses.length > 0 && selectedBonuses[0].value) {
-        //     bonus = Number(selectedBonuses[0].text);
-        // }
-        // const isEquipped = character.equipment[inventoryIndex].isEquipped;
-        // if (isEquipped) {
-        //     modifiers.push({
-        //         name: "magic-weapon-to-hit-modifier",
-        //         target: "to-hit",
-        //         value: bonus,
-        //         title: MagicWeapon.title,
-        //         conditions: [
-        //             {
-        //                 name: "equipment-index",
-        //                 values: [inventoryIndex]
-        //             }
-        //         ]
-        //     });
-        //     modifiers.push({
-        //         name: "magic-weapon-damage-modifier",
-        //         target: "damage",
-        //         value: bonus,
-        //         title: MagicWeapon.title,
-        //         conditions: [
-        //             {
-        //                 name: "equipment-index",
-        //                 values: [inventoryIndex]
-        //             }
-        //         ]
-        //     });
-        // }
+        const item = character.equipment[inventoryIndex];
+        if (item.isEquipped) {
+
+            let spellFocus = null;
+            const selectedValues = item.selections.find(s => s.name == "spell-focus")?.values ?? [];
+            if (selectedValues.length > 0) {
+                spellFocus = selectedValues[0].value;
+            }
+
+            let bonus = 0;
+            const selectedBonuses = item.selections.find(s => s.name == "bonus")?.values ?? [];
+            if (selectedBonuses.length > 0 && selectedBonuses[0].value) {
+                bonus = Number(selectedBonuses[0].text);
+            }
+
+            if (spellFocus) {
+                const name = `magic-${spellFocus}-bonus-${bonus}`;
+                const spellClassesSerial = item.properties.find(p => p.name == "spell-classes")?.value ?? "";
+                const spellClasses = spellClassesSerial.split(",").map(sc => sc.trim());
+                modifiers.push({
+                    name: `${name}-dc-modifier`,
+                    target: "dc",
+                    value: bonus,
+                    title: MagicSpellFocus.title,
+                    conditions: [
+                        {
+                            name: "spell-class",
+                            values: spellClasses
+                        }
+                    ]
+                });
+                modifiers.push({
+                    name: `${name}-to-hit-modifier`,
+                    target: "to-hit",
+                    value: bonus,
+                    title: MagicSpellFocus.title,
+                    conditions: [
+                        {
+                            name: "spell-class",
+                            values: spellClasses
+                        }
+                    ]
+                });
+                modifiers.push({
+                    name: `${name}-damage-modifier`,
+                    target: "damage",
+                    value: bonus,
+                    title: MagicSpellFocus.title,
+                    conditions: [
+                        {
+                            name: "spell-class",
+                            values: spellClasses
+                        }
+                    ]
+                });
+            }
+
+        }
         for (const modifier of modifiers) {
             if (targetFilters.includeTarget(modifier.target)) {
                 modifier.sourcePropertyName = `equipment-${inventoryIndex}`;
-                modifier.sourcePropertyValue = MagicWeapon.name;
+                modifier.sourcePropertyValue = MagicSpellFocus.name;
                 character.addModifier(modifier);
             }
         }
     }
 
     static applyFeatures(features, character, inventoryIndex) {
-        const tempFeatures = [];
-        // const isEquipped = character.equipment[inventoryIndex].isEquipped;
-        // if (isEquipped) {
-        //     const item = character.equipment[inventoryIndex];
-        //     let selectedWeapon = null;
-        //     const selectedValues = item.selections.find(s => s.name == "weapon")?.values ?? [];
-        //     if (selectedValues.length > 0) {
-        //         selectedWeapon = MagicWeapon.#weapons.find(w => w.name == selectedValues[0].value);
-        //     }
-        //     if (selectedWeapon) {
-        //         let bonus = "";
-        //         const selectedBonuses = item.selections.find(s => s.name == "bonus")?.values ?? [];
-        //         if (selectedBonuses.length > 0 && selectedBonuses[0].value) {
-        //             bonus = selectedBonuses[0].text;
-        //         }
-        //         const attackCard = character.getAttackCard({
-        //             name: selectedWeapon.name,
-        //             title: `${bonus} ${selectedWeapon.title}`.trim(),
-        //             inventoryIndex: inventoryIndex,
-        //             damageDice: selectedWeapon.damageDice,
-        //             damageType: selectedWeapon.damageType
-        //         });
-        //         tempFeatures.push(attackCard);
-        //     }
-        // }
-        for (const feature of tempFeatures) {
-            feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = MagicWeapon.name
-            features.push(feature);
-        }
+        
     }
 
     static applySpells(spells, character, inventoryIndex) {
 
     }
-
-    static #spellFoci = [
-        { name: "amulet", title: "Amulet" },
-        { name: "crystal", title: "Crystal" },
-        { name: "emblem", title: "Emblem" },
-        { name: "mistletoe", title: "Mistletoe" },
-        { name: "orb", title: "Orb" },
-        { name: "reliquary", title: "Reliquary" },
-        { name: "rod", title: "Rod" },
-        { name: "staff", title: "Staff" },
-        { name: "totem", title: "Totem" },
-        { name: "wand", title: "Wand" }
-    ]
 
 }

@@ -448,18 +448,24 @@ export class Character {
         target,
         inventoryIndex,
         weaponProperties,
+        spellProperties,
         relevantAbility,
         applyAbilityModifier,
         applyProficiencyModifier
     }) {
         return this.#getModifiers(
-            target, inventoryIndex, weaponProperties ?? [], relevantAbility, applyAbilityModifier, applyProficiencyModifier);
+            target, inventoryIndex, weaponProperties ?? [], spellProperties, relevantAbility, applyAbilityModifier, applyProficiencyModifier);
+    }
+
+    getDisplayModifiers(toHitModifiers, damageModifiers, hasSavingThrow) {
+        return this.#getDisplayModifiers(toHitModifiers, damageModifiers, hasSavingThrow);
     }
 
     getAttackCard({
         name,
         title,
         inventoryIndex,
+        spellProperties,
         hasSavingThrow,
         relevantAbility,
         applyAbilityModifier,
@@ -480,10 +486,10 @@ export class Character {
         const applyProficiencyModifierForDamageInternal = this.#getApplyModifierValue(applyProficiencyModifierForDamage, false);
         const weaponProperties = this.equipment[Number(inventoryIndex)]?.properties ?? [];
         const toHitOrDcModifiers = this.#getModifiers(
-            hasSavingThrow ? "dc" : "to-hit", inventoryIndex, weaponProperties, relevantAbility, applyAbilityModifierInteral, applyProficiencyModifierInternal);
+            hasSavingThrow ? "dc" : "to-hit", inventoryIndex, weaponProperties, spellProperties, relevantAbility, applyAbilityModifierInteral, applyProficiencyModifierInternal);
         const toHitOrDcModifier = Number(toHitOrDcModifiers.map(m => m.value).reduce((a, b) => a + b, 0));
         const damageModifiers = this.#getModifiers(
-            "damage", inventoryIndex, weaponProperties, relevantAbility, applyAbilityModifierForDamageInternal, applyProficiencyModifierForDamageInternal);
+            "damage", inventoryIndex, weaponProperties, spellProperties, relevantAbility, applyAbilityModifierForDamageInternal, applyProficiencyModifierForDamageInternal);
         const damageModifier = Number(damageModifiers.map(m => m.value).reduce((a, b) => a + b, 0));
         let toHitOrDcLabel = "";
         if (hasSavingThrow) {
@@ -494,7 +500,7 @@ export class Character {
         }
         let damageDiceInternal = damageDice;
         if (!damageDiceInternal && damageDieSize) {
-            let damageDieSizeModifiers = this.#getTargetModifiers(inventoryIndex, weaponProperties, "damage-die-size");
+            let damageDieSizeModifiers = this.#getTargetModifiers(inventoryIndex, weaponProperties, spellProperties, "damage-die-size");
             if (damageDieSizeModifiers.length > 0) {
                 damageDieSize = Math.max(...damageDieSizeModifiers.map(dm => Number(dm.value)));
             }
@@ -537,6 +543,57 @@ export class Character {
         };
     }
 
+    getSpellCard(spell, dc, displayModifiersHtml, content) {
+        return {
+            name: spell.name,
+            title: spell.title,
+            level: spell.level,
+            html: `
+                <div class="spell-properties">${spell.school} cantrip</div>
+                <div><b>Casting Time: </b>${spell.castingTime}</div>
+                <div><b>Range: </b>${spell.range}</div>
+                <div><b>Components: </b>${spell.components}</div>
+                <div><b>Duration: </b>${spell.duration}</div>
+                <div class="content">
+                    <p class="spell-dc-note">
+                        DC: ${dc} wisdom
+                    </p>
+                    <div class="spell-modifiers-container">
+                        ${displayModifiersHtml}
+                    </div>
+                    <p>
+                        ${content}
+                    </p>
+                </div>
+                    `,
+            source: { name: "spell" },
+            displayType: "spell-card"
+        };
+    }
+
+    getSpellModifiers(target, spellClass, relevantAbility, includeProficiencyModifier, includeAbilityModifier) {
+        return this.getModifiers({
+            target: target,
+            spellProperties: { spellClass: spellClass },
+            relevantAbility: relevantAbility,
+            applyAbilityModifier: includeAbilityModifier,
+            applyProficiencyModifier: includeProficiencyModifier
+        });
+    }
+
+    getSpellDamageModifierLabel(damageModifiers) {
+        let damageModifier = damageModifiers.map(m => m.value).reduce((a, b) => a + b, 0);
+        damageModifier = Number(damageModifier);
+        let damageModifierLabel = " ";
+        if (damageModifier > 0) {
+            damageModifierLabel = ` + ${damageModifier} `;
+        }
+        if (damageModifiers < 0) {
+            damageModifierLabel = ` - ${Math.abs(damageModifier)} `;
+        }
+        return damageModifierLabel;
+    }
+
     #getSubstring(valueIn, length) {
         let valueOut = valueIn ?? "";
         if (valueOut.length > length) {
@@ -553,8 +610,8 @@ export class Character {
         return modifierOut;
     }
 
-    #getModifiers(target, inventoryIndex, weaponProperties, relevantAbility, applyAbilityModifier, applyProficiencyModifier) {
-        const modifiers = this.#getTargetModifiers(inventoryIndex, weaponProperties, target);
+    #getModifiers(target, inventoryIndex, weaponProperties, spellProperties, relevantAbility, applyAbilityModifier, applyProficiencyModifier) {
+        const modifiers = this.#getTargetModifiers(inventoryIndex, weaponProperties, spellProperties, target);
         if (applyProficiencyModifier) {
             modifiers.push(this.#getProficiencyModifier(weaponProperties));
         }
@@ -567,7 +624,7 @@ export class Character {
         return modifiers;
     }
 
-    #getTargetModifiers(inventoryIndex, weaponProperties, target) {
+    #getTargetModifiers(inventoryIndex, weaponProperties, spellProperties, target) {
         const modifiers = [];
         let targetModifiers = this.modifiers.filter(m => m.target == target);
         for (const modifier of targetModifiers) {
@@ -585,6 +642,11 @@ export class Character {
                     if (condition.name == "weapon-type") {
                         const weaponType = weaponProperties.find(wp => wp.name == "weapon-type")?.value;
                         if (!conditionValues.includes(weaponType)) {
+                            continue;
+                        }
+                    }
+                    if (condition.name == "spell-class") {
+                        if (!conditionValues.includes(spellProperties?.spellClass)) {
                             continue;
                         }
                     }
@@ -620,21 +682,27 @@ export class Character {
         if (relevantAbility) {
             relevantAbilityModifier = this.getAbilityScoreModifier(relevantAbility.name);
         }
-        else {
+        else {          
             const strengthModifier = this.getAbilityScoreModifier("strength");
             const dexterityModifier = this.getAbilityScoreModifier("dexterity");
             const weaponType = weaponProperties.find(wp => wp.name == "weapon-type")?.value;
-            const isVersatile = weaponProperties.some(wp => wp.name == "versatile");
-            if ((weaponType == "simple-ranged")
-                || (weaponType == "martial-ranged")
-                || (isVersatile && (dexterityModifier > strengthModifier))) {
+            const isFinesse = weaponProperties.some(wp => wp.name == "finesse");
+            relevantAbility = { name: "strength", title: "Strength" };
+            relevantAbilityModifier = strengthModifier
+            if (weaponType == "simple-ranged" || weaponType == "martial-ranged") {
                 relevantAbility = { name: "dexterity", title: "Dexterity" };
-                relevantAbilityModifier = dexterityModifier;
             }
-            else {
-                relevantAbility = { name: "strength", title: "Strength" };
-                relevantAbilityModifier = strengthModifier
+            if (isFinesse) {
+                if (dexterityModifier > strengthModifier) {
+                    relevantAbility = { name: "dexterity", title: "Dexterity" };
+                }
+                else {
+                    relevantAbility = { name: "strength", title: "Strength" };
+                }
             }
+            if (relevantAbility.name == "dexterity") {
+                relevantAbilityModifier = dexterityModifier
+            } 
         }
         return {
             name: relevantAbility.name,
@@ -685,7 +753,7 @@ export class Character {
         if (isLight) {
             return true;
         }
-        const modifiers = this.#getModifiers("off-hand-weapon", inventoryIndex, weaponProperties, null, false, false);
+        const modifiers = this.#getModifiers("off-hand-weapon", inventoryIndex, weaponProperties, null, null, false, false);
         if (modifiers.length > 0) {
             return true;
         }
@@ -722,7 +790,7 @@ export class Character {
                 label = `${value} damage`;
             }
             if (label) {
-                let displayModifier = displayModifiers.find(dm => dm.name == damageModifier.name);
+                let displayModifier = displayModifiers.find(dm => dm.title == damageModifier.title);
                 if (displayModifier) {
                     displayModifier.damageLabel = label;
                 }

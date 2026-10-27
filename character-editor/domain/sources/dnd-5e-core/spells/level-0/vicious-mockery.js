@@ -65,7 +65,9 @@ export class ViciousMockery {
 
     static applyFeatures(features, character) {
         const tempFeatures = [];
+
         const level = Number(character.classes.find(c => c.value == "bard").level);
+
         let damageDice = 1;
         if (level >= 5) {
             damageDice++;
@@ -76,38 +78,35 @@ export class ViciousMockery {
         if (level >= 17) {
             damageDice++;
         }
-        tempFeatures.push({
-            name: ViciousMockery.name,
-            title: ViciousMockery.title,
-            level: ViciousMockery.level,
-            html: `
-                <div class="spell-properties">${ViciousMockery.school} cantrip</div>
-                <div><b>Casting Time: </b>${ViciousMockery.castingTime}</div>
-                <div><b>Range: </b>${ViciousMockery.range}</div>
-                <div><b>Components: </b>${ViciousMockery.components}</div>
-                <div><b>Duration: </b>${ViciousMockery.duration}</div>
-                <div class="content">
-                    <p>
-                        You unleash a string of insults laced with subtle enchantments at a creature you can see within range. If the target can hear you (though it need not understand you), it must succeed on a Wisdom saving throw or take ${damageDice}d4 psychic damage and have disadvantage on the next attack roll it makes before the end of its next turn.
-                    </p>
-                    <p>
-                        At Higher Levels. This spell’s damage increases by 1d4 when you reach 5th level (2d4), 11th level (3d4), and 17th level (4d4).
-                    </p>
-                </div>
-                    `,
-            source: { name: "spell" },
-            displayType: "spell-card"
-        });
 
-        const attackCard = character.getAttackCard({
-            name: `${ViciousMockery.name}-attack`,
-            title: ViciousMockery.title,
-            damageDice: [{ number: damageDice, size: 4 }],
-            damageType: "psychic",
-            range: "60 ft.",
-            applyAbilityModifierForDamage: false,
-            applyProficiencyModifierForDamage: false
-        });
+        const dcModifiers = character.getSpellModifiers("dc", "bard", { name: "charisma", title: "Charisma" }, true, true);
+        const dcModifier = dcModifiers.map(m => m.value).reduce((a, b) => a + b, 0);
+        const dc = 8 + Number(dcModifier);
+
+        const damageModifiers = character.getSpellModifiers("damage", "bard", { name: "charisma", title: "Charisma" }, false, false);
+        const damageModifierLabel = character.getSpellDamageModifierLabel(damageModifiers);
+
+        const displayModifiers = character.getDisplayModifiers(dcModifiers, damageModifiers, true);
+        let displayModifiersHtml = "";
+        for (const displayModifier of displayModifiers) {
+            displayModifiersHtml += `<div>${displayModifier}</div>`;
+        }
+
+        const content = `
+            You unleash a string of insults laced with subtle enchantments at a creature you can see within range. If the target can hear you (though it need not understand you), it must succeed on a Wisdom saving throw or take ${damageDice}d4${damageModifierLabel}psychic damage and have disadvantage on the next attack roll it makes before the end of its next turn.
+        `
+        const spellCard = character.getSpellCard(ViciousMockery, dc, displayModifiersHtml, content);
+        tempFeatures.push(spellCard);
+
+        // const attackCard = character.getAttackCard({
+        //     name: `${ViciousMockery.name}-attack`,
+        //     title: ViciousMockery.title,
+        //     damageDice: [{ number: damageDice, size: 4 }],
+        //     damageType: "psychic",
+        //     range: "60 ft.",
+        //     applyAbilityModifierForDamage: false,
+        //     applyProficiencyModifierForDamage: false
+        // });
 
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = "spell";

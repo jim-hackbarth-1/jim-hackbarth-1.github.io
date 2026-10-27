@@ -66,12 +66,14 @@ export class Spear {
         const tempFeatures = [];
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
+            const versatileDamageDice = Spear.properties.find(p => p.name == "versatile-damage-dice").value;
             const attackCard = character.getAttackCard({
                 name: Spear.name,
                 title: Spear.title,
                 inventoryIndex: inventoryIndex,
                 damageDieSize: 6,
-                damageType: "piercing"
+                damageType: "piercing",
+                notes: [`(${versatileDamageDice} damage two-handed)`]
             });
             tempFeatures.push(attackCard);
         }

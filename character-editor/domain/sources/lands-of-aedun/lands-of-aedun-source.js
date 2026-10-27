@@ -23,6 +23,11 @@ import { SorcererChanneler } from "./sub-classes/sorcerer-channeler.js";
 import { WarlockTheAncestors } from "./sub-classes/warlock-the-ancestors.js";
 import { WizardSchoolOfPatterning } from "./sub-classes/wizard-school-of-patterning.js";
 
+// equipment
+
+// spell-foc-magical
+import { MagicSpellFocus } from "./equipment/spell-foci-magical/magic-spell-focus.js";
+
 export class LandsOfAedunSource {
 
     static get name() {
@@ -81,8 +86,13 @@ export class LandsOfAedunSource {
         return [];
     }
 
+    static #equipment = [
+        // spell-foc-magical
+        MagicSpellFocus
+        
+    ];
     static getEquipment() {
-        return [];
+        return LandsOfAedunSource.#equipment;
     }
 
     static #languages = [

@@ -19,7 +19,6 @@ export class CrossbowLight {
             { name: "weapon-title", value: CrossbowLight.title },
             { name: "weapon-type", value: "simple-ranged" },
             { name: "damage-dice", value: "1d8" },
-            { name: "versatile-damage-dice", value: "1d10" },
             { name: "damage-type", value: "piercing" },
             { name: "range", value: "80/320" },
             { name: "ammunition" },

@@ -161,16 +161,18 @@ import { SplintArmor } from "./equipment/armor/splint-armor.js";
 import { StuddedLeatherArmor } from "./equipment/armor/studded-leather.js";
 
 // equipment - spell-foci
-import { Amulet } from "./equipment/spell-foci/amulet.js"
-import { Crystal } from "./equipment/spell-foci/crystal.js"
-import { Emblem } from "./equipment/spell-foci/emblem.js"
-import { Mistletoe } from "./equipment/spell-foci/mistletoe.js"
-import { Orb } from "./equipment/spell-foci/orb.js"
-import { Reliquary } from "./equipment/spell-foci/reliquary.js"
-import { Rod } from "./equipment/spell-foci/rod.js"
-import { Staff } from "./equipment/spell-foci/staff.js"
-import { Totem } from "./equipment/spell-foci/totem.js"
-import { Wand } from "./equipment/spell-foci/wand.js"
+import { ArcaneFocusCrystal } from "./equipment/spell-foci/arcane-focus-crystal.js"
+import { ArcaneFocusOrb } from "./equipment/spell-foci/arcane-focus-orb.js"
+import { ArcaneFocusRod } from "./equipment/spell-foci/arcane-focus-rod.js"
+import { ArcaneFocusStaff } from "./equipment/spell-foci/arcane-focus-staff.js"
+import { ArcaneFocusWand } from "./equipment/spell-foci/arcane-focus-wand.js"
+import { DruidicFocusMistletoe } from "./equipment/spell-foci/druidic-focus-mistletoe.js"
+import { DruidicFocusStaff } from "./equipment/spell-foci/druidic-focus-staff.js"
+import { DruidicFocusTotem } from "./equipment/spell-foci/druidic-focus-totem.js"
+import { DruidicFocusWand } from "./equipment/spell-foci/druidic-focus-wand.js"
+import { HolySymbolAmulet } from "./equipment/spell-foci/holy-symbol-amulet.js"
+import { HolySymbolEmblem } from "./equipment/spell-foci/holy-symbol-emblem.js"
+import { HolySymbolReliquary } from "./equipment/spell-foci/holy-symbol-reliquary.js"
 
 // equipment - tools
 import { BrewersTools } from "./equipment/tools/brewers-tools.js"
@@ -422,8 +424,9 @@ export class DnD5ESource {
         Shield, SplintArmor, StuddedLeatherArmor,
 
         // spell-foci
-        Amulet, Crystal, Emblem, Mistletoe, Orb,
-        Reliquary, Rod, Staff, Totem, Wand,
+        ArcaneFocusCrystal, ArcaneFocusOrb, ArcaneFocusRod, ArcaneFocusStaff, ArcaneFocusWand,
+        DruidicFocusMistletoe, DruidicFocusStaff, DruidicFocusTotem, DruidicFocusWand, HolySymbolAmulet,
+        HolySymbolEmblem, HolySymbolReliquary,
 
         // tools
         BrewersTools, MasonsTools, SmithsTools,

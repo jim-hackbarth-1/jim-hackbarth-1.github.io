@@ -14,7 +14,11 @@ export class Dulcimer {
     }
 
     static get properties() {
-        return ["musical-instrument"];
+        return [
+            { name: "arcane-focus-title", value: Dulcimer.title + " (spell focus)" },
+            { name: "spell-classes", value: "bard" },
+            { name: "musical-instrument" }
+        ];
     }
 
     static get displayProperties() {

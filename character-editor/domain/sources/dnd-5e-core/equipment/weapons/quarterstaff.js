@@ -64,12 +64,14 @@ export class Quarterstaff {
         const tempFeatures = [];
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
+            const versatileDamageDice = Quarterstaff.properties.find(p => p.name == "versatile-damage-dice").value;
             const attackCard = character.getAttackCard({
                 name: Quarterstaff.name,
                 title: Quarterstaff.title,
                 inventoryIndex: inventoryIndex,
                 damageDieSize: 6,
-                damageType: "bludgeoning"
+                damageType: "bludgeoning",
+                notes: [`(${versatileDamageDice} damage two-handed)`]
             });
             tempFeatures.push(attackCard);
         }

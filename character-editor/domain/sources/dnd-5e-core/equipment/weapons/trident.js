@@ -66,12 +66,14 @@ export class Trident {
         const tempFeatures = [];
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
+            const versatileDamageDice = Trident.properties.find(p => p.name == "versatile-damage-dice").value;
             const attackCard = character.getAttackCard({
                 name: Trident.name,
                 title: Trident.title,
                 inventoryIndex: inventoryIndex,
                 damageDieSize: 6,
-                damageType: "piercing"
+                damageType: "piercing",
+                notes: [`(${versatileDamageDice} damage two-handed)`]
             });
             tempFeatures.push(attackCard);
         }

@@ -64,12 +64,14 @@ export class Warhammer {
         const tempFeatures = [];
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
+            const versatileDamageDice = Warhammer.properties.find(p => p.name == "versatile-damage-dice").value;
             const attackCard = character.getAttackCard({
                 name: Warhammer.name,
                 title: Warhammer.title,
                 inventoryIndex: inventoryIndex,
                 damageDieSize: 8,
-                damageType: "bludgeoning"
+                damageType: "bludgeoning",
+                notes: [`(${versatileDamageDice} damage two-handed)`]
             });
             tempFeatures.push(attackCard);
         }

@@ -24,7 +24,7 @@ export class Longsword {
             { name: "versatile" }
         ];
     }
-
+    
     static get displayProperties() {
         return [
             "Cost: 15gp",
@@ -64,12 +64,14 @@ export class Longsword {
         const tempFeatures = [];
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
+            const versatileDamageDice = Longsword.properties.find(p => p.name == "versatile-damage-dice").value;
             const attackCard = character.getAttackCard({
                 name: Longsword.name,
                 title: Longsword.title,
                 inventoryIndex: inventoryIndex,
                 damageDieSize: 8,
-                damageType: "slashing"
+                damageType: "slashing",
+                notes: [`(${versatileDamageDice} damage two-handed)`]
             });
             tempFeatures.push(attackCard);
         }

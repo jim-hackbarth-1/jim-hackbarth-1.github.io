@@ -592,7 +592,8 @@ class PrintViewModel {
 
     #getEquipmentCardHtml(character) {
         const allEquipment = Sources.getEquipment(character.sources);
-        const items = character.equipment.map(e => allEquipment.find(ae => ae.name == e.name).title);
+        const items = character.equipment.map(
+            e => e.properties.find(p => p.name == "title")?.value ?? allEquipment.find(ae => ae.name == e.name).title);
         let itemsWithCounts = [];
         for (const item of items) {
             const itemWithCount = itemsWithCounts.find(i => i.name == item);

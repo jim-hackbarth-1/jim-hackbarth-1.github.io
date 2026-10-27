@@ -14,7 +14,7 @@ export class SmithsTools {
     }
 
     static get properties() {
-        return ["artisans-tools"];
+        return [{ name: "artisans-tools" }];
     }
 
     static get displayProperties() {

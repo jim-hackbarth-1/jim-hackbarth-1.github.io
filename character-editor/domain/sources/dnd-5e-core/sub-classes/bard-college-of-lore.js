@@ -62,7 +62,7 @@ export class BardCollegeOfLore {
         if (selectionName == `${BardCollegeOfLore.name}-skill-proficiencies`) {
             const skills = [...sources.find(s => s.name == "skills").options];
             for (const skill of skills) {
-                skill.source = { title: skill.ability }
+                skill.data = skill.ability;
             }
             const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
             const selectedElsewhere = character.modifiers
@@ -70,6 +70,9 @@ export class BardCollegeOfLore {
                 .map(m => m.value);
             options = character.selectionUtilities.getSelectionOptions(
                 skills, selectedValues, selectedElsewhere, `${BardCollegeOfLore.title} - Skill proficiencies (choose 3)...`);
+            for (const option of options) {
+                option.noteText = option.data;
+            }
         }
         if (selectionName == `${BardCollegeOfLore.name}-additional-magical-secrets-spells`) {   
             let spells = [...sources.find(s => s.name == "spells").options];

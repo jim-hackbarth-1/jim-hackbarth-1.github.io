@@ -14,7 +14,11 @@ export class Viol {
     }
 
     static get properties() {
-        return ["musical-instrument"];
+        return [
+            { name: "arcane-focus-title", value: Viol.title + " (spell focus)" },
+            { name: "spell-classes", value: "bard" },
+            { name: "musical-instrument" }
+        ];
     }
 
     static get displayProperties() {

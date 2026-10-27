@@ -36,13 +36,15 @@ export class MagicWeapon {
         if (selectedWeapon) {
             item.properties = [...selectedWeapon.properties];
         }
-        let bonus = 0;
+
         let bonusLabel = "";
         const selectedBonuses = item.selections.find(s => s.name == "bonus")?.values ?? [];
         if (selectedBonuses.length > 0 && selectedBonuses[0].value) {
-            bonus = Number(selectedBonuses[0].text);
             bonusLabel = selectedBonuses[0].text;
         }
+        const weaponTitle = item.properties.find(p => p.name == "weapon-title")?.value ?? MagicWeapon.title;
+        item.properties.push({ name: "title", value: `${bonusLabel} ${weaponTitle}`.trim() });
+
         item.isEquipped = true;
     }
 
@@ -165,12 +167,18 @@ export class MagicWeapon {
                     }
                 }
                 const damageType = item.properties.find(p => p.name == "damage-type")?.value ?? "";
+                const notes = [];
+                if (item.properties.some(p => p.name == "versatile")) {
+                    const versatileDamageDice = item.properties.find(p => p.name == "versatile-damage-dice").value;
+                    notes.push(`(${versatileDamageDice} damage two-handed)`)
+                }
                 const attackCard = character.getAttackCard({
                     name: `magic-${selectedWeapon}-plus-${bonusValue}`,
                     title: `${bonusLabel} ${weaponTitle}`.trim(),
                     inventoryIndex: inventoryIndex,
                     damageDice: damageDice,
-                    damageType: damageType
+                    damageType: damageType,
+                    notes: notes
                 });
                 tempFeatures.push(attackCard);
             }

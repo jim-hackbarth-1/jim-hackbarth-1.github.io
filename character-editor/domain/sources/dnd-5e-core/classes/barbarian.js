@@ -71,7 +71,7 @@ export class Barbarian {
         if (selectionName == "barbarian-skill-proficiencies") {
             const proficiencies = [...Barbarian.#skillProficiencies];
             for (const proficiency of proficiencies) {
-                proficiency.source = { title: proficiency.ability }
+                proficiency.data = proficiency.ability;
             }
             const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
             const selectedElsewhere = character.modifiers
@@ -79,6 +79,9 @@ export class Barbarian {
                 .map(m => m.value);
             options = character.selectionUtilities.getSelectionOptions(
                 proficiencies, selectedValues, selectedElsewhere, "Skill proficiencies (choose 2) ...");
+            for (const option of options) {
+                option.noteText = option.data;
+            }
         }
         return options;
     }

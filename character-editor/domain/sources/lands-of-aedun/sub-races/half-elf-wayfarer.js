@@ -21,7 +21,7 @@ export class HalfElfWayfarer {
         return [];
     }
 
-    static getSelectionOptions(character, optionName, sources) {
+    static getSelectionOptions(character, selectionName, sources) {
         return [];
     }
 

@@ -21,7 +21,7 @@ export class TieflingNightHaunt {
         return [];
     }
 
-    static getSelectionOptions(character, optionName, sources) {
+    static getSelectionOptions(character, selectionName, sources) {
         return [];
     }
 

@@ -255,6 +255,7 @@ import { Bane } from "./spells/level-1/bane.js";
 import { CharmPerson } from "./spells/level-1/charm-person.js";
 import { ComprehendLanguages } from "./spells/level-1/comprehend-languages.js";
 import { CureWounds } from "./spells/level-1/cure-wounds.js";
+import { FaerieFire } from "./spells/level-1/faerie-fire.js";
 import { SpeakWithAnimals } from "./spells/level-1/speak-with-animals.js";
 
 // spells - level 2
@@ -264,6 +265,7 @@ import { BlindnessDeafness } from "./spells/level-2/blindness-deafness.js";
 import { CalmEmotions } from "./spells/level-2/calm-emotions.js";
 import { CloudOfDaggers } from "./spells/level-2/cloud-of-daggers.js";
 import { CrownOfMadness } from "./spells/level-2/crown-of-madness.js";
+import { Darkness } from "./spells/level-2/darkness.js";
 
 // spells - level 3
 import { BestowCurse } from "./spells/level-3/bestow-curse.js";
@@ -477,14 +479,23 @@ export class DnD5ESource {
     }
 
     static #spells = [
+        // cantrips
         BladeWard, DancingLights, Friends, Light, MageHand,
         Mending, Message, MinorIllusion, Prestidigitation, TrueStrike,
         ViciousMockery,
+
+        // level 1
         AnimalFriendship, Bane, CharmPerson, ComprehendLanguages, CureWounds,
-        SpeakWithAnimals,
+        FaerieFire, SpeakWithAnimals,
+
+        // level 2
         AnimalMessenger, BeastSense, BlindnessDeafness, CalmEmotions, CloudOfDaggers,
-        CrownOfMadness,
+        CrownOfMadness, Darkness,
+
+        // level 3
         BestowCurse, Clairvoyance, DispelMagic, Fear, FeignDeath,
+
+        // level 5
         CommuneWithNature
     ];
     static getSpells() {

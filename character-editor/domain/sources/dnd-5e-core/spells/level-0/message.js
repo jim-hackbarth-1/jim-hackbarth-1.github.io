@@ -63,7 +63,7 @@ export class Message {
         `;
     }
 
-    static applyFeatures(features, character) {
+    static applyFeatures(features, character, characterSpellClasses) {
         const tempFeatures = [];
         tempFeatures.push({
             name: Message.name,

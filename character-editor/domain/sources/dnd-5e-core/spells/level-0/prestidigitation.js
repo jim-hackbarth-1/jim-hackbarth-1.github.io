@@ -83,7 +83,7 @@ export class Prestidigitation {
         `;
     }
 
-    static applyFeatures(features, character) {
+    static applyFeatures(features, character, characterSpellClasses) {
         const tempFeatures = [];
         tempFeatures.push({
             name: Prestidigitation.name,

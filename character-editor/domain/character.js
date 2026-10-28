@@ -448,13 +448,13 @@ export class Character {
         target,
         inventoryIndex,
         weaponProperties,
-        spellProperties,
+        spellCastingInfo,
         relevantAbility,
         applyAbilityModifier,
         applyProficiencyModifier
     }) {
         return this.#getModifiers(
-            target, inventoryIndex, weaponProperties ?? [], spellProperties, relevantAbility, applyAbilityModifier, applyProficiencyModifier);
+            target, inventoryIndex, weaponProperties ?? [], spellCastingInfo, relevantAbility, applyAbilityModifier, applyProficiencyModifier);
     }
 
     getDisplayModifiers(toHitModifiers, damageModifiers, hasSavingThrow) {
@@ -465,7 +465,7 @@ export class Character {
         name,
         title,
         inventoryIndex,
-        spellProperties,
+        spellCastingInfo,
         hasSavingThrow,
         relevantAbility,
         applyAbilityModifier,
@@ -486,10 +486,10 @@ export class Character {
         const applyProficiencyModifierForDamageInternal = this.#getApplyModifierValue(applyProficiencyModifierForDamage, false);
         const weaponProperties = this.equipment[Number(inventoryIndex)]?.properties ?? [];
         const toHitOrDcModifiers = this.#getModifiers(
-            hasSavingThrow ? "dc" : "to-hit", inventoryIndex, weaponProperties, spellProperties, relevantAbility, applyAbilityModifierInteral, applyProficiencyModifierInternal);
+            hasSavingThrow ? "dc" : "to-hit", inventoryIndex, weaponProperties, spellCastingInfo, relevantAbility, applyAbilityModifierInteral, applyProficiencyModifierInternal);
         const toHitOrDcModifier = Number(toHitOrDcModifiers.map(m => m.value).reduce((a, b) => a + b, 0));
         const damageModifiers = this.#getModifiers(
-            "damage", inventoryIndex, weaponProperties, spellProperties, relevantAbility, applyAbilityModifierForDamageInternal, applyProficiencyModifierForDamageInternal);
+            "damage", inventoryIndex, weaponProperties, spellCastingInfo, relevantAbility, applyAbilityModifierForDamageInternal, applyProficiencyModifierForDamageInternal);
         const damageModifier = Number(damageModifiers.map(m => m.value).reduce((a, b) => a + b, 0));
         let toHitOrDcLabel = "";
         if (hasSavingThrow) {
@@ -500,7 +500,7 @@ export class Character {
         }
         let damageDiceInternal = damageDice;
         if (!damageDiceInternal && damageDieSize) {
-            let damageDieSizeModifiers = this.#getTargetModifiers(inventoryIndex, weaponProperties, spellProperties, "damage-die-size");
+            let damageDieSizeModifiers = this.#getTargetModifiers(inventoryIndex, weaponProperties, spellCastingInfo, "damage-die-size");
             if (damageDieSizeModifiers.length > 0) {
                 damageDieSize = Math.max(...damageDieSizeModifiers.map(dm => Number(dm.value)));
             }
@@ -543,27 +543,55 @@ export class Character {
         };
     }
 
-    getSpellCard(spell, dc, displayModifiersHtml, content) {
+    getSpellModifiersInfo(spell, characterSpellClasses, dcSaveAbility, dealsDamage) {
+        let displayModifiersHtml = "";
+        let damageModifierLabel = " ";
+        const spellCastingInfoList = characterSpellClasses.filter(csc => spell.classes.includes(csc.spellClass.name));
+        for (const spellCastingInfo of spellCastingInfoList) {
+            spellCastingInfo.spell = spell;
+            const dcModifiers = this.getSpellModifiers("dc", spellCastingInfo, true, true);
+            const dcModifier = dcModifiers.map(m => m.value).reduce((a, b) => a + b, 0);
+            const dc = 8 + Number(dcModifier);
+            let damageModifiers = [];
+            if (dealsDamage) {
+                damageModifiers = this.getSpellModifiers("damage", spellCastingInfo, false, false);
+                damageModifierLabel = this.getSpellDamageModifierLabel(damageModifiers);
+            }    
+            displayModifiersHtml += `
+                <p class="spell-dc-note">${spellCastingInfo.spellClass.title} spell DC: ${dc} ${dcSaveAbility}</p>
+                <div class="spell-modifiers-container">
+            `;
+            const displayModifiers = this.getDisplayModifiers(dcModifiers, damageModifiers, true);
+            for (const displayModifier of displayModifiers) {
+                displayModifiersHtml += `<div>${displayModifier}</div>`;
+            }
+            displayModifiersHtml += "</div>";
+        }
+        return {
+            classCount: spellCastingInfoList.length,
+            displayModifiersHtml: displayModifiersHtml,
+            damageModifierLabel: damageModifierLabel
+        };
+    }
+
+    getSpellCard(spell, displayModifiersHtml, content) {
+        let spellProperties = `Level ${spell.level} ${spell.school}`;
+        if (spell.level == 0) {
+            spellProperties = `${spell.school} cantrip`;
+        }
         return {
             name: spell.name,
             title: spell.title,
             level: spell.level,
             html: `
-                <div class="spell-properties">${spell.school} cantrip</div>
+                <div class="spell-properties">${spellProperties}</div>
                 <div><b>Casting Time: </b>${spell.castingTime}</div>
                 <div><b>Range: </b>${spell.range}</div>
                 <div><b>Components: </b>${spell.components}</div>
                 <div><b>Duration: </b>${spell.duration}</div>
                 <div class="content">
-                    <p class="spell-dc-note">
-                        DC: ${dc} wisdom
-                    </p>
-                    <div class="spell-modifiers-container">
-                        ${displayModifiersHtml}
-                    </div>
-                    <p>
-                        ${content}
-                    </p>
+                    ${displayModifiersHtml}
+                    ${content}
                 </div>
                     `,
             source: { name: "spell" },
@@ -571,11 +599,11 @@ export class Character {
         };
     }
 
-    getSpellModifiers(target, spellClass, relevantAbility, includeProficiencyModifier, includeAbilityModifier) {
+    getSpellModifiers(target, spellCastingInfo, includeProficiencyModifier, includeAbilityModifier) {
         return this.getModifiers({
             target: target,
-            spellProperties: { spellClass: spellClass },
-            relevantAbility: relevantAbility,
+            spellCastingInfo: spellCastingInfo,
+            relevantAbility: spellCastingInfo.spellAbility,
             applyAbilityModifier: includeAbilityModifier,
             applyProficiencyModifier: includeProficiencyModifier
         });
@@ -610,8 +638,8 @@ export class Character {
         return modifierOut;
     }
 
-    #getModifiers(target, inventoryIndex, weaponProperties, spellProperties, relevantAbility, applyAbilityModifier, applyProficiencyModifier) {
-        const modifiers = this.#getTargetModifiers(inventoryIndex, weaponProperties, spellProperties, target);
+    #getModifiers(target, inventoryIndex, weaponProperties, spellCastingInfo, relevantAbility, applyAbilityModifier, applyProficiencyModifier) {
+        const modifiers = this.#getTargetModifiers(inventoryIndex, weaponProperties, spellCastingInfo, target);
         if (applyProficiencyModifier) {
             modifiers.push(this.#getProficiencyModifier(weaponProperties));
         }
@@ -624,7 +652,7 @@ export class Character {
         return modifiers;
     }
 
-    #getTargetModifiers(inventoryIndex, weaponProperties, spellProperties, target) {
+    #getTargetModifiers(inventoryIndex, weaponProperties, spellCastingInfo, target) {
         const modifiers = [];
         let targetModifiers = this.modifiers.filter(m => m.target == target);
         for (const modifier of targetModifiers) {
@@ -646,7 +674,7 @@ export class Character {
                         }
                     }
                     if (condition.name == "spell-class") {
-                        if (!conditionValues.includes(spellProperties?.spellClass)) {
+                        if (!conditionValues.includes(spellCastingInfo?.spellClass?.name)) {
                             continue;
                         }
                     }

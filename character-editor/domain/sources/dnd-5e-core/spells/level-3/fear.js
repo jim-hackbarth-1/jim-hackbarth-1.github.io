@@ -63,30 +63,20 @@ export class Fear {
         `;
     }
 
-    static applyFeatures(features, character) {
+    static applyFeatures(features, character, characterSpellClasses) {
         const tempFeatures = [];
-        tempFeatures.push({
-            name: Fear.name,
-            title: Fear.title,
-            level: Fear.level,
-            html: `
-                <div class="spell-properties">3rd-level ${Fear.school}</div>
-                <div><b>Casting Time: </b>${Fear.castingTime}</div>
-                <div><b>Range: </b>${Fear.range}</div>
-                <div><b>Components: </b>${Fear.components}</div>
-                <div><b>Duration: </b>${Fear.duration}</div>
-                <div class="content">
-                    <p>
-                        You project a phantasmal image of a creature’s worst fears. Each creature in a 30-foot cone must succeed on a Wisdom saving throw or drop whatever it is holding and become frightened for the duration.
-                    </p>
-                    <p>
-                        While frightened by this spell, a creature must take the Dash action and move away from you by the safest available route on each of its turns, unless there is nowhere to move. If the creature ends its turn in a location where it doesn’t have line of sight to you, the creature can make a Wisdom saving throw. On a successful save, the spell ends for that creature.
-                    </p>
-                </div>
-                    `,
-            source: { name: "spell" },
-            displayType: "spell-card"
-        });
+
+        const spellModifiersInfo = character.getSpellModifiersInfo(Fear, characterSpellClasses, "Wisdom", false);
+        const content = `
+            <p>
+                You project a phantasmal image of a creature’s worst fears. Each creature in a 30-foot cone must succeed on a Wisdom saving throw or drop whatever it is holding and become frightened for the duration.
+            </p>
+            <p>
+                While frightened by this spell, a creature must take the Dash action and move away from you by the safest available route on each of its turns, unless there is nowhere to move. If the creature ends its turn in a location where it doesn’t have line of sight to you, the creature can make a Wisdom saving throw. On a successful save, the spell ends for that creature.
+            </p>
+        `;
+        const spellCard = character.getSpellCard(Fear, spellModifiersInfo.displayModifiersHtml, content);
+        tempFeatures.push(spellCard);
 
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = "spell";

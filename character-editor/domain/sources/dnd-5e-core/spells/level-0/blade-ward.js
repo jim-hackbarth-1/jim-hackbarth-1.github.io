@@ -58,7 +58,7 @@ export class BladeWard {
         `;
     }
 
-    static applyFeatures(features, character) {
+    static applyFeatures(features, character, characterSpellClasses) {
         const tempFeatures = [];
         tempFeatures.push({
             name: BladeWard.name,

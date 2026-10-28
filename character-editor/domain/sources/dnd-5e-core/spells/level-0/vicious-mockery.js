@@ -63,7 +63,7 @@ export class ViciousMockery {
         `;
     }
 
-    static applyFeatures(features, character) {
+    static applyFeatures(features, character, characterSpellClasses) {
         const tempFeatures = [];
 
         const level = Number(character.classes.find(c => c.value == "bard").level);
@@ -79,23 +79,15 @@ export class ViciousMockery {
             damageDice++;
         }
 
-        const dcModifiers = character.getSpellModifiers("dc", "bard", { name: "charisma", title: "Charisma" }, true, true);
-        const dcModifier = dcModifiers.map(m => m.value).reduce((a, b) => a + b, 0);
-        const dc = 8 + Number(dcModifier);
-
-        const damageModifiers = character.getSpellModifiers("damage", "bard", { name: "charisma", title: "Charisma" }, false, false);
-        const damageModifierLabel = character.getSpellDamageModifierLabel(damageModifiers);
-
-        const displayModifiers = character.getDisplayModifiers(dcModifiers, damageModifiers, true);
-        let displayModifiersHtml = "";
-        for (const displayModifier of displayModifiers) {
-            displayModifiersHtml += `<div>${displayModifier}</div>`;
+        let damageModifierLabel = " ";
+        const spellModifiersInfo = character.getSpellModifiersInfo(ViciousMockery, characterSpellClasses, "Wisdom", true);
+        if (spellModifiersInfo.classCount == 1) {
+            damageModifierLabel = spellModifiersInfo.damageModifierLabel;
         }
-
         const content = `
-            You unleash a string of insults laced with subtle enchantments at a creature you can see within range. If the target can hear you (though it need not understand you), it must succeed on a Wisdom saving throw or take ${damageDice}d4${damageModifierLabel}psychic damage and have disadvantage on the next attack roll it makes before the end of its next turn.
-        `
-        const spellCard = character.getSpellCard(ViciousMockery, dc, displayModifiersHtml, content);
+            <p>You unleash a string of insults laced with subtle enchantments at a creature you can see within range. If the target can hear you (though it need not understand you), it must succeed on a Wisdom saving throw or take ${damageDice}d4${damageModifierLabel}psychic damage and have disadvantage on the next attack roll it makes before the end of its next turn.</p>
+        `;
+        const spellCard = character.getSpellCard(ViciousMockery, spellModifiersInfo.displayModifiersHtml, content);
         tempFeatures.push(spellCard);
 
         // const attackCard = character.getAttackCard({

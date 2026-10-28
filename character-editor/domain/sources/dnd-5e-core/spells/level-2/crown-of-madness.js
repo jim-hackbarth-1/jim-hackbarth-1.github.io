@@ -66,33 +66,23 @@ export class CrownOfMadness {
         `;
     }
 
-    static applyFeatures(features, character) {
+    static applyFeatures(features, character, characterSpellClasses) {
         const tempFeatures = [];
-        tempFeatures.push({
-            name: CrownOfMadness.name,
-            title: CrownOfMadness.title,
-            level: CrownOfMadness.level,
-            html: `
-                <div class="spell-properties">2nd-level ${CrownOfMadness.school}</div>
-                <div><b>Casting Time: </b>${CrownOfMadness.castingTime}</div>
-                <div><b>Range: </b>${CrownOfMadness.range}</div>
-                <div><b>Components: </b>${CrownOfMadness.components}</div>
-                <div><b>Duration: </b>${CrownOfMadness.duration}</div>
-                <div class="content">
-                    <p>
-                        One humanoid of your choice that you can see within range must succeed on a Wisdom saving throw or become charmed by you for the duration. While the target is charmed in this way, a twisted crown of jagged iron appears on its head, and a madness glows in its eyes.
-                    </p>
-                    <p>
-                        The charmed target must use its action before moving on each of its turns to make a melee attack against a creature other than itself that you mentally choose. The target can act normally on its turn if you choose no creature or if none are within its reach.
-                    </p>
-                    <p>
-                        On your subsequent turns, you must use your action to maintain control over the target, or the spell ends. Also, the target can make a Wisdom saving throw at the end of each of its turns. On a success, the spell ends.
-                    </p>
-                </div>
-                    `,
-            source: { name: "spell" },
-            displayType: "spell-card"
-        });
+
+        const spellModifiersInfo = character.getSpellModifiersInfo(CrownOfMadness, characterSpellClasses, "Wisdom", false);
+        const content = `
+            <p>
+                One humanoid of your choice that you can see within range must succeed on a Wisdom saving throw or become charmed by you for the duration. While the target is charmed in this way, a twisted crown of jagged iron appears on its head, and a madness glows in its eyes.
+            </p>
+            <p>
+                The charmed target must use its action before moving on each of its turns to make a melee attack against a creature other than itself that you mentally choose. The target can act normally on its turn if you choose no creature or if none are within its reach.
+            </p>
+            <p>
+                On your subsequent turns, you must use your action to maintain control over the target, or the spell ends. Also, the target can make a Wisdom saving throw at the end of each of its turns. On a success, the spell ends.
+            </p>
+        `;
+        const spellCard = character.getSpellCard(CrownOfMadness, spellModifiersInfo.displayModifiersHtml, content);
+        tempFeatures.push(spellCard);
 
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = "spell";

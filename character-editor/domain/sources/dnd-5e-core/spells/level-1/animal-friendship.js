@@ -63,30 +63,20 @@ export class AnimalFriendship {
         `;
     }
 
-    static applyFeatures(features, character) {
+    static applyFeatures(features, character, characterSpellClasses) {
         const tempFeatures = [];
-        tempFeatures.push({
-            name: AnimalFriendship.name,
-            title: AnimalFriendship.title,
-            level: AnimalFriendship.level,
-            html: `
-                <div class="spell-properties">1st-level ${AnimalFriendship.school}</div>
-                <div><b>Casting Time: </b>${AnimalFriendship.castingTime}</div>
-                <div><b>Range: </b>${AnimalFriendship.range}</div>
-                <div><b>Components: </b>${AnimalFriendship.components}</div>
-                <div><b>Duration: </b>${AnimalFriendship.duration}</div>
-                <div class="content">
-                    <p>
-                        This spell lets you convince a beast that you mean it no harm. Choose a beast that you can see within range. It must see and hear you. If the beast’s Intelligence is 4 or higher, the spell fails. Otherwise, the beast must succeed on a Wisdom saving throw or be charmed by you for the spell’s duration. If you or one of your companions harms the target, the spell ends.
-                    </p>
-                    <p>
-                        At Higher Levels. When you cast this spell using a spell slot of 2nd level or higher, you can affect one additional beast for each slot level above 1st.
-                    </p>
-                </div>
-                    `,
-            source: { name: "spell" },
-            displayType: "spell-card"
-        });
+
+        const spellModifiersInfo = character.getSpellModifiersInfo(AnimalFriendship, characterSpellClasses, "Wisdom", false);
+        const content = `
+            <p>
+                This spell lets you convince a beast that you mean it no harm. Choose a beast that you can see within range. It must see and hear you. If the beast’s Intelligence is 4 or higher, the spell fails. Otherwise, the beast must succeed on a Wisdom saving throw or be charmed by you for the spell’s duration. If you or one of your companions harms the target, the spell ends.
+            </p>
+            <p>
+                At Higher Levels. When you cast this spell using a spell slot of 2nd level or higher, you can affect one additional beast for each slot level above 1st.
+            </p>
+        `;
+        const spellCard = character.getSpellCard(AnimalFriendship, spellModifiersInfo.displayModifiersHtml, content);
+        tempFeatures.push(spellCard);
 
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = "spell";

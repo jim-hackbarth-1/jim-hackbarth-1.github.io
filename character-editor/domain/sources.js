@@ -583,10 +583,24 @@ export class Sources {
                 uniqueSpells.push(spell);
             }
         }
+        const spellCastingModifiers = character.modifiers
+            .filter(m =>
+                (m.target == "spell-casting-class")
+                && (m.sourcePropertyName.startsWith("class-") || m.sourcePropertyName.startsWith("subClass-")))
+            .map(m => m.value);
+        const abilities = Sources.getAbilities();
+        let spellClasses = [];
+        for (const modifier of spellCastingModifiers) {
+            const parts = modifier.split(":");
+            let spellClass = Sources.getClasses(character.sources).find(c => c.name == parts[0]);
+            spellClass = { name: spellClass.name, title: spellClass.title };
+            const spellAbility = abilities.find(a => a.name == parts[1]);
+            spellClasses.push({ spellClass: spellClass, spellAbility: spellAbility });
+        }
         for (const spellName of uniqueSpells) {
             const spell = Sources.getSpells(character.sources).find(s => s.name == spellName);
             if (spell?.applyFeatures) {
-                spell.applyFeatures(features, character);
+                spell.applyFeatures(features, character, spellClasses);
             }
         }
 

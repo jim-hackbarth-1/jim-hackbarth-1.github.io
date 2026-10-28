@@ -63,30 +63,20 @@ export class BlindnessDeafness {
         `;
     }
 
-    static applyFeatures(features, character) {
+    static applyFeatures(features, character, characterSpellClasses) {
         const tempFeatures = [];
-        tempFeatures.push({
-            name: BlindnessDeafness.name,
-            title: BlindnessDeafness.title,
-            level: BlindnessDeafness.level,
-            html: `
-                <div class="spell-properties">2nd-level ${BlindnessDeafness.school}</div>
-                <div><b>Casting Time: </b>${BlindnessDeafness.castingTime}</div>
-                <div><b>Range: </b>${BlindnessDeafness.range}</div>
-                <div><b>Components: </b>${BlindnessDeafness.components}</div>
-                <div><b>Duration: </b>${BlindnessDeafness.duration}</div>
-                <div class="content">
-                    <p>
-                        You can blind or deafen a foe. Choose one creature that you can see within range to make a Constitution saving throw. If it fails, the target is either blinded or deafened (your choice) for the duration. At the end of each of its turns, the target can make a Constitution saving throw. On a success, the spell ends.
-                    </p>
-                    <p>
-                        At Higher Levels. When you cast this spell using a spell slot of 3rd level or higher, you can target one additional creature for each slot level above 2nd.
-                    </p>
-                </div>
-                    `,
-            source: { name: "spell" },
-            displayType: "spell-card"
-        });
+
+        const spellModifiersInfo = character.getSpellModifiersInfo(BlindnessDeafness, characterSpellClasses, "Constitution", false);
+        const content = `
+            <p>
+                You can blind or deafen a foe. Choose one creature that you can see within range to make a Constitution saving throw. If it fails, the target is either blinded or deafened (your choice) for the duration. At the end of each of its turns, the target can make a Constitution saving throw. On a success, the spell ends.
+            </p>
+            <p>
+                At Higher Levels. When you cast this spell using a spell slot of 3rd level or higher, you can target one additional creature for each slot level above 2nd.
+            </p>
+        `;
+        const spellCard = character.getSpellCard(BlindnessDeafness, spellModifiersInfo.displayModifiersHtml, content);
+        tempFeatures.push(spellCard);
 
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = "spell";

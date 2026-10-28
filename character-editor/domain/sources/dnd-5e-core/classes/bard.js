@@ -130,6 +130,13 @@ export class Bard {
         }
 
         if (level >= 1) {
+
+            modifiers.push({
+                name: "bard-spell-casting-class",
+                title: "Spell casting class",
+                value: "bard:charisma",
+                target: "spell-casting-class"
+            });
             modifiers.push({
                 name: "bard-armor-proficiency-light-armor",
                 title: "Armor proficiency",

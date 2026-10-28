@@ -66,7 +66,7 @@ export class MageHand {
         `;
     }
 
-    static applyFeatures(features, character) {
+    static applyFeatures(features, character, characterSpellClasses) {
         const tempFeatures = [];
         tempFeatures.push({
             name: MageHand.name,

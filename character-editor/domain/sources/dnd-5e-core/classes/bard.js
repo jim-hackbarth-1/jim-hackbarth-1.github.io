@@ -79,7 +79,9 @@ export class Bard {
         }
         for (let i = 1; i <= 20; i++) {
             if (level >= i) {
-                selections.push(Bard.#getSpellSelection(character, i, classIndex));
+                const cantripCount = Bard.#getCantripCount(i);
+                const spellCount = Bard.#getSpellCount(i);
+                selections.push(character.selectionUtilities.getSpellSelection(character, i, classIndex, cantripCount, spellCount));
             }
         }
         return selections;
@@ -106,7 +108,10 @@ export class Bard {
                 `${Bard.name}-level-${i}-replacement-spell`
             ]
             if (selectionNames.includes(selectionName)) {
-                return Bard.#getSpellSelectionOptions(character, i, selectionName, sources);
+                const cantripCount = Bard.#getCantripCount(i);
+                const spellCount = Bard.#getSpellCount(i);
+                return character.selectionUtilities.getSpellSelectionOptions(
+                    character, i, classIndex, selectionName, sources, cantripCount, spellCount);
             }
         }
         return [];
@@ -373,7 +378,7 @@ export class Bard {
     }
 
     static applySpells(spells, character, classIndex) {
-        const spellSelectionInfo = Bard.#getSpellSelectionInfo(character);
+        const spellSelectionInfo = character.selectionUtilities.getSpellSelectionInfo(character, Bard.name);
         const replacedSpells = spellSelectionInfo.filter(i => i.isReplacedSpellSelection).map(i => i.spell.value);
         const selectedSpells = spellSelectionInfo
             .filter(i => !i.isReplacedSpellSelection && !replacedSpells.includes(i.spell.value))
@@ -389,7 +394,7 @@ export class Bard {
             return null;
         }
         const maxSpellLevel = Bard.#getMaxSpellLevel(level);
-        const spellSelectionInfo = Bard.#getSpellSelectionInfo(character);
+        const spellSelectionInfo = character.selectionUtilities.getSpellSelectionInfo(character, Bard.name);
         const replacedSpells = spellSelectionInfo.filter(i => i.isReplacedSpellSelection).map(i => i.spell.value);
         let selectedSpells = spellSelectionInfo
             .filter(i => !i.isReplacedSpellSelection && !replacedSpells.includes(i.spell.value))
@@ -582,203 +587,6 @@ export class Bard {
             return slot.spellLevels.find(sl => sl.spellLevel == spellLevel)?.slots ?? 0;
         }
         return 0;
-    }
-
-    static #getSpellSelection(character, level, classIndex) {
-        const cantripCount = Bard.#getCantripCount(level);
-        const spellCount = Bard.#getSpellCount(level);
-        const canReplace = (level > 1);
-        let selectionName = null;
-        let alertMessage = null;       
-        const spellSelectionInfo = Bard.#getSpellSelectionInfo(character);
-
-        let cantrips = null;
-        if (cantripCount > 0) {
-            cantrips = character.selectionUtilities.getSelection(
-                character.selections, `${Bard.name}-level-${level}-cantrips`, "Cantrips", cantripCount, [{ name: "spells" }]);
-        }
-        let spells = null;
-        if (spellCount > 0) {
-            selectionName = `${Bard.name}-level-${level}-spells`;
-            alertMessage = Bard.#getReplacedSpellAlertMessage(character, selectionName, spellSelectionInfo);
-            spells = character.selectionUtilities.getSelection(
-                character.selections, selectionName, "Spells", spellCount, [{ name: "spells" }], alertMessage ? true : false, alertMessage);
-        }
-        let replacedSpell = null;
-        if (canReplace) {
-            selectionName = `${Bard.name}-level-${level}-replaced-spell`;
-            alertMessage = Bard.#getReplacedSpellAlertMessage(character, selectionName, spellSelectionInfo);
-            replacedSpell = character.selectionUtilities.getSelection(
-                character.selections, selectionName, "Replaced spell", 1, [{ name: "spells" }], alertMessage ? true : false, alertMessage, true);
-        }
-        let replacementSpell = null;
-        if (canReplace) {
-            let hasReplacedSelection = false;
-            let replacedSelections = character.selections.find(s => s.name == `${Bard.name}-level-${level}-replaced-spell`)?.values ?? [];
-            if (replacedSelections.length == 1 && replacedSelections[0].value) {
-                hasReplacedSelection = true;
-            }
-            selectionName = `${Bard.name}-level-${level}-replacement-spell`;
-            if (hasReplacedSelection) {
-                alertMessage = Bard.#getReplacedSpellAlertMessage(character, selectionName, spellSelectionInfo);
-            }
-            else {
-                alertMessage = "Locked: Replaced spell selection required";
-            }
-            replacementSpell = character.selectionUtilities.getSelection(
-                character.selections, selectionName, "Replacement spell", 1, [{ name: "spells" }], alertMessage ? true : false, alertMessage, true);
-        }
-        return {
-            name: `${Bard.name}-level-${level}-spell-selections`,
-            title: `Level ${level} spells`,
-            spellSelection: true,
-            classIndex: classIndex,
-            className: Bard.name,
-            subClassName: null,
-            defaultSummaryDisplay: "Choose spells...",
-            cantrips: cantrips,
-            spells: spells,
-            replacedSpell: replacedSpell,
-            replacementSpell: replacementSpell
-        };
-    }
-
-    static #getSpellSelectionOptions(character, level, selectionName, sources) {
-        let spells = [...sources.find(s => s.name == "spells").options];
-        spells = spells.filter(s => s.classes.includes("bard"));
-        const selectionSource = selectionName.replace(`${Bard.name}-level-${level}-`, "");
-        if (selectionSource == "cantrips") {
-            spells = spells.filter(s => Number(s.level) == 0);
-        }
-        else {
-            spells = spells.filter(s => Number(s.level) >= 1 && Number(s.level) <= level);
-        }
-        const spellSelectionInfo = Bard.#getSpellSelectionInfo(character);
-        if (selectionSource == "replaced-spell") {
-            const spellsSelectedAtLowerLevels = spellSelectionInfo
-                .filter(i => i.selectionLevel < level && !i.isCantripSelection && !i.isReplacedSpellSelection)
-                .map(i => i.spell);
-            spells = spells.filter(s => spellsSelectedAtLowerLevels.some(ssatl => ssatl.value == s.name));
-        }
-        const currentSelections = spellSelectionInfo.filter(i => i.selectionName == selectionName).map(i => i.spell);
-        let options = [];
-        for (const spell of spells) {
-            const isSelected = currentSelections.some(cs => cs.value == spell.name);
-            let disabledReason = null
-            const replacementSpell = Bard.#getReplacementSpell(character, spell.name, spellSelectionInfo);
-            if (replacementSpell) {
-                disabledReason = `Disabled: ${spell.title} has been replaced by ${replacementSpell.text}.`
-            }
-            if (!disabledReason && selectionSource != "replaced-spell") {
-                const isSelectedElsewhere = Bard.#isSpellSelectedElsewhere(character, spell.name, selectionName, spellSelectionInfo);
-                if (isSelectedElsewhere) {
-                    disabledReason = `Disabled: ${spell.title} selected elsewhere.`
-                }
-            }
-            let spellLevelLabel = `Level ${spell.level}`;
-            if (spell.level == 0) {
-                spellLevelLabel = "Cantrip";
-            }
-            options.push({
-                value: spell.name,
-                text: spell.title,
-                noteText: `${spellLevelLabel} (${spell.source.title})`,
-                sortField: `level-${spell.level}-${spell.title}`,
-                hasDetail: true,
-                isSelected: isSelected,
-                isDisabled: disabledReason ? true : false,
-                disabledReason: disabledReason,
-                source: spell.source.name
-            });
-        }
-        options = Bard.#sortOptions(options, "sortField");
-        let choiceLabel = "Spells ...";
-        if (selectionName.endsWith("-cantrips")) {
-            choiceLabel = "Cantrips ...";
-            const cantripCount = Number(Bard.#getCantripCount(level));
-            choiceLabel = `Cantrips (choose ${cantripCount}) ...`;
-        }
-        if (selectionName.endsWith("-spells")) {
-            choiceLabel = "Spells ...";
-            const spellCount = Number(Bard.#getSpellCount(level));
-            choiceLabel = `Spells (choose ${spellCount}) ...`;
-        }
-        if (selectionName.endsWith("-replaced-spell")) {
-            choiceLabel = "Replaced spell (optional, choose 1) ...";
-        }
-        if (selectionName.endsWith("-replacement-spell")) {
-            choiceLabel = "Replacement spell (optional, choose 1) ...";;
-        }
-        options.unshift({ value: null, text: choiceLabel, hideCheckbox: true });
-        return options;
-    }
-
-    static #getSpellSelectionInfo(character) {
-        const selectionList = []
-        for (let i = 1; i <= 20; i++) {
-            let selectionName = `${Bard.name}-level-${i}-cantrips`
-            let selections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            for (const selection of selections) {
-                selectionList.push({ spell: selection, selectionName: selectionName, selectionLevel: i, isCantripSelection: true });
-            }
-            selectionName = `${Bard.name}-level-${i}-spells`
-            selections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            for (const selection of selections) {
-                selectionList.push({ spell: selection, selectionName: selectionName, selectionLevel: i, isSpellSelection: true });
-            }
-            selectionName = `${Bard.name}-level-${i}-replaced-spell`
-            selections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            for (const selection of selections) {
-                selectionList.push({ spell: selection, selectionName: selectionName, selectionLevel: i, isReplacedSpellSelection: true });
-            }
-            selectionName = `${Bard.name}-level-${i}-replacement-spell`
-            selections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            for (const selection of selections) {
-                selectionList.push({ spell: selection, selectionName: selectionName, selectionLevel: i, isReplacementSpellSelection: true });
-            }
-        }
-        return selectionList;
-    }
-
-    static #getReplacementSpell(character, spellName, spellSelectionInfo) {
-        const replacedSpell = spellSelectionInfo.find(i => i.isReplacedSpellSelection && i.spell?.value == spellName);
-        if (replacedSpell) {
-            return spellSelectionInfo
-                .find(i => i.isReplacementSpellSelection && i.selectionLevel == replacedSpell.selectionLevel)?.spell;
-        }
-        return null;
-    }
-
-    static #getReplacedSpellAlertMessage(character, selectionName, spellSelectionInfo) {
-        let selections = character.selections.find(s => s.name == selectionName)?.values ?? [];
-        if (selections.length == 1 && selections[0].value) {
-            const spellName = selections[0].value;
-            const spellText = selections[0].text;
-            const spellReplacement = Bard.#getReplacementSpell(character, spellName, spellSelectionInfo);
-            if (spellReplacement?.value) {
-                return `Locked: ${spellText} has been replaced by ${spellReplacement.text}.`;
-            }
-        }
-        return null;
-    }
-
-    static #isSpellSelectedElsewhere(character, spellName, selectionName, spellSelectionInfo,) {
-        return spellSelectionInfo.some(
-            i => i.spell?.value == spellName && !i.isReplacedSpellSelection && i.selectionName != selectionName);
-    }
-
-    static #sortOptions(array, sortField) {
-        function sortByProperty(item1, item2) {
-            if (item1[sortField] < item2[sortField]) {
-                return -1;
-            }
-            if (item1[sortField] > item2[sortField]) {
-                return 1;
-            }
-            return 0;
-        }
-        array.sort(sortByProperty);
-        return array;
     }
 
 }

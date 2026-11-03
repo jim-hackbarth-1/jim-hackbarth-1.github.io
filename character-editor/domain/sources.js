@@ -592,10 +592,14 @@ export class Sources {
         let spellClasses = [];
         for (const modifier of spellCastingModifiers) {
             const parts = modifier.split(":");
-            let spellClass = Sources.getClasses(character.sources).find(c => c.name == parts[0]);
-            spellClass = { name: spellClass.name, title: spellClass.title };
-            const spellAbility = abilities.find(a => a.name == parts[1]);
-            spellClasses.push({ spellClass: spellClass, spellAbility: spellAbility });
+            const spellClassName = parts[0];
+            const spellClassTitle = spellClassName.charAt(0).toUpperCase() + spellClassName.slice(1);
+            const spellClassAttackAbility = parts[1];
+            spellClasses.push({
+                name: spellClassName,
+                title: spellClassTitle,
+                attackAbility: spellClassAttackAbility
+            });
         }
         for (const spellName of uniqueSpells) {
             const spell = Sources.getSpells(character.sources).find(s => s.name == spellName);
@@ -605,29 +609,40 @@ export class Sources {
         }
 
         // basic attacks
-        features.push(character.getAttackCard({
+        const basicUnarmedStrike = {
             name: "basic-unarmed-strike",
             title: "Unarmed strike",
-            damageDieSize: 1,
-            damageType: "bludgeoning"
-        }));
-        features.push(character.getAttackCard({
+            properties: [
+                { name: "weapon-name", value: "basic-unarmed-strike" },
+                { name: "damage-dice", value: "1d1" },
+                { name: "damage-type", value: "bludgeoning" }
+            ]
+        };
+        features.push(character.getWeaponAttackCard(-1, basicUnarmedStrike));
+        const basicImprovisedWeapon = {
             name: "basic-improvised-weapon",
             title: "Improvised weapon",
-            applyProficiencyModifier: false,
-            damageDieSize: 4,
-            damageType: "bludgeoning",
-            range: "range 20/60 ft."
-        }));
-        features.push({
+            properties: [
+                { name: "weapon-name", value: "basic-improvised-weapon" },
+                { name: "damage-dice", value: "1d4" },
+                { name: "damage-type", value: "bludgeoning" },
+                { name: "range", value: "20/60" }
+            ]
+        };
+        features.push(character.getWeaponAttackCard(-1, basicImprovisedWeapon));
+        const basicGrappleShove = {
             name: "basic-grapple-shove",
             title: "Grapple/shove",
-            displayType: "attack-card",
-            lines: [
-                "Athletics vs. Athletics or Acrobatics",
-                "Target is grappled, knocked prone, or moved 5 ft."
+            properties: [
+                { name: "weapon-name", value: "basic-grapple-shove" }
             ]
-        });
+        };
+        const grappleShoveFeature = character.getWeaponAttackCard(-1, basicGrappleShove);
+        grappleShoveFeature.attacks[0].notes = [
+            "Athletics vs. Athletics or Acrobatics",
+            "Target is grappled, knocked prone, or moved 5 ft."
+        ];
+        features.push(grappleShoveFeature);
 
         return features;
 

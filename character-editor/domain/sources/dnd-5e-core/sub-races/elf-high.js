@@ -19,9 +19,9 @@ export class ElfHigh {
 
     static getSelections(character) {
         const selections = [];
-        selections.push(character.selectionUtilities.getSelection(
+        selections.push(character.getSelection(
             character.selections, `${ElfHigh.name}-language`, "Language", 1, [{ name: "languages" }]));
-        selections.push(character.selectionUtilities.getSelection(
+        selections.push(character.getSelection(
             character.selections, `${ElfHigh.name}-cantrip`, "Cantrip", 1, [{ name: "spells" }]));
         return selections;
     }
@@ -34,14 +34,14 @@ export class ElfHigh {
             const selectedElsewhere = character.modifiers
                 .filter(m => m.target == "language" && !selectedValues.some(sv => sv.value == m.value?.value))
                 .map(m => m.value);
-            options = character.selectionUtilities.getSelectionOptions(
+            options = character.getSelectionOptions(
                 languages, selectedValues, selectedElsewhere, "Language (choose 1) ...");
         }
         if (selectionName == `${ElfHigh.name}-cantrip`) {
             let spells = [...sources.find(s => s.name == "spells").options];
             spells = spells.filter(s => s.classes.includes("wizard") && Number(s.level) == 0);
             const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            options = character.selectionUtilities.getSelectionOptions(
+            options = character.getSelectionOptions(
                 spells, selectedValues, [], "Cantrip (choose 1) ...");
         }
         return options;
@@ -86,9 +86,9 @@ export class ElfHigh {
         if (languages.length > 0) {
             language = languages[0];
         }
-        if (language) {
+        if (language?.value) {
             modifiers.push({
-                name: `${ElfHigh.name}-language-${language}`,
+                name: `${ElfHigh.name}-language-${language.value}`,
                 title: "Language",
                 value: language,
                 target: "language"
@@ -109,22 +109,15 @@ export class ElfHigh {
         const tempFeatures = [];
 
         // Cantrip
-        tempFeatures.push({
-            name: `${ElfHigh.name}-cantrip`,
-            title: "Cantrip",
-            html: `
-                <p><b>Cantrip.</b> You know one cantrip of your choice from the wizard spell list. Intelligence is your spellcasting ability for it.</p>
-                `,
-            source: {
-                name: "sub-race",
-                title: ElfHigh.title
-            },
-            displayType: "feature-card"
-        });
+        const cantripHtml = `
+            <p><b>Cantrip.</b> You know one cantrip of your choice from the wizard spell list. Intelligence is your spellcasting ability for it.</p>
+        `;
+        tempFeatures.push(character.getFeatureCard(`${ElfHigh.name}-cantrip`, "Cantrip", cantripHtml));
 
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = "subRace";
-            feature.sourcePropertyValue = ElfHigh.name
+            feature.sourcePropertyValue = ElfHigh.name;
+            feature.cardSource = ElfHigh.title;
             features.push(feature);
         }
     }

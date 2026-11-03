@@ -1,30 +1,12 @@
 
+import { DnD5ESource } from "../dnd-5e-core-source.js"
+
 export class TavernBrawler {
 
-    static get name() {
-        return "tavern-brawler";
-    }
-
-    static get title() {
-        return "Tavern Brawler";
-    }
-
-    static get html() {
-        return `
-        <div class="dnd-5e-content">
-            <link rel="stylesheet" type="text/css" href="./domain/sources/dnd-5e-core/dnd-5e-core.css">
-            <h3>Tavern Brawler</h3>
-            <hr/>
-            <div class="content">
-                [Tavern Brawler content here]
-            </div>
-        </div>
-        `;
-    }
-
-    static get canBeTakenMultipleTimes() {
-        return false;
-    }
+    static get name() { return "tavern-brawler"; }
+    static get title() { return "Tavern Brawler"; }
+    static get canBeTakenMultipleTimes() { return false; }
+    static get html() { return DnD5ESource.getFeatHtml(TavernBrawler, TavernBrawler.#content); }
 
     static checkPrerequisites(character) {
         return { prerequisitesMet: true, text: null };
@@ -49,5 +31,11 @@ export class TavernBrawler {
     static applySpells(spells, character, classIndex, level) {
 
     }
+
+    static #content = `
+        <p>
+            [Feat content here]
+        </p>
+    `;
 
 }

@@ -1,21 +1,14 @@
 
+import { DnD5ESource } from "../../dnd-5e-core-source.js";
+
 export class StuddedLeatherArmor {
 
-    static get name() {
-        return "studded-leather-armor";
-    }
-
-    static get title() {
-        return "Studded leather";
-    }
-
-    static get category() {
-        return "armor";
-    }
-
-    static get armorType() {
-        return "light-armor";
-    }
+    static get name() { return "studded-leather-armor"; }
+    static get title() { return "Studded leather"; }
+    static get category() { return "armor"; }
+    static get canBeEquipped() { return true; }
+    static get html() { return ""; }
+    static get armorType() { return "light-armor"; }
 
     static get properties() {
         return [
@@ -30,14 +23,6 @@ export class StuddedLeatherArmor {
             "Cost: 45gp",
             "Armor Class: 12 + Dex modifier"
         ];
-    }
-
-    static get canBeEquipped() {
-        return true;
-    }
-
-    static get html() {
-        return "";
     }
 
     static getSelections(character, inventoryIndex) {

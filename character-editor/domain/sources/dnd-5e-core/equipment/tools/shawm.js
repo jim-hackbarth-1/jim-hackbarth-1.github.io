@@ -1,17 +1,13 @@
 
+import { DnD5ESource } from "../../dnd-5e-core-source.js";
+
 export class Shawm {
 
-    static get name() {
-        return "shawm";
-    }
-
-    static get title() {
-        return "Shawm";
-    }
-
-    static get category() {
-        return "tools";
-    }
+    static get name() { return "shawm"; }
+    static get title() { return "Shawm"; }
+    static get category() { return "tools"; }
+    static get canBeEquipped() { return true; }
+    static get html() { return ""; }
 
     static get properties() {
         return [
@@ -25,20 +21,18 @@ export class Shawm {
         return [];
     }
 
-    static get canBeEquipped() {
-        return true;
-    }
-
-    static get html() {
-        return ``;
-    }
-
     static getSelections(character, inventoryIndex) {
         return [];
     }
 
     static getSelectionOptions(character, inventoryIndex, selectionName, sources) {
         return [];
+    }
+
+    static equip(character, inventoryIndex, allEquipment) {
+        const item = character.equipment[inventoryIndex];
+        item.properties = Shawm.properties;
+        item.isEquipped = true;
     }
 
     static applyModifiers(character, inventoryIndex, targetFilters) {

@@ -1,21 +1,14 @@
 
+import { DnD5ESource } from "../../dnd-5e-core-source.js";
+
 export class SplintArmor {
 
-    static get name() {
-        return "splint-armor";
-    }
-
-    static get title() {
-        return "Splint";
-    }
-
-    static get category() {
-        return "armor";
-    }
-
-    static get armorType() {
-        return "heavy-armor";
-    }
+    static get name() { return "splint-armor"; }
+    static get title() { return "Splint"; } 
+    static get category() { return "armor"; }
+    static get canBeEquipped() { return true; }
+    static get html() { return ""; }
+    static get armorType() { return "heavy-armor"; }
 
     static get properties() {
         return [
@@ -33,14 +26,6 @@ export class SplintArmor {
             "Strength requirement: 15",
             "Stealth: Disadvantage"
         ];
-    }
-
-    static get canBeEquipped() {
-        return true;
-    }
-
-    static get html() {
-        return "";
     }
 
     static getSelections(character, inventoryIndex) {

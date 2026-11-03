@@ -1,21 +1,14 @@
 
+import { DnD5ESource } from "../../dnd-5e-core-source.js";
+
 export class HideArmor {
 
-    static get name() {
-        return "hide-armor";
-    }
-
-    static get title() {
-        return "Hide";
-    }
-
-    static get category() {
-        return "armor";
-    }
-
-    static get armorType() {
-        return "medium-armor";
-    }
+    static get name() { return "hide-armor"; }
+    static get title() { return "Hide"; }
+    static get category() { return "armor"; }
+    static get canBeEquipped() { return true; }
+    static get html() { return ""; }
+    static get armorType() { return "medium-armor"; }
 
     static get properties() {
         return [
@@ -30,14 +23,6 @@ export class HideArmor {
             "Cost: 10gp",
             "Armor Class: 12 + Dex modifier (max 2)"
         ];
-    }
-
-    static get canBeEquipped() {
-        return true;
-    }
-
-    static get html() {
-        return "";
     }
 
     static getSelections(character, inventoryIndex) {

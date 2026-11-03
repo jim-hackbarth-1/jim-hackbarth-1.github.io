@@ -1,17 +1,13 @@
 
+import { DnD5ESource } from "../../dnd-5e-core-source.js";
+
 export class BracersOfArchery {
 
-    static get name() {
-        return "bracers-of-archery";
-    }
-
-    static get title() {
-        return "Bracers of Archery";
-    }
-
-    static get category() {
-        return "wondrous-items";
-    }
+    static get name() { return "bracers-of-archery"; }
+    static get title() { return "Bracers of Archery"; }
+    static get category() { return "wondrous-items"; }
+    static get canBeEquipped() { return true; }
+    static get html() { return DnD5ESource.getEquipmentHtml(BracersOfArchery, BracersOfArchery.#content); }
 
     static get properties() {
         return [];
@@ -21,29 +17,18 @@ export class BracersOfArchery {
         return [];
     }
 
-    static get canBeEquipped() {
-        return true;
-    }
-
-    static get html() {
-        return `
-        <div class="dnd-5e-content">
-            <link rel="stylesheet" type="text/css" href="./domain/sources/dnd-5e-core/dnd-5e-core.css">
-            <h3>Explorer's Pack</h3>
-            <hr/>
-            <p class="content">
-                While wearing these bracers, you have proficiency with the longbow and shortbow, and you gain a +2 bonus to damage rolls on ranged attacks made with such weapons.
-            </p>
-        </div>
-        `;
-    }
-
     static getSelections(character, inventoryIndex) {
         return []
     }
 
     static getSelectionOptions(character, inventoryIndex, selectionName, sources) {
         return [];
+    }
+
+    static equip(character, inventoryIndex, allEquipment) {
+        const item = character.equipment[inventoryIndex];
+        item.properties = BracersOfArchery.properties;
+        item.isEquipped = true;
     }
 
     static applyModifiers(character, inventoryIndex, targetFilters) {
@@ -69,8 +54,8 @@ export class BracersOfArchery {
                 title: BracersOfArchery.title,
                 conditions: [
                     {
-                        name: "weapon-type",
-                        values: ["simple-ranged", "martial-ranged"]
+                        name: "weapon-name",
+                        values: ["longbow", "shortbow"]
                     }
                 ]
             });
@@ -88,15 +73,7 @@ export class BracersOfArchery {
         const tempFeatures = [];
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
-            tempFeatures.push({
-                name: BracersOfArchery.name,
-                title: BracersOfArchery.title,
-                html: `
-                    <p>While wearing these bracers, you have proficiency with the longbow and shortbow, and you gain a +2 bonus to damage rolls on ranged attacks made with such weapons.</p>
-                    `,
-                source: { name: "equipment" },
-                displayType: "feature-card"
-            });
+            tempFeatures.push(character.getFeatureCard(BracersOfArchery.name, BracersOfArchery.title, BracersOfArchery.#content));
         }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
@@ -108,5 +85,11 @@ export class BracersOfArchery {
     static applySpells(spells, character, inventoryIndex) {
 
     }
+
+    static #content = `
+        <p>
+            While wearing these bracers, you have proficiency with the longbow and shortbow, and you gain a +2 bonus to damage rolls on ranged attacks made with such weapons.
+        </p>
+    `;
 
 }

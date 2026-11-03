@@ -1,5 +1,5 @@
 
-import { Character, Sources, Utilities } from "../../domain/references.js";
+import { Sources, Utilities } from "../../domain/references.js";
 import { EditorViewModel } from "../editor-view/editor-view.js";
 
 export function createModel() {
@@ -125,7 +125,7 @@ class PrintViewModel {
         this.#updateSpeed(character, race);
 
         // ac
-        this.#kitElement.querySelector("#armor-class").innerHTML = character.getArmorClass();
+        this.#updateArmorClass(character);
 
         // hp
         this.#kitElement.querySelector("#hit-points").innerHTML = character.getHitPoints();
@@ -148,17 +148,18 @@ class PrintViewModel {
         // tool proficiencies
         this.#updateToolProficiencies(character);
 
-        // attack cards
-        this.#updateAttackCards(character);
-
         // languages
         await UIKit.renderer.renderElement(this.#kitElement.querySelector("#languages"));
 
+        // attack cards
+        const features = Sources.getCharacterFeatures(character)
+        this.#updateAttackCards(character, features);
+
         // feature cards
-        this.#updateFeatureCards(character);
+        this.#updateFeatureCards(character, features);
 
         // spell cards
-        this.#updateSpellCards(character);
+        this.#updateSpellCards(character, features);
     }
 
     #updateClasses(character) {
@@ -196,6 +197,24 @@ class PrintViewModel {
         const baseSpeed = race?.speed ?? 30;
         const speedModifiers = this.#getModifiers(character, "speed");
         this.#kitElement.querySelector("#speed").innerHTML = Number(baseSpeed) + Number(speedModifiers);
+    }
+
+    #updateArmorClass(character) {
+        let armorClass = 10;
+        let dexModifier = character.getAbilityScoreModifier("dexterity");
+        const hasMediumArmor = character.equipment
+            .some(e => e.isEquipped && e.properties && e.properties.some(p => p.name == "armor-type" && p.value == "medium-armor"));
+        const hasHeavyArmor = character.equipment
+            .some(e => e.isEquipped && e.properties && e.properties.some(p => p.name == "armor-type" && p.value == "heavy-armor"));
+        if (hasMediumArmor && dexModifier > 2) {
+            dexModifier = 2;
+        }
+        if (hasHeavyArmor) {
+            dexModifier = 0;
+        }
+        let acModifiers = character.modifiers.filter(m => m.target == "armor-class").map(m => m.value).reduce((a, b) => a + b, 0);
+        const ac = Number(armorClass) + Number(dexModifier) + Number(acModifiers);
+        this.#kitElement.querySelector("#armor-class").innerHTML = ac;
     }
 
     #updateHitDice(character) {
@@ -281,53 +300,59 @@ class PrintViewModel {
         this.#kitElement.querySelector("#tool-proficiencies").innerHTML = toolProficiencyLabel;
     }
 
-    #updateAttackCards(character) {
+    #updateAttackCards(character, features) {
         const attackRows = [...this.#kitElement.querySelectorAll(".attack-row")];
         for (const attackRow of attackRows) {
             attackRow.remove();
         }
-        const allAttackCards = Sources.getCharacterFeatures(character).filter(f => f.displayType == "attack-card");
-        const attackCards = [];
+        const allAttackCards = features.filter(f => f.cardType == "attack-card");
+        let attackCards = [];
         for (const card of allAttackCards) {
-            const existingTitle = attackCards.some(ac => ac.title == card.title);
-            let existingLines = false;
-            if (existingTitle) {
-                existingLines = attackCards.some(ac => Utilities.areArraysEqual(ac.lines, card.lines));
+            let attackDescription = "";
+            if (card.attacks) {
+                attackDescription = card.attacks.map(a => a.description).join("-");
             }
-            if (!existingTitle || !existingLines) {
+            card.uniqueCheck = `${card.title}+${attackDescription}`;
+            if (!attackCards.some(a => a.uniqueCheck == card.uniqueCheck)) {
+                card.sortField = `${card.sourcePropertyName ? "" : "zzz"}-${card.title}`;
                 attackCards.push(card);
             }
         }
+        attackCards = Utilities.sort(attackCards, "sortField");
         let cardsHtml = "";
         for (const card of attackCards) {
-            let linesHtml = "";
-            const lines = card.lines ?? [];
-            for (const line of lines) {
-                linesHtml += `
-                 <div>${line}</div>`;
-            }
+
+            let attacksHtml = "";
             let modifiersHtml = "";
-            const modifiers = card.modifiers ?? [];
-            for (const modifier of modifiers) {
-                modifiersHtml += `
-                 <div class="no-wrap">${modifier}</div>`;
+            if (card.attacks) {
+                for (const attack of card.attacks) {
+                    attacksHtml += `<div>${attack.description}</div>`;
+                    if (attack.notes) {
+                        for (const note of attack.notes) {
+                            attacksHtml += `<div>${note}</div>`;
+                        }
+                    }
+                    if (attack.modifiers) {
+                        for (const modifier of attack.modifiers) {
+                            modifiersHtml += `<div class="no-wrap" style="font-size:x-small;">${modifier}</div>`;
+                        }
+                    }
+                }
             }
             cardsHtml += `
                  <div class="row attack-row">
                      <div class="card attack-card">
-                         <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
                          <div class="attack-table">
                              <div>
                                  <div class="field-label no-wrap">${card.title}:</div>
                                  <div style="width:100%">
-                                     ${linesHtml}
+                                     ${attacksHtml}
                                  </div>
                                  <div class="attack-modifier-container">
                                      ${modifiersHtml}
                                  </div>
                              </div>
                          </div>
-                         <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                      </div>
                  </div>
              `;
@@ -337,13 +362,12 @@ class PrintViewModel {
         this.#kitElement.querySelector("#attacks-placeholder").outerHTML = cardsHtml;
     }
 
-    #updateFeatureCards(character) {
+    #updateFeatureCards(character, features) {
         this.#kitElement.querySelector("#features-col-1").innerHTML = `<div id="features-col-1-placeholder"></div>`;
         this.#kitElement.querySelector("#features-col-2").innerHTML = `<div id="features-col-2-placeholder"></div>`;
         this.#kitElement.querySelector("#features-col-3").innerHTML = `<div id="features-col-3-placeholder"></div>`;
-        // this.#kitElement.querySelector("#features-col-1-placeholder").outerHTML = this.#getModifiersCardHtml(character);
         this.#kitElement.querySelector("#features-col-3-placeholder").outerHTML = this.#getEquipmentCardHtml(character);
-        const featureCards = Sources.getCharacterFeatures(character).filter(f => f.displayType == "feature-card");
+        const featureCards = features.filter(f => f.cardType == "feature-card");
         this.#kitElement.querySelector("#features-col-1-placeholder").outerHTML = this.#getFeaturesUseInfoCardHtml(featureCards);
         const featuresLength = featureCards.length;
         for (let i = 0; i < featuresLength; i++) {
@@ -351,7 +375,7 @@ class PrintViewModel {
             const index = this.#getNextFeatureCardIndex(featureCards, displayColumn);
             if (index > -1) {
                 const featureCard = featureCards[index];
-                const featureCardHtml = this.#getCardHtml(featureCard, displayColumn);
+                const featureCardHtml = this.#getFeatureCardHtml(featureCard, displayColumn);
                 this.#kitElement.querySelector(`#features-col-${displayColumn}-placeholder`).outerHTML = featureCardHtml;
                 featureCards.splice(index, 1);
             }
@@ -361,15 +385,19 @@ class PrintViewModel {
         }
     }
 
-    #updateSpellCards(character) {
-        let spellCards = Sources.getCharacterFeatures(character).filter(f => f.displayType == "spell-card");
+    #updateSpellCards(character, features) {
+        let spellCards = features.filter(f => f.cardType == "spell-card");
         for (const card of spellCards) {
             card.sortField = `${card.level}-${card.title}`;
         }
         spellCards = Utilities.sort(spellCards, ["sortField"]);
+        this.#kitElement.querySelector("#spells-col-1").innerHTML = `<div id="spells-col-1-placeholder"></div>`;
+        this.#kitElement.querySelector("#spells-col-2").innerHTML = `<div id="spells-col-2-placeholder"></div>`;
+        this.#kitElement.querySelector("#spells-col-3").innerHTML = `<div id="spells-col-3-placeholder"></div>`;
+        const hasSpellCastingInfo = this.#updateSpellSlotsCards(character);
         const spellTitleRow = this.#kitElement.querySelector("#spells-title-row");
         const spellContainerRow = this.#kitElement.querySelector("#spells-container-row");
-        if (spellCards.length > 0) {
+        if (spellCards.length > 0 || hasSpellCastingInfo) {
             spellTitleRow.classList.remove("hidden");
             spellContainerRow.classList.remove("hidden");
         }
@@ -377,17 +405,13 @@ class PrintViewModel {
             spellTitleRow.classList.add("hidden");
             spellContainerRow.classList.add("hidden");
         }
-        this.#kitElement.querySelector("#spells-col-1").innerHTML = `<div id="spells-col-1-placeholder"></div>`;
-        this.#kitElement.querySelector("#spells-col-2").innerHTML = `<div id="spells-col-2-placeholder"></div>`;
-        this.#kitElement.querySelector("#spells-col-3").innerHTML = `<div id="spells-col-3-placeholder"></div>`;
-        this.#updateSpellSlotsCards(character);
         const spellsLength = spellCards.length;
         for (let i = 0; i < spellsLength; i++) {
             const displayColumn = this.#getNextColumn("spells");
             const index = (spellCards.length > 0) ? 0 : -1;
             if (index > -1) {
                 const spellCard = spellCards[index];
-                const spellCardHtml = this.#getCardHtml(spellCard, displayColumn);
+                const spellCardHtml = this.#getFeatureCardHtml(spellCard, displayColumn);
                 this.#kitElement.querySelector(`#spells-col-${displayColumn}-placeholder`).outerHTML = spellCardHtml;
                 spellCards.splice(index, 1);
             }
@@ -402,51 +426,6 @@ class PrintViewModel {
             .filter(m => m.target == target)
             .map(m => m.value)
             .reduce((a, b) => a + b, 0);
-    }
-
-    #getModifiersCardHtml(character) {
-        let abilityLabels = "";
-        const abilities = Sources.getAbilities();
-        for (const ability of abilities) {
-            abilityLabels += this.#getModifiersHtml(character, `ability-score:${ability.name}`, ability.title);
-        }
-        const initModifiers = this.#getInitiativeModifiers(character);
-        const initLabel = this.#getModifierLabelsHtml("Initiative", initModifiers);
-        const speedLabel = this.#getModifiersHtml(character, "speed", "Speed")
-        const acModifiers = this.#getArmorClassModifiers(character);
-        const acLabel = this.#getModifierLabelsHtml("Armor Class", acModifiers);
-        const hpLabel = this.#getModifiersHtml(character, "hit-points", "Hit Points")
-        let skillLabels = "";
-        const skills = Sources.getSkills();
-        for (const skill of skills) {
-            const skillModifiers = this.#getSkillModifiers(character, skill);
-            skillLabels += this.#getModifierLabelsHtml(skill.title, skillModifiers);
-        }
-        return `
-            <div class="card feature-card modifiers-card">
-                <div class="corner top-left">
-                    <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
-                        <path d=" M 0,0 l 100,0 a 100 100 0 0 0 -100 100 z"></path>
-                    </svg>
-                </div>
-                <div class="field-label">Modifiers<span class="modifier-note"> <b>*</b></span></div>
-                <div class="modifiers-content">
-                    ${abilityLabels}
-                    ${initLabel}
-                    ${speedLabel}
-                    ${acLabel}
-                    ${hpLabel}
-                    ${skillLabels}
-                </div>
-                <div class="modifier-note"><b>*</b> The modifiers above have been applied to the calculated values.</div>
-                <div class="corner bottom-right">
-                    <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
-                        <path d=" M 100,0 a 100 100 0 0 1 -100 100 l 100,0 z"></path>
-                    </svg>
-                </div>
-            </div>
-            <div id="features-col-1-placeholder"></div>
-        `;
     }
 
     #getFeaturesUseInfoCardHtml(featureCards) {
@@ -513,6 +492,7 @@ class PrintViewModel {
     #updateSpellSlotsCards(character) {
         const spellCastingInfoList = [];
         const allSpells = Sources.getSpells(character.sources);
+        let hasSpellCastingInfo = false;
         for (const characterClass of character.classes) {
             if (characterClass.value) {
                 let spellCastingInfo = null;
@@ -529,6 +509,7 @@ class PrintViewModel {
                 }
                 if (spellCastingInfo) {
                     spellCastingInfoList.push(spellCastingInfo);
+                    hasSpellCastingInfo = true;
                 }
             }
         }
@@ -546,26 +527,65 @@ class PrintViewModel {
                         ${fillInBoxes}
                     </div>
                 `;
-                let spellsHtml = "<ul>";
-                for (const spell of level.spells) {
-                    let spellFillIn = "";
-                    if (spellCastingInfo.prepareSpells) {
-                        spellFillIn = "<div class='fill-in-box-small'></div>";
+
+                let spellsHtml = "";
+                if (spellCastingInfo.prepareSpells) {
+                    spellsHtml = "<div>";
+                    let spells = level.spells;
+                    spells = Utilities.sort(spells, "title");
+                    for (const spell of spells) {
+                        let spellFillIn = "";
+                        if (spell.alwaysPrepared) {
+                            spellFillIn = `
+                                <div class="spell-preparation-fill-in-box always-prepared">
+                                    <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
+                                        <text class="icon-text" x="35" y="70" stroke-width="1" style="font: 50px sans-serif;">P</text>
+                                    </svg>
+                                </div>
+                            `;
+                        }
+                        else {
+                            spellFillIn = "<div class='spell-preparation-fill-in-box'></div>";
+                        }
+                        spellsHtml += `<div style="display:flex;">${spellFillIn}${spell.title}</div>`;
                     }
-                    if (spell.alwaysPrepared) {
-                        spellFillIn = `
-                            <div>
-                                <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
-                                    <text class="icon-text" x="35" y="70" stroke-width="1" style="font: 50px sans-serif;">A</text>
-                                </svg>
-                            </div>
-                        `;
-                    }
-                    spellsHtml += `<li>${spell.title}</li>`;
+                    spellsHtml += "</div>"
                 }
+                else {
+                    spellsHtml = "<ul>";
+                    let spells = level.spells;
+                    spells = Utilities.sort(spells, "title");
+                    for (const spell of level.spells) {
+                        spellsHtml += `<li>${spell.title}</li>`;
+                    }
+                    spellsHtml += "</ul>"
+                }
+
                 levelHtml += spellsHtml;
                 levelLabels.push(levelHtml);
             }
+
+            let prepareSpellsHtml = "";
+            let alwaysAvailableNoteHtml = "";
+            if (spellCastingInfo.prepareSpells) {
+                let prepareSpellsLabel = `Prepare ${spellCastingInfo.numberOfSpellsToPrepare} spell`;
+                if (spellCastingInfo.numberOfSpellsToPrepare > 1) {
+                    prepareSpellsLabel += "s";
+                }
+                prepareSpellsHtml = `<div class="spell-preparation-count">${prepareSpellsLabel}</div>`
+
+                alwaysAvailableNoteHtml = `
+                    <div class="always-available-note">
+                        <div class="spell-preparation-fill-in-box always-prepared">
+                            <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
+                                <text class="icon-text" x="35" y="70" stroke-width="1" style="font: 50px sans-serif;">P</text>
+                            </svg>
+                        </div>
+                        <div style="flex:1;">= always prepared</div>
+                    </div>
+                `;
+            }
+
             const levelLabelsHtml = "<div>" + levelLabels.join("</div><div>") + "</div>";
             let html = `
                 <div class="card feature-card">
@@ -575,9 +595,11 @@ class PrintViewModel {
                         </svg>
                     </div>
                     <div class="field-label">${spellCastingInfo.title}</div>
+                    ${prepareSpellsHtml}
                     <div>
                         ${levelLabelsHtml}
                     </div>
+                    ${alwaysAvailableNoteHtml}
                     <div class="corner bottom-right">
                         <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100">
                             <path d=" M 100,0 a 100 100 0 0 1 -100 100 l 100,0 z"></path>
@@ -587,6 +609,7 @@ class PrintViewModel {
                 <div id="spells-col-${displayColumn}-placeholder"></div>
             `;
             this.#kitElement.querySelector(`#spells-col-${displayColumn}`).innerHTML = html;
+            return hasSpellCastingInfo;
         }
     }
 
@@ -635,89 +658,6 @@ class PrintViewModel {
         `;
     }
 
-    #getModifiersHtml(character, value, title) {
-        const modifiers = character.modifiers.filter(m => m.target == value);
-        const modifierLabels = this.#getModifierLabels(modifiers);
-        return this.#getModifierLabelsHtml(title, modifierLabels);
-    }
-
-    #getModifierLabels(modifiers) {
-        const labels = [];
-        for (const modifier of modifiers) {
-            const value = Number(modifier.value);
-            if (value > 0) {
-                labels.push(`${modifier.title}: +${modifier.value}`);
-            }
-            if (value < 0) {
-                labels.push(`${modifier.title}: ${modifier.value}`);
-            }
-        }
-        return labels;
-    }
-
-    #getModifierLabelsHtml(title, modifierLabels) {
-        if (modifierLabels.length > 0) {
-            return `
-                <div>${title}</div>
-                <ul>
-                    <li>${modifierLabels.join("</li><li>")}</li>
-                </ul>
-            `;
-        }
-        return "";
-    }
-
-    #getInitiativeModifiers(character) {
-        const modifiers = character.modifiers.filter(m => m.target == "initiative");
-        const labels = this.#getModifierLabels(modifiers);
-        let dexModifier = Number(character.getAbilityScoreModifier("dexterity"));
-        if (dexModifier < 0) {
-            labels.unshift(`Dexterity: ${dexModifier}`);
-        }
-        if (dexModifier > 0) {
-            labels.unshift(`Dexterity: +${dexModifier}`);
-        }
-        return labels;
-    }
-
-    #getSkillModifiers(character, skill) {
-        const modifiers = character.modifiers.filter(m => m.target == `skill:${skill.name}`);
-        const labels = this.#getModifierLabels(modifiers);
-        const abilityTitle = Sources.getAbilities().find(a => a.name == skill.ability).title;
-        let abilityModifier = Number(character.getAbilityScoreModifier(skill.ability));
-        if (abilityModifier < 0) {
-            labels.unshift(`${abilityTitle}: ${abilityModifier}`);
-        }
-        if (abilityModifier > 0) {
-            labels.unshift(`${abilityTitle}: +${abilityModifier}`);
-        }
-        return labels;
-    }
-
-    #getArmorClassModifiers(character) {
-        const modifiers = character.modifiers.filter(m => m.target == "armor-class");
-        const labels = this.#getModifierLabels(modifiers);
-        let dexModifier = Number(character.getAbilityScoreModifier("dexterity"));
-        let dexModifierLabel = "";
-        if (dexModifier < 0) {
-            dexModifierLabel = `Dexterity: ${dexModifier}`;
-        }
-        if (dexModifier > 0) {
-            dexModifierLabel = `Dexterity: +${dexModifier}`;
-        }
-        const armorType = character.equipment.find(e => e.name == "armor-type" && e.value != "shield" && e.isEquipped);
-        if (armorType == "medium-armor" && dexModifier > 2) {
-            dexModifierLabel = "Dexterity: +2 (Medium Armor)";
-        }
-        if (armorType == "heavy-armor" && dexModifier > 0) {
-            dexModifierLabel = "Dexterity: 0 (Heavy Armor)";
-        }
-        if (dexModifierLabel) {
-            labels.unshift(dexModifierLabel);
-        }
-        return labels;
-    }
-
     #getNextColumn(prefix) {
         const col1Height = Number(this.#getColumnHeight(prefix, 1));
         const col2Height = Number(this.#getColumnHeight(prefix, 2));
@@ -751,7 +691,7 @@ class PrintViewModel {
         }
         let cardIndex = -1;
         for (const source of sources) {
-            cardIndex = cards.findIndex(c => c.source?.name == source);
+            cardIndex = cards.findIndex(c => c.sourcePropertyName.startsWith(source));
             if (cardIndex > -1) {
                 break;
             }
@@ -762,34 +702,58 @@ class PrintViewModel {
         return cardIndex;
     }
 
-    #getCardHtml(card, displayColumn) {
+    #getFeatureCardHtml(feature, displayColumn) {
         let cardSourceClass = "";
         let hr = "<hr />";
-        if (["race", "sub-race"].includes(card.source.name)) {
+        let spellInfoHtml = "";
+        if (["race", "subRace"].includes(feature.sourcePropertyName)) {
             cardSourceClass = "race-card";
         }
-        if (card.source.name == "feat") {
+        if (feature.sourcePropertyName.endsWith("-feat")) {
             cardSourceClass = "feat-card";
         }
-        if (card.source.name == "background") {
+        if (feature.sourcePropertyName == "background") {
             cardSourceClass = "background-card";
         }
-        if (card.source.name == "equipment") {
+        if (feature.sourcePropertyName.startsWith("equipment-")) {
             cardSourceClass = "equipment-card";
             hr = "";
         }
-        if (card.source.name == "spell") {
+        if (feature.sourcePropertyName == "spell") {
             cardSourceClass = "spell-card"
             hr = "";
+            spellInfoHtml = `<div class="spell-info">Level ${feature.level} ${feature.school}</div>`;
+            if (feature.level == 0) {
+                spellInfoHtml = `<div class="spell-info">${feature.school} cantrip</div>`;
+            }
         }
         let sourceHtml = "";
-        if (card.source?.title) {
-            sourceHtml = `<div class="feature-card-source">Source: ${card.source.title}</div>`
+        if (feature.cardSource) {
+            sourceHtml = `<div class="feature-card-source">Source: ${feature.cardSource}</div>`
         }
+
+        let attacksHtml = "";
+        if (feature.attacks) {
+            for (const attack of feature.attacks) {
+                attacksHtml += `<div class="attack-description">${attack.description}</div>`;
+                if (attack.notes) {
+                    for (const note of attack.notes) {
+                        attacksHtml += `<div class="attack-description-note">${note}</div>`;
+                    }
+                }
+                if (attack.modifiers) {
+                    for (const modifier of attack.modifiers) {
+                        attacksHtml += `<div class="attack-description-modifier">${modifier}</div>`;
+                    }
+                }
+            }
+        }
+        
         let placeholderPrefix = "features";
-        if (card.source.name == "spell") {
+        if (feature.sourcePropertyName == "spell") {
             placeholderPrefix = "spells";
         }
+
         return `
             <div class="card feature-card ${cardSourceClass}">
                 <div class="corner top-left">
@@ -798,11 +762,14 @@ class PrintViewModel {
                     </svg>
                 </div>
                 <div>
-                    <h3>${card.title}</h3>
+                    <h3>${feature.title}</h3>
                     ${hr}
+                    ${spellInfoHtml}
                     ${sourceHtml}
+                    ${attacksHtml}
                     <div class="content">
-                        ${card.html}
+                        
+                        ${feature.html}
                     </div>
                 </div>
                 <div class="corner bottom-right">

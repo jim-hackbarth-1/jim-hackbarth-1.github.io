@@ -70,92 +70,45 @@ export class ElfDark {
         const tempFeatures = [];
 
         // Superior Darkvision
-        tempFeatures.push({
-            name: `${ElfDark.name}-darkvision`,
-            title: "Superior Darkvision",
-            html: `
-                <p><b>Superior Darkvision.</b> Your darkvision has a range of 120 feet, instead of 60.</p>
-                `,
-            source: {
-                name: "sub-race",
-                title: ElfDark.title
-            },
-            displayType: "feature-card"
-        });
+        const superiorDarkvisionHtml = `
+            <p><b>Superior Darkvision.</b> Your darkvision has a range of 120 feet, instead of 60.</p>
+        `;
+        tempFeatures.push(character.getFeatureCard(`${ElfDark.name}-superior-darkvision`, "Superior Darkvision", superiorDarkvisionHtml));
 
         // Sunlight Sensitivity
-        tempFeatures.push({
-            name: `${ElfDark.name}-sunlight-sensitivity`,
-            title: "Sunlight Sensitivity",
-            html: `
-                <p><b>Sunlight Sensitivity.</b> You have disadvantage on attack rolls and Wisdom (Perception) checks that rely on sight when you, the target of the attack, or whatever you are trying to perceive is in direct sunlight.</p>
-                `,
-            source: {
-                name: "sub-race",
-                title: ElfDark.title
-            },
-            displayType: "feature-card"
-        });
+        const sunlightSensitivityHtml = `
+            <p><b>Sunlight Sensitivity.</b> You have disadvantage on attack rolls and Wisdom (Perception) checks that rely on sight when you, the target of the attack, or whatever you are trying to perceive is in direct sunlight.</p>
+        `;
+        tempFeatures.push(character.getFeatureCard(`${ElfDark.name}-sunlight-sensitivity`, "Sunlight Sensitivity", sunlightSensitivityHtml));
 
         // Drow Magic - Dancing Lights
-        tempFeatures.push({
-            name: `${ElfDark.name}-drow-magic-dancing-lights`,
-            title: "Drow Magic - Dancing Lights",
-            html: `
-                <p><b>Drow Magic  - Dancing Lights</b> You know the Dancing Lights cantrip.</p>
-            `,
-            source: {
-                name: "sub-race",
-                title: ElfDark.title
-            },
-            displayType: "feature-card"
-        });
+        const dancingLightsHtml = `
+            <p><b>Drow Magic  - Dancing Lights.</b> You know the Dancing Lights cantrip.</p>
+        `;
+        tempFeatures.push(character.getFeatureCard(
+            `${ElfDark.name}-drow-magic-dancing-lights`, "Drow Magic - Dancing Lights", dancingLightsHtml));
 
         // Drow Magic - Faerie Fire
         if (character.level >= 3) {
-
-            tempFeatures.push({
-                name: `${ElfDark.name}-drow-magic-faerie-fire`,
-                title: "Drow Magic - Faerie Fire",
-                html: `
-                    <p><b>Drow Magic - Faerie Fire</b> You can cast the Faerie Fire spell and regain the ability to do so when you finish a long rest. Charisma is your spellcasting ability for this spell.</p>
-                `,
-                useInfo: {
-                    reset: "long-rest",
-                    uses: 1
-                },
-                source: {
-                    name: "sub-race",
-                    title: ElfDark.title
-                },
-                displayType: "feature-card"
-            });
+            const faerieFireHtml = `
+                <p><b>Drow Magic - Faerie Fire.</b> You can cast the Faerie Fire spell and regain the ability to do so when you finish a long rest. Charisma is your spellcasting ability for this spell.</p>
+            `;
+            tempFeatures.push(character.getFeatureCard(
+                `${ElfDark.name}-drow-magic-faerie-fire`, "Drow Magic - Faerie Fire", faerieFireHtml));
         }
 
         // Drow Magic - Darkness
         if (character.level >= 5) {
-
-            tempFeatures.push({
-                name: `${ElfDark.name}-drow-magic-darkness`,
-                title: "Drow Magic - Darkness",
-                html: `
-                    <b>Drow Magic - Darkness</b> you can cast the Darkness spell once and regain the ability to do so when you finish a long rest.
-                `,
-                useInfo: {
-                    reset: "long-rest",
-                    uses: 1
-                },
-                source: {
-                    name: "sub-race",
-                    title: ElfDark.title
-                },
-                displayType: "feature-card"
-            });
+            const darknessHtml = `
+                <b>Drow Magic - Darkness.</b> you can cast the Darkness spell once and regain the ability to do so when you finish a long rest.
+            `;
+            tempFeatures.push(character.getFeatureCard(`${ElfDark.name}-drow-magic-darkness`, "Drow Magic - Darkness", darknessHtml));
         }
 
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = "subRace";
-            feature.sourcePropertyValue = ElfDark.name
+            feature.sourcePropertyValue = ElfDark.name;
+            feature.cardSource = ElfDark.title;
             features.push(feature);
         }
     }

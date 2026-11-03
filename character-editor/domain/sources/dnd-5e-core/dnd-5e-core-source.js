@@ -190,7 +190,6 @@ import { PanFlute } from "./equipment/tools/pan-flute.js"
 import { Shawm } from "./equipment/tools/shawm.js"
 import { Viol } from "./equipment/tools/viol.js"
 
-
 // equipment - weapons
 import { Battleaxe } from "./equipment/weapons/battleaxe.js";
 import { Blowgun } from "./equipment/weapons/blowgun.js";
@@ -246,36 +245,107 @@ import { Mending } from "./spells/level-0/mending.js";
 import { Message } from "./spells/level-0/message.js";
 import { MinorIllusion } from "./spells/level-0/minor-illusion.js";
 import { Prestidigitation } from "./spells/level-0/prestidigitation.js";
+import { SpareTheDying } from "./spells/level-0/spare-the-dying.js";
 import { TrueStrike } from "./spells/level-0/true-strike.js";
 import { ViciousMockery } from "./spells/level-0/vicious-mockery.js";
 
 // spells - level 1
 import { AnimalFriendship } from "./spells/level-1/animal-friendship.js";
+import { ArmorOfAgathys } from "./spells/level-1/armor-of-agathys.js";
 import { Bane } from "./spells/level-1/bane.js";
+import { Bless } from "./spells/level-1/bless.js";
+import { BurningHands } from "./spells/level-1/burning-hands.js";
 import { CharmPerson } from "./spells/level-1/charm-person.js";
+import { Command } from "./spells/level-1/command.js";
 import { ComprehendLanguages } from "./spells/level-1/comprehend-languages.js";
 import { CureWounds } from "./spells/level-1/cure-wounds.js";
+import { DisguiseSelf } from "./spells/level-1/disguise-self.js";
+import { DivineFavor } from "./spells/level-1/divine-favor.js";
 import { FaerieFire } from "./spells/level-1/faerie-fire.js";
+import { FogCloud } from "./spells/level-1/fog-cloud.js";
+import { Identify } from "./spells/level-1/identify.js";
+import { InflictWounds } from "./spells/level-1/inflict-wounds.js";
+import { ShieldOfFaith } from "./spells/level-1/shield-of-faith.js";
 import { SpeakWithAnimals } from "./spells/level-1/speak-with-animals.js";
+import { Thunderwave } from "./spells/level-1/thunderwave.js";
 
 // spells - level 2
 import { AnimalMessenger } from "./spells/level-2/animal-messenger.js";
+import { Augury } from "./spells/level-2/augury.js";
+import { Barkskin } from "./spells/level-2/barkskin.js";
 import { BeastSense } from "./spells/level-2/beast-sense.js";
 import { BlindnessDeafness } from "./spells/level-2/blindness-deafness.js";
 import { CalmEmotions } from "./spells/level-2/calm-emotions.js";
 import { CloudOfDaggers } from "./spells/level-2/cloud-of-daggers.js";
 import { CrownOfMadness } from "./spells/level-2/crown-of-madness.js";
 import { Darkness } from "./spells/level-2/darkness.js";
+import { FlamingSphere } from "./spells/level-2/flaming-sphere.js";
+import { GentleRepose } from "./spells/level-2/gentle-repose.js";
+import { GustOfWind } from "./spells/level-2/gust-of-wind.js";
+import { LesserRestoration } from "./spells/level-2/lesser-restoration.js";
+import { MagicWeaponSpell } from "./spells/level-2/magic-weapon.js";
+import { MirrorImage } from "./spells/level-2/mirror-image.js";
+import { PassWithoutTrace } from "./spells/level-2/pass-without-trace.js";
+import { ScorchingRay } from "./spells/level-2/scorching-ray.js";
+import { Shatter } from "./spells/level-2/shatter.js";
+import { SpikeGrowth } from "./spells/level-2/spike-growth.js";
+import { SpiritualWeapon } from "./spells/level-2/spiritual-weapon.js";
+import { Suggestion } from "./spells/level-2/suggestion.js";
 
 // spells - level 3
+import { AnimateDead } from "./spells/level-3/animate-dead.js";
+import { BeaconOfHope } from "./spells/level-3/beacon-of-hope.js";
 import { BestowCurse } from "./spells/level-3/bestow-curse.js";
+import { Blink } from "./spells/level-3/blink.js";
+import { CallLightning } from "./spells/level-3/call-lightning.js";
 import { Clairvoyance } from "./spells/level-3/clairvoyance.js";
+import { CrusadersMantle } from "./spells/level-3/crusaders-mantle.js";
+import { Daylight } from "./spells/level-3/daylight.js";
 import { DispelMagic } from "./spells/level-3/dispel-magic.js";
 import { Fear } from "./spells/level-3/fear.js";
 import { FeignDeath } from "./spells/level-3/feign-death.js";
+import { Fireball } from "./spells/level-3/fireball.js";
+import { NonDetection } from "./spells/level-3/nondetection.js";
+import { PlantGrowth } from "./spells/level-3/plant-growth.js";
+import { Revivify } from "./spells/level-3/revivify.js";
+import { SleetStorm } from "./spells/level-3/sleet-storm.js";
+import { SpeakWithDead } from "./spells/level-3/speak-with-dead.js";
+import { SpiritGuardians } from "./spells/level-3/spirit-guardians.js";
+import { WindWall } from "./spells/level-3/wind-wall.js";
+
+// spells - level 4
+import { ArcaneEye } from "./spells/level-4/arcane-eye.js";
+import { Blight } from "./spells/level-4/blight.js";
+import { Confusion } from "./spells/level-4/confusion.js";
+import { ControlWater } from "./spells/level-4/control-water.js";
+import { DeathWard } from "./spells/level-4/death-ward.js";
+import { DimensionDoor } from "./spells/level-4/dimension-door.js";
+import { DominateBeast } from "./spells/level-4/dominate-beast.js";
+import { FreedomOfMovement } from "./spells/level-4/freedom-of-movement.js";
+import { GraspingVine } from "./spells/level-4/grasping-vine.js";
+import { GuardianOfFaith } from "./spells/level-4/guardian-of-faith.js";
+import { IceStorm } from "./spells/level-4/ice-storm.js";
+import { Polymorph } from "./spells/level-4/polymorph.js";
+import { Stoneskin } from "./spells/level-4/stoneskin.js";
+import { WallOfFire } from "./spells/level-4/wall-of-fire.js";
 
 // spells - level 5
+import { AntiLifeShell } from "./spells/level-5/antilife-shell.js";
 import { CommuneWithNature } from "./spells/level-5/commune-with-nature.js";
+import { DestructiveWave } from "./spells/level-5/destructive-wave.js";
+import { DominatePerson } from "./spells/level-5/dominate-person.js";
+import { FlameStrike } from "./spells/level-5/flame-strike.js";
+import { HoldMonster } from "./spells/level-5/hold-monster.js";
+import { InsectPlague } from "./spells/level-5/insect-plague.js";
+import { LegendLore } from "./spells/level-5/legend-lore.js";
+import { MassCureWounds } from "./spells/level-5/mass-cure-wounds.js";
+import { ModifyMemory } from "./spells/level-5/modify-memory.js";
+import { RaiseDead } from "./spells/level-5/raise-dead.js";
+import { Scrying } from "./spells/level-5/scrying.js";
+import { TreeStride } from "./spells/level-5/tree-stride.js";
+
+// spells - level 7
+import { FingerOfDeath } from "./spells/level-7/finger-of-death.js";
 
 export class DnD5ESource {
 
@@ -481,24 +551,85 @@ export class DnD5ESource {
     static #spells = [
         // cantrips
         BladeWard, DancingLights, Friends, Light, MageHand,
-        Mending, Message, MinorIllusion, Prestidigitation, TrueStrike,
-        ViciousMockery,
+        Mending, Message, MinorIllusion, Prestidigitation, SpareTheDying,
+        TrueStrike, ViciousMockery,
 
         // level 1
-        AnimalFriendship, Bane, CharmPerson, ComprehendLanguages, CureWounds,
-        FaerieFire, SpeakWithAnimals,
+        AnimalFriendship, ArmorOfAgathys, Bane, Bless, BurningHands,
+        CharmPerson, Command, ComprehendLanguages, CureWounds, DisguiseSelf,
+        DivineFavor, FaerieFire, FogCloud, Identify, InflictWounds,
+        ShieldOfFaith, SpeakWithAnimals, Thunderwave,
 
         // level 2
-        AnimalMessenger, BeastSense, BlindnessDeafness, CalmEmotions, CloudOfDaggers,
-        CrownOfMadness, Darkness,
+        AnimalMessenger, Augury, Barkskin, BeastSense, BlindnessDeafness,
+        CalmEmotions, CloudOfDaggers, CrownOfMadness, Darkness, FlamingSphere,
+        GentleRepose, GustOfWind, LesserRestoration, MagicWeaponSpell, MirrorImage,
+        PassWithoutTrace, ScorchingRay, Shatter, SpikeGrowth, SpiritualWeapon,
+        Suggestion,
 
         // level 3
-        BestowCurse, Clairvoyance, DispelMagic, Fear, FeignDeath,
+        AnimateDead, BeaconOfHope, BestowCurse, Blink, CallLightning,
+        Clairvoyance, CrusadersMantle, Daylight, DispelMagic, Fear,
+        FeignDeath, Fireball, NonDetection, PlantGrowth, Revivify,
+        SleetStorm, SpeakWithDead, SpiritGuardians, WindWall,
+
+        // level 4
+        ArcaneEye, Blight, Confusion, ControlWater, DeathWard,
+        DimensionDoor, DominateBeast, FreedomOfMovement, GraspingVine, GuardianOfFaith,
+        IceStorm, Polymorph, Stoneskin, WallOfFire,
 
         // level 5
-        CommuneWithNature
+        AntiLifeShell, CommuneWithNature, DestructiveWave, DominatePerson, FlameStrike,
+        HoldMonster, InsectPlague, LegendLore, MassCureWounds, ModifyMemory,
+        RaiseDead, Scrying, TreeStride,
+
+        // level 7
+        FingerOfDeath
     ];
     static getSpells() {
         return DnD5ESource.#spells;
+    }
+
+    static getSpellHtml(spell, content) {
+        return `
+            <div class="dnd-5e-content">
+                <link rel="stylesheet" type="text/css" href="./domain/sources/dnd-5e-core/dnd-5e-core.css">
+                <h3>${spell.title}</h3>
+                <div class="spell-properties">${spell.school} cantrip</div>
+                <div><b>Casting Time: </b>${spell.castingTime}</div>
+                <div><b>Range: </b>${spell.range}</div>
+                <div><b>Components: </b>${spell.components}</div>
+                <div><b>Duration: </b>${spell.duration}</div>
+                <div class="content spell-content">
+                    ${content}
+                </div>
+            </div>
+        `;
+    }
+
+    static getEquipmentHtml(equipment, content) {
+        return `
+            <div class="dnd-5e-content">
+                <link rel="stylesheet" type="text/css" href="./domain/sources/dnd-5e-core/dnd-5e-core.css">
+                <h3>${equipment.title}</h3>
+                <hr/>
+                <div class="content equipment-content">
+                    ${content}
+                </div>
+            </div>
+         `;
+    }
+
+    static getFeatHtml(feat, content) {
+        return `
+            <div class="dnd-5e-content">
+                <link rel="stylesheet" type="text/css" href="./domain/sources/dnd-5e-core/dnd-5e-core.css">
+                <h3>${feat.title}</h3>
+                <hr/>
+                <div class="content">
+                    ${content}
+                </div>
+            </div>
+        `;
     }
 }

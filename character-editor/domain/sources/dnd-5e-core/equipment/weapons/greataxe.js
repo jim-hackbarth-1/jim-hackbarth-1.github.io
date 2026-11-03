@@ -1,17 +1,13 @@
 
+import { DnD5ESource } from "../../dnd-5e-core-source.js";
+
 export class Greataxe {
 
-    static get name() {
-        return "greataxe";
-    }
-
-    static get title() {
-        return "Greataxe";
-    }
-
-    static get category() {
-        return "weapons";
-    }
+    static get name() { return "greataxe"; }
+    static get title() { return "Greataxe"; }
+    static get category() { return "weapons"; }
+    static get canBeEquipped() { return true; }
+    static get html() { return ""; }
 
     static get properties() {
         return [
@@ -34,26 +30,18 @@ export class Greataxe {
         ];
     }
 
-    static get canBeEquipped() {
-        return true;
-    }
-
-    static equip(character, inventoryIndex, allEquipment) {
-        const item = character.equipment[inventoryIndex];
-        item.properties = Greataxe.properties;
-        item.isEquipped = true;
-    }
-
-    static get html() {
-        return "";
-    }
-
     static getSelections(character, inventoryIndex) {
         return []
     }
 
     static getSelectionOptions(character, inventoryIndex, selectionName, sources) {
         return [];
+    }
+
+    static equip(character, inventoryIndex, allEquipment) {
+        const item = character.equipment[inventoryIndex];
+        item.properties = Greataxe.properties;
+        item.isEquipped = true;
     }
 
     static applyModifiers(character, inventoryIndex, targetFilters) {
@@ -64,14 +52,7 @@ export class Greataxe {
         const tempFeatures = [];
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
-            const attackCard = character.getAttackCard({
-                name: Greataxe.name,
-                title: Greataxe.title,
-                inventoryIndex: inventoryIndex,
-                damageDieSize: 12,
-                damageType: "slashing"
-            });
-            tempFeatures.push(attackCard);
+            tempFeatures.push(character.getWeaponAttackCard(inventoryIndex, Greataxe));
         }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;

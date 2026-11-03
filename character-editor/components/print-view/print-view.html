@@ -28,11 +28,6 @@
                 page-break-inside: avoid;
             }
 
-            .no-border {
-                border: none;
-                margin: 0;
-            }
-
             #logo-container-print {
                 display: none;
             }
@@ -131,12 +126,6 @@
                 flex-direction: column;
             }
 
-            #profiency-bonus,
-            .saving-throw-modifier {
-                font-style: italic;
-                color: saddlebrown;
-            }
-
             #hit-point-table {
                 display:table;
             }
@@ -194,6 +183,30 @@
                 display: table-cell;
                 text-align: left;
                 vertical-align: middle;
+            }
+
+            .spell-preparation-fill-in-box {
+                margin-right: 3px;
+                width: 15px;
+                height: 15px;
+                border: 1px solid black;
+            }
+
+            .spell-preparation-fill-in-box.always-prepared {
+                background-color: #C2B08E;
+            }
+
+            .spell-preparation-fill-in-box.always-prepared .icon {
+                stroke-width: 4px;
+            }
+
+            .spell-preparation-fill-in-box.always-prepared .icon-text {
+                fill: black;
+            }
+
+            .spell-preparation-count {
+                color: purple;
+                font-style: italic;
             }
 
             .proficiency-icon {
@@ -260,6 +273,7 @@
                 text-align: right;
             }
 
+            .always-available-note,
             .proficiency-note {
                 display: flex;
                 align-items: center;
@@ -280,6 +294,7 @@
 
             .attack-card {
                 flex: 1;
+                min-height: unset;
                 margin: 0 5px 5px 5px;
             }
 
@@ -331,9 +346,32 @@
                 page-break-inside: avoid;
             }
 
+            .feature-card .feature-card-source {
+                font-size: smaller;
+                font-style: italic;
+                margin-bottom: 5px;
+            }
+
+            .feature-card li,
+            .feature-card p {
+                font-family: Calibri, sans-serif;
+            }
+
+            .feature-card ul {
+                padding-left: 20px;
+            }
+
+            .feature-card .content {
+                margin-bottom: 5px;
+                margin-top: 5px;
+            }
+
             .feature-card h2,
             .feature-card h3,
-            .feature-card h4 {
+            .feature-card h4,
+            .feature-card .feature-card-source,
+            .feature-card .attack-description,
+            .feature-card .attack-description-note {
                 color: darkred;
             }
 
@@ -342,33 +380,25 @@
                 margin-bottom: 2px;
             }
 
-            .feature-card .feature-card-source {
-                font-size: smaller;
-                color: darkred;
-                font-style: italic;
-                margin-bottom:5px;
-            }
-
-            .modifiers-card .field-label,
-            .modifiers-card .modifiers-content {
-                color: dimgray;
-            }
-
             .race-card h2,
             .race-card h3,
             .race-card h4,
-            .race-card .feature-card-source {
+            .race-card .feature-card-source,
+            .race-card .attack-description,
+            .race-card .attack-description-note {
                 color: steelblue;
             }
 
             .race-card hr {
-                border: 1px solid darkblue;
+                border: 1px solid steelblue;
             }
 
             .feat-card h2,
             .feat-card h3,
             .feat-card h4,
-            .feat-card .feature-card-source {
+            .feat-card .feature-card-source,
+            .feat-card .attack-description,
+            .feat-card .attack-description-note {
                 color: darkgoldenrod;
             }
 
@@ -379,7 +409,9 @@
             .background-card h2,
             .background-card h3,
             .background-card h4,
-            .background-card .feature-card-source {
+            .background-card .feature-card-source,
+            .background-card .attack-description,
+            .background-card .attack-description-note {
                 color: darkolivegreen;
             }
 
@@ -389,52 +421,33 @@
 
             .equipment-card h2,
             .equipment-card h3,
-            .equipment-card h4 {
+            .equipment-card h4,
+            .equipment-card .feature-card-source,
+            .equipment-card .attack-description,
+            .equipment-card .attack-description-note {
                 color: black;
             }
 
             .spell-card h2,
             .spell-card h3,
-            .spell-card h4 {
+            .spell-card h4,
+            .spell-card .feature-card-source,
+            .spell-card .attack-description,
+            .spell-card .attack-description-note {
                 color: purple;
             }
 
-            .feature-card li,
-            .feature-card p {
-                font-family: Calibri, sans-serif;
-            }
-
-            .feature-card ul {
-                padding-left:20px;
-            }
-
-            .feature-card .content {
-                margin-bottom:5px;
-            }
-
-            .modifier-note {
-                color:saddlebrown;
-                font-size:smaller;
-                font-style:italic;
-                margin-top:5px;
-            }
-
-            .spell-properties {
+            .spell-info {
+                color: purple;
+                font-size: small;
                 font-style: italic;
-                color:purple;
+                margin-bottom: 5px;
             }
 
-            .spell-dc-note {
-                color:purple;
-                font-style: italic;
-                margin-top:5px;
-            }
-
-            .spell-modifiers-container {
+            .attack-description-modifier {
+                color: saddlebrown;
                 font-size: x-small;
                 font-style: italic;
-                color: dimgray;
-                margin-bottom: 5px;
             }
 
             @media print {

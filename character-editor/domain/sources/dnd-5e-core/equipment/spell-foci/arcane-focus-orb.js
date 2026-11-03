@@ -1,17 +1,13 @@
 
+import { DnD5ESource } from "../../dnd-5e-core-source.js";
+
 export class ArcaneFocusOrb {
 
-    static get name() {
-        return "arcane-focus-orb";
-    }
-
-    static get title() {
-        return "Arcane focus, orb";
-    }
-
-    static get category() {
-        return "spell-foci";
-    }
+    static get name() { return "arcane-focus-orb"; }
+    static get title() { return "Arcane focus, orb"; }
+    static get category() { return "spell-foci"; }
+    static get canBeEquipped() { return true; }
+    static get html() { return ""; }
 
     static get properties() {
         return [
@@ -24,20 +20,18 @@ export class ArcaneFocusOrb {
         return ["Cost: 20gp"];
     }
 
-    static get canBeEquipped() {
-        return true;
-    }
-
-    static get html() {
-        return "";
-    }
-
     static getSelections(character, inventoryIndex) {
         return [];
     }
 
     static getSelectionOptions(character, inventoryIndex, selectionName, sources) {
         return [];
+    }
+
+    static equip(character, inventoryIndex, allEquipment) {
+        const item = character.equipment[inventoryIndex];
+        item.properties = ArcaneFocusOrb.properties;
+        item.isEquipped = true;
     }
 
     static applyModifiers(character, inventoryIndex, targetFilters) {

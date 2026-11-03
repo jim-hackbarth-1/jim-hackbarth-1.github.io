@@ -1,30 +1,12 @@
 
+import { DnD5ESource } from "../dnd-5e-core-source.js"
+
 export class Actor {
 
-    static get name() {
-        return "actor";
-    }
-
-    static get title() {
-        return "Actor";
-    }
-
-    static get html() {
-        return `
-        <div class="dnd-5e-content">
-            <link rel="stylesheet" type="text/css" href="./domain/sources/dnd-5e-core/dnd-5e-core.css">
-            <h3>Actor</h3>
-            <hr/>
-            <div class="content">
-                [Actor content here]
-            </div>
-        </div>
-        `;
-    }
-
-    static get canBeTakenMultipleTimes() {
-        return false;
-    }
+    static get name() { return "actor"; }
+    static get title() { return "Actor"; }
+    static get canBeTakenMultipleTimes() { return false; }
+    static get html() { return DnD5ESource.getFeatHtml(Actor, Actor.#content); }
 
     static checkPrerequisites(character) {
         return { prerequisitesMet: true, text: null };
@@ -49,5 +31,11 @@ export class Actor {
     static applySpells(spells, character, classIndex, level) {
 
     }
+
+    static #content = `
+        <p>
+            [Actor content here]
+        </p>
+    `;
 
 }

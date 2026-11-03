@@ -1,17 +1,13 @@
 
+import { DnD5ESource } from "../../dnd-5e-core-source.js";
+
 export class Blowgun {
 
-    static get name() {
-        return "blowgun";
-    }
-
-    static get title() {
-        return "Blowgun";
-    }
-
-    static get category() {
-        return "weapons";
-    }
+    static get name() { return "blowgun"; }
+    static get title() { return "Blowgun"; }
+    static get category() { return "weapons"; }
+    static get canBeEquipped() { return true; }
+    static get html() { return ""; }
 
     static get properties() {
         return [
@@ -35,26 +31,18 @@ export class Blowgun {
         ];
     }
 
-    static get canBeEquipped() {
-        return true;
-    }
-
-    static equip(character, inventoryIndex, allEquipment) {
-        const item = character.equipment[inventoryIndex];
-        item.properties = Blowgun.properties;
-        item.isEquipped = true;
-    }
-
-    static get html() {
-        return "";
-    }
-
     static getSelections(character, inventoryIndex) {
         return []
     }
 
     static getSelectionOptions(character, inventoryIndex, selectionName, sources) {
         return [];
+    }
+
+    static equip(character, inventoryIndex, allEquipment) {
+        const item = character.equipment[inventoryIndex];
+        item.properties = Blowgun.properties;
+        item.isEquipped = true;
     }
 
     static applyModifiers(character, inventoryIndex, targetFilters) {
@@ -65,15 +53,7 @@ export class Blowgun {
         const tempFeatures = [];
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
-            const attackCard = character.getAttackCard({
-                name: Blowgun.name,
-                title: Blowgun.title,
-                inventoryIndex: inventoryIndex,
-                damageDieSize: 1,
-                damageType: "piercing",
-                range: "range 25/100 ft."
-            });
-            tempFeatures.push(attackCard);
+            tempFeatures.push(character.getWeaponAttackCard(inventoryIndex, Blowgun));
         }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;

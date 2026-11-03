@@ -1,17 +1,13 @@
 
+import { DnD5ESource } from "../../dnd-5e-core-source.js";
+
 export class DruidicFocusMistletoe {
 
-    static get name() {
-        return "druidic-focus-mistletoe";
-    }
-
-    static get title() {
-        return "Druidic focus, mistletoe";
-    }
-
-    static get category() {
-        return "spell-foci";
-    }
+    static get name() { return "druidic-focus-mistletoe"; }
+    static get title() { return "Druidic focus, mistletoe"; }
+    static get category() { return "spell-foci"; }
+    static get canBeEquipped() { return true; }
+    static get html() { return ""; }
 
     static get properties() {
         return [
@@ -24,20 +20,18 @@ export class DruidicFocusMistletoe {
         return ["Cost: 1gp"];
     }
 
-    static get canBeEquipped() {
-        return true;
-    }
-
-    static get html() {
-        return "";
-    }
-
     static getSelections(character, inventoryIndex) {
         return [];
     }
 
     static getSelectionOptions(character, inventoryIndex, selectionName, sources) {
         return [];
+    }
+
+    static equip(character, inventoryIndex, allEquipment) {
+        const item = character.equipment[inventoryIndex];
+        item.properties = DruidicFocusMistletoe.properties;
+        item.isEquipped = true;
     }
 
     static applyModifiers(character, inventoryIndex, targetFilters) {

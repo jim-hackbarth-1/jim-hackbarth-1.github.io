@@ -66,55 +66,35 @@ export class BardCollegeOfValor {
     static applyFeatures(features, character, classIndex) {
         const tempFeatures = [];
         const level = Number(character.classes.find(c => c.value == "bard").level);
+
+        // Combat Inspiration
         if (level >= 3) {
-            // Combat Inspiration
-            tempFeatures.push({
-                name: `${BardCollegeOfValor.name}-combat-inspiration`,
-                title: "Combat inspiration",
-                html: `
-                    <p>You learn to inspire others in battle. A creature that has a Bardic Inspiration die from you can roll that die and add the number rolled to a weapon damage roll it just made. Alternatively, when an attack roll is made against the creature, it can use its reaction to roll the Bardic Inspiration die and add the number rolled to its AC against that attack, after seeing the roll but before knowing whether it hits or misses.</p>
-                    `,
-                source: {
-                    name: "sub-class",
-                    title: BardCollegeOfValor.title
-                },
-                displayType: "feature-card"
-            });
+            const combatInspirationHtml = `
+                <p>You learn to inspire others in battle. A creature that has a Bardic Inspiration die from you can roll that die and add the number rolled to a weapon damage roll it just made. Alternatively, when an attack roll is made against the creature, it can use its reaction to roll the Bardic Inspiration die and add the number rolled to its AC against that attack, after seeing the roll but before knowing whether it hits or misses.</p>
+            `;
+            tempFeatures.push(character.getFeatureCard(`${BardCollegeOfValor.name}-combat-inspiration`, "Combat inspiration", combatInspirationHtml));
         }
+
+        //Extra Attack
         if (level >= 6) {
-            //Extra Attack
-            tempFeatures.push({
-                name: `${BardCollegeOfValor.name}-extra-attack`,
-                title: "Extra attack",
-                html: `
-                    <p>You can attack twice, instead of once, whenever you take the Attack action on your turn.</p>
-                    `,
-                source: {
-                    name: "sub-class",
-                    title: BardCollegeOfValor.title
-                },
-                displayType: "feature-card"
-            });
+            const extraAttackHtml = `
+                <p>You can attack twice, instead of once, whenever you take the Attack action on your turn.</p>
+            `;
+            tempFeatures.push(character.getFeatureCard(`${BardCollegeOfValor.name}-extra-attack`, "Extra attack", extraAttackHtml));
         }
+
+        //Battle Magic
         if (level >= 14) {
-            //Battle Magic
-            tempFeatures.push({
-                name: `${BardCollegeOfValor.name}-battle-magic`,
-                title: "Battle magic",
-                html: `
-                    <p>You have mastered the art of weaving spellcasting and weapon use into a single harmonious act. When you use your action to cast a bard spell, you can make one weapon attack as a bonus action.</p>
-                    `,
-                source: {
-                    name: "sub-class",
-                    title: BardCollegeOfValor.title
-                },
-                displayType: "feature-card"
-            });
+            const battleMagicHtml = `
+                <p>You have mastered the art of weaving spellcasting and weapon use into a single harmonious act. When you use your action to cast a bard spell, you can make one weapon attack as a bonus action.</p>
+            `;
+            tempFeatures.push(character.getFeatureCard(`${BardCollegeOfValor.name}-battle-magic`, "Battle magic", battleMagicHtml));
         }
 
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `subClass-${classIndex}`;
-            feature.sourcePropertyValue = BardCollegeOfValor.name
+            feature.sourcePropertyValue = BardCollegeOfValor.name;
+            feature.cardSource = BardCollegeOfValor.title;
             features.push(feature);
         }
     }

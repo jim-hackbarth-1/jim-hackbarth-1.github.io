@@ -38,16 +38,14 @@
                         <div class="option-note">%{#option.noteText ?? ""}%</div>
                         <div class="option-disabled">%{#option.disabledReason ?? ""}%</div>
                     </div>
-                    <div>
+                    <div style="width:40px;" onpointerdown="#model.toggleDetail('%{#option.value}%')">
                         <div class="toggle-button toggle-button-expand"
                              title="Show Detail"
-                             onpointerdown="#model.toggleDetail('%{#option.value}%')"
                              kit-if="#option.hasDetail"
                              kit-component="no-model:./resources/icons/expand.html">
                         </div>
                         <div class="toggle-button toggle-button-collapse"
                              title="Hide Detail"
-                             onpointerdown="#model.toggleDetail('%{#option.value}%')"
                              kit-if="#option.hasDetail"
                              kit-component="no-model:./resources/icons/collapse.html">
                         </div>

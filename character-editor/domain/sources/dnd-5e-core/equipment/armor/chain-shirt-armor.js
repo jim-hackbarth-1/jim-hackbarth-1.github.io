@@ -1,21 +1,14 @@
 
+import { DnD5ESource } from "../../dnd-5e-core-source.js";
+
 export class ChainShirtArmor {
 
-    static get name() {
-        return "chain-shirt-armor";
-    }
-
-    static get title() {
-        return "Chain shirt";
-    }
-
-    static get category() {
-        return "armor";
-    }
-
-    static get armorType() {
-        return "medium-armor";
-    }
+    static get name() { return "chain-shirt-armor"; }
+    static get title() { return "Chain shirt"; }
+    static get category() { return "armor"; }
+    static get canBeEquipped() { return true; }
+    static get html() { return ""; }
+    static get armorType() { return "medium-armor"; }
 
     static get properties() {
         return [
@@ -27,14 +20,6 @@ export class ChainShirtArmor {
 
     static get displayProperties() {
         return ["Cost: 50gp", "Armor Class: 13 + Dex modifier (max 2)"];
-    }
-
-    static get canBeEquipped() {
-        return true;
-    }
-
-    static get html() {
-        return "";
     }
 
     static getSelections(character, inventoryIndex) {

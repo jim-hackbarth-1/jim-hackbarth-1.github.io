@@ -1,21 +1,14 @@
 
+import { DnD5ESource } from "../../dnd-5e-core-source.js";
+
 export class PaddedArmor {
 
-    static get name() {
-        return "padded-armor";
-    }
-
-    static get title() {
-        return "Padded";
-    }
-
-    static get category() {
-        return "armor";
-    }
-
-    static get armorType() {
-        return "light-armor";
-    }
+    static get name() { return "padded-armor"; }
+    static get title() { return "Padded"; }
+    static get category() { return "armor"; }
+    static get canBeEquipped() { return true; }
+    static get html() { return ""; }
+    static get armorType() { return "light-armor"; }
 
     static get properties() {
         return [
@@ -31,14 +24,6 @@ export class PaddedArmor {
             "Armor Class: 11 + Dex modifier",
             "Stealth: Disadvantage"
         ];
-    }
-
-    static get canBeEquipped() {
-        return true;
-    }
-
-    static get html() {
-        return "";
     }
 
     static getSelections(character, inventoryIndex) {

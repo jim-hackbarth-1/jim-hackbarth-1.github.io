@@ -1,17 +1,13 @@
 
+import { DnD5ESource } from "../../dnd-5e-core-source.js";
+
 export class MasonsTools {
 
-    static get name() {
-        return "masons-tools";
-    }
-
-    static get title() {
-        return "Mason's tools";
-    }
-
-    static get category() {
-        return "tools";
-    }
+    static get name() { return "masons-tools"; }
+    static get title() { return "Mason's tools"; }
+    static get category() { return "tools"; }
+    static get canBeEquipped() { return false; }
+    static get html() { return ""; }
 
     static get properties() {
         return [{ name: "artisans-tools" }];
@@ -19,15 +15,6 @@ export class MasonsTools {
 
     static get displayProperties() {
         return [];
-    }
-
-    static get canBeEquipped() {
-        return false;
-    }
-
-    static get html() {
-        return `
-        `;
     }
 
     static getSelections(character, inventoryIndex) {

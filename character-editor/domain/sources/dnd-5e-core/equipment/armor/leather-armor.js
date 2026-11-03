@@ -1,21 +1,14 @@
 
+import { DnD5ESource } from "../../dnd-5e-core-source.js";
+
 export class LeatherArmor {
 
-    static get name() {
-        return "leather-armor";
-    }
-
-    static get title() {
-        return "Leather";
-    }
-
-    static get category() {
-        return "armor";
-    }
-
-    static get armorType() {
-        return "light-armor";
-    }
+    static get name() { return "leather-armor"; }
+    static get title() { return "Leather"; }
+    static get category() { return "armor"; }
+    static get canBeEquipped() { return true; }
+    static get html() { return ""; }
+    static get armorType() { return "light-armor"; }
 
     static get properties() {
         return [
@@ -30,14 +23,6 @@ export class LeatherArmor {
             "Cost: 10gp",
             "Armor Class: 11 + Dex modifier"
         ];
-    }
-
-    static get canBeEquipped() {
-        return true;
-    }
-
-    static get html() {
-        return "";
     }
 
     static getSelections(character, inventoryIndex) {

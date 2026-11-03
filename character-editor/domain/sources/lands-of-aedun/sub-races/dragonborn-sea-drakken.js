@@ -60,34 +60,28 @@ export class DragonbornSeaDrakken {
         const tempFeatures = [];
 
         // bond of the sea
-        tempFeatures.push({
-            name: "dragonborn-sea-drakken-bond-of-the-sea",
-            title: "Bond of the Sea",
-            html: `
-                <p>May breathe underwater.  Swimming speed equals walking speed.</p>
-                `,
-            source: {
-                name: "sub-race",
-                title: DragonbornSeaDrakken.title
-            },
-            displayType: "feature-card"
-        });
+        const bondOfTheSeaHtml = `
+            <p>May breathe underwater.  Swimming speed equals walking speed.</p>
+        `;
+        tempFeatures.push(character.getFeatureCard(`${DragonbornSeaDrakken.name}-bond-of-the-sea`, "Bond of the Sea", bondOfTheSeaHtml));
         
         // bite
         const dexterity = Number(character.getAbilityScore("dexterity"));
         const strength = Number(character.getAbilityScore("strength"));
         const biteAttackAbility = (dexterity > strength)
-            ? { name: "dexterity", title: "Dexterity" }
-            : { name: "strength", title: "Strength" };
-        const attackCard = character.getAttackCard({
-            name: "dragonborn-sea-drakken-bite-attack",
-            title: "Sea Drakken Bite",
-            relevantAbility: biteAttackAbility,
-            damageDieSize: 6,
-            damageType: "piercing",
-            notes: ["Bonus action"]
+            ? "dexterity"
+            : "strength";
+        const biteHtml = `
+            <p><b>Bite.</b> Make an attack role adding your proficiency bonus plus either Strength or Dexterity bonus.  Bite damage is 1d6 piercing, plus either Strength or Dexterity bonus.</p>
+        `;
+        const attackInfo = character.getAttackInfo({
+            attackAbility: biteAttackAbility,
+            target: "to-hit",
+            damageDice: `1d6`,
+            damageType: "piercing"
         });
-        tempFeatures.push(attackCard);
+        tempFeatures.push(character.getFeatureCard(
+            `${DragonbornSeaDrakken.name}-bite`, "Sea Drakken Bite", biteHtml, DragonbornSeaDrakken.title, attackInfo));
        
         // kiss of the deep
         let damageDice = 2;
@@ -100,38 +94,28 @@ export class DragonbornSeaDrakken {
         if (character.level >= 16) {
             damageDice++;
         }
-        const dcModifiersList = character.getModifiers({
+        const kissHtml = `
+            <p><b>Kiss of the Deep.</b> Upon touching a willing creature, the creature gains 2d6 hit points and the dragonborn loses hit points equal to one half of the total.  Alternatively, after a successful bite attack, the creature makes a constitution save (8 + Constitution modifier + proficiency bonus). Upon a failed save, the creature takes an additional 2d6 necrotic damage and the dragonborn regains one half of the total necrotic damage.  Half-damage upon a successful save. Whether touching a willing creature or attacking a foe, the effect increases to 3d6 at 6<sup>th</sup> level, 4d6 at 11<sup>th</sup> level, and 5d6 at 16<sup>th</sup> level.  After using Kiss of the Deep, it can’t be used again until after completing a short or long rest.</p>
+        `;
+        const kissAttackInfo = character.getAttackInfo({
+            attackAbility: "constitution",
+            saveAbility: "constitution",
             target: "dc",
-            relevantAbility: { name: "constitution", title: "Constitution" },
-            applyAbilityModifier: true,
-            applyProficiencyModifier: true
+            damageDice: `2d6`,
+            damageType: "necrotic"
         });
-        const dcModifiers = dcModifiersList
-            .map(m => m.value)
-            .reduce((a, b) => a + b, 0);
-        const dc = 8 + Number(dcModifiers);
-        tempFeatures.push({
-            name: "dragonborn-sea-drakken-kiss-of-the-deep",
-            title: "Kiss of the Deep",
-            html: `
-                <p>Upon touching a willing creature, the creature gains ${damageDice}d6 hit points and the dragonborn loses hit points equal to one half of the total.</p>
-                <p>Alternatively, after a successful bite attack, the creature makes a constitution save (DC ${dc}). Upon a failed save, the creature takes an additional ${damageDice}d6 necrotic damage and the dragonborn regains one half of the total necrotic damage.  Half-damage upon a successful save. </p>
-                <p>After using Kiss of the Deep, it can’t be used again until after completing a short or long rest.</p>
-                `,
-            useInfo: {
-                reset: "short-rest",
-                uses: 1
-            },
-            source: {
-                name: "sub-race",
-                title: DragonbornSeaDrakken.title
-            },
-            displayType: "feature-card"
-        });
+        const kissFeature = character.getFeatureCard(
+            `${DragonbornSeaDrakken.name}-kiss-of-the-deep`, "Kiss of the Deep", kissHtml, DragonbornSeaDrakken.title, kissAttackInfo);
+        kissFeature.useInfo = {
+            reset: "short-rest",
+            uses: 1
+        };
+        tempFeatures.push(kissFeature);
 
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = "subRace";
-            feature.sourcePropertyValue = DragonbornSeaDrakken.name
+            feature.sourcePropertyValue = DragonbornSeaDrakken.name;
+            feature.cardSource = DragonbornSeaDrakken.title;
             features.push(feature);
         }
     }

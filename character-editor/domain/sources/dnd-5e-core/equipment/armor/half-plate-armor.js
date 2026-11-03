@@ -1,21 +1,14 @@
 
+import { DnD5ESource } from "../../dnd-5e-core-source.js";
+
 export class HalfPlateArmor {
 
-    static get name() {
-        return "half-plate-armor";
-    }
-
-    static get title() {
-        return "Half plate";
-    }
-
-    static get category() {
-        return "armor";
-    }
-
-    static get armorType() {
-        return "medium-armor";
-    }
+    static get name() { return "half-plate-armor"; }
+    static get title() { return "Half plate"; }
+    static get category() { return "armor"; }
+    static get canBeEquipped() { return true; }
+    static get html() { return ""; }
+    static get armorType() { return "medium-armor"; }
 
     static get properties() {
         return [
@@ -31,14 +24,6 @@ export class HalfPlateArmor {
             "Armor Class: 15 + Dex modifier (max 2)",
             "Stealth: Disadvantage"
         ];
-    }
-
-    static get canBeEquipped() {
-        return true;
-    }
-
-    static get html() {
-        return "";
     }
 
     static getSelections(character, inventoryIndex) {

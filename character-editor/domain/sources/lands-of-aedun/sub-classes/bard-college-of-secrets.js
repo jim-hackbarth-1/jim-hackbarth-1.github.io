@@ -21,7 +21,7 @@ export class BardCollegeOfSecrets {
         const selections = [];
         const level = Number(character.classes.find(c => c.value == "bard").level);
         if (level >= 6) {
-            selections.push(character.selectionUtilities.getSelection(
+            selections.push(character.getSelection(
                 character.selections,
                 `${BardCollegeOfSecrets.name}-languages`,
                 `${BardCollegeOfSecrets.title} - Languages`,
@@ -39,7 +39,7 @@ export class BardCollegeOfSecrets {
             const selectedElsewhere = character.modifiers
                 .filter(m => m.target == "language" && !selectedValues.some(sv => sv.value == m.value?.value))
                 .map(m => m.value);
-            options = character.selectionUtilities.getSelectionOptions(
+            options = character.getSelectionOptions(
                 languages, selectedValues, selectedElsewhere, `${BardCollegeOfSecrets.title} - Languages (choose 3) ...`);
         }
         return options;
@@ -83,14 +83,16 @@ export class BardCollegeOfSecrets {
         }
         const languages = character.selections.find(s => s.name == `${BardCollegeOfSecrets.name}-languages`)?.values ?? [];
         for (const language of languages) {
-            modifiers.push({
-                name: `${BardCollegeOfSecrets.name}-language-${language.value}`,
-                title: "Language",
-                value: language,
-                target: "language",
-                
-                title: BardCollegeOfSecrets.title
-            });
+            if (language?.value) {
+                modifiers.push({
+                    name: `${BardCollegeOfSecrets.name}-language-${language.value}`,
+                    title: "Language",
+                    value: language,
+                    target: "language",
+
+                    title: BardCollegeOfSecrets.title
+                });
+            }
         }
         for (const modifier of modifiers) {
             if (targetFilters.includeTarget(modifier.target)) {
@@ -104,83 +106,57 @@ export class BardCollegeOfSecrets {
     static applyFeatures(features, character, classIndex) {
         const tempFeatures = [];
         const level = Number(character.classes.find(c => c.value == "bard").level);
+
         if (level >= 3) {
+
             // tradecraft
-            tempFeatures.push({
-                name: `${BardCollegeOfSecrets.name}-tradecraft`,
-                title: "Tradecraft",
-                html: `
-                    <p>You gain the following benefits:</p>
-                    <p>
-                        <ul>
-                            <li>The ability to read lips</li>
-                            <li>+5 bonus to Perception and Insight checks</li>
-                            <li>You can create written cyphers. Others can’t decipher a coded message you create unless you teach them, or magic is used to decipher the text.</li>
-                        </ul>
-                    </p>
-                    `,
-                source: {
-                    name: "sub-class",
-                    title: BardCollegeOfSecrets.title
-                },
-                displayType: "feature-card"
-            });
+            const tradecraftHtml = `
+                <p>You gain the following benefits:</p>
+                <p>
+                    <ul>
+                        <li>The ability to read lips</li>
+                        <li>+5 bonus to Perception and Insight checks</li>
+                        <li>You can create written cyphers. Others can’t decipher a coded message you create unless you teach them, or magic is used to decipher the text.</li>
+                    </ul>
+                </p>
+            `;
+            tempFeatures.push(character.getFeatureCard(`${BardCollegeOfSecrets.name}-tradecraft`, "Tradecraft", tradecraftHtml));
 
             // inspiring word
-            tempFeatures.push({
-                name: `${BardCollegeOfSecrets.name}-inspiring-word`,
-                title: "Inspiring word",
-                html: `
-                    <p>You gain the ability to use your wit, insight, and magic to inspire confidence and competence in others.  When a creature within 60 feet, that can hear and understand you, makes an attack roll, an ability check, or a damage roll, you can use your reaction to expend one of your uses of Bardic Inspirations, rolling a Bardic Inspiration die and adding the number rolled to the creature’s roll.  This feature can be used after the roll but before the DM has determined whether the attack roll or ability check has succeeded.</p>
-                    `,
-                source: {
-                    name: "sub-class",
-                    title: BardCollegeOfSecrets.title
-                },
-                displayType: "feature-card"
-            });
+            const inspiringWordHtml = `
+                <p>You gain the ability to use your wit, insight, and magic to inspire confidence and competence in others.  When a creature within 60 feet, that can hear and understand you, makes an attack roll, an ability check, or a damage roll, you can use your reaction to expend one of your uses of Bardic Inspirations, rolling a Bardic Inspiration die and adding the number rolled to the creature’s roll.  This feature can be used after the roll but before the DM has determined whether the attack roll or ability check has succeeded.</p>
+            `;
+            tempFeatures.push(character.getFeatureCard(`${BardCollegeOfSecrets.name}-inspiring-word`, "Inspiring word", inspiringWordHtml));
+
         }
+
+        //spycraft
         if (level >= 6) {
-            //spycraft
-            tempFeatures.push({
-                name: `${BardCollegeOfSecrets.name}-spycraft`,
-                title: "Spycraft",
-                html: `
-                    <p>You gain the following additional abilities:</p>
-                    <p>
-                        <ul>
-                            <li>You learn 3 languages of your choice</li>
-                            <li>+5 bonus to Deception and Performance checks</li>
-                            <li>You can mimic the speech of another person, or the sounds made by other creatures. You must have heard the person speaking for at least one minute.  A successful Insight check contested by your Deception check allows a listener to identify the deception.</li>
-                        </ul>
-                    </p>
-                    `,
-                source: {
-                    name: "sub-class",
-                    title: BardCollegeOfSecrets.title
-                },
-                displayType: "feature-card"
-            });
+            const spycraftHtml = `
+                <p>You gain the following additional abilities:</p>
+                <p>
+                    <ul>
+                        <li>You learn 3 languages of your choice</li>
+                        <li>+5 bonus to Deception and Performance checks</li>
+                        <li>You can mimic the speech of another person, or the sounds made by other creatures. You must have heard the person speaking for at least one minute.  A successful Insight check contested by your Deception check allows a listener to identify the deception.</li>
+                    </ul>
+                </p>
+            `;
+            tempFeatures.push(character.getFeatureCard(`${BardCollegeOfSecrets.name}-spycraft`, "Spycraft", spycraftHtml));
         }
+
+        //Vicious riposte
         if (level >= 14) {
-            //Vicious riposte
-            tempFeatures.push({
-                name: `${BardCollegeOfSecrets.name}-vicious-riposte`,
-                title: "Vicious riposte",
-                html: `
-                    <p>When you are targeted by a melee attack you can use your reaction to cast the Vicious Mockery cantrip targeting the attacker.</p>
-                    `,
-                source: {
-                    name: "sub-class",
-                    title: BardCollegeOfSecrets.title
-                },
-                displayType: "feature-card"
-            });
+            const riposteHtml = `
+                <p>When you are targeted by a melee attack you can use your reaction to cast the Vicious Mockery cantrip targeting the attacker.</p>
+            `;
+            tempFeatures.push(character.getFeatureCard(`${BardCollegeOfSecrets.name}-vicious-riposte`, "Vicious riposte", riposteHtml));
         }
 
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `subClass-${classIndex}`;
-            feature.sourcePropertyValue = BardCollegeOfSecrets.name
+            feature.sourcePropertyValue = BardCollegeOfSecrets.name;
+            feature.cardSource = BardCollegeOfSecrets.title;
             features.push(feature);
         }
     }

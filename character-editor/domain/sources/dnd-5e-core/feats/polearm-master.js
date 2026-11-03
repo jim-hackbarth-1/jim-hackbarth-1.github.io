@@ -1,34 +1,12 @@
 
+import { DnD5ESource } from "../dnd-5e-core-source.js"
+
 export class PolearmMaster {
 
-    static get name() {
-        return "polearm-master";
-    }
-
-    static get title() {
-        return "Polearm Master";
-    }
-
-    static get html() {
-        return `
-        <div class="dnd-5e-content">
-            <link rel="stylesheet" type="text/css" href="./domain/sources/dnd-5e-core/dnd-5e-core.css">
-            <h3>Polearm Master</h3>
-            <hr/>
-            <div class="content">
-                <p>You gain the following benefits:</p>
-                <ul>
-                    <li>When you take the Attack action and attack with only a glaive, halberd, quarterstaff, or spear, you can use a bonus action to make a melee attack with the opposite end of the weapon. This attack uses the same ability modifier as the primary attack. The weapon's damage die for this attack is a d4, and it deals bludgeoning damage.</li>
-                    <li>While you are wielding a glaive, halberd, pike, quarterstaff, or spear, other creatures provoke an opportunity attack from you when they enter the reach you have with that weapon.</li>
-                </ul>
-            </div>
-        </div>
-        `;
-    }
-
-    static get canBeTakenMultipleTimes() {
-        return false;
-    }
+    static get name() { return "polearm-master"; }
+    static get title() { return "Polearm Master"; }
+    static get canBeTakenMultipleTimes() { return false; }
+    static get html() { return DnD5ESource.getFeatHtml(PolearmMaster, PolearmMaster.#content); }
 
     static checkPrerequisites(character) {
         return { prerequisitesMet: true, text: null };
@@ -49,41 +27,26 @@ export class PolearmMaster {
     static applyFeatures(features, character, classIndex, level) {
         const tempFeatures = [];
         const polearms = ["glaive", "halberd", "quarterstaff", "spear"];
-        const polearmIndex = character.equipment.findIndex(e =>
+        const polearm = character.equipment.find(e =>
             e.isEquipped
             && e.properties
             && e.properties.some(p => p.name == "weapon-name" && polearms.includes(p.value)));
-        if (polearmIndex > -1) {
-            const properties = character.equipment[polearmIndex].properties ?? [];
-            const weaponName = properties.find(p => p.name == "weapon-name")?.value;
-            let reach = (weaponName == "glaive" || weaponName == "halberd") ? 5 : null;
-            const attackCard = character.getAttackCard({
-                name: "polearm-master-bonus-attack",
-                title: "Polearm master bonus attack",
-                inventoryIndex: polearmIndex,
-                damageDieSize: 4,
-                damageType: "bludgeoning",
-                reach: reach,
-                notes: ["Bonus action"]
-            });
-            tempFeatures.push(attackCard);
+        if (polearm) {
+            const polearmTitle = polearm.properties.find(p => p.name == "weapon-title")?.value ?? "Polearm";
+            const haft = {
+                name: `${PolearmMaster.name}-bonus-attack`,
+                title: `${polearmTitle} - bonus attack`,
+                properties: [
+                    { name: "weapon-name", value: `${PolearmMaster.name}-bonus-attack` },
+                    { name: "damage-dice", value: "1d4" },
+                    { name: "damage-type", value: "bludgeoning" }
+                ]
+            };
+            const haftCard = character.getWeaponAttackCard(-1, haft);
+            haftCard.attacks[0].notes.push("Bonus action")
+            tempFeatures.push(haftCard);
         }
-        tempFeatures.push({
-            name: PolearmMaster.name,
-            title: PolearmMaster.title,
-            html: `
-                <p>You gain the following benefits:</p>
-                <ul>
-                    <li>When you take the Attack action and attack with only a glaive, halberd, quarterstaff, or spear, you can use a bonus action to make a melee attack with the opposite end of the weapon. This attack uses the same ability modifier as the primary attack. The weapon's damage die for this attack is a d4, and it deals bludgeoning damage.</li>
-                    <li>While you are wielding a glaive, halberd, pike, quarterstaff, or spear, other creatures provoke an opportunity attack from you when they enter the reach you have with that weapon.</li>
-                </ul>
-            `,
-            source: {
-                name: "feat",
-                title: PolearmMaster.title
-            },
-            displayType: "feature-card"
-        });
+        tempFeatures.push(character.getFeatureCard(PolearmMaster.name, PolearmMaster.title, PolearmMaster.#content));
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `class-${classIndex}-level-${level}-feat`;
             feature.sourcePropertyValue = PolearmMaster.name
@@ -94,5 +57,13 @@ export class PolearmMaster {
     static applySpells(spells, character, classIndex, level) {
 
     }
+
+    static #content = `
+        <p>You gain the following benefits:</p>
+        <ul>
+            <li>When you take the Attack action and attack with only a glaive, halberd, quarterstaff, or spear, you can use a bonus action to make a melee attack with the opposite end of the weapon. This attack uses the same ability modifier as the primary attack. The weapon's damage die for this attack is a d4, and it deals bludgeoning damage.</li>
+            <li>While you are wielding a glaive, halberd, pike, quarterstaff, or spear, other creatures provoke an opportunity attack from you when they enter the reach you have with that weapon.</li>
+        </ul>
+    `;
 
 }

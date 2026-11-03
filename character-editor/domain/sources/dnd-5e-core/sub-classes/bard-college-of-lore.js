@@ -21,7 +21,7 @@ export class BardCollegeOfLore {
         const selections = [];
         const level = Number(character.classes.find(c => c.value == "bard").level);
         if (level >= 3) {
-            selections.push(character.selectionUtilities.getSelection(
+            selections.push(character.getSelection(
                 character.selections,
                 `${BardCollegeOfLore.name}-skill-proficiencies`,
                 `${BardCollegeOfLore.title} - Skill proficiencies`,
@@ -68,7 +68,7 @@ export class BardCollegeOfLore {
             const selectedElsewhere = character.modifiers
                 .filter(m => m.target == "skill-proficiency" && !selectedValues.some(sv => sv.value == m.value?.value))
                 .map(m => m.value);
-            options = character.selectionUtilities.getSelectionOptions(
+            options = character.getSelectionOptions(
                 skills, selectedValues, selectedElsewhere, `${BardCollegeOfLore.title} - Skill proficiencies (choose 3)...`);
             for (const option of options) {
                 option.noteText = option.data;
@@ -114,12 +114,14 @@ export class BardCollegeOfLore {
 
         const skillProficiencies = character.selections.find(s => s.name == `${BardCollegeOfLore.name}-skill-proficiencies`)?.values ?? [];
         for (const skillProficiency of skillProficiencies) {
-            modifiers.push({
-                name: `${BardCollegeOfLore.name}-skill-proficiency-${skillProficiency.value}`,
-                title: "Skill proficiency",
-                value: skillProficiency.value,
-                target: "skill-proficiency"
-            });
+            if (skillProficiency?.value) {
+                modifiers.push({
+                    name: `${BardCollegeOfLore.name}-skill-proficiency-${skillProficiency.value}`,
+                    title: "Skill proficiency",
+                    value: skillProficiency.value,
+                    target: "skill-proficiency"
+                });
+            }
         }
         for (const modifier of modifiers) {
             if (targetFilters.includeTarget(modifier.target)) {
@@ -133,55 +135,36 @@ export class BardCollegeOfLore {
     static applyFeatures(features, character, classIndex) {
         const tempFeatures = [];
         const level = Number(character.classes.find(c => c.value == "bard").level);
+
+        // Cutting Words
         if (level >= 3) {
-            // Cutting Words
-            tempFeatures.push({
-                name: `${BardCollegeOfLore.name}-cutting-words`,
-                title: "Cutting words",
-                html: `
-                    <p>You learn how to use your wit to distract, confuse, and otherwise sap the confidence and competence of others. When a creature that you can see within 60 feet of you makes an attack roll, an ability check, or a damage roll, you can use your reaction to expend one of your uses of Bardic Inspiration, rolling a Bardic Inspiration die and subtracting the number rolled from the creature's roll. You can choose to use this feature after the creature makes its roll, but before the DM determines whether the attack roll or ability check succeeds or fails, or before the creature deals its damage. The creature is immune if it can't hear you or if it's immune to being charmed.</p>
-                    `,
-                source: {
-                    name: "sub-class",
-                    title: BardCollegeOfLore.title
-                },
-                displayType: "feature-card"
-            });
+            const cuttingWordHtml = `
+                <p>You learn how to use your wit to distract, confuse, and otherwise sap the confidence and competence of others. When a creature that you can see within 60 feet of you makes an attack roll, an ability check, or a damage roll, you can use your reaction to expend one of your uses of Bardic Inspiration, rolling a Bardic Inspiration die and subtracting the number rolled from the creature's roll. You can choose to use this feature after the creature makes its roll, but before the DM determines whether the attack roll or ability check succeeds or fails, or before the creature deals its damage. The creature is immune if it can't hear you or if it's immune to being charmed.</p>
+            `;
+            tempFeatures.push(character.getFeatureCard(`${BardCollegeOfLore.name}-cutting-words`, "Cutting words", cuttingWordHtml));
         }
+
+        //Additional Magical Secrets
         if (level >= 6) {
-            //Additional Magical Secrets
-            tempFeatures.push({
-                name: `${BardCollegeOfLore.name}-additional-magical-secrets`,
-                title: "Additional magical secrets",
-                html: `
-                    <p>You learn two spells of your choice from any class. A spell you choose must be of a level you can cast, as shown on the Bard table, or a cantrip. The chosen spells count as bard spells for you but don't count against the number of bard spells you know.</p>
-                    `,
-                source: {
-                    name: "sub-class",
-                    title: BardCollegeOfLore.title
-                },
-                displayType: "feature-card"
-            });
+            const additionalMagicalSecretsHtml = `
+                <p>You learn two spells of your choice from any class. A spell you choose must be of a level you can cast, as shown on the Bard table, or a cantrip. The chosen spells count as bard spells for you but don't count against the number of bard spells you know.</p>
+            `;
+            tempFeatures.push(character.getFeatureCard(
+                `${BardCollegeOfLore.name}-additional-magical-secrets`, "Additional magical secrets", additionalMagicalSecretsHtml));
         }
+
+        //Peerless Skill
         if (level >= 14) {
-            //Peerless Skill
-            tempFeatures.push({
-                name: `${BardCollegeOfLore.name}-peerless-skill`,
-                title: "Peerless skill",
-                html: `
-                    <p>When you make an ability check, you can expend one use of Bardic Inspiration. Roll a Bardic Inspiration die and add the number rolled to your ability check. You can choose to do so after you roll the die for the ability check, but before the DM tells you whether you succeed or fail.</p>
-                    `,
-                source: {
-                    name: "sub-class",
-                    title: BardCollegeOfLore.title
-                },
-                displayType: "feature-card"
-            });
+            const peerlessSkillHtml = `
+                <p>When you make an ability check, you can expend one use of Bardic Inspiration. Roll a Bardic Inspiration die and add the number rolled to your ability check. You can choose to do so after you roll the die for the ability check, but before the DM tells you whether you succeed or fail.</p>
+            `;
+            tempFeatures.push(character.getFeatureCard(`${BardCollegeOfLore.name}-peerless-skill`, "Peerless skill", peerlessSkillHtml));
         }
 
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `subClass-${classIndex}`;
-            feature.sourcePropertyValue = BardCollegeOfLore.name
+            feature.sourcePropertyValue = BardCollegeOfLore.name;
+            feature.cardSource = BardCollegeOfLore.title;
             features.push(feature);
         }
     }
@@ -211,7 +194,13 @@ export class BardCollegeOfLore {
                 if (!spellLevel.spells) {
                     spellLevel.spells = [];
                 }
-                spellLevel.spells.push({ title: spell.title, alwaysPrepared: true });
+                let foundSpell = spellLevel.spells.find(s => s.title == spell.title);
+                if (foundSpell) {
+                    foundSpell.alwaysPrepared = true;
+                }
+                else {
+                    spellLevel.spells.push({ title: spell.title, alwaysPrepared: true });
+                }
             }
         }
         return classSpellCastingInfo;

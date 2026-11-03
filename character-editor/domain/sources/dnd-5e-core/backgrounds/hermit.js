@@ -72,7 +72,7 @@ export class Hermit {
 
     static getSelections(character) {
         const selections = [];
-        selections.push(character.selectionUtilities.getSelection(
+        selections.push(character.getSelection(
             character.selections, `${Hermit.name}-language`, "Language", 1, [{ name: "languages" }]));
         return selections;
     }
@@ -85,7 +85,7 @@ export class Hermit {
             const selectedElsewhere = character.modifiers
                 .filter(m => m.target == "language" && !selectedValues.some(sv => sv.value == m.value?.value))
                 .map(m => m.value);
-            options = character.selectionUtilities.getSelectionOptions(
+            options = character.getSelectionOptions(
                 languages, selectedValues, selectedElsewhere, "Language (choose 1) ...");
         }
         return options;
@@ -117,9 +117,9 @@ export class Hermit {
         if (languages.length > 0) {
             language = languages[0];
         }
-        if (language) {
+        if (language?.value) {
             modifiers.push({
-                name: `hermit-language-${language}`,
+                name: `hermit-language-${language.value}`,
                 title: "Language",
                 value: language,
                 target: "language"
@@ -138,19 +138,16 @@ export class Hermit {
 
     static applyFeatures(features, character) {
         const tempFeatures = [];
-        tempFeatures.push({
-            name: "hermit-discovery",
-            title: "Discovery",
-            html: "<p>The quiet seclusion of your extended hermitage gave you access to a unique and powerful discovery. The exact nature of this revelation depends on the nature of your seclusion. It might be a great truth about the cosmos, the deities, the powerful beings of the outer planes, or the forces of nature. It could be a site that no one else has ever seen. You might have uncovered a fact that has long been forgotten, or unearthed some relic of the past that could rewrite history. It might be information that would be damaging to the people who or consigned you to exile, and hence the reason for your return to society.</p>",
-            source: {
-                name: "background",
-                title: Hermit.title
-            },
-            displayType: "feature-card",
-        });
+        const discoveryHtml = `
+            <p>
+                The quiet seclusion of your extended hermitage gave you access to a unique and powerful discovery. The exact nature of this revelation depends on the nature of your seclusion. It might be a great truth about the cosmos, the deities, the powerful beings of the outer planes, or the forces of nature. It could be a site that no one else has ever seen. You might have uncovered a fact that has long been forgotten, or unearthed some relic of the past that could rewrite history. It might be information that would be damaging to the people who or consigned you to exile, and hence the reason for your return to society.
+            </p>
+        `;
+        tempFeatures.push(character.getFeatureCard(`${Hermit.name}-discovery`, "Discovery", discoveryHtml));
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = "background";
-            feature.sourcePropertyValue = Hermit.name
+            feature.sourcePropertyValue = Hermit.name;
+            feature.cardSource = Hermit.title;
             features.push(feature);
         }
     }

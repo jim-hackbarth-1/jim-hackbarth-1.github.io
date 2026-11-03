@@ -23,7 +23,7 @@ export class SelectionUtilities {
         let options = [];
         for (const sourceItem of sourceItems) {
             const isSelected = selectedValues.some(sv => sv.value == sourceItem.name);
-            const isDisabled = sourceItemsSelectedElsewhere.some(sise => sise.value == sourceItem.name);
+            const isDisabled = sourceItemsSelectedElsewhere.some(sise => sise == sourceItem.name || sise.value == sourceItem.name);
             const disabledReason = isDisabled ? `Disabled: ${sourceItem.title} granted by other feature` : "";
             options.push({
                 value: sourceItem.name,
@@ -42,34 +42,33 @@ export class SelectionUtilities {
         return options;
     }
 
-    getSpellSelection(character, level, classIndex, cantripCount, spellCount) {
+    getSpellSelection(character, level, classIndex, cantripCount, spellCount, canReplace) {
         const className = character.classes[classIndex].value;
-        const canReplace = (level > 1);
         let selectionName = null;
         let alertMessage = null;
         const spellSelectionInfo = this.getSpellSelectionInfo(character, className);
 
         let cantrips = null;
         if (cantripCount > 0) {
-            cantrips = character.selectionUtilities.getSelection(
+            cantrips = this.getSelection(
                 character.selections, `${className}-level-${level}-cantrips`, "Cantrips", cantripCount, [{ name: "spells" }]);
         }
         let spells = null;
         if (spellCount > 0) {
             selectionName = `${className}-level-${level}-spells`;
             alertMessage = SelectionUtilities.#getReplacedSpellAlertMessage(character, selectionName, spellSelectionInfo);
-            spells = character.selectionUtilities.getSelection(
+            spells = this.getSelection(
                 character.selections, selectionName, "Spells", spellCount, [{ name: "spells" }], alertMessage ? true : false, alertMessage);
         }
         let replacedSpell = null;
-        if (canReplace) {
+        if (canReplace && level > 1) {
             selectionName = `${className}-level-${level}-replaced-spell`;
             alertMessage = SelectionUtilities.#getReplacedSpellAlertMessage(character, selectionName, spellSelectionInfo);
-            replacedSpell = character.selectionUtilities.getSelection(
+            replacedSpell = this.getSelection(
                 character.selections, selectionName, "Replaced spell", 1, [{ name: "spells" }], alertMessage ? true : false, alertMessage, true);
         }
         let replacementSpell = null;
-        if (canReplace) {
+        if (canReplace && level > 1) {
             let hasReplacedSelection = false;
             let replacedSelections = character.selections.find(s => s.name == `${className}-level-${level}-replaced-spell`)?.values ?? [];
             if (replacedSelections.length == 1 && replacedSelections[0].value) {
@@ -82,7 +81,7 @@ export class SelectionUtilities {
             else {
                 alertMessage = "Locked: Replaced spell selection required";
             }
-            replacementSpell = character.selectionUtilities.getSelection(
+            replacementSpell = this.getSelection(
                 character.selections, selectionName, "Replacement spell", 1, [{ name: "spells" }], alertMessage ? true : false, alertMessage, true);
         }
         return {

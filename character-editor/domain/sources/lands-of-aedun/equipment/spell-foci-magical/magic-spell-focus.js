@@ -1,17 +1,13 @@
 
+import { LandsOfAedunSource } from "../../lands-of-aedun-source.js";
+
 export class MagicSpellFocus {
 
-    static get name() {
-        return "magic-spell-focus";
-    }
-
-    static get title() {
-        return "Magic Spell Focus";
-    }
-
-    static get category() {
-        return "spell-foci-magical";
-    }
+    static get name() { return "magic-spell-focus"; }
+    static get title() { return "Magic Spell Focus"; }
+    static get category() { return "spell-foci-magical"; }
+    static get canBeEquipped() { return true; }
+    static get html() { return ""; }
 
     static get properties() {
         return [];
@@ -21,8 +17,41 @@ export class MagicSpellFocus {
         return [];
     }
 
-    static get canBeEquipped() {
-        return true;
+    static getSelections(character, inventoryIndex) {
+        const selections = [];
+        const item = character.equipment[inventoryIndex];
+        selections.push(character.getSelection(
+            item.selections, `spell-focus`, "Spell Focus", 1, [{ name: "spell-foci" }, { name: "tools" }]));
+        selections.push(character.getSelection(item.selections, `bonus`, "Bonus", 1));
+        return selections;
+    }
+
+    static getSelectionOptions(character, inventoryIndex, selectionName, sources) {
+        let options = [];
+        const item = character.equipment[inventoryIndex];
+        if (selectionName == "spell-focus") {
+            const spellFoci = [...sources.find(s => s.name == "spell-foci").options];
+            const tools = [...sources.find(s => s.name == "tools").options];
+            for (const tool of tools) {
+                if (tool.properties.some(p => p.name == "musical-instrument")) {
+                    spellFoci.push(tool);
+                }
+            }
+            const selectedValues = item.selections.find(s => s.name == selectionName)?.values ?? [];
+            options = character.getSelectionOptions(
+                spellFoci, selectedValues, [], "Spell Focus (choose 1) ...");
+        }
+        if (selectionName == "bonus") {
+            const bonuses = [
+                { name: "plus-one-bonus", title: "+1" },
+                { name: "plus-two-bonus", title: "+2" },
+                { name: "plus-three-bonus", title: "+3" }
+            ];
+            const selectedValues = item.selections.find(s => s.name == selectionName)?.values ?? [];
+            options = character.getSelectionOptions(
+                bonuses, selectedValues, [], "Bonus (choose 1) ...");
+        }
+        return options;
     }
 
     static equip(character, inventoryIndex, allEquipment) {
@@ -46,47 +75,6 @@ export class MagicSpellFocus {
         item.properties.push({ name: "title", value: `${bonusLabel} ${arcaneFocusTitle}`.trim() });
 
         item.isEquipped = true;
-    }
-
-    static get html() {
-        return "";
-    }
-
-    static getSelections(character, inventoryIndex) {
-        const selections = [];
-        const item = character.equipment[inventoryIndex];
-        selections.push(character.selectionUtilities.getSelection(
-            item.selections, `spell-focus`, "Spell Focus", 1, [{ name: "spell-foci" }, { name: "tools" }]));
-        selections.push(character.selectionUtilities.getSelection(item.selections, `bonus`, "Bonus", 1));
-        return selections;
-    }
-
-    static getSelectionOptions(character, inventoryIndex, selectionName, sources) {
-        let options = [];
-        const item = character.equipment[inventoryIndex];
-        if (selectionName == "spell-focus") {
-            const spellFoci = [...sources.find(s => s.name == "spell-foci").options];
-            const tools = [...sources.find(s => s.name == "tools").options];
-            for (const tool of tools) {
-                if (tool.properties.some(p => p.name == "musical-instrument")) {
-                    spellFoci.push(tool);
-                }
-            }
-            const selectedValues = item.selections.find(s => s.name == selectionName)?.values ?? [];
-            options = character.selectionUtilities.getSelectionOptions(
-                spellFoci, selectedValues, [], "Spell Focus (choose 1) ...");
-        }
-        if (selectionName == "bonus") {
-            const bonuses = [
-                { name: "plus-one-bonus", title: "+1" },
-                { name: "plus-two-bonus", title: "+2" },
-                { name: "plus-three-bonus", title: "+3" }
-            ];
-            const selectedValues = item.selections.find(s => s.name == selectionName)?.values ?? [];
-            options = character.selectionUtilities.getSelectionOptions(
-                bonuses, selectedValues, [], "Bonus (choose 1) ...");
-        }
-        return options;
     }
 
     static applyModifiers(character, inventoryIndex, targetFilters) {

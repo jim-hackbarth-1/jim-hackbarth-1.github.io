@@ -1,21 +1,14 @@
 
+import { DnD5ESource } from "../../dnd-5e-core-source.js";
+
 export class Shield {
 
-    static get name() {
-        return "shield";
-    }
-
-    static get title() {
-        return "Shield";
-    }
-
-    static get category() {
-        return "armor";
-    }
-
-    static get armorType() {
-        return "shield";
-    }
+    static get name() { return "shield"; }
+    static get title() { return "Shield"; }
+    static get category() { return "armor"; }
+    static get canBeEquipped() { return true; }
+    static get html() { return ""; }
+    static get armorType() { return "shield"; }
 
     static get properties() {
         return [
@@ -27,14 +20,6 @@ export class Shield {
 
     static get displayProperties() {
         return ["Cost: 10gp", "Armor Class: +2"];
-    }
-
-    static get canBeEquipped() {
-        return true;
-    }
-
-    static get html() {
-        return "";
     }
 
     static getSelections(character, inventoryIndex) {

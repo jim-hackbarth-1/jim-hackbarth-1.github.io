@@ -1,7 +1,6 @@
 
 .dnd-5e-content {
     white-space: wrap;
-    border:1px solid black;
     margin:0;
     padding:5px;
 }
@@ -19,6 +18,11 @@
 
 .dnd-5e-content .content {
     margin-bottom: 10px;
+}
+
+.dnd-5e-content .spell-content,
+.dnd-5e-content .equipment-content {
+    margin-top: 10px;
 }
 
 .dnd-5e-content .portrait {
@@ -78,7 +82,9 @@
 }
 
 .dnd-5e-content .spell-properties {
-    font-style:italic;
+    font-style: italic;
+    color: darkred;
+    font-size: small;
 }
 
 @container (width > 650px) {

@@ -23,7 +23,7 @@ export class Dragonborn {
 
     static getSelections(character) { 
         const selections = [];
-        selections.push(character.selectionUtilities.getSelection(
+        selections.push(character.getSelection(
             character.selections, `${Dragonborn.name}-draconic-ancestry`, "Draconic Ancestry", 1));
         return selections;
     }
@@ -33,7 +33,7 @@ export class Dragonborn {
         if (selectionName == "dragonborn-draconic-ancestry") {
             const draconicAncestries = [...Dragonborn.#draconicAncestries];
             const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            options = character.selectionUtilities.getSelectionOptions(
+            options = character.getSelectionOptions(
                 draconicAncestries, selectedValues, [], "Draconic Ancestry (choose 1) ...");
         }
         return options;
@@ -84,28 +84,36 @@ export class Dragonborn {
         }
         if (draconicAncestry) {
             const breathWeaponDamageAndResistanceType = Dragonborn.#getBreathWeaponAndResistanceType(draconicAncestry);
-            tempFeatures.push({
-                name: "draconic-ancestry",
-                title: "Draconic Ancestry",
-                html: `
-                    <ul>
-                        <li>Draconic Ancestry: ${draconicAncestry.text}</li>
-                        <li>Damage resistance: ${breathWeaponDamageAndResistanceType}</li>
-                    </ul>
-                    `,
-                source: {
-                    name: "race",
-                    title: Dragonborn.title
-                },
-                displayType: "feature-card"
-            });
+
+            // draconic ancestry
+            const draconicAncestryHtml = `
+                <ul>
+                    <li>Draconic Ancestry: ${draconicAncestry.text}</li>
+                    <li>Damage resistance: ${breathWeaponDamageAndResistanceType}</li>
+                </ul>
+            `;
+            tempFeatures.push(
+                character.getFeatureCard(`${Dragonborn.name}-draconic-ancestry`, "Draconic Ancestry", draconicAncestryHtml));
+
+            // breath weapon
             const breathWeaponFeature = Dragonborn.#getBreathWeaponFeature(
                 character, draconicAncestry, breathWeaponDamageAndResistanceType);
             tempFeatures.push(breathWeaponFeature);
+
+            // damage resistance
+            const damageResistanceHtml = `
+                <p>
+                    <b>Damage Resistance</b>
+                    You have resistance to ${breathWeaponDamageAndResistanceType} damage.
+                </p>
+            `;
+            tempFeatures.push(character.getFeatureCard(
+                `${Dragonborn.name}-damage-resistance`, "Damage Resistance", damageResistanceHtml));
         }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = "race";
-            feature.sourcePropertyValue = Dragonborn.name
+            feature.sourcePropertyValue = Dragonborn.name;
+            feature.cardSource = Dragonborn.title;
             features.push(feature);
         }
     }
@@ -164,10 +172,10 @@ export class Dragonborn {
         return breathWeaponDamageAndResistanceType;
     }
 
-    static #getBreathWeaponFeature(character, draconicAncestry, breathWeaponDamageAndResistanceType) {
-        const dcAbility = (["green", "silver", "white"].includes(draconicAncestry.value))
-            ? { name: "constitution", title: "Constitution" }
-            : { name: "dexterity", title: "Dexterity" };
+    static #getBreathWeaponFeature(character, draconicAncestry, damageType) {
+        const saveAbility = (["green", "silver", "white"].includes(draconicAncestry.value))
+            ? "constitution"
+            : "dexterity";
         let damageDice = 2;
         if (character.level > 5) {
             damageDice = 3;
@@ -180,32 +188,23 @@ export class Dragonborn {
         }
         const areaOfEffect = (["gold", "green", "red", "silver", "white"]
             .includes(draconicAncestry.name)) ? "15 ft cone" : "5 by 30 ft line";
-        const attackCard = character.getAttackCard({
-            name: "dragonborn-breath-weapon",
-            title: "Breath Weapon",
-            hasSavingThrow: true,
-            relevantAbility: dcAbility,
-            applyAbilityModifierForDamage: false,
-            damageDice: [{ number: damageDice, size: 6 }],
-            damageType: breathWeaponDamageAndResistanceType,
-            target: areaOfEffect,
-            notes: ["Half damage on save.", "Use again after a short or long rest."]
+        const breathWeaponHtml = `
+            <p>
+                <b>Breath Weapon</b>
+                You can use your action to exhale destructive energy. Your draconic ancestry determines the size, shape, and damage type of the exhalation. When you use your breath weapon, each creature in the area of the exhalation must make a saving throw, the type of which is determined by your draconic ancestry. The DC for this saving throw equals 8 + your Constitution modifier + your proficiency bonus. A creature takes 2d6 damage on a failed save, and half as much damage on a successful one. The damage increases to 3d6 at 6<sup>th</sup> level, 4d6 at 11<sup>th</sup> level, and 5d6 at 16<sup>th</sup> level. After you use your breath weapon, you can’t use it again until you complete a short or long rest.
+            </p>
+        `;
+        const attackInfo = character.getAttackInfo({
+            attackAbility: "constitution",
+            saveAbility: saveAbility,
+            target: "dc",
+            damageDice: `${damageDice}d6`,
+            damageType: damageType,
+            range: areaOfEffect,
+            notes: ["Half damage on save"]
         });
-        const html = "<p>" + attackCard.lines.join("</p><p>") + "</p>";
-        return {
-            name: attackCard.name,
-            title: attackCard.title,
-            html: html,
-            useInfo: {
-                reset: "short-rest",
-                uses: 1
-            },
-            source: {
-                name: "race",
-                title: Dragonborn.title
-            },
-            displayType: "feature-card"
-        }
+        return character.getFeatureCard(
+            `${Dragonborn.name}-breath-weapon`, "Breath weapon", breathWeaponHtml, Dragonborn.title, attackInfo);
     }
 
 }

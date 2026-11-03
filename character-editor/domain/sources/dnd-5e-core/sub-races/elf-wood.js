@@ -79,22 +79,15 @@ export class ElfWood {
         const tempFeatures = [];
 
         // Mask of the Wild
-        tempFeatures.push({
-            name: `${ElfWood.name}-mask-of-the-wild`,
-            title: "Mask of the Wild",
-            html: `
-                <p><b>Mask of the Wild.</b> You can attempt to hide even when you are only lightly obscured by foliage, heavy rain, falling snow, mist, and other natural phenomena.</p>
-                `,
-            source: {
-                name: "sub-race",
-                title: ElfWood.title
-            },
-            displayType: "feature-card"
-        });
+        const maskOfTheWildHtml = `
+            <p><b>Mask of the Wild.</b> You can attempt to hide even when you are only lightly obscured by foliage, heavy rain, falling snow, mist, and other natural phenomena.</p>
+        `;
+        tempFeatures.push(character.getFeatureCard(`${ElfWood.name}-mask-of-the-wild`, "Mask of the Wild", maskOfTheWildHtml));
 
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = "subRace";
-            feature.sourcePropertyValue = ElfWood.name
+            feature.sourcePropertyValue = ElfWood.name;
+            feature.cardSource = ElfWood.title;
             features.push(feature);
         }
     }

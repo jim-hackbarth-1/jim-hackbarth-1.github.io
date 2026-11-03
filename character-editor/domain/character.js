@@ -1,5 +1,5 @@
 
-import { SelectionUtilities } from "./references.js";
+import { FeatureUtilities, SelectionUtilities } from "./references.js";
 
 export class Character {
 
@@ -276,14 +276,6 @@ export class Character {
         }
     }
 
-    static #selectionUtilities;
-    get selectionUtilities() {
-        if (!Character.#selectionUtilities) {
-            Character.#selectionUtilities = new SelectionUtilities();
-        }
-        return Character.#selectionUtilities;
-    }
-
     /*
     - name
     - value
@@ -325,6 +317,88 @@ export class Character {
         }
     }
 
+    static #selectionUtilitiesField;
+    static get #selectionUtilities() {
+        if (!Character.#selectionUtilitiesField) {
+            Character.#selectionUtilitiesField = new SelectionUtilities();
+        }
+        return Character.#selectionUtilitiesField;
+    }
+
+    getSelection(selections, name, title, maxSelections, sources, locked, alertMessage, isOptional) {
+        return Character.#selectionUtilities.getSelection(
+            selections, name, title, maxSelections, sources, locked, alertMessage, isOptional);
+    }
+
+    getSelectionOptions(sourceItems, selectedValues, sourceItemsSelectedElsewhere, choiceLabel, hasDetail) {
+        return Character.#selectionUtilities.getSelectionOptions(
+            sourceItems, selectedValues, sourceItemsSelectedElsewhere, choiceLabel, hasDetail);
+    }
+
+    getSpellSelection(level, classIndex, cantripCount, spellCount, canReplace) {
+        return Character.#selectionUtilities.getSpellSelection(
+            this, level, classIndex, cantripCount, spellCount, canReplace);
+    }
+
+    getSpellSelectionOptions(level, classIndex, selectionName, sources, cantripCount, spellCount) {
+        return Character.#selectionUtilities.getSpellSelectionOptions(
+            this, level, classIndex, selectionName, sources, cantripCount, spellCount);
+    }
+
+    getSpellSelectionInfo(className) {
+        return Character.#selectionUtilities.getSpellSelectionInfo(this, className);
+    }
+
+    static #featureUtilitiesField;
+    static get #featureUtilities() {
+        if (!Character.#featureUtilitiesField) {
+            Character.#featureUtilitiesField = new FeatureUtilities();
+        }
+        return Character.#featureUtilitiesField;
+    }
+
+    getAttackInfo({
+        attackAbility,
+        saveAbility,
+        target,
+        applyAbilityModifier = true,
+        applyProficiencyModifier = true,
+        damageDice,
+        applyAbilityModifierToDamage,
+        applyProficiencyModifierToDamage = false,
+        damageType,
+        range,
+        hasReach = false,
+        notes = []
+    }) {
+        return Character.#featureUtilities.getAttackInfo({
+            attackAbility,
+            saveAbility,
+            target,
+            applyAbilityModifier,
+            applyProficiencyModifier,
+            damageDice,
+            applyAbilityModifierToDamage,
+            applyProficiencyModifierToDamage,
+            damageType,
+            range,
+            hasReach,
+            notes
+        });
+    }
+
+    getFeatureCard(name, title, html, cardSource, attackInfo) {
+        return Character.#featureUtilities.getFeatureCard(this, name, title, html, cardSource, attackInfo);
+    }
+
+    getWeaponAttackCard(inventoryIndex, weapon) {
+        return Character.#featureUtilities.getWeaponAttackCard(this, inventoryIndex, weapon);
+    }
+
+    getSpellCard(spell, html, characterSpellClasses, attackInfo) {
+        return Character.#featureUtilities.getSpellCard(this, spell, html, characterSpellClasses, attackInfo);
+    }
+
     get level() {
         let level = 0;
         const levels = this.classes.map(cls => Number(cls.level));
@@ -361,12 +435,8 @@ export class Character {
 
     getAbilityScoreModifier(ability) {
         const abilityScore = Number(this.getAbilityScore(ability));
-
         const abilityScoreModifiers = this.modifiers
-            .filter(m => m.target == `ability-score-modifier:${ability}`)
-            .map(m => m.value)
-            .reduce((a, b) => a + b, 0);
-
+            .filter(m => m.target == `ability-score-modifier:${ability}`).map(m => m.value).reduce((a, b) => a + b, 0);
         return Math.floor((abilityScore - 10) / 2) + Number(abilityScoreModifiers);
     }
 
@@ -422,424 +492,6 @@ export class Character {
             bonus = 6;
         }
         return bonus;
-    }
-
-    getArmorClass() {
-        let armorClass = 10;
-        let dexModifier = this.getAbilityScoreModifier("dexterity");
-        const hasMediumArmor = this.#equipment
-            .some(e => e.isEquipped && e.properties && e.properties.some(p => p.name == "armor-type" && p.value == "medium-armor"));
-        const hasHeavyArmor = this.#equipment
-            .some(e => e.isEquipped && e.properties && e.properties.some(p => p.name == "armor-type" && p.value == "heavy-armor"));
-        if (hasMediumArmor && dexModifier > 2) {
-            dexModifier = 2;
-        }
-        if (hasHeavyArmor) {
-            dexModifier = 0;
-        }
-        let acModifiers = this.modifiers
-            .filter(m => m.target == "armor-class")
-            .map(m => m.value)
-            .reduce((a, b) => a + b, 0);
-        return Number(armorClass) + Number(dexModifier) + Number(acModifiers);
-    }
-
-    getModifiers({
-        target,
-        inventoryIndex,
-        weaponProperties,
-        spellCastingInfo,
-        relevantAbility,
-        applyAbilityModifier,
-        applyProficiencyModifier
-    }) {
-        return this.#getModifiers(
-            target, inventoryIndex, weaponProperties ?? [], spellCastingInfo, relevantAbility, applyAbilityModifier, applyProficiencyModifier);
-    }
-
-    getDisplayModifiers(toHitModifiers, damageModifiers, hasSavingThrow) {
-        return this.#getDisplayModifiers(toHitModifiers, damageModifiers, hasSavingThrow);
-    }
-
-    getAttackCard({
-        name,
-        title,
-        inventoryIndex,
-        spellCastingInfo,
-        hasSavingThrow,
-        relevantAbility,
-        applyAbilityModifier,
-        applyAbilityModifierForDamage,
-        applyProficiencyModifier,
-        applyProficiencyModifierForDamage,
-        damageDieSize,
-        damageDice,
-        damageType,
-        reach,
-        range,
-        target,
-        notes
-    }) {
-        const applyAbilityModifierInteral = this.#getApplyModifierValue(applyAbilityModifier, true);
-        const applyAbilityModifierForDamageInternal = this.#getApplyModifierValue(applyAbilityModifierForDamage, true);
-        const applyProficiencyModifierInternal = this.#getApplyModifierValue(applyProficiencyModifier, true);
-        const applyProficiencyModifierForDamageInternal = this.#getApplyModifierValue(applyProficiencyModifierForDamage, false);
-        const weaponProperties = this.equipment[Number(inventoryIndex)]?.properties ?? [];
-        const toHitOrDcModifiers = this.#getModifiers(
-            hasSavingThrow ? "dc" : "to-hit", inventoryIndex, weaponProperties, spellCastingInfo, relevantAbility, applyAbilityModifierInteral, applyProficiencyModifierInternal);
-        const toHitOrDcModifier = Number(toHitOrDcModifiers.map(m => m.value).reduce((a, b) => a + b, 0));
-        const damageModifiers = this.#getModifiers(
-            "damage", inventoryIndex, weaponProperties, spellCastingInfo, relevantAbility, applyAbilityModifierForDamageInternal, applyProficiencyModifierForDamageInternal);
-        const damageModifier = Number(damageModifiers.map(m => m.value).reduce((a, b) => a + b, 0));
-        let toHitOrDcLabel = "";
-        if (hasSavingThrow) {
-            toHitOrDcLabel = this.#getSavingThrowLabel(8 + toHitOrDcModifier, relevantAbility);
-        }
-        else {
-            toHitOrDcLabel = this.#getToHitLabel(toHitOrDcModifier);
-        }
-        let damageDiceInternal = damageDice;
-        if (!damageDiceInternal && damageDieSize) {
-            let damageDieSizeModifiers = this.#getTargetModifiers(inventoryIndex, weaponProperties, spellCastingInfo, "damage-die-size");
-            if (damageDieSizeModifiers.length > 0) {
-                damageDieSize = Math.max(...damageDieSizeModifiers.map(dm => Number(dm.value)));
-            }
-            damageDiceInternal = [{ number: 1, size: damageDieSize }];
-        }
-        const damageLabel = this.#getDamageLabel(damageDiceInternal, damageModifier, damageType);
-        const line1Parts = [toHitOrDcLabel];
-        if (damageLabel) {
-            line1Parts.push(damageLabel);
-        }
-        if (reach) {
-            line1Parts.push(`reach ${reach} ft.`);
-        }
-        if (range) {
-            line1Parts.push(range)
-        }
-        if (target) {
-            line1Parts.push(target);
-        }
-        const lines = [line1Parts.join(", ")];
-        if (name == "basic-unarmed-strike" || this.#canBeOffhand(inventoryIndex, weaponProperties)) {
-            const abilities = ["strength", "intelligence", "wisdom", "dexterity", "constitution", "charisma"];
-            const offHandDamageModifiers = damageModifiers.filter(dm => !(abilities.includes(dm.name) && Number(dm.value) > 0));
-            const offHandDamageModifier = Number(offHandDamageModifiers.map(m => m.value).reduce((a, b) => a + b, 0));
-            const offHandDamageLabel = this.#getDamageLabel(damageDiceInternal, offHandDamageModifier, damageType);
-            lines.push(`Off hand: ${toHitOrDcLabel}, ${offHandDamageLabel}, bonus action`);
-        }
-        if (notes) {
-            for (const note of notes) {
-                lines.push(note);
-            }
-        }
-        const modifiers = this.#getDisplayModifiers(toHitOrDcModifiers, damageModifiers, hasSavingThrow);
-        return {
-            name: name,
-            title: this.#getSubstring(title ?? "Attack", 40),
-            displayType: "attack-card",
-            lines: lines,
-            modifiers: modifiers
-        };
-    }
-
-    getSpellModifiersInfo(spell, characterSpellClasses, dcSaveAbility, dealsDamage) {
-        let displayModifiersHtml = "";
-        let damageModifierLabel = " ";
-        const spellCastingInfoList = characterSpellClasses.filter(csc => spell.classes.includes(csc.spellClass.name));
-        for (const spellCastingInfo of spellCastingInfoList) {
-            spellCastingInfo.spell = spell;
-            const dcModifiers = this.getSpellModifiers("dc", spellCastingInfo, true, true);
-            const dcModifier = dcModifiers.map(m => m.value).reduce((a, b) => a + b, 0);
-            const dc = 8 + Number(dcModifier);
-            let damageModifiers = [];
-            if (dealsDamage) {
-                damageModifiers = this.getSpellModifiers("damage", spellCastingInfo, false, false);
-                damageModifierLabel = this.getSpellDamageModifierLabel(damageModifiers);
-            }    
-            displayModifiersHtml += `
-                <p class="spell-dc-note">${spellCastingInfo.spellClass.title} spell DC: ${dc} ${dcSaveAbility}</p>
-                <div class="spell-modifiers-container">
-            `;
-            const displayModifiers = this.getDisplayModifiers(dcModifiers, damageModifiers, true);
-            for (const displayModifier of displayModifiers) {
-                displayModifiersHtml += `<div>${displayModifier}</div>`;
-            }
-            displayModifiersHtml += "</div>";
-        }
-        return {
-            classCount: spellCastingInfoList.length,
-            displayModifiersHtml: displayModifiersHtml,
-            damageModifierLabel: damageModifierLabel
-        };
-    }
-
-    getSpellCard(spell, displayModifiersHtml, content) {
-        let spellProperties = `Level ${spell.level} ${spell.school}`;
-        if (spell.level == 0) {
-            spellProperties = `${spell.school} cantrip`;
-        }
-        return {
-            name: spell.name,
-            title: spell.title,
-            level: spell.level,
-            html: `
-                <div class="spell-properties">${spellProperties}</div>
-                <div><b>Casting Time: </b>${spell.castingTime}</div>
-                <div><b>Range: </b>${spell.range}</div>
-                <div><b>Components: </b>${spell.components}</div>
-                <div><b>Duration: </b>${spell.duration}</div>
-                <div class="content">
-                    ${displayModifiersHtml}
-                    ${content}
-                </div>
-                    `,
-            source: { name: "spell" },
-            displayType: "spell-card"
-        };
-    }
-
-    getSpellModifiers(target, spellCastingInfo, includeProficiencyModifier, includeAbilityModifier) {
-        return this.getModifiers({
-            target: target,
-            spellCastingInfo: spellCastingInfo,
-            relevantAbility: spellCastingInfo.spellAbility,
-            applyAbilityModifier: includeAbilityModifier,
-            applyProficiencyModifier: includeProficiencyModifier
-        });
-    }
-
-    getSpellDamageModifierLabel(damageModifiers) {
-        let damageModifier = damageModifiers.map(m => m.value).reduce((a, b) => a + b, 0);
-        damageModifier = Number(damageModifier);
-        let damageModifierLabel = " ";
-        if (damageModifier > 0) {
-            damageModifierLabel = ` + ${damageModifier} `;
-        }
-        if (damageModifiers < 0) {
-            damageModifierLabel = ` - ${Math.abs(damageModifier)} `;
-        }
-        return damageModifierLabel;
-    }
-
-    #getSubstring(valueIn, length) {
-        let valueOut = valueIn ?? "";
-        if (valueOut.length > length) {
-            valueOut = valueOut.substring(0, length) + "...";
-        }
-        return valueOut;
-    }
-
-    #getApplyModifierValue(modifierIn, defaultValue) {
-        let modifierOut = defaultValue;
-        if (modifierIn == true || modifierIn == false) {
-            modifierOut = modifierIn;
-        }
-        return modifierOut;
-    }
-
-    #getModifiers(target, inventoryIndex, weaponProperties, spellCastingInfo, relevantAbility, applyAbilityModifier, applyProficiencyModifier) {
-        const modifiers = this.#getTargetModifiers(inventoryIndex, weaponProperties, spellCastingInfo, target);
-        if (applyProficiencyModifier) {
-            modifiers.push(this.#getProficiencyModifier(weaponProperties));
-        }
-        if (applyAbilityModifier) {
-            modifiers.push(this.#getAbilityModifier(weaponProperties, relevantAbility))
-        }
-        for (const modifier of modifiers) {
-            modifier.target = target;
-        }
-        return modifiers;
-    }
-
-    #getTargetModifiers(inventoryIndex, weaponProperties, spellCastingInfo, target) {
-        const modifiers = [];
-        let targetModifiers = this.modifiers.filter(m => m.target == target);
-        for (const modifier of targetModifiers) {
-            let conditionsMet = true;
-            if (modifier.conditions) {
-                conditionsMet = false;
-                for (const condition of modifier.conditions) {
-                    const conditionValues = condition.values ?? [];
-                    if (condition.name == "equipment-index") {
-                        const allowedIndexes = conditionValues.map(v => Number(v));
-                        if (!allowedIndexes.includes(inventoryIndex)) {
-                            continue;
-                        }
-                    }
-                    if (condition.name == "weapon-type") {
-                        const weaponType = weaponProperties.find(wp => wp.name == "weapon-type")?.value;
-                        if (!conditionValues.includes(weaponType)) {
-                            continue;
-                        }
-                    }
-                    if (condition.name == "spell-class") {
-                        if (!conditionValues.includes(spellCastingInfo?.spellClass?.name)) {
-                            continue;
-                        }
-                    }
-                    conditionsMet = true;
-                }
-            }
-            if (conditionsMet) {
-                modifiers.push(modifier);
-            }
-        }
-        return modifiers;
-    }
-
-    #getProficiencyModifier(weaponProperties) {
-        let proficiencyModifier = 0;
-        const weaponName = weaponProperties.find(wp => wp.name == "weapon-name")?.value;
-        const weaponType = weaponProperties.find(wp => wp.name == "weapon-type")?.value;
-        const isProficient = this.modifiers.some(m =>
-            m.target == "weapon-proficiency"
-            && (m.value == weaponName || m.value == weaponType));
-        if (!weaponName || isProficient) {
-            proficiencyModifier = this.getProficiencyBonus();
-        }
-        return {
-            name: "proficiency",
-            title: "Proficiency",
-            value: proficiencyModifier
-        }
-    }
-
-    #getAbilityModifier(weaponProperties, relevantAbility) {
-        let relevantAbilityModifier = 0;
-        if (relevantAbility) {
-            relevantAbilityModifier = this.getAbilityScoreModifier(relevantAbility.name);
-        }
-        else {          
-            const strengthModifier = this.getAbilityScoreModifier("strength");
-            const dexterityModifier = this.getAbilityScoreModifier("dexterity");
-            const weaponType = weaponProperties.find(wp => wp.name == "weapon-type")?.value;
-            const isFinesse = weaponProperties.some(wp => wp.name == "finesse");
-            relevantAbility = { name: "strength", title: "Strength" };
-            relevantAbilityModifier = strengthModifier
-            if (weaponType == "simple-ranged" || weaponType == "martial-ranged") {
-                relevantAbility = { name: "dexterity", title: "Dexterity" };
-            }
-            if (isFinesse) {
-                if (dexterityModifier > strengthModifier) {
-                    relevantAbility = { name: "dexterity", title: "Dexterity" };
-                }
-                else {
-                    relevantAbility = { name: "strength", title: "Strength" };
-                }
-            }
-            if (relevantAbility.name == "dexterity") {
-                relevantAbilityModifier = dexterityModifier
-            } 
-        }
-        return {
-            name: relevantAbility.name,
-            title: relevantAbility.title,
-            value: relevantAbilityModifier
-        }
-    }
-
-    #getSavingThrowLabel(dc, dcAbility) {
-        return `DC ${dc} ${dcAbility.title} saving throw`;
-    }
-
-    #getToHitLabel(toHitModifier) {
-        if (Number(toHitModifier) >= 0) {
-            return `+${toHitModifier} to hit`;
-        }
-        return `-${Math.abs(toHitModifier)} to hit`;
-    }
-
-    #getDamageLabel(damageDice, modifier, damageType) {
-        if (!damageDice || damageDice.length == 0) {
-            return "";
-        }
-        const damageDieLabels = [];
-        for (const damageDie of damageDice) {
-            damageDieLabels.push(`${damageDie.number}d${damageDie.size}`)
-        }
-        let label = damageDieLabels.join(" + ");
-        if (label == "1d1") {
-            label = "1";
-        }
-        const numberModifier = Number(modifier);
-        if (numberModifier > 0) {
-            label += ` + ${numberModifier}`;
-        }
-        if (numberModifier < 0) {
-            label += ` - ${Math.abs(numberModifier)}`;
-        }
-        if (damageType) {
-            label += ` ${damageType}`;
-        }
-        label += " damage";
-        return label;
-    }
-
-    #canBeOffhand(inventoryIndex, weaponProperties) {
-        const isLight = weaponProperties.some(wp => wp.name == "light");
-        if (isLight) {
-            return true;
-        }
-        const modifiers = this.#getModifiers("off-hand-weapon", inventoryIndex, weaponProperties, null, null, false, false);
-        if (modifiers.length > 0) {
-            return true;
-        }
-        return false;
-    }
-
-    #getDisplayModifiers(toHitModifiers, damageModifiers, hasSavingThrow) {
-        let displayModifiers = [];
-        const toHitOrDcLabel = hasSavingThrow ? "dc" : "to hit";
-        for (const toHitModifier of toHitModifiers) {
-            const value = Number(toHitModifier.value);
-            let label = null;
-            if (value > 0) {
-                label = `+${value} ${toHitOrDcLabel}`;
-            }
-            if (value < 0) {
-                label = `${value} ${toHitOrDcLabel}`;
-            }
-            if (label && toHitModifier.title) {
-                displayModifiers.push({
-                    name: toHitModifier.name,
-                    title: this.#getSubstring(toHitModifier.title, 40),
-                    toHitLabel: label
-                });
-            }
-        }
-        for (const damageModifier of damageModifiers) {
-            const value = Number(damageModifier.value);
-            let label = null;
-            if (value > 0) {
-                label = `+${value} damage`;
-            }
-            if (value < 0) {
-                label = `${value} damage`;
-            }
-            if (label) {
-                let displayModifier = displayModifiers.find(dm => dm.title == damageModifier.title);
-                if (displayModifier) {
-                    displayModifier.damageLabel = label;
-                }
-                else {
-                    displayModifiers.push({
-                        name: damageModifier.name,
-                        title: this.#getSubstring(damageModifier.title, 40),
-                        damageLabel: label
-                    });
-                }
-            } 
-        }
-        for (const displayModifier of displayModifiers) {
-            let label = `${displayModifier.toHitLabel ?? ""}, ${displayModifier.damageLabel ?? ""}`.trim();
-            if (label.startsWith(",") || label.endsWith(",")) {
-                label = label.replace(",", "").trim();
-            }
-            const title = this.#getSubstring(displayModifier.title, 40);
-            displayModifier.label = `${title}: ${label}`;
-        }
-        return displayModifiers.map(dm => dm.label);
     }
 
     toJSON() {

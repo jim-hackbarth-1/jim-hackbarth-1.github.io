@@ -1,7 +1,6 @@
 
 .lands-of-aedun-content {
     white-space: wrap;
-    border:1px solid black;
     margin:0;
     padding:5px;
 }
@@ -19,6 +18,11 @@
 
 .lands-of-aedun-content .content {
     margin-bottom: 10px;
+}
+
+.lands-of-aedun-content .spell-content,
+.lands-of-aedun-content .equipment-content {
+    margin-top: 10px;
 }
 
 .lands-of-aedun-content .portrait {
@@ -79,6 +83,8 @@
 
 .lands-of-aedun-content .spell-properties {
     font-style: italic;
+    color: darkred;
+    font-size: small;
 }
 
 @container (width > 650px) {

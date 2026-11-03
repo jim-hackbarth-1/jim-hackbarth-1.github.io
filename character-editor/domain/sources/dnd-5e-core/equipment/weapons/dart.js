@@ -1,17 +1,13 @@
 
+import { DnD5ESource } from "../../dnd-5e-core-source.js";
+
 export class Dart {
 
-    static get name() {
-        return "dart";
-    }
-
-    static get title() {
-        return "Dart";
-    }
-
-    static get category() {
-        return "weapons";
-    }
+    static get name() { return "dart"; }
+    static get title() { return "Dart"; }
+    static get category() { return "weapons"; }
+    static get canBeEquipped() { return true; }
+    static get html() { return ""; }
 
     static get properties() {
         return [
@@ -35,26 +31,18 @@ export class Dart {
         ];
     }
 
-    static get canBeEquipped() {
-        return true;
-    }
-
-    static equip(character, inventoryIndex, allEquipment) {
-        const item = character.equipment[inventoryIndex];
-        item.properties = Dart.properties;
-        item.isEquipped = true;
-    }
-
-    static get html() {
-        return "";
-    }
-
     static getSelections(character, inventoryIndex) {
         return []
     }
 
     static getSelectionOptions(character, inventoryIndex, selectionName, sources) {
         return [];
+    }
+
+    static equip(character, inventoryIndex, allEquipment) {
+        const item = character.equipment[inventoryIndex];
+        item.properties = Dart.properties;
+        item.isEquipped = true;
     }
 
     static applyModifiers(character, inventoryIndex, targetFilters) {
@@ -65,15 +53,7 @@ export class Dart {
         const tempFeatures = [];
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
-            const attackCard = character.getAttackCard({
-                name: Dart.name,
-                title: Dart.title,
-                inventoryIndex: inventoryIndex,
-                damageDieSize: 4,
-                damageType: "piercing",
-                range: "range 20/60 ft."
-            });
-            tempFeatures.push(attackCard);
+            tempFeatures.push(character.getWeaponAttackCard(inventoryIndex, Dart));
         }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;

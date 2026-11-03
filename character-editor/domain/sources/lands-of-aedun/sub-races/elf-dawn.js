@@ -91,22 +91,15 @@ export class ElfDawn {
         const tempFeatures = [];
 
         // Dawn Elf Horsemanship
-        tempFeatures.push({
-            name: `${ElfDawn.name}-horsemanship`,
-            title: "Dawn Elf Horsemanship",
-            html: `
-                <p><b>Dawn Elf Horsemanship.</b> Mount or dismount with no movement cost and gain advantage on any effect that might cause the rider to be dismounted.</p>
-                `,
-            source: {
-                name: "sub-race",
-                title: ElfDawn.title
-            },
-            displayType: "feature-card"
-        });
+        const horsemanshipHtml = `
+            <p><b>Dawn Elf Horsemanship.</b> Mount or dismount with no movement cost and gain advantage on any effect that might cause the rider to be dismounted.</p>
+        `;
+        tempFeatures.push(character.getFeatureCard(`${ElfDawn.name}-horsemanship`, "Dawn Elf Horsemanship", horsemanshipHtml));
 
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = "subRace";
-            feature.sourcePropertyValue = ElfDawn.name
+            feature.sourcePropertyValue = ElfDawn.name;
+            feature.cardSource = ElfDawn.title;
             features.push(feature);
         }
     }

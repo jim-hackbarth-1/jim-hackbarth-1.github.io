@@ -1,30 +1,12 @@
 
+import { DnD5ESource } from "../dnd-5e-core-source.js"
+
 export class RitualCaster {
 
-    static get name() {
-        return "ritual-caster";
-    }
-
-    static get title() {
-        return "Ritual Caster";
-    }
-
-    static get html() {
-        return `
-        <div class="dnd-5e-content">
-            <link rel="stylesheet" type="text/css" href="./domain/sources/dnd-5e-core/dnd-5e-core.css">
-            <h3>Ritual Caster</h3>
-            <hr/>
-            <div class="content">
-                [Ritual Caster content here]
-            </div>
-        </div>
-        `;
-    }
-
-    static get canBeTakenMultipleTimes() {
-        return false;
-    }
+    static get name() { return "ritual-caster"; }
+    static get title() { return "Ritual Caster"; }
+    static get canBeTakenMultipleTimes() { return false; }
+    static get html() { return DnD5ESource.getFeatHtml(RitualCaster, RitualCaster.#content); }
 
     static checkPrerequisites(character) {
         return { prerequisitesMet: true, text: null };
@@ -49,5 +31,11 @@ export class RitualCaster {
     static applySpells(spells, character, classIndex, level) {
 
     }
+
+    static #content = `
+        <p>
+            [Feat content here]
+        </p>
+    `;
 
 }

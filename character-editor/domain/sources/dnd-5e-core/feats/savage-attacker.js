@@ -1,30 +1,12 @@
 
+import { DnD5ESource } from "../dnd-5e-core-source.js"
+
 export class SavageAttacker {
 
-    static get name() {
-        return "savage-attacker";
-    }
-
-    static get title() {
-        return "Savage Attacker";
-    }
-
-    static get html() {
-        return `
-        <div class="dnd-5e-content">
-            <link rel="stylesheet" type="text/css" href="./domain/sources/dnd-5e-core/dnd-5e-core.css">
-            <h3>Savage Attacker</h3>
-            <hr/>
-            <div class="content">
-                [Savage Attacker content here]
-            </div>
-        </div>
-        `;
-    }
-
-    static get canBeTakenMultipleTimes() {
-        return false;
-    }
+    static get name() { return "savage-attacker"; }
+    static get title() { return "Savage Attacker"; }
+    static get canBeTakenMultipleTimes() { return false; }
+    static get html() { return DnD5ESource.getFeatHtml(SavageAttacker, SavageAttacker.#content); }
 
     static checkPrerequisites(character) {
         return { prerequisitesMet: true, text: null };
@@ -49,4 +31,10 @@ export class SavageAttacker {
     static applySpells(spells, character, classIndex, level) {
 
     }
+
+    static #content = `
+        <p>
+            [Feat content here]
+        </p>
+    `;
 }

@@ -1,21 +1,14 @@
 
+import { DnD5ESource } from "../../dnd-5e-core-source.js";
+
 export class ScaleMailArmor {
 
-    static get name() {
-        return "scale-mail-armor";
-    }
-
-    static get title() {
-        return "Scale mail";
-    }
-
-    static get category() {
-        return "armor";
-    }
-
-    static get armorType() {
-        return "medium-armor";
-    }
+    static get name() { return "scale-mail-armor"; }
+    static get title() { return "Scale mail"; }
+    static get category() { return "armor"; }
+    static get canBeEquipped() { return true; }
+    static get html() { return ""; }
+    static get armorType() { return "medium-armor"; }
 
     static get properties() {
         return [
@@ -31,14 +24,6 @@ export class ScaleMailArmor {
             "Armor Class: 14 + Dex modifier (max 2)",
             "Stealth: Disadvantage"
         ];
-    }
-
-    static get canBeEquipped() {
-        return true;
-    }
-
-    static get html() {
-        return "";
     }
 
     static getSelections(character, inventoryIndex) {

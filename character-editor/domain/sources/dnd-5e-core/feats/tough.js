@@ -1,30 +1,12 @@
 
+import { DnD5ESource } from "../dnd-5e-core-source.js"
+
 export class Tough {
 
-    static get name() {
-        return "tough";
-    }
-
-    static get title() {
-        return "Tough";
-    }
-
-    static get html() {
-        return `
-        <div class="dnd-5e-content">
-            <link rel="stylesheet" type="text/css" href="./domain/sources/dnd-5e-core/dnd-5e-core.css">
-            <h3>Tough</h3>
-            <hr/>
-            <div class="content">
-                <p>Your hit point maximum increases by an amount equal to twice your level when you gain this feat. Whenever you gain a level thereafter, your hit point maximum increases by an additional 2 hit points.</p>
-            </div>
-        </div>
-        `;
-    }
-
-    static get canBeTakenMultipleTimes() {
-        return false;
-    }
+    static get name() { return "tough"; }
+    static get title() { return "Tough"; }
+    static get canBeTakenMultipleTimes() { return false; }
+    static get html() { return DnD5ESource.getFeatHtml(Tough, Tough.#content); }
 
     static checkPrerequisites(character) {
         return { prerequisitesMet: true, text: null };
@@ -58,18 +40,7 @@ export class Tough {
 
     static applyFeatures(features, character, classIndex, level) {
         const tempFeatures = [];
-        tempFeatures.push({
-            name: Tough.name,
-            title: Tough.title,
-            html: `
-                <p>Your hit point maximum increases by an amount equal to twice your level when you gain this feat. Whenever you gain a level thereafter, your hit point maximum increases by an additional 2 hit points.</p>
-                `,
-            source: {
-                name: "feat",
-                title: Tough.title
-            },
-            displayType: "feature-card"
-        });
+        tempFeatures.push(character.getFeatureCard(Tough.name, Tough.title, Tough.#content));
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `class-${classIndex}-level-${level}-feat`;
             feature.sourcePropertyValue = Tough.name
@@ -80,5 +51,11 @@ export class Tough {
     static applySpells(spells, character, classIndex, level) {
 
     }
+
+    static #content = `
+        <p>
+            Your hit point maximum increases by an amount equal to twice your level when you gain this feat. Whenever you gain a level thereafter, your hit point maximum increases by an additional 2 hit points.
+        </p>
+    `;
 
 }

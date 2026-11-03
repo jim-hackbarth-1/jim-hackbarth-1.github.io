@@ -23,7 +23,7 @@ export class Dwarf {
 
     static getSelections(character) {
         const selections = [];
-        selections.push(character.selectionUtilities.getSelection(
+        selections.push(character.getSelection(
             character.selections, `${Dwarf.name}-tool-proficiency`, "Tool Proficiency", 1));
         return selections;
     }
@@ -33,7 +33,7 @@ export class Dwarf {
         if (selectionName == `${Dwarf.name}-tool-proficiency`) {
             const proficiencies = [...Dwarf.#toolProficiencies];
             const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            options = character.selectionUtilities.getSelectionOptions(
+            options = character.getSelectionOptions(
                 proficiencies, selectedValues, [], "Tool proficiency (choose 1) ...");
         }
         return options;
@@ -101,7 +101,7 @@ export class Dwarf {
         if (toolProficiencies.length > 0) {
             toolProficiency = toolProficiencies[0];
         }
-        if (toolProficiency) {
+        if (toolProficiency?.value) {
             modifiers.push({
                 name: "dwarven-tool-proficiency",
                 title: "Tool proficiency",
@@ -137,50 +137,27 @@ export class Dwarf {
         const tempFeatures = [];
 
         // darkvision
-        tempFeatures.push({
-            name: "dwarven-darkvision",
-            title: "Darkvision",
-            html: `
-                <p><b>Darkvision.</b> Accustomed to life underground, you have superior vision in dark and dim conditions. You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light. You can't discern color in darkness, only shades of gray.</p>
-                `,
-            source: {
-                name: "race",
-                title: Dwarf.title
-            },
-            displayType: "feature-card"
-        });
+        const darkVisionHtml = `
+            <p><b>Darkvision.</b> Accustomed to life underground, you have superior vision in dark and dim conditions. You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light. You can't discern color in darkness, only shades of gray.</p>
+        `;
+        tempFeatures.push(character.getFeatureCard(`${Dwarf.name}-darkvision`, "Darkvision", darkVisionHtml));
 
         // dwarven resilience
-        tempFeatures.push({
-            name: "dwarven-resilience",
-            title: "Dwarven Resilience",
-            html: `
-                <p><b>Stonecunning.</b> Whenever you make an Intelligence (History) check related to the origin of stonework, you are considered proficient in the History skill and add double your proficiency bonus to the check, instead of your normal proficiency bonus.</p>
-                `,
-            source: {
-                name: "race",
-                title: Dwarf.title
-            },
-            displayType: "feature-card"
-        });
+        const dwarvenResilienceHtml = `
+            <p><b>Dwarven Resilience.</b> You have advantage on saving throws against poison, and you have resistance against poison damage.</p>
+        `;
+        tempFeatures.push(character.getFeatureCard(`${Dwarf.name}-resilience`, "Dwarven resilience", dwarvenResilienceHtml));
 
         // stonecunning
-        tempFeatures.push({
-            name: "dwarven-stonecunning",
-            title: "Stonecunning",
-            html: `
-                <p><b>Dwarven Resilience.</b> You have advantage on saving throws against poison, and you have resistance against poison damage.</p>
-                `,
-            source: {
-                name: "race",
-                title: Dwarf.title
-            },
-            displayType: "feature-card"
-        });
+        const stoneCunningHtml = `
+            <p><b>Stonecunning.</b> Whenever you make an Intelligence (History) check related to the origin of stonework, you are considered proficient in the History skill and add double your proficiency bonus to the check, instead of your normal proficiency bonus.</p>
+        `;
+        tempFeatures.push(character.getFeatureCard(`${Dwarf.name}-resilience`, "Stonecunning", stoneCunningHtml));
 
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = "race";
-            feature.sourcePropertyValue = Dwarf.name
+            feature.sourcePropertyValue = Dwarf.name;
+            feature.cardSource = Dwarf.title;
             features.push(feature);
         }
     }

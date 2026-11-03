@@ -66,9 +66,9 @@ export class Bard {
                 musicalInstrumentTitle += "s";
                 skillTitle += "s";
             }
-            selections.push(character.selectionUtilities.getSelection(
+            selections.push(character.getSelection(
                 character.selections, `${Bard.name}-musical-instruments`, musicalInstrumentTitle, maxSelections, [{ name: "tools" }]));
-            selections.push(character.selectionUtilities.getSelection(
+            selections.push(character.getSelection(
                 character.selections, `${Bard.name}-skills`, skillTitle, maxSelections, [{ name: "skills" }]));
         }
         if (level >= 3) {
@@ -81,7 +81,7 @@ export class Bard {
             if (level >= i) {
                 const cantripCount = Bard.#getCantripCount(i);
                 const spellCount = Bard.#getSpellCount(i);
-                selections.push(character.selectionUtilities.getSpellSelection(character, i, classIndex, cantripCount, spellCount));
+                selections.push(character.getSpellSelection(i, classIndex, cantripCount, spellCount, true));
             }
         }
         return selections;
@@ -110,8 +110,8 @@ export class Bard {
             if (selectionNames.includes(selectionName)) {
                 const cantripCount = Bard.#getCantripCount(i);
                 const spellCount = Bard.#getSpellCount(i);
-                return character.selectionUtilities.getSpellSelectionOptions(
-                    character, i, classIndex, selectionName, sources, cantripCount, spellCount);
+                return character.getSpellSelectionOptions(
+                    i, classIndex, selectionName, sources, cantripCount, spellCount);
             }
         }
         return [];
@@ -151,22 +151,26 @@ export class Bard {
 
             const skillProficiencies = character.selections.find(s => s.name == `${Bard.name}-skills`)?.values ?? [];
             for (const skillProficiency of skillProficiencies) {
-                modifiers.push({
-                    name: `bard-skill-proficiency-${skillProficiency.value}`,
-                    title: "Skill proficiency",
-                    value: skillProficiency.value,
-                    target: "skill-proficiency"
-                });
+                if (skillProficiency.value) {
+                    modifiers.push({
+                        name: `bard-skill-proficiency-${skillProficiency.value}`,
+                        title: "Skill proficiency",
+                        value: skillProficiency.value,
+                        target: "skill-proficiency"
+                    });
+                }
             }
 
             const musicalInstrumentProficiencies = character.selections.find(s => s.name == `${Bard.name}-musical-instruments`)?.values ?? [];
             for (const musicalInstrumentProficiency of musicalInstrumentProficiencies) {
-                modifiers.push({
-                    name: `bard-musical-instrument-proficiency-${musicalInstrumentProficiency.value}`,
-                    title: "Musical instrument proficiency",
-                    value: musicalInstrumentProficiency.value,
-                    target: "tool-proficiency"
-                });
+                if (musicalInstrumentProficiency.value) {
+                    modifiers.push({
+                        name: `bard-musical-instrument-proficiency-${musicalInstrumentProficiency.value}`,
+                        title: "Musical instrument proficiency",
+                        value: musicalInstrumentProficiency.value,
+                        target: "tool-proficiency"
+                    });
+                }
             }
 
             if (character.classes[0].value == "bard") {
@@ -237,12 +241,14 @@ export class Bard {
             let expertSkillsLevel3 = character.selections.find(s => s.name == `${Bard.name}-skill-expertise-level-3`)?.values ?? [];
             expertSkillsLevel3 = expertSkillsLevel3.filter(cs => proficientSkills.includes(cs.value));
             for (const expertSkill of expertSkillsLevel3) {
-                modifiers.push({
-                    name: `bard-level-3-expert-skill-${expertSkill.value}`,
-                    target: `skill:${expertSkill.value}`,
-                    value: proficiencyBonus,
-                    title: Bard.title
-                });
+                if (expertSkill.value) {
+                    modifiers.push({
+                        name: `bard-level-3-expert-skill-${expertSkill.value}`,
+                        target: `skill:${expertSkill.value}`,
+                        value: proficiencyBonus,
+                        title: Bard.title
+                    });
+                }
             }
         }
 
@@ -250,12 +256,14 @@ export class Bard {
             let expertSkillsLevel10 = character.selections.find(s => s.name == `${Bard.name}-skill-expertise-level-10`)?.values ?? [];
             expertSkillsLevel10 = expertSkillsLevel10.filter(cs => proficientSkills.includes(cs.value));
             for (const expertSkill of expertSkillsLevel10) {
-                modifiers.push({
-                    name: `bard-level-10-expert-skill-${expertSkill.value}`,
-                    target: `skill:${expertSkill.value}`,
-                    value: proficiencyBonus,
-                    title: Bard.title
-                });
+                if (expertSkill.value) {
+                    modifiers.push({
+                        name: `bard-level-10-expert-skill-${expertSkill.value}`,
+                        target: `skill:${expertSkill.value}`,
+                        value: proficiencyBonus,
+                        title: Bard.title
+                    });
+                }
             }
         }
         
@@ -273,45 +281,40 @@ export class Bard {
         const level = Number(character.classes.find(c => c.value == "bard").level);
         
         // bardic inspiration
-        let bardicInspirationDieSize = 6;
-        if (level >= 5) {
-            bardicInspirationDieSize = 8;
-        }
-        if (level >= 10) {
-            bardicInspirationDieSize = 10;
-        }
-        if (level >= 15) {
-            bardicInspirationDieSize = 12;
-        }
-        const charismaModifier = character.getAbilityScoreModifier("charisma");
-        let bardicInspirationUses = charismaModifier;
-        if (bardicInspirationUses < 1) {
-            bardicInspirationUses = 1;
-        }
-        let bardicInspirationUseLabel = (bardicInspirationUses > 1) ? `${bardicInspirationUses} times` : `${bardicInspirationUses} time`;
-        let bardicInspirationReset = "long-rest";
-        if (level >= 5) {
-            bardicInspirationReset = "short-rest";
-        }
-        tempFeatures.push({
-            name: "bard-bardic-inspiration",
-            title: "Bardic Inspiration",
-            html: `
+        if (level >= 1) {
+            let bardicInspirationDieSize = 6;
+            if (level >= 5) {
+                bardicInspirationDieSize = 8;
+            }
+            if (level >= 10) {
+                bardicInspirationDieSize = 10;
+            }
+            if (level >= 15) {
+                bardicInspirationDieSize = 12;
+            }
+            const charismaModifier = character.getAbilityScoreModifier("charisma");
+            let bardicInspirationUses = charismaModifier;
+            if (bardicInspirationUses < 1) {
+                bardicInspirationUses = 1;
+            }
+            let bardicInspirationUseLabel = (bardicInspirationUses > 1) ? `${bardicInspirationUses} times` : `${bardicInspirationUses} time`;
+            let bardicInspirationReset = "long-rest";
+            if (level >= 5) {
+                bardicInspirationReset = "short-rest";
+            }
+            const bardicInspirationHtml = `
                 <p>You can inspire others through stirring words or music. To do so, you use a bonus action on your turn to choose one creature other than yourself within 60 feet of you who can hear you. That creature gains one Bardic Inspiration die, a d${bardicInspirationDieSize}.</p>
                 <p>Once within the next 10 minutes, the creature can roll the die and add the number rolled to one ability check, attack roll, or saving throw it makes. The creature can wait until after it rolls the d20 before deciding to use the Bardic Inspiration die, but must decide before the DM says whether the roll succeeds or fails. Once the Bardic Inspiration die is rolled, it is lost. A creature can have only one Bardic Inspiration die at a time.</p>
                 <p>You can use this feature ${bardicInspirationUseLabel} per ${bardicInspirationReset}.</p>
-            `,
-            useInfo: {
+            `;
+            const bardicInspiration = character.getFeatureCard(`${Bard.name}-bardic-inspiration`, "Bardic Inspiration", bardicInspirationHtml);
+            bardicInspiration.useInfo = {
                 reset: bardicInspirationReset,
                 uses: bardicInspirationUses
-            },
-            source: {
-                name: "class",
-                title: Bard.title
-            },
-            displayType: "feature-card"
-        });
-
+            };
+            tempFeatures.push(bardicInspiration);
+        }
+        
         // Song of Rest
         if (level >= 2) {
             let songOfRestDieSize = 6;
@@ -324,61 +327,38 @@ export class Bard {
             if (level >= 17) {
                 songOfRestDieSize = 12;
             }
-            tempFeatures.push({
-                name: "bard-song-of-rest",
-                title: "Song of Rest",
-                html: `
+            const songOfRestHtml = `
                 <p>You can use soothing music or oration to help revitalize your wounded allies during a short rest. If you or any friendly creatures who can hear your performance regain hit points at the end of the short rest by spending one or more Hit Dice, each of those creatures regains an extra 1d${songOfRestDieSize} hit points.</p>
-            `,
-                source: {
-                    name: "class",
-                    title: Bard.title
-                },
-                displayType: "feature-card"
-            });
+            `;
+            tempFeatures.push(character.getFeatureCard(`${Bard.name}-song-of-rest`, "Song of Rest", songOfRestHtml));
         }
 
         // Countercharm
         if (level >= 6) {
-            tempFeatures.push({
-                name: "bard-countercharm",
-                title: "Countercharm",
-                html: `
-                    <p>You gain the ability to use musical notes or words of power to disrupt mind-influencing effects. As an action, you can start a performance that lasts until the end of your next turn. During that time, you and any friendly creatures within 30 feet of you have advantage on saving throws against being frightened or charmed. A creature must be able to hear you to gain this benefit. The performance ends early if you are incapacitated or silenced or if you voluntarily end it (no action required).</p>
-                `,
-                source: {
-                    name: "class",
-                    title: Bard.title
-                },
-                displayType: "feature-card"
-            });
+            const counterCharmHtml = `
+                <p>You gain the ability to use musical notes or words of power to disrupt mind-influencing effects. As an action, you can start a performance that lasts until the end of your next turn. During that time, you and any friendly creatures within 30 feet of you have advantage on saving throws against being frightened or charmed. A creature must be able to hear you to gain this benefit. The performance ends early if you are incapacitated or silenced or if you voluntarily end it (no action required).</p>
+            `;
+            tempFeatures.push(character.getFeatureCard(`${Bard.name}-countercharm`, "Countercharm", counterCharmHtml));
         }
 
         // Superior Inspiration
         if (level == 20) {
-            tempFeatures.push({
-                name: "bard-superior-inspiration",
-                title: "Superior Inspiration",
-                html: `
-                    <p>When you roll initiative and have no uses of Bardic Inspiration left, you regain one use.</p>
-                `,
-                source: {
-                    name: "class",
-                    title: Bard.title
-                },
-                displayType: "feature-card"
-            });
+            const superiorInspirationHtml = `
+                <p>When you roll initiative and have no uses of Bardic Inspiration left, you regain one use.</p>
+            `;
+            tempFeatures.push(character.getFeatureCard(`${Bard.name}-superior-inspiration`, "Superior Inspiration", superiorInspirationHtml));
         }
 
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `class-${classIndex}`;
-            feature.sourcePropertyValue = Bard.name
+            feature.sourcePropertyValue = Bard.name;
+            feature.cardSource = Bard.title;
             features.push(feature);
         }
     }
 
     static applySpells(spells, character, classIndex) {
-        const spellSelectionInfo = character.selectionUtilities.getSpellSelectionInfo(character, Bard.name);
+        const spellSelectionInfo = character.getSpellSelectionInfo(Bard.name);
         const replacedSpells = spellSelectionInfo.filter(i => i.isReplacedSpellSelection).map(i => i.spell.value);
         const selectedSpells = spellSelectionInfo
             .filter(i => !i.isReplacedSpellSelection && !replacedSpells.includes(i.spell.value))
@@ -394,7 +374,7 @@ export class Bard {
             return null;
         }
         const maxSpellLevel = Bard.#getMaxSpellLevel(level);
-        const spellSelectionInfo = character.selectionUtilities.getSpellSelectionInfo(character, Bard.name);
+        const spellSelectionInfo = character.getSpellSelectionInfo(Bard.name);
         const replacedSpells = spellSelectionInfo.filter(i => i.isReplacedSpellSelection).map(i => i.spell.value);
         let selectedSpells = spellSelectionInfo
             .filter(i => !i.isReplacedSpellSelection && !replacedSpells.includes(i.spell.value))
@@ -450,7 +430,7 @@ export class Bard {
         if (character.classes[0].value == "bard") {
             label = "Musical instruments (choose 3) ...";
         }
-        return character.selectionUtilities.getSelectionOptions(instruments, selectedValues, selectedElsewhere, label);
+        return character.getSelectionOptions(instruments, selectedValues, selectedElsewhere, label);
     }
 
     static #getSkillSelectionOptions(character, sources) {
@@ -466,7 +446,7 @@ export class Bard {
         if (character.classes[0].value == "bard") {
             label = "Skills (choose 3) ...";
         }
-        const options = character.selectionUtilities.getSelectionOptions(skills, selectedValues, selectedElsewhere, label);
+        const options = character.getSelectionOptions(skills, selectedValues, selectedElsewhere, label);
         for (const option of options) {
             option.noteText = option.data;
         }
@@ -488,7 +468,7 @@ export class Bard {
         if (level == 10) {
             selectedElsewhere = character.selections.find(s => s.name == `${Bard.name}-skill-expertise-level-3`)?.values ?? [];
         }
-        const options = character.selectionUtilities.getSelectionOptions(
+        const options = character.getSelectionOptions(
             skills, selectedValues, selectedElsewhere, "Expert skills (choose 2) ....");
         for (const option of options) {
             option.noteText = option.data;
@@ -552,7 +532,7 @@ export class Bard {
             spellSlots.push(Bard.#addSpellLevel(8, [4, 3, 3, 2]));
             spellSlots.push(Bard.#addSpellLevel(9, [4, 3, 3, 3, 1]));
             spellSlots.push(Bard.#addSpellLevel(10, [4, 3, 3, 3, 2]));
-            spellSlots.push(Bard.#addSpellLevel(11, [4, 3, 3, 3, 2]));
+            spellSlots.push(Bard.#addSpellLevel(11, [4, 3, 3, 3, 2, 1]));
             spellSlots.push(Bard.#addSpellLevel(12, [4, 3, 3, 3, 2, 1]));
             spellSlots.push(Bard.#addSpellLevel(13, [4, 3, 3, 3, 2, 1, 1]));
             spellSlots.push(Bard.#addSpellLevel(14, [4, 3, 3, 3, 2, 1, 1]));

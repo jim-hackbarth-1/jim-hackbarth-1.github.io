@@ -22,21 +22,21 @@ export class BarbarianPathOfTheTotemWarrior {
          let currentSelections = [];
          const characterClass = character.classes.find(c => c.value == "barbarian");
         if (characterClass.level >= 3) {
-            selections.push(character.selectionUtilities.getSelection(
+            selections.push(character.getSelection(
                 character.selections,
                 `${BarbarianPathOfTheTotemWarrior.name}-totem-spirit`,
                 `${BarbarianPathOfTheTotemWarrior.title} - Totem spirit`,
                 1));
          }
         if (characterClass.level >= 6) {
-            selections.push(character.selectionUtilities.getSelection(
+            selections.push(character.getSelection(
                 character.selections,
                 `${BarbarianPathOfTheTotemWarrior.name}-aspect-of-the-beast`,
                 `${BarbarianPathOfTheTotemWarrior.title} - Aspect of the Beast`,
                 1));
          }
         if (characterClass.level >= 14) {
-            selections.push(character.selectionUtilities.getSelection(
+            selections.push(character.getSelection(
                 character.selections,
                 `${BarbarianPathOfTheTotemWarrior.name}-totemic-attunement`,
                 `${BarbarianPathOfTheTotemWarrior.title} - Totemic Attunement`,
@@ -65,13 +65,22 @@ export class BarbarianPathOfTheTotemWarrior {
         if (selectionInfo) {
             const totemSpirits = [...BarbarianPathOfTheTotemWarrior.#totemSpirits];
             const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
-            options = character.selectionUtilities.getSelectionOptions(totemSpirits, selectedValues, [], selectionInfo.choiceLabel);
+            options = character.getSelectionOptions(totemSpirits, selectedValues, [], selectionInfo.choiceLabel);
          }
         return options;
     }
 
     static applyModifiers(character, classIndex, targetFilters) {
-
+        const level = Number(character.classes.find(c => c.value == "barbarian").level);
+        if (level < 3) {
+            character.removeSelection(`${BarbarianPathOfTheTotemWarrior.name}-totem-spirit`);
+        }
+        if (level < 6) {
+            character.removeSelection(`${BarbarianPathOfTheTotemWarrior.name}-aspect-of-the-beast`);
+        }
+        if (level < 14) {
+            character.removeSelection(`${BarbarianPathOfTheTotemWarrior.name}-totemic-attunement`);
+        }
     }
 
     static applyFeatures(features, character, classIndex) {
@@ -94,16 +103,8 @@ export class BarbarianPathOfTheTotemWarrior {
             if (totemSpirit.value == "wolf") {
                 totemSpiritHtml = "<p>While you're raging, your friends have advantage on melee attack rolls against any creature within 5 feet of you that is hostile to you. The spirit of the wolf makes you a leader of hunters.</p>";
             }
-            tempFeatures.push({
-                name: "barbarian-path-of-the-totem-warrior-totem-spirit",
-                title: `Totem Spirit: ${totemSpirit.text}`,
-                html: totemSpiritHtml,
-                source: {
-                    name: "sub-class",
-                    title: BarbarianPathOfTheTotemWarrior.title
-                },
-                displayType: "feature-card"
-            });
+            tempFeatures.push(character.getFeatureCard(
+                `${BarbarianPathOfTheTotemWarrior.name}-totem-spirit`, `Totem Spirit: ${totemSpirit.text}`, totemSpiritHtml));
          }
 
          let aspectOfTheBeast = null;
@@ -123,16 +124,8 @@ export class BarbarianPathOfTheTotemWarrior {
              if (aspectOfTheBeast.value == "wolf") {
                  aspectOfTheBeastHtml = "<p>You gain the hunting sensibilities of a wolf. You can track other creatures while traveling at a fast pace, and you can move stealthily while traveling at a normal pace.</p>";
              }
-             tempFeatures.push({
-                 name: "barbarian-path-of-the-totem-warrior-aspect-of-the-beast",
-                 title: `Aspect of the Beast: ${aspectOfTheBeast.text}`,
-                 html: aspectOfTheBeastHtml,
-                 source: {
-                     name: "sub-class",
-                     title: BarbarianPathOfTheTotemWarrior.title
-                 },
-                 displayType: "feature-card"
-             });
+             tempFeatures.push(character.getFeatureCard(
+                 `${BarbarianPathOfTheTotemWarrior.name}-aspect-of-the-beast`, `Aspect of the Beast: ${aspectOfTheBeast.text}`, aspectOfTheBeastHtml));
          }
 
          let totemicAttunement = null;
@@ -152,21 +145,14 @@ export class BarbarianPathOfTheTotemWarrior {
              if (totemicAttunement.value == "wolf") {
                  totemicAttunementHtml = "<p>While you're raging, you can use a bonus action on your turn to knock a Large or smaller creature prone when you hit it with melee weapon attack.</p>";
              }
-             tempFeatures.push({
-                 name: "barbarian-path-of-the-totem-warrior-aspect-totemic-attunement",
-                 title: `Totemic Attunement: ${totemicAttunement.text}`,
-                 html: totemicAttunementHtml,
-                 source: {
-                     name: "sub-class",
-                     title: BarbarianPathOfTheTotemWarrior.title
-                 },
-                 displayType: "feature-card"
-             });
+             tempFeatures.push(character.getFeatureCard(
+                 `${BarbarianPathOfTheTotemWarrior.name}-totemic-attunement`, `Totemic Attunement: ${totemicAttunement.text}`, totemicAttunementHtml));
          }
 
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `subClass-${classIndex}`;
-            feature.sourcePropertyValue = BarbarianPathOfTheTotemWarrior.name
+            feature.sourcePropertyValue = BarbarianPathOfTheTotemWarrior.name;
+            feature.cardSource = BarbarianPathOfTheTotemWarrior.title;
             features.push(feature);
         }
     }

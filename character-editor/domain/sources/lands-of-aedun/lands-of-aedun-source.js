@@ -116,4 +116,47 @@ export class LandsOfAedunSource {
         return LandsOfAedunSource.#spells;
     }
 
+    static getSpellHtml(spell, content) {
+        return `
+            <div class="lands-of-aedun-content">
+                <link rel="stylesheet" type="text/css" href="./domain/sources/lands-of-aedun/lands-of-aedun.css">
+                <h3>${spell.title}</h3>
+                <div class="spell-properties">${spell.school} cantrip</div>
+                <div><b>Casting Time: </b>${spell.castingTime}</div>
+                <div><b>Range: </b>${spell.range}</div>
+                <div><b>Components: </b>${spell.components}</div>
+                <div><b>Duration: </b>${spell.duration}</div>
+                <div class="content spell-content">
+                    ${content}
+                </div>
+            </div>
+        `;
+    }
+
+    static getEquipmentHtml(equipment, content) {
+        return `
+            <div class="lands-of-aedun-content">
+                <link rel="stylesheet" type="text/css" href="./domain/sources/lands-of-aedun/lands-of-aedun.css">
+                <h3>${equipment.title}}</h3>
+                <hr/>
+                <p class="content equipment-content">
+                    ${content}
+                </p>
+            </div>
+         `;
+    }
+
+    static getFeatHtml(feat, content) {
+        return `
+            <div class="lands-of-aedun-content">
+                <link rel="stylesheet" type="text/css" href="./domain/sources/lands-of-aedun/lands-of-aedun.css">
+                <h3>${feat.title}</h3>
+                <hr/>
+                <div class="content">
+                    ${content}
+                </div>
+            </div>
+        `;
+    }
+
 }

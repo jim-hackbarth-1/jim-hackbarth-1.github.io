@@ -457,7 +457,7 @@ export class DomainClassAndLevelModel {
                     if (cls?.getSelections) {
                         const characterClassSelections = cls.getSelections(character, i);
                         for (const classSelection of characterClassSelections) {
-                            classSelection.name = `class-${classIndex}:${classSelection.name}`;
+                            classSelection.name = `class-${i}:${classSelection.name}`;
                             classSelection.getOptions = this.getClassSelectionOptions;
                             classSelection.updateSelection = this.updateClassSelection;
                             classSelections.push(classSelection);
@@ -522,7 +522,7 @@ export class DomainClassAndLevelModel {
                     if (subClass?.getSelections) {
                         const characterClassSubClassSelections = subClass.getSelections(character, i);
                         for (const subClassSelection of characterClassSubClassSelections) {
-                            subClassSelection.name = `sub-class-${classIndex}:${subClassSelection.name}`;
+                            subClassSelection.name = `sub-class-${i}:${subClassSelection.name}`;
                             subClassSelection.getOptions = this.getSubClassSelectionOptions;
                             subClassSelection.updateSelection = this.updateSubClassSelection;
                             subClassSelections.push(subClassSelection);

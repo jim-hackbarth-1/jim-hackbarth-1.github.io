@@ -17,7 +17,7 @@ export class ViciousMockery {
 
     static applyFeatures(features, character, characterSpellClasses) {
         const tempFeatures = [];
-        const level = Number(character.classes.find(c => c.value == "bard")?.level ?? 1);
+        const level = ViciousMockery.#getCharacterLevel(character, ViciousMockery.classes, characterSpellClasses);
         let damageDice = 1;
         if (level >= 5) {
             damageDice++;
@@ -37,6 +37,35 @@ export class ViciousMockery {
             feature.sourcePropertyValue = ViciousMockery.name
             features.push(feature);
         }
+    }
+
+    static #getCharacterLevel(character, spellClasses, characterSpellClasses) {
+        let maxLevel = 1;
+        let found = false;
+        for (const spellClass of spellClasses) {
+            const characterClass = character.classes.find(c => c.value == spellClass);
+            if (characterClass) {
+                found = true;
+                const level = Number(characterClass.level ?? 1);
+                if (level > maxLevel) {
+                    maxLevel = level;
+                }
+            }
+        }
+        if (!found) {
+            if (characterSpellClasses) {
+                for (const characterSpellClass of characterSpellClasses) {
+                    const characterClass = character.classes.find(c => c.value == characterSpellClass.spellClassName);
+                    if (characterClass) {
+                        const level = Number(characterClass.level ?? 1);
+                        if (level > maxLevel) {
+                            maxLevel = level;
+                        }
+                    }
+                }
+            }
+        }
+        return maxLevel;
     }
 
     static #content = `

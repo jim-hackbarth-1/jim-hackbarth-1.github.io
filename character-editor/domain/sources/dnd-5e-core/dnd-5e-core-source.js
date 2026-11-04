@@ -323,16 +323,31 @@ import { MagicWeapon } from "./equipment/weapons-magical/magic-weapon.js";
 import { BracersOfArchery } from "./equipment/wondrous-items/bracers-of-archery.js";
 
 // spells - cantrips
+import { AcidSplash } from "./spells/level-0/acid-splash.js";
 import { BladeWard } from "./spells/level-0/blade-ward.js";
+import { ChillTouch } from "./spells/level-0/chill-touch.js";
 import { DancingLights } from "./spells/level-0/dancing-lignts.js";
+import { Druidcraft } from "./spells/level-0/druidcraft.js";
+import { EldritchBlast } from "./spells/level-0/eldritch-blast.js";
+import { FireBolt } from "./spells/level-0/fire-bolt.js";
 import { Friends } from "./spells/level-0/friends.js";
+import { Guidance } from "./spells/level-0/guidance.js";
 import { Light } from "./spells/level-0/light.js";
 import { MageHand } from "./spells/level-0/mage-hand.js";
 import { Mending } from "./spells/level-0/mending.js";
 import { Message } from "./spells/level-0/message.js";
 import { MinorIllusion } from "./spells/level-0/minor-illusion.js";
+import { PoisonSpray } from "./spells/level-0/poison-spray.js";
 import { Prestidigitation } from "./spells/level-0/prestidigitation.js";
+import { ProduceFlame } from "./spells/level-0/produce-flame.js";
+import { RayOfFrost } from "./spells/level-0/ray-of-frost.js";
+import { Resistance } from "./spells/level-0/resistance.js";
+import { SacredFlame } from "./spells/level-0/sacred-flame.js";
+import { Shillelagh } from "./spells/level-0/shillelagh.js";
+import { ShockingGrasp } from "./spells/level-0/shocking-grasp.js";
 import { SpareTheDying } from "./spells/level-0/spare-the-dying.js";
+import { Thaumaturgy } from "./spells/level-0/thaumaturgy.js";
+import { ThornWhip } from "./spells/level-0/thorn-whip.js";
 import { TrueStrike } from "./spells/level-0/true-strike.js";
 import { ViciousMockery } from "./spells/level-0/vicious-mockery.js";
 
@@ -654,8 +669,11 @@ export class DnD5ESource {
 
     static #spells = [
         // cantrips
-        BladeWard, DancingLights, Friends, Light, MageHand,
-        Mending, Message, MinorIllusion, Prestidigitation, SpareTheDying,
+        AcidSplash, BladeWard, ChillTouch, DancingLights, Druidcraft,
+        EldritchBlast, FireBolt, Friends, Guidance, Light,
+        MageHand, Mending, Message, MinorIllusion, PoisonSpray,
+        Prestidigitation, ProduceFlame, RayOfFrost, Resistance, SacredFlame,
+        Shillelagh, ShockingGrasp, SpareTheDying, Thaumaturgy, ThornWhip,
         TrueStrike, ViciousMockery,
 
         // level 1

@@ -45,8 +45,12 @@ export class AcidVial {
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
-        if (isEquipped) {
-            tempFeatures.push(character.getWeaponAttackCard(inventoryIndex, AcidVial));
+        if (isEquipped) {      
+            const acidVial = character.getWeaponAttackCard(inventoryIndex, AcidVial);
+            acidVial.cardType = "feature-card";
+            acidVial.html = AcidVial.#content;
+            acidVial.cardSource = "equipment";
+            tempFeatures.push(acidVial);
         }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;

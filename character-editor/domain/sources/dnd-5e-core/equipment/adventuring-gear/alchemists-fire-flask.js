@@ -46,11 +46,11 @@ export class AlchemistsFireFlask {
         const tempFeatures = [];
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
-            const attackCard = character.getWeaponAttackCard(inventoryIndex, AlchemistsFireFlask);
-            attackCard.attacks[0].notes.push("The target takes 1d4 fire damage at the start of each of its turns.");
-            attackCard.attacks[0].notes.push(
-                "A creature can end this damage by using its action to make a DC 10 Dexterity check to extinguish the flames.");
-            tempFeatures.push(attackCard);
+            const alchemistsFire = character.getWeaponAttackCard(inventoryIndex, AlchemistsFireFlask);
+            alchemistsFire.cardType = "feature-card";
+            alchemistsFire.html = AlchemistsFireFlask.#content;
+            alchemistsFire.cardSource = "equipment";
+            tempFeatures.push(alchemistsFire);
         }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;

@@ -138,12 +138,99 @@ import { Urchin } from "./backgrounds/urchin.js";
 
 // equipment - adventuring gear
 import { Abacus } from "./equipment/adventuring-gear/abacus.js";
-import { AlchemistsFireFlask } from "./equipment/adventuring-gear/alchemists-fire-flask.js";
 import { AcidVial } from "./equipment/adventuring-gear/acid-vial.js";
+import { AlchemistsFireFlask } from "./equipment/adventuring-gear/alchemists-fire-flask.js";
+import { AmmunitionArrows } from "./equipment/adventuring-gear/ammunition-arrows.js";
+import { AmmunitionBlowgunNeedles } from "./equipment/adventuring-gear/ammunition-blowgun-needles.js";
+import { AmmunitionCrossbowBolts } from "./equipment/adventuring-gear/ammunition-crossbow-bolts.js";
+import { AmmunitionSlingBullets } from "./equipment/adventuring-gear/ammunition-sling-bullets.js";
+import { AntitoxinVial } from "./equipment/adventuring-gear/antitoxin-vial.js";
+import { Backpack } from "./equipment/adventuring-gear/backpack.js";
+import { BallBearings } from "./equipment/adventuring-gear/ball-bearings.js";
+import { Barrel } from "./equipment/adventuring-gear/barrel.js";
+import { Basket } from "./equipment/adventuring-gear/basket.js";
+import { Bedroll } from "./equipment/adventuring-gear/bedroll.js";
+import { Bell } from "./equipment/adventuring-gear/bell.js";
 import { Blanket } from "./equipment/adventuring-gear/blanket.js";
+import { BlockAndTackle } from "./equipment/adventuring-gear/block-and-tackle.js";
+import { Book } from "./equipment/adventuring-gear/book.js";
+import { BottleGlass } from "./equipment/adventuring-gear/bottle-glass.js";
+import { Bucket } from "./equipment/adventuring-gear/bucket.js";
+import { Caltrops } from "./equipment/adventuring-gear/caltrops.js";
+import { Candle } from "./equipment/adventuring-gear/candle.js";
+import { CaseCrossbowBolt } from "./equipment/adventuring-gear/case-crossbow-bolt.js";
 import { CaseMapOrScroll } from "./equipment/adventuring-gear/case-map-or-scroll.js";
+import { Chain } from "./equipment/adventuring-gear/chain.js";
+import { Chalk } from "./equipment/adventuring-gear/chalk.js";
+import { Chest } from "./equipment/adventuring-gear/chest.js";
+import { ClimbersKit } from "./equipment/adventuring-gear/climbers-kit.js";
 import { ClothesCommon } from "./equipment/adventuring-gear/clothes-common.js";
+import { ClothesCostume } from "./equipment/adventuring-gear/clothes-costume.js";
+import { ClothesFine } from "./equipment/adventuring-gear/clothes-fine.js";
+import { ClothesTravelers } from "./equipment/adventuring-gear/clothes-travelers.js";
+import { ComponentPouch } from "./equipment/adventuring-gear/component-pouch.js";
+import { Crowbar } from "./equipment/adventuring-gear/crowbar.js";
+import { EquipmentPackBurglar } from "./equipment/adventuring-gear/equipment-pack-burglar.js";
+import { EquipmentPackDiplomat } from "./equipment/adventuring-gear/equipment-pack-diplomat.js";
+import { EquipmentPackDungeoneer } from "./equipment/adventuring-gear/equipment-pack-dungeoneer.js";
+import { EquipmentPackEntertainer } from "./equipment/adventuring-gear/equipment-pack-entertainer.js";
 import { EquipmentPackExplorer } from "./equipment/adventuring-gear/equipment-pack-explorer.js";
+import { EquipmentPackPriest } from "./equipment/adventuring-gear/equipment-pack-priest.js";
+import { EquipmentPackScholar } from "./equipment/adventuring-gear/equipment-pack-scholar.js";
+import { FishingTackle } from "./equipment/adventuring-gear/fishing-tackle.js";
+import { FlaskOrTankard } from "./equipment/adventuring-gear/flask-or-tankard.js";
+import { GrapplingHook } from "./equipment/adventuring-gear/grappling-hook.js";
+import { HammerSledge } from "./equipment/adventuring-gear/hammer-sledge.js";
+import { Hammer } from "./equipment/adventuring-gear/hammer.js";
+import { HealersKit } from "./equipment/adventuring-gear/healers-kit.js";
+import { HolyWaterFlask } from "./equipment/adventuring-gear/holy-water-flask.js";
+import { Hourglass } from "./equipment/adventuring-gear/hourglass.js";
+import { HuntingTrap } from "./equipment/adventuring-gear/hunting-trap.js";
+import { InkBottle } from "./equipment/adventuring-gear/ink-bottle.js";
+import { InkPen } from "./equipment/adventuring-gear/ink-pen.js";
+import { JugOrPitcher } from "./equipment/adventuring-gear/jug-or-pitcher.js";
+import { Ladder } from "./equipment/adventuring-gear/ladder.js";
+import { Lamp } from "./equipment/adventuring-gear/lamp.js";
+import { LanternBullseye } from "./equipment/adventuring-gear/lantern-bullseye.js";
+import { LanternHooded } from "./equipment/adventuring-gear/lantern-hooded.js";
+import { Lock } from "./equipment/adventuring-gear/lock.js";
+import { MagnifyingGlass } from "./equipment/adventuring-gear/magnifying-glass.js";
+import { Manacles } from "./equipment/adventuring-gear/manacles.js";
+import { MessKit } from "./equipment/adventuring-gear/mess-kit.js";
+import { MirrorSteel } from "./equipment/adventuring-gear/mirror-steel.js";
+import { OilFlask } from "./equipment/adventuring-gear/oil-flask.js";
+import { Paper } from "./equipment/adventuring-gear/paper.js";
+import { Parchment } from "./equipment/adventuring-gear/parchment.js";
+import { Perfume } from "./equipment/adventuring-gear/perfume.js";
+import { PickMiners } from "./equipment/adventuring-gear/pick-miners.js";
+import { Piton } from "./equipment/adventuring-gear/piton.js";
+import { PoisonBasicVial } from "./equipment/adventuring-gear/poison-basic-vial.js";
+import { Pole } from "./equipment/adventuring-gear/pole.js";
+import { PotIron } from "./equipment/adventuring-gear/pot-iron.js";
+import { PotionOfHealing_Gear } from "./equipment/adventuring-gear/potion-of-healing.js";
+import { Pouch } from "./equipment/adventuring-gear/pouch.js";
+import { Quiver } from "./equipment/adventuring-gear/quiver.js";
+import { RamPortable } from "./equipment/adventuring-gear/ram-portable.js";
+import { Rations } from "./equipment/adventuring-gear/rations.js";
+import { Robes } from "./equipment/adventuring-gear/robes.js";
+import { RopeHempen } from "./equipment/adventuring-gear/rope-hempen.js";
+import { RopeSilken } from "./equipment/adventuring-gear/rope-silken.js";
+import { Sack } from "./equipment/adventuring-gear/sack.js";
+import { Scale } from "./equipment/adventuring-gear/scale.js";
+import { SealingWax } from "./equipment/adventuring-gear/sealing-wax.js";
+import { Shovel } from "./equipment/adventuring-gear/shovel.js";
+import { SignalWhistle } from "./equipment/adventuring-gear/signal-whistle.js";
+import { SignetRing } from "./equipment/adventuring-gear/signet-ring.js";
+import { Soap } from "./equipment/adventuring-gear/soap.js";
+import { Spellbook } from "./equipment/adventuring-gear/spellbook.js";
+import { SpikesIron } from "./equipment/adventuring-gear/spikes-iron.js";
+import { Spyglass } from "./equipment/adventuring-gear/spyglass.js";
+import { Tent } from "./equipment/adventuring-gear/tent.js";
+import { Tinderbox } from "./equipment/adventuring-gear/tinderbox.js";
+import { Torch } from "./equipment/adventuring-gear/torch.js";
+import { Vial } from "./equipment/adventuring-gear/vial.js";
+import { Waterskin } from "./equipment/adventuring-gear/waterskin.js";
+import { Whetstone } from "./equipment/adventuring-gear/whetstone.js";
 
 // equipment - armor
 import { BreastPlateArmor } from "./equipment/armor/breastplate-armor.js";
@@ -487,8 +574,25 @@ export class DnD5ESource {
 
     static #equipment = [
         // adventuring-gear
-        Abacus, AlchemistsFireFlask, AcidVial, Blanket, CaseMapOrScroll,
-        ClothesCommon, EquipmentPackExplorer,
+        Abacus, AcidVial, AlchemistsFireFlask, AmmunitionArrows, AmmunitionBlowgunNeedles, 
+        AmmunitionCrossbowBolts, AmmunitionSlingBullets, AntitoxinVial, Backpack, BallBearings, 
+        Barrel, Basket, Bedroll, Bell, Blanket, 
+        BlockAndTackle, Book, BottleGlass, Bucket, Caltrops, 
+        Candle, CaseCrossbowBolt, CaseMapOrScroll, Chain, Chalk, 
+        Chest, ClimbersKit, ClothesCommon, ClothesCostume, ClothesFine, 
+        ClothesTravelers, ComponentPouch, Crowbar, EquipmentPackBurglar, EquipmentPackDiplomat, 
+        EquipmentPackDungeoneer, EquipmentPackEntertainer, EquipmentPackExplorer, EquipmentPackPriest, EquipmentPackScholar, 
+        FishingTackle, FlaskOrTankard, GrapplingHook, HammerSledge, Hammer, 
+        HealersKit, HolyWaterFlask, Hourglass, HuntingTrap, InkBottle, 
+        InkPen, JugOrPitcher, Ladder, Lamp, LanternBullseye, 
+        LanternHooded, Lock, MagnifyingGlass, Manacles, MessKit, 
+        MirrorSteel, OilFlask, Paper, Parchment, Perfume, 
+        PickMiners, Piton, PoisonBasicVial, Pole, PotIron, 
+        PotionOfHealing_Gear, Pouch, Quiver, RamPortable, Rations, 
+        Robes, RopeHempen, RopeSilken, Sack, Scale, 
+        SealingWax, Shovel, SignalWhistle, SignetRing, Soap, 
+        Spellbook, SpikesIron, Spyglass, Tent, Tinderbox, 
+        Torch, Vial, Waterskin, Whetstone, 
 
         // armor
         BreastPlateArmor, ChainMailArmor, ChainShirtArmor, HalfPlateArmor, HideArmor,

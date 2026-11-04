@@ -6,7 +6,7 @@ export class EquipmentPackExplorer {
     static get name() { return "equipment-pack-explorer"; }
     static get title() { return "Equipment pack - Explorer"; }
     static get category() { return "adventuring-gear"; }
-    static get canBeEquipped() { return false; }
+    static get canBeEquipped() { return true; }
     static get html() { return DnD5ESource.getEquipmentHtml(EquipmentPackExplorer, EquipmentPackExplorer.#content); }
 
     static get properties() {

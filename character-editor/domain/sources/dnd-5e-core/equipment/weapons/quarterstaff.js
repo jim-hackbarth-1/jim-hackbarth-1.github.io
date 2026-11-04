@@ -17,7 +17,8 @@ export class Quarterstaff {
             { name: "damage-dice", value: "1d6" },
             { name: "versatile-damage-dice", value: "1d8" },
             { name: "damage-type", value: "bludgeoning" },
-            { name: "versatile" }
+            { name: "versatile" },
+            { name: "polearm" }
         ];
 
     }

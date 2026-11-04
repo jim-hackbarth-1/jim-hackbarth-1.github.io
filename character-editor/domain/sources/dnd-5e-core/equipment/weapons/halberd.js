@@ -18,7 +18,8 @@ export class Halberd {
             { name: "damage-type", value: "slashing" },
             { name: "heavy" },
             { name: "reach" },
-            { name: "two-handed" }
+            { name: "two-handed" },
+            { name: "polearm" }
         ];
 
     }

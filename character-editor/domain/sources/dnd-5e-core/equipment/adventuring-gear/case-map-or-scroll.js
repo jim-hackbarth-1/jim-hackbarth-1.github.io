@@ -6,7 +6,7 @@ export class CaseMapOrScroll {
     static get name() { return "case-map-or-scroll"; }
     static get title() { return "Case, map or scroll"; }
     static get category() { return "adventuring-gear"; }
-    static get canBeEquipped() { return false; }
+    static get canBeEquipped() { return true; }
     static get html() { return DnD5ESource.getEquipmentHtml(CaseMapOrScroll, CaseMapOrScroll.#content); }
 
     static get properties() {

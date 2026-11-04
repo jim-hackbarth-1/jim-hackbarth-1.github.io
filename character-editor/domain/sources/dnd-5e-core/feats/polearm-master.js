@@ -26,11 +26,10 @@ export class PolearmMaster {
 
     static applyFeatures(features, character, classIndex, level) {
         const tempFeatures = [];
-        const polearms = ["glaive", "halberd", "quarterstaff", "spear"];
         const polearm = character.equipment.find(e =>
             e.isEquipped
             && e.properties
-            && e.properties.some(p => p.name == "weapon-name" && polearms.includes(p.value)));
+            && e.properties.some(p => p.name == "polearm"));
         if (polearm) {
             const polearmTitle = polearm.properties.find(p => p.name == "weapon-title")?.value ?? "Polearm";
             const haft = {

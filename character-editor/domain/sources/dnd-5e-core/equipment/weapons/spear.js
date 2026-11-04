@@ -19,7 +19,8 @@ export class Spear {
             { name: "damage-type", value: "piercing" },
             { name: "range", value: "20/60" },
             { name: "thrown" },
-            { name: "versatile" }
+            { name: "versatile" },
+            { name: "polearm" }
         ];
     }
 

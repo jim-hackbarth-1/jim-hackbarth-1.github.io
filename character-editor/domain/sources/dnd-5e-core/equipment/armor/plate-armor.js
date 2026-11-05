@@ -7,7 +7,7 @@ export class PlateArmor {
     static get title() { return "Plate"; }
     static get category() { return "armor"; }
     static get canBeEquipped() { return true; }
-    static get html() { return ""; }
+    static get html() { return DnD5ESource.getEquipmentHtml(PlateArmor, PlateArmor.#content); }
     static get armorType() { return "heavy-armor"; }
 
     static get properties() {
@@ -47,7 +47,7 @@ export class PlateArmor {
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
             modifiers.push({
-                name: `${PlateArmor.name}-ac-modifier`,
+                name: `${PlateArmor.name}-inventory-index-${inventoryIndex}-ac-modifier`,
                 target: "armor-class",
                 value: 8,
                 title: PlateArmor.title
@@ -80,4 +80,9 @@ export class PlateArmor {
 
     }
 
+    static #content = `
+        <p>
+            Plate consists of shaped, interlocking metal plates to cover the entire body. A suit of plate includes gauntlets, heavy leather boots, a visored helmet, and thick layers of padding underneath the armor. Buckles and straps distribute the weight over the body.
+        </p>
+    `;
 }

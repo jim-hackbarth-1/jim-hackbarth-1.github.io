@@ -7,7 +7,7 @@ export class HideArmor {
     static get title() { return "Hide"; }
     static get category() { return "armor"; }
     static get canBeEquipped() { return true; }
-    static get html() { return ""; }
+    static get html() { return DnD5ESource.getEquipmentHtml(HideArmor, HideArmor.#content); }
     static get armorType() { return "medium-armor"; }
 
     static get properties() {
@@ -44,7 +44,7 @@ export class HideArmor {
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
             modifiers.push({
-                name: `${HideArmor.name}-ac-modifier`,
+                name: `${HideArmor.name}-inventory-index-${inventoryIndex}-ac-modifier`,
                 target: "armor-class",
                 value: 2,
                 title: HideArmor.title
@@ -67,4 +67,9 @@ export class HideArmor {
 
     }
 
+    static #content = `
+        <p>
+            This crude armor consists of thick furs and pelts.
+        </p>
+    `;
 }

@@ -7,7 +7,7 @@ export class SplintArmor {
     static get title() { return "Splint"; } 
     static get category() { return "armor"; }
     static get canBeEquipped() { return true; }
-    static get html() { return ""; }
+    static get html() { return DnD5ESource.getEquipmentHtml(SplintArmor, SplintArmor.#content); }
     static get armorType() { return "heavy-armor"; }
 
     static get properties() {
@@ -47,7 +47,7 @@ export class SplintArmor {
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
             modifiers.push({
-                name: `${SplintArmor.name}-ac-modifier`,
+                name: `${SplintArmor.name}-inventory-index-${inventoryIndex}-ac-modifier`,
                 target: "armor-class",
                 value: 7,
                 title: SplintArmor.title
@@ -80,4 +80,9 @@ export class SplintArmor {
 
     }
 
+    static #content = `
+        <p>
+            This armor is made of narrow vertical strips of metal riveted to a backing of leather that is worn over cloth padding. Flexible chain mail protects the joints.
+        </p>
+    `;
 }

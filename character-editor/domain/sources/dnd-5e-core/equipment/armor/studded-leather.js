@@ -7,7 +7,7 @@ export class StuddedLeatherArmor {
     static get title() { return "Studded leather"; }
     static get category() { return "armor"; }
     static get canBeEquipped() { return true; }
-    static get html() { return ""; }
+    static get html() { return DnD5ESource.getEquipmentHtml(StuddedLeatherArmor, StuddedLeatherArmor.#content); }
     static get armorType() { return "light-armor"; }
 
     static get properties() {
@@ -44,7 +44,7 @@ export class StuddedLeatherArmor {
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
             modifiers.push({
-                name: `${StuddedLeatherArmor.name}-ac-modifier`,
+                name: `${StuddedLeatherArmor.name}-inventory-index-${inventoryIndex}-ac-modifier`,
                 target: "armor-class",
                 value: 2,
                 title: StuddedLeatherArmor.title
@@ -67,4 +67,9 @@ export class StuddedLeatherArmor {
 
     }
 
+    static #content = `
+        <p>
+            Made from tough but flexible leather, studded leather is reinforced with close-set rivets or spikes.
+        </p>
+    `;
 }

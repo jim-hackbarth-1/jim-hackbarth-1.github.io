@@ -157,8 +157,14 @@ class DomainEquipmentModel {
         const allEquipmentItems = this.#kitElement.querySelectorAll(".equipment-item");
         for (const item of allEquipmentItems) {
             item.querySelector(".equipment-item-html").classList.add("hidden");
-            item.querySelector(".expand-button").classList.remove("hidden");
-            item.querySelector(".collapse-button").classList.add("hidden");
+            const expandButton = item.querySelector(".expand-button");
+            if (expandButton) {
+                expandButton.classList.remove("hidden");
+            }
+            const collapseButton = item.querySelector(".collapse-button");
+            if (collapseButton) {
+                collapseButton.classList.add("hidden");
+            }
         }
         if (isCollapsed) {
             const html = await Sources.getEquipmentHtml(DomainEquipmentModel.#character.sources, name);

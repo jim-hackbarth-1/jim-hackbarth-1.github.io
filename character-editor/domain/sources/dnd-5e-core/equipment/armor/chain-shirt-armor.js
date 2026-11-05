@@ -7,7 +7,7 @@ export class ChainShirtArmor {
     static get title() { return "Chain shirt"; }
     static get category() { return "armor"; }
     static get canBeEquipped() { return true; }
-    static get html() { return ""; }
+    static get html() { return DnD5ESource.getEquipmentHtml(ChainShirtArmor, ChainShirtArmor.#content); }
     static get armorType() { return "medium-armor"; }
 
     static get properties() {
@@ -41,7 +41,7 @@ export class ChainShirtArmor {
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
             modifiers.push({
-                name: `${ChainShirtArmor.name}-ac-modifier`,
+                name: `${ChainShirtArmor.name}-inventory-index-${inventoryIndex}-ac-modifier`,
                 target: "armor-class",
                 value: 3,
                 title: ChainShirtArmor.title
@@ -63,5 +63,11 @@ export class ChainShirtArmor {
     static applySpells(spells, character, inventoryIndex) {
 
     }
+
+    static #content = `
+        <p>
+            Made of interlocking metal rings, a chain shirt is worn between layers of clothing or leather. This armor offers modest protection to the wearer's upper body and allows the sound of the rings rubbing against one another to be muffled by outer layers.
+        </p>
+    `;
 
 }

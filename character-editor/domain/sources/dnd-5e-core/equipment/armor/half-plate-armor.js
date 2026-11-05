@@ -7,7 +7,7 @@ export class HalfPlateArmor {
     static get title() { return "Half plate"; }
     static get category() { return "armor"; }
     static get canBeEquipped() { return true; }
-    static get html() { return ""; }
+    static get html() { return DnD5ESource.getEquipmentHtml(HalfPlateArmor, HalfPlateArmor.#content); }
     static get armorType() { return "medium-armor"; }
 
     static get properties() {
@@ -45,7 +45,7 @@ export class HalfPlateArmor {
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
             modifiers.push({
-                name: `${HalfPlateArmor.name}-ac-modifier`,
+                name: `${HalfPlateArmor.name}-inventory-index-${inventoryIndex}-ac-modifier`,
                 target: "armor-class",
                 value: 5,
                 title: HalfPlateArmor.title
@@ -67,5 +67,11 @@ export class HalfPlateArmor {
     static applySpells(spells, character, inventoryIndex) {
 
     }
+
+    static #content = `
+        <p>
+            Half plate consists of shaped metal plates that cover most of the wearer's body. It does not include leg protection beyond simple greaves that are attached with leather straps.
+        </p>
+    `;
 
 }

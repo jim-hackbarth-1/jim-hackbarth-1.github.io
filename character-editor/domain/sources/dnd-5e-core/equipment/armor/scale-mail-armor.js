@@ -7,7 +7,7 @@ export class ScaleMailArmor {
     static get title() { return "Scale mail"; }
     static get category() { return "armor"; }
     static get canBeEquipped() { return true; }
-    static get html() { return ""; }
+    static get html() { return DnD5ESource.getEquipmentHtml(ScaleMailArmor, ScaleMailArmor.#content); }
     static get armorType() { return "medium-armor"; }
 
     static get properties() {
@@ -45,7 +45,7 @@ export class ScaleMailArmor {
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
             modifiers.push({
-                name: `${ScaleMailArmor.name}-ac-modifier`,
+                name: `${ScaleMailArmor.name}-inventory-index-${inventoryIndex}-ac-modifier`,
                 target: "armor-class",
                 value: 4,
                 title: ScaleMailArmor.title
@@ -68,4 +68,9 @@ export class ScaleMailArmor {
 
     }
 
+    static #content = `
+        <p>
+            This armor consists of a coat and leggings (and perhaps a separate skirt) of leather covered with overlapping pieces of metal, much like the scales of a fish. The suit includes gauntlets.
+        </p>
+    `;
 }

@@ -7,7 +7,7 @@ export class Shield {
     static get title() { return "Shield"; }
     static get category() { return "armor"; }
     static get canBeEquipped() { return true; }
-    static get html() { return ""; }
+    static get html() { return DnD5ESource.getEquipmentHtml(Shield, Shield.#content); }
     static get armorType() { return "shield"; }
 
     static get properties() {
@@ -41,7 +41,7 @@ export class Shield {
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
             modifiers.push({
-                name: "shield-ac-modifier",
+                name: `${Shield.name}-inventory-index-${inventoryIndex}-ac-modifier`,
                 target: "armor-class",
                 value: 2,
                 title: Shield.title
@@ -64,4 +64,9 @@ export class Shield {
 
     }
 
+    static #content = `
+        <p>
+            A shield is made from wood or metal and is carried in one hand. Wielding a shield increases your Armor Class by 2. You can benefit from only one shield at a time.
+        </p>
+    `;
 }

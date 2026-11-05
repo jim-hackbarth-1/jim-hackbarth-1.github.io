@@ -7,7 +7,7 @@ export class PaddedArmor {
     static get title() { return "Padded"; }
     static get category() { return "armor"; }
     static get canBeEquipped() { return true; }
-    static get html() { return ""; }
+    static get html() { return DnD5ESource.getEquipmentHtml(PaddedArmor, PaddedArmor.#content); }
     static get armorType() { return "light-armor"; }
 
     static get properties() {
@@ -45,7 +45,7 @@ export class PaddedArmor {
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
             modifiers.push({
-                name: `${PaddedArmor.name}-ac-modifier`,
+                name: `${PaddedArmor.name}-inventory-index-${inventoryIndex}-ac-modifier`,
                 target: "armor-class",
                 value: 1,
                 title: PaddedArmor.title
@@ -68,4 +68,9 @@ export class PaddedArmor {
 
     }
 
+    static #content = `
+        <p>
+            Padded armor consists of quilted layers of cloth and batting.
+        </p>
+    `;
 }

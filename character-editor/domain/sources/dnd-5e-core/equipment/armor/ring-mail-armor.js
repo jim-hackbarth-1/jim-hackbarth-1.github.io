@@ -7,7 +7,7 @@ export class RingMailArmor {
     static get title() { return "Ring mail"; }
     static get category() { return "armor"; }
     static get canBeEquipped() { return true; }
-    static get html() { return ""; }
+    static get html() { return DnD5ESource.getEquipmentHtml(RingMailArmor, RingMailArmor.#content); }
     static get armorType() { return "heavy-armor"; }
 
     static get properties() {
@@ -45,7 +45,7 @@ export class RingMailArmor {
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
             modifiers.push({
-                name: `${RingMailArmor.name}-ac-modifier`,
+                name: `${RingMailArmor.name}-inventory-index-${inventoryIndex}-ac-modifier`,
                 target: "armor-class",
                 value: 4,
                 title: RingMailArmor.title
@@ -68,4 +68,9 @@ export class RingMailArmor {
 
     }
 
+    static #content = `
+        <p>
+            This armor is leather armor with heavy rings sewn into it. The rings help reinforce the armor against blows from swords and axes. Ring mail is inferior to chain mail, and it's usually worn only by those who can't afford better armor.
+        </p>
+    `;
 }

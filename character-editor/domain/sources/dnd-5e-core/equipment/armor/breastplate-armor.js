@@ -7,7 +7,7 @@ export class BreastPlateArmor {
     static get title() { return "Breastplate"; }
     static get category() { return "armor"; }
     static get canBeEquipped() { return true; }
-    static get html() { return ""; }
+    static get html() { return DnD5ESource.getEquipmentHtml(BreastPlateArmor, BreastPlateArmor.#content); }
     static get armorType() { return "medium-armor"; }
 
     static get properties() {
@@ -41,7 +41,7 @@ export class BreastPlateArmor {
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
             modifiers.push({
-                name: `${BreastPlateArmor.name}-ac-modifier`,
+                name: `${BreastPlateArmor.name}-inventory-index-${inventoryIndex}-ac-modifier`,
                 target: "armor-class",
                 value: 4,
                 title: BreastPlateArmor.title
@@ -63,5 +63,11 @@ export class BreastPlateArmor {
     static applySpells(spells, character, inventoryIndex) {
 
     }
+
+    static #content = `
+        <p>
+            This armor consists of a fitted metal chest piece worn with supple leather. Although it leaves the legs and arms relatively unprotected, this armor provides good protection for the wearer's vital organs while leaving the wearer relatively unencumbered.
+        </p>
+    `;
 
 }

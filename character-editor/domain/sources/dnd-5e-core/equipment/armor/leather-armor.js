@@ -7,7 +7,7 @@ export class LeatherArmor {
     static get title() { return "Leather"; }
     static get category() { return "armor"; }
     static get canBeEquipped() { return true; }
-    static get html() { return ""; }
+    static get html() { return DnD5ESource.getEquipmentHtml(LeatherArmor, LeatherArmor.#content); }
     static get armorType() { return "light-armor"; }
 
     static get properties() {
@@ -44,7 +44,7 @@ export class LeatherArmor {
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
             modifiers.push({
-                name: `${LeatherArmor.name}-ac-modifier`,
+                name: `${LeatherArmor.name}-inventory-index-${inventoryIndex}-ac-modifier`,
                 target: "armor-class",
                 value: 1,
                 title: LeatherArmor.title
@@ -67,4 +67,9 @@ export class LeatherArmor {
 
     }
 
+    static #content = `
+        <p>
+            The breastplate and shoulder protectors of this armor are made of leather that has been stiffened by being boiled in oil. The rest of the armor is made of softer and more flexible materials.
+        </p>
+    `;
 }

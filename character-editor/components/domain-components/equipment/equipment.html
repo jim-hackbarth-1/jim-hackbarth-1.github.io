@@ -189,16 +189,14 @@
                                     </div>
                                 </div>
                                 <div class="equipment-cell">
-                                    <div>
+                                    <div kit-if="#item.html || #item.htmlPath">
                                         <div class="toggle-button expand-button"
                                              title="Show Detail"
-                                             kit-if="#item.html || #item.htmlPath"
                                              onpointerdown="#model.toggleEquipmentDetail(event, '%{#item.name}%')"
                                              kit-component="no-model:./resources/icons/expand.html">
                                         </div>
                                         <div class="toggle-button collapse-button hidden"
                                              title="Hide Detail"
-                                             kit-if="#item.html || #item.htmlPath"
                                              onpointerdown="#model.toggleEquipmentDetail(event, '%{#item.name}%')"
                                              kit-component="no-model:./resources/icons/collapse.html">
                                         </div>

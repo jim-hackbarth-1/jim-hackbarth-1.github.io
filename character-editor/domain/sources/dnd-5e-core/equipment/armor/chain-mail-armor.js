@@ -7,7 +7,7 @@ export class ChainMailArmor {
     static get title() { return "Chain mail"; }
     static get category() { return "armor"; }
     static get canBeEquipped() { return true; }
-    static get html() { return ""; }
+    static get html() { return DnD5ESource.getEquipmentHtml(ChainMailArmor, ChainMailArmor.#content); }
     static get armorType() { return "heavy-armor"; }
 
     static get properties() {
@@ -46,7 +46,7 @@ export class ChainMailArmor {
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
             modifiers.push({
-                name: `${ChainMailArmor.name}-ac-modifier`,
+                name: `${ChainMailArmor.name}-inventory-index-${inventoryIndex}-ac-modifier`,
                 target: "armor-class",
                 value: 6,
                 title: ChainMailArmor.title
@@ -78,5 +78,11 @@ export class ChainMailArmor {
     static applySpells(spells, character, inventoryIndex) {
 
     }
+
+    static #content = `
+        <p>
+            Made of interlocking metal rings, chain mail includes a layer of quilted fabric worn underneath the mail to prevent chafing and to cushion the impact of blows. The suit includes gauntlets.
+        </p>
+    `;
 
 }

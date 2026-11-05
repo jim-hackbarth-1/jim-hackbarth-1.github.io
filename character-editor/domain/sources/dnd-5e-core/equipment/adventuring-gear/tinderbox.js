@@ -31,10 +31,15 @@ export class Tinderbox {
 
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(Tinderbox.name, Tinderbox.title, Tinderbox.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(character.getFeatureCard(
+                `equipment-${inventoryIndex}-${Tinderbox.name}`, Tinderbox.title, Tinderbox.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = Tinderbox.name
+            feature.sourcePropertyValue = Tinderbox.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

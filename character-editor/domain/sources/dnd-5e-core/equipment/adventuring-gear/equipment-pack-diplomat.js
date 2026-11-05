@@ -31,10 +31,15 @@ export class EquipmentPackDiplomat{
 
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(EquipmentPackDiplomat.name, EquipmentPackDiplomat.title, EquipmentPackDiplomat.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(character.getFeatureCard(
+                `equipment-${inventoryIndex}-${EquipmentPackDiplomat.name}`, EquipmentPackDiplomat.title, EquipmentPackDiplomat.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = EquipmentPackDiplomat.name
+            feature.sourcePropertyValue = EquipmentPackDiplomat.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

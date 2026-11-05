@@ -31,10 +31,15 @@ export class RopeSilken {
 
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(RopeSilken.name, RopeSilken.title, RopeSilken.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(character.getFeatureCard(
+                `equipment-${inventoryIndex}-${RopeSilken.name}`, RopeSilken.title, RopeSilken.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = RopeSilken.name
+            feature.sourcePropertyValue = RopeSilken.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

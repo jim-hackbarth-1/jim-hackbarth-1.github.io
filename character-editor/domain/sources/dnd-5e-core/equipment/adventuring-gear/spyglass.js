@@ -31,10 +31,15 @@ export class Spyglass {
 
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(Spyglass.name, Spyglass.title, Spyglass.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(character.getFeatureCard(
+                `equipment-${inventoryIndex}-${Spyglass.name}`, Spyglass.title, Spyglass.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = Spyglass.name
+            feature.sourcePropertyValue = Spyglass.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

@@ -31,10 +31,14 @@ export class Chain {
 
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(Chain.name, Chain.title, Chain.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(character.getFeatureCard(`equipment-${inventoryIndex}-${Chain.name}`, Chain.title, Chain.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = Chain.name
+            feature.sourcePropertyValue = Chain.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

@@ -31,10 +31,15 @@ export class AntitoxinVial {
 
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(AntitoxinVial.name, AntitoxinVial.title, AntitoxinVial.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(
+                character.getFeatureCard(`equipment-${inventoryIndex}-${AntitoxinVial.name}`, AntitoxinVial.title, AntitoxinVial.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = AntitoxinVial.name
+            feature.sourcePropertyValue = AntitoxinVial.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

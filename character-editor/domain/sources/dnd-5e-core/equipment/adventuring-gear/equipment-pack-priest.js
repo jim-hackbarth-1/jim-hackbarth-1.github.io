@@ -31,10 +31,15 @@ export class EquipmentPackPriest {
 
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(EquipmentPackPriest.name, EquipmentPackPriest.title, EquipmentPackPriest.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(character.getFeatureCard(
+                `equipment-${inventoryIndex}-${EquipmentPackPriest.name}`, EquipmentPackPriest.title, EquipmentPackPriest.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = EquipmentPackPriest.name
+            feature.sourcePropertyValue = EquipmentPackPriest.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

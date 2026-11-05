@@ -54,7 +54,8 @@ export class AcidVial {
         }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = AcidVial.name
+            feature.sourcePropertyValue = AcidVial.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

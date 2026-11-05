@@ -31,10 +31,15 @@ export class EquipmentPackDungeoneer {
 
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(EquipmentPackDungeoneer.name, EquipmentPackDungeoneer.title, EquipmentPackDungeoneer.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(character.getFeatureCard(
+                `equipment-${inventoryIndex}-${EquipmentPackDungeoneer.name}`, EquipmentPackDungeoneer.title, EquipmentPackDungeoneer.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = EquipmentPackDungeoneer.name
+            feature.sourcePropertyValue = EquipmentPackDungeoneer.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

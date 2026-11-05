@@ -471,7 +471,11 @@ class DomainAlignmentAndBackgroundModel {
             if (!background?.getTraits) {
                 return [];
             }
-            this.#traits = background.getTraits();
+            const traits = background.getTraits();
+            for (const trait of traits) {
+                trait.title = `<p style="font-family:Calibri,sans-serif;">${trait.title}</p>`
+            }
+            this.#traits = traits;
         }
         return this.#traits;
     }
@@ -483,7 +487,11 @@ class DomainAlignmentAndBackgroundModel {
             if (!background?.getIdeals) {
                 return [];
             }
-            this.#ideals = background.getIdeals();
+            const ideals = background.getIdeals();
+            for (const ideal of ideals) {
+                ideal.title = `<p style="font-family:Calibri,sans-serif;">${ideal.title}</p>`
+            }
+            this.#ideals = ideals;
         }
         return this.#ideals;
     }
@@ -495,7 +503,11 @@ class DomainAlignmentAndBackgroundModel {
             if (!background?.getBonds) {
                 return [];
             }
-            this.#bonds = background.getBonds();
+            const bonds = background.getBonds();
+            for (const bond of bonds) {
+                bond.title = `<p style="font-family:Calibri,sans-serif;">${bond.title}</p>`
+            }
+            this.#bonds = bonds;
         }
         return this.#bonds;
     }
@@ -507,7 +519,11 @@ class DomainAlignmentAndBackgroundModel {
             if (!background?.getFlaws) {
                 return [];
             }
-            this.#flaws = background.getFlaws();
+            const flaws = background.getFlaws();
+            for (const flaw of flaws) {
+                flaw.title = `<p style="font-family:Calibri,sans-serif;">${flaw.title}</p>`
+            }
+            this.#flaws = flaws;
         }
         return this.#flaws;
     }

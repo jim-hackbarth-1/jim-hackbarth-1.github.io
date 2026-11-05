@@ -166,7 +166,11 @@ class PrintViewModel {
         let classesHtml = "";
         const characterClasses = character.classes.filter(c => c.value && c.text && c.level);
         for (const characterClass of characterClasses) {
-            classesHtml += `<div class="row no-wrap">${characterClass.text}, Level ${characterClass.level}</div>`;
+            let className = characterClass.text;
+            if (characterClass.subClass?.text) {
+                className += ` (${characterClass.subClass.text})`;
+            }
+            classesHtml += `<div class="row no-wrap">${className}, Level ${characterClass.level}</div>`;
         }
         this.#kitElement.querySelector("#classes").innerHTML = classesHtml;
     }
@@ -367,7 +371,15 @@ class PrintViewModel {
         this.#kitElement.querySelector("#features-col-2").innerHTML = `<div id="features-col-2-placeholder"></div>`;
         this.#kitElement.querySelector("#features-col-3").innerHTML = `<div id="features-col-3-placeholder"></div>`;
         this.#kitElement.querySelector("#features-col-3-placeholder").outerHTML = this.#getEquipmentCardHtml(character);
-        const featureCards = features.filter(f => f.cardType == "feature-card");
+        const allFeatureCards = features.filter(f => f.cardType == "feature-card");
+        let featureCards = [];
+        for (const card of allFeatureCards) {
+            card.uniqueCheck = `${card.title ?? ""}+${card.cardSource ?? ""}`;
+            if (!featureCards.some(fc => fc.uniqueCheck == card.uniqueCheck)) {
+                featureCards.push(card);
+            }
+        }
+        featureCards = Utilities.sort(featureCards, "title");
         this.#kitElement.querySelector("#features-col-1-placeholder").outerHTML = this.#getFeaturesUseInfoCardHtml(featureCards);
         const featuresLength = featureCards.length;
         for (let i = 0; i < featuresLength; i++) {

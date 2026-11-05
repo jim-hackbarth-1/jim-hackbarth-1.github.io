@@ -31,10 +31,14 @@ export class HealersKit {
 
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(HealersKit.name, HealersKit.title, HealersKit.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(character.getFeatureCard(`equipment-${inventoryIndex}-${HealersKit.name}`, HealersKit.title, HealersKit.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = HealersKit.name
+            feature.sourcePropertyValue = HealersKit.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

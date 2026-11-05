@@ -399,6 +399,31 @@ export class Character {
         return Character.#featureUtilities.getSpellCard(this, spell, html, characterSpellClasses, attackInfo);
     }
 
+    getBackgroundHtml() {
+        let backgroundHtml = "";
+        let traitsHtml = "";
+        if (this.traits) {
+            for (const trait of this.traits) {
+                if (trait.text) {
+                    traitsHtml += trait.text;
+                }
+            }
+        }
+        if (traitsHtml) {
+            backgroundHtml += "<div><p><b>Traits</b></p>" + traitsHtml + "</div>";
+        }
+        if (this.ideal?.text) {
+            backgroundHtml += "<div style='margin-top:5px;'><p><b>Ideal</b></p>" + this.ideal.text + "</div>";
+        }
+        if (this.bond?.text) {
+            backgroundHtml += "<div style='margin-top:5px;'><p><b>Bond</b></p>" + this.bond.text + "</div>";
+        }
+        if (this.flaw?.text) {
+            backgroundHtml += "<div style='margin-top:5px;'><p><b>Flaw</b></p>" + this.flaw.text + "</div>";
+        }
+        return backgroundHtml;
+    }
+
     get level() {
         let level = 0;
         const levels = this.classes.map(cls => Number(cls.level));

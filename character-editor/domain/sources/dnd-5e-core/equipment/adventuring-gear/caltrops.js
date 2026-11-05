@@ -31,10 +31,14 @@ export class Caltrops {
 
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(Caltrops.name, Caltrops.title, Caltrops.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(character.getFeatureCard(`equipment-${inventoryIndex}-${Caltrops.name}`, Caltrops.title, Caltrops.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = Caltrops.name
+            feature.sourcePropertyValue = Caltrops.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

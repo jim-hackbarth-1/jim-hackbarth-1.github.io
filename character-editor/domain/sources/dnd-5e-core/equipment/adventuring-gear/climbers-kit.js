@@ -31,10 +31,15 @@ export class ClimbersKit {
 
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(ClimbersKit.name, ClimbersKit.title, ClimbersKit.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(character.getFeatureCard(
+                `equipment-${inventoryIndex}-${ClimbersKit.name}`, ClimbersKit.title, ClimbersKit.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = ClimbersKit.name
+            feature.sourcePropertyValue = ClimbersKit.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

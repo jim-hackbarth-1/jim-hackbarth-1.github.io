@@ -27,10 +27,15 @@ export class BallBearings {
 
     static applyModifiers(character, inventoryIndex, targetFilters) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(BallBearings.name, BallBearings.title, BallBearings.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(character.getFeatureCard(
+                `equipment-${inventoryIndex}-${BallBearings.name}`, BallBearings.title, BallBearings.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = BallBearings.name
+            feature.sourcePropertyValue = BallBearings.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

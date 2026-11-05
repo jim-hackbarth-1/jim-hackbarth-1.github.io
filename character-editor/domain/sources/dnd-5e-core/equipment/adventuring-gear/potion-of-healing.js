@@ -31,10 +31,15 @@ export class PotionOfHealing_Gear {
 
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(PotionOfHealing_Gear.name, PotionOfHealing_Gear.title, PotionOfHealing_Gear.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(character.getFeatureCard(
+                `equipment-${inventoryIndex}-${PotionOfHealing_Gear.name}`, PotionOfHealing_Gear.title, PotionOfHealing_Gear.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = PotionOfHealing_Gear.name
+            feature.sourcePropertyValue = PotionOfHealing_Gear.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

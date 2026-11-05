@@ -31,10 +31,15 @@ export class MagnifyingGlass {
 
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(MagnifyingGlass.name, MagnifyingGlass.title, MagnifyingGlass.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(character.getFeatureCard(
+                `equipment-${inventoryIndex}-${MagnifyingGlass.name}`, MagnifyingGlass.title, MagnifyingGlass.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = MagnifyingGlass.name
+            feature.sourcePropertyValue = MagnifyingGlass.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

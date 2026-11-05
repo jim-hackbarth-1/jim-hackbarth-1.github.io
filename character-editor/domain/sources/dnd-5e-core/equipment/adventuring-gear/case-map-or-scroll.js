@@ -31,10 +31,15 @@ export class CaseMapOrScroll {
 
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(CaseMapOrScroll.name, CaseMapOrScroll.title, CaseMapOrScroll.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(character.getFeatureCard(
+                `equipment-${inventoryIndex}-${CaseMapOrScroll.name}`, CaseMapOrScroll.title, CaseMapOrScroll.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = CaseMapOrScroll.name
+            feature.sourcePropertyValue = CaseMapOrScroll.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

@@ -630,19 +630,18 @@ export class Sources {
             ]
         };
         features.push(character.getWeaponAttackCard(-1, basicImprovisedWeapon));
-        const basicGrappleShove = {
+        features.push({
             name: "basic-grapple-shove",
             title: "Grapple/shove",
-            properties: [
-                { name: "weapon-name", value: "basic-grapple-shove" }
+            cardType: "attack-card",
+            attacks: [
+                {
+                    description: "Athletics vs. Athletics or Acrobatics",
+                    modifiers: [],
+                    notes: ["Target is grappled, knocked prone, or moved 5 ft."]
+                }
             ]
-        };
-        const grappleShoveFeature = character.getWeaponAttackCard(-1, basicGrappleShove);
-        grappleShoveFeature.attacks[0].notes = [
-            "Athletics vs. Athletics or Acrobatics",
-            "Target is grappled, knocked prone, or moved 5 ft."
-        ];
-        features.push(grappleShoveFeature);
+        });
 
         return features;
 

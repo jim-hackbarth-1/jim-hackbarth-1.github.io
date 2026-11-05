@@ -31,10 +31,15 @@ export class Spellbook {
 
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(Spellbook.name, Spellbook.title, Spellbook.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(character.getFeatureCard(
+                `equipment-${inventoryIndex}-${Spellbook.name}`, Spellbook.title, Spellbook.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = Spellbook.name
+            feature.sourcePropertyValue = Spellbook.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

@@ -31,10 +31,15 @@ export class RopeHempen {
 
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(RopeHempen.name, RopeHempen.title, RopeHempen.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(character.getFeatureCard(
+                `equipment-${inventoryIndex}-${RopeHempen.name}`, RopeHempen.title, RopeHempen.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = RopeHempen.name
+            feature.sourcePropertyValue = RopeHempen.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

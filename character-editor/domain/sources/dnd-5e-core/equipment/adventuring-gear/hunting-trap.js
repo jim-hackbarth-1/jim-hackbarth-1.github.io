@@ -31,10 +31,15 @@ export class HuntingTrap {
 
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(HuntingTrap.name, HuntingTrap.title, HuntingTrap.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(character.getFeatureCard(
+                `equipment-${inventoryIndex}-${HuntingTrap.name}`, HuntingTrap.title, HuntingTrap.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = HuntingTrap.name
+            feature.sourcePropertyValue = HuntingTrap.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

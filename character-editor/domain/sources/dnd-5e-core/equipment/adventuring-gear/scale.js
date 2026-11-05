@@ -31,10 +31,14 @@ export class Scale {
 
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(Scale.name, Scale.title, Scale.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(character.getFeatureCard(`equipment-${inventoryIndex}-${Scale.name}`, Scale.title, Scale.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = Scale.name
+            feature.sourcePropertyValue = Scale.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

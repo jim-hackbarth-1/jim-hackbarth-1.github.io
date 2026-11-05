@@ -31,10 +31,15 @@ export class ComponentPouch {
 
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(ComponentPouch.name, ComponentPouch.title, ComponentPouch.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(character.getFeatureCard(
+                `equipment-${inventoryIndex}-${ComponentPouch.name}`, ComponentPouch.title, ComponentPouch.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = ComponentPouch.name
+            feature.sourcePropertyValue = ComponentPouch.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

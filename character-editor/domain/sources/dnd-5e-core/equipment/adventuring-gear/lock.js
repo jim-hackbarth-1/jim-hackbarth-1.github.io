@@ -31,10 +31,14 @@ export class Lock {
 
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(Lock.name, Lock.title, Lock.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(character.getFeatureCard(`equipment-${inventoryIndex}-${Lock.name}`, Lock.title, Lock.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = Lock.name
+            feature.sourcePropertyValue = Lock.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

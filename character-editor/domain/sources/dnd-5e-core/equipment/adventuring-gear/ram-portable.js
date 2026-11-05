@@ -31,10 +31,15 @@ export class RamPortable {
 
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(RamPortable.name, RamPortable.title, RamPortable.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(character.getFeatureCard(
+                `equipment-${inventoryIndex}-${RamPortable.name}`, RamPortable.title, RamPortable.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = RamPortable.name
+            feature.sourcePropertyValue = RamPortable.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

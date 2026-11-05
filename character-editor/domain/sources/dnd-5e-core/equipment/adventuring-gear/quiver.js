@@ -31,10 +31,14 @@ export class Quiver {
 
     static applyFeatures(features, character, inventoryIndex) {
         const tempFeatures = [];
-        tempFeatures.push(character.getFeatureCard(Quiver.name, Quiver.title, Quiver.#content));
+        const isEquipped = character.equipment[inventoryIndex].isEquipped;
+        if (isEquipped) {
+            tempFeatures.push(character.getFeatureCard(`equipment-${inventoryIndex}-${Quiver.name}`, Quiver.title, Quiver.#content));
+        }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = Quiver.name
+            feature.sourcePropertyValue = Quiver.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

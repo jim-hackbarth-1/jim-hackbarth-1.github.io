@@ -54,7 +54,8 @@ export class AlchemistsFireFlask {
         }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = AlchemistsFireFlask.name
+            feature.sourcePropertyValue = AlchemistsFireFlask.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

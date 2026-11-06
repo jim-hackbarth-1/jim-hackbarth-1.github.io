@@ -20,11 +20,11 @@ export class Quarterstaff {
             { name: "versatile" },
             { name: "polearm" }
         ];
-
     }
+
     static get displayProperties() {
         return [
-            "Cost: 22p",
+            "Cost: 2sp",
             "Damage: 1d6 bludgeoning",
             "Simple melee weapon",
             "Properties: Versatile (1d8)"

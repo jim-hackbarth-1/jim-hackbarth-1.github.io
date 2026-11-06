@@ -17,9 +17,7 @@ export class Lute {
         ];
     }
 
-    static get displayProperties() {
-        return [];
-    }
+    static get displayProperties() { return ["Cost: 35gp"]; }
 
     static getSelections(character, inventoryIndex) {
         return [];

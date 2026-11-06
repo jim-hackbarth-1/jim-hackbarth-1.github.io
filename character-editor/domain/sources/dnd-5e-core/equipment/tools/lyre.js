@@ -17,9 +17,7 @@ export class Lyre {
         ];
     }
 
-    static get displayProperties() {
-        return [];
-    }
+    static get displayProperties() { return ["Cost: 30gp"]; }
 
     static getSelections(character, inventoryIndex) {
         return [];

@@ -17,9 +17,7 @@ export class Drum {
         ];
     }
 
-    static get displayProperties() {
-        return [];
-    }
+    static get displayProperties() { return ["Cost: 6gp"]; }
 
     static getSelections(character, inventoryIndex) {
         return [];

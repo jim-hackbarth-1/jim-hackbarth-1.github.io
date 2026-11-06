@@ -17,9 +17,7 @@ export class Shawm {
         ];
     }
 
-    static get displayProperties() {
-        return [];
-    }
+    static get displayProperties() { return ["Cost: 2gp"]; }
 
     static getSelections(character, inventoryIndex) {
         return [];

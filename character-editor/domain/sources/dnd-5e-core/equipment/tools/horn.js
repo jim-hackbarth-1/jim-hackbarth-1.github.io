@@ -17,9 +17,7 @@ export class Horn {
         ];
     }
 
-    static get displayProperties() {
-        return [];
-    }
+    static get displayProperties() { return ["Cost: 3gp"]; }
 
     static getSelections(character, inventoryIndex) {
         return [];

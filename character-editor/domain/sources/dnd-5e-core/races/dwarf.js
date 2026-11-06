@@ -167,7 +167,7 @@ export class Dwarf {
 
     static #toolProficiencies = [
         { name: "smiths-tools", title: "Smith's tools" },
-        { name: "brewers-tools", title: "Brewer's tools" },
+        { name: "brewers-supplies", title: "Brewer's supplies" },
         { name: "masons-tools", title: "Mason's tools" }
     ];
 

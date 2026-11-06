@@ -17,9 +17,7 @@ export class Dulcimer {
         ];
     }
 
-    static get displayProperties() {
-        return [];
-    }
+    static get displayProperties() { return ["Cost: 25gp"]; }
 
     static getSelections(character, inventoryIndex) {
         return [];

@@ -11,15 +11,15 @@ import { Human } from "./races/human.js";
 import { Tiefling } from "./races/tiefling.js";
 
 // sub-races
-import { DwarfHill } from "./sub-races/dwarf-hill.js"
-import { DwarfMountain } from "./sub-races/dwarf-mountain.js"
-import { ElfDark } from "./sub-races/elf-dark.js"
-import { ElfHigh } from "./sub-races/elf-high.js"
-import { ElfWood } from "./sub-races/elf-wood.js"
-import { GnomeForest } from "./sub-races/gnome-forest.js"
-import { GnomeRock } from "./sub-races/gnome-rock.js"
-import { HalflingLightfoot } from "./sub-races/halfling-lightfoot.js"
-import { HalflingStout } from "./sub-races/halfling-stout.js"
+import { DwarfHill } from "./sub-races/dwarf-hill.js";
+import { DwarfMountain } from "./sub-races/dwarf-mountain.js";
+import { ElfDark } from "./sub-races/elf-dark.js";
+import { ElfHigh } from "./sub-races/elf-high.js";
+import { ElfWood } from "./sub-races/elf-wood.js";
+import { GnomeForest } from "./sub-races/gnome-forest.js";
+import { GnomeRock } from "./sub-races/gnome-rock.js";
+import { HalflingLightfoot } from "./sub-races/halfling-lightfoot.js";
+import { HalflingStout } from "./sub-races/halfling-stout.js";
 
 // classes
 import { Barbarian } from "./classes/barbarian.js";
@@ -248,34 +248,57 @@ import { SplintArmor } from "./equipment/armor/splint-armor.js";
 import { StuddedLeatherArmor } from "./equipment/armor/studded-leather.js";
 
 // equipment - spell-foci
-import { ArcaneFocusCrystal } from "./equipment/spell-foci/arcane-focus-crystal.js"
-import { ArcaneFocusOrb } from "./equipment/spell-foci/arcane-focus-orb.js"
-import { ArcaneFocusRod } from "./equipment/spell-foci/arcane-focus-rod.js"
-import { ArcaneFocusStaff } from "./equipment/spell-foci/arcane-focus-staff.js"
-import { ArcaneFocusWand } from "./equipment/spell-foci/arcane-focus-wand.js"
-import { DruidicFocusMistletoe } from "./equipment/spell-foci/druidic-focus-mistletoe.js"
-import { DruidicFocusStaff } from "./equipment/spell-foci/druidic-focus-staff.js"
-import { DruidicFocusTotem } from "./equipment/spell-foci/druidic-focus-totem.js"
-import { DruidicFocusWand } from "./equipment/spell-foci/druidic-focus-wand.js"
-import { HolySymbolAmulet } from "./equipment/spell-foci/holy-symbol-amulet.js"
-import { HolySymbolEmblem } from "./equipment/spell-foci/holy-symbol-emblem.js"
-import { HolySymbolReliquary } from "./equipment/spell-foci/holy-symbol-reliquary.js"
+import { ArcaneFocusCrystal } from "./equipment/spell-foci/arcane-focus-crystal.js";
+import { ArcaneFocusOrb } from "./equipment/spell-foci/arcane-focus-orb.js";
+import { ArcaneFocusRod } from "./equipment/spell-foci/arcane-focus-rod.js";
+import { ArcaneFocusStaff } from "./equipment/spell-foci/arcane-focus-staff.js";
+import { ArcaneFocusWand } from "./equipment/spell-foci/arcane-focus-wand.js";
+import { DruidicFocusMistletoe } from "./equipment/spell-foci/druidic-focus-mistletoe.js";
+import { DruidicFocusStaff } from "./equipment/spell-foci/druidic-focus-staff.js";
+import { DruidicFocusTotem } from "./equipment/spell-foci/druidic-focus-totem.js";
+import { DruidicFocusWand } from "./equipment/spell-foci/druidic-focus-wand.js";
+import { HolySymbolAmulet } from "./equipment/spell-foci/holy-symbol-amulet.js";
+import { HolySymbolEmblem } from "./equipment/spell-foci/holy-symbol-emblem.js";
+import { HolySymbolReliquary } from "./equipment/spell-foci/holy-symbol-reliquary.js";
 
 // equipment - tools
-import { BrewersTools } from "./equipment/tools/brewers-tools.js"
-import { MasonsTools } from "./equipment/tools/masons-tools.js"
-import { SmithsTools } from "./equipment/tools/smiths-tools.js"
-import { Bagpipes } from "./equipment/tools/bagpipes.js"
-import { Drum } from "./equipment/tools/drum.js"
-import { Dulcimer } from "./equipment/tools/dulcimer.js"
-import { Flute } from "./equipment/tools/flute.js"
-import { HerbalismKit } from "./equipment/tools/herbalism-kit.js"
-import { Horn } from "./equipment/tools/horn.js"
-import { Lute } from "./equipment/tools/lute.js"
-import { Lyre } from "./equipment/tools/lyre.js"
-import { PanFlute } from "./equipment/tools/pan-flute.js"
-import { Shawm } from "./equipment/tools/shawm.js"
-import { Viol } from "./equipment/tools/viol.js"
+import { AlchemistsSupplies } from "./equipment/tools/alchemists-supplies.js";
+import { Bagpipes } from "./equipment/tools/bagpipes.js";
+import { BrewersSupplies } from "./equipment/tools/brewers-supplies.js";
+import { CalligraphersSupplies } from "./equipment/tools/calligraphers-supplies.js";
+import { CarpentersTools } from "./equipment/tools/carpenters-tools.js";
+import { CartographersTools } from "./equipment/tools/cartographers-tools.js";
+import { CobblersTools } from "./equipment/tools/cobblers-tools.js";
+import { CooksUtensils } from "./equipment/tools/cooks-utensils.js";
+import { DisguiseKit } from "./equipment/tools/disguise-kit.js";
+import { Drum } from "./equipment/tools/drum.js";
+import { Dulcimer } from "./equipment/tools/dulcimer.js";
+import { Flute } from "./equipment/tools/flute.js";
+import { ForgeryKit } from "./equipment/tools/forgery-kit.js";
+import { GamingSetDice } from "./equipment/tools/gaming-set-dice.js";
+import { GamingSetDragonchess } from "./equipment/tools/gaming-set-dragonchess.js";
+import { GamingSetPlayingCards } from "./equipment/tools/gaming-set-playing-cards.js";
+import { GamingSetThreeDragonAnte } from "./equipment/tools/gaming-set-three-dragon-ante.js";
+import { GlassblowersTools } from "./equipment/tools/glassblowers-tools.js";
+import { HerbalismKit } from "./equipment/tools/herbalism-kit.js";
+import { Horn } from "./equipment/tools/horn.js";
+import { JewelersTools } from "./equipment/tools/jewelers-tools.js";
+import { LeatherworkersTools } from "./equipment/tools/leatherworkers-tools.js";
+import { Lute } from "./equipment/tools/lute.js";
+import { Lyre } from "./equipment/tools/lyre.js";
+import { MasonsTools } from "./equipment/tools/masons-tools.js";
+import { NavigatorsTool } from "./equipment/tools/navigators-tools.js";
+import { PaintersSupplies } from "./equipment/tools/painters-supplies.js";
+import { PanFlute } from "./equipment/tools/pan-flute.js";
+import { PoisonersKit } from "./equipment/tools/poisoners-kit.js";
+import { PottersTools } from "./equipment/tools/potters-tools.js";
+import { Shawm } from "./equipment/tools/shawm.js";
+import { SmithsTools } from "./equipment/tools/smiths-tools.js";
+import { ThievesTools } from "./equipment/tools/thieves-tools.js";
+import { TinkersTools } from "./equipment/tools/tinkers-tools.js";
+import { Viol } from "./equipment/tools/viol.js";
+import { WeaversTools } from "./equipment/tools/weavers-tools.js";
+import { WoodcarversTools } from "./equipment/tools/woodcarvers-tools.js";
 
 // equipment - weapons
 import { Battleaxe } from "./equipment/weapons/battleaxe.js";
@@ -664,10 +687,14 @@ export class DnD5ESource {
         HolySymbolEmblem, HolySymbolReliquary,
 
         // tools
-        BrewersTools, MasonsTools, SmithsTools,
-        Bagpipes, Drum, Dulcimer, Flute, HerbalismKit,
-        Horn, Lute, Lyre, PanFlute, Shawm,
-        Viol,
+        AlchemistsSupplies, Bagpipes, BrewersSupplies, CalligraphersSupplies, CarpentersTools, 
+        CartographersTools, CobblersTools, CooksUtensils, DisguiseKit, Drum, 
+        Dulcimer, Flute, ForgeryKit, GamingSetDice, GamingSetDragonchess, 
+        GamingSetPlayingCards, GamingSetThreeDragonAnte, GlassblowersTools, HerbalismKit, Horn, 
+        JewelersTools, LeatherworkersTools, Lute, Lyre, MasonsTools, 
+        NavigatorsTool, PaintersSupplies, PanFlute, PoisonersKit, PottersTools, 
+        Shawm, SmithsTools, ThievesTools, TinkersTools, Viol, 
+        WeaversTools, WoodcarversTools, 
 
         // weapons
         Battleaxe, Blowgun, Club, CrossbowHand, CrossbowHeavy,

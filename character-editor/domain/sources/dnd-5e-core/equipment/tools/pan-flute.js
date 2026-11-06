@@ -17,9 +17,7 @@ export class PanFlute {
         ];
     }
 
-    static get displayProperties() {
-        return [];
-    }
+    static get displayProperties() { return ["Cost: 12gp"]; }
 
     static getSelections(character, inventoryIndex) {
         return [];

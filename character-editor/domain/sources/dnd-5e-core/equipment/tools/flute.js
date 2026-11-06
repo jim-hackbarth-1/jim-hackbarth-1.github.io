@@ -17,9 +17,7 @@ export class Flute {
         ];
     }
 
-    static get displayProperties() {
-        return [];
-    }
+    static get displayProperties() { return ["Cost: 2gp"]; }
 
     static getSelections(character, inventoryIndex) {
         return [];

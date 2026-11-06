@@ -29,7 +29,8 @@ export class Charger {
         tempFeatures.push(character.getFeatureCard(Charger.name, Charger.title, Charger.#content));
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `class-${classIndex}-level-${level}-feat`;
-            feature.sourcePropertyValue = Charger.name
+            feature.sourcePropertyValue = Charger.name;
+            feature.cardSource = `${Charger.title} (Feat)`;
             features.push(feature);
         }
     }

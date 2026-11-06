@@ -63,7 +63,8 @@ export class Athlete {
         tempFeatures.push(character.getFeatureCard(Athlete.name, Athlete.title, Athlete.#content));
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `class-${classIndex}-level-${level}-feat`;
-            feature.sourcePropertyValue = Athlete.name
+            feature.sourcePropertyValue = Athlete.name;
+            feature.cardSource = `${Athlete.title} (Feat)`;
             features.push(feature);
         }
     }

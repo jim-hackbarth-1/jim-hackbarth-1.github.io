@@ -43,7 +43,8 @@ export class Tough {
         tempFeatures.push(character.getFeatureCard(Tough.name, Tough.title, Tough.#content));
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `class-${classIndex}-level-${level}-feat`;
-            feature.sourcePropertyValue = Tough.name
+            feature.sourcePropertyValue = Tough.name;
+            feature.cardSource = `${Tough.title} (Feat)`;
             features.push(feature);
         }
     }

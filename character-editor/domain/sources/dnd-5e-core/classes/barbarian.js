@@ -68,14 +68,14 @@ export class Barbarian {
 
     static getSelectionOptions(character, classIndex, selectionName, sources) {
         let options = [];
-        if (selectionName == "barbarian-skill-proficiencies") {
+        if (selectionName == `${Barbarian.name}-skill-proficiencies`) {
             const proficiencies = [...Barbarian.#skillProficiencies];
             for (const proficiency of proficiencies) {
                 proficiency.data = proficiency.ability;
             }
             const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
             const selectedElsewhere = character.modifiers
-                .filter(m => m.target == "skill-proficiency" && !selectedValues.some(sv => sv.value == m.value?.value))
+                .filter(m => m.target == "skill-proficiency" && !selectedValues.some(sv => sv.value == m.value))
                 .map(m => m.value);
             options = character.getSelectionOptions(
                 proficiencies, selectedValues, selectedElsewhere, "Skill proficiencies (choose 2) ...");
@@ -96,44 +96,44 @@ export class Barbarian {
 
         if (character.classes[0].value == Barbarian.name) {
             modifiers.push({
-                name: "barbarian-armor-proficiency-light-armor",
+                name: `${Barbarian.name}-armor-proficiency-light-armor`,
                 title: "Armor proficiency",
                 value: "light-armor",
                 target: "armor-proficiency"
             });
             modifiers.push({
-                name: "barbarian-armor-proficiency-medium-armor",
+                name: `${Barbarian.name}-armor-proficiency-medium-armor`,
                 title: "Armor proficiency",
                 value: "medium-armor",
                 target: "armor-proficiency"
             });
         }
         modifiers.push({
-            name: "barbarian-armor-proficiency-shield",
+            name: `${Barbarian.name}-armor-proficiency-shield`,
             title: "Armor proficiency",
             value: "shield",
             target: "armor-proficiency"
         });
         modifiers.push({
-            name: "barbarian-weapon-type-proficiency-simple-melee",
+            name: `${Barbarian.name}-weapon-type-proficiency-simple-melee`,
             title: "Weapon proficiency",
             value: "simple-melee",
             target: "weapon-proficiency"
         });
         modifiers.push({
-            name: "barbarian-weapon-type-proficiency-martial-melee",
+            name: `${Barbarian.name}-weapon-type-proficiency-martial-melee`,
             title: "Weapon proficiency",
             value: "martial-melee",
             target: "weapon-proficiency"
         });
         modifiers.push({
-            name: "barbarian-weapon-type-proficiency-simple-ranged",
+            name: `${Barbarian.name}-weapon-type-proficiency-simple-ranged`,
             title: "Weapon proficiency",
             value: "simple-ranged",
             target: "weapon-proficiency"
         });
         modifiers.push({
-            name: "barbarian-weapon-type-proficiency-martial-ranged",
+            name: `${Barbarian.name}-weapon-type-proficiency-martial-ranged`,
             title: "Weapon proficiency",
             value: "martial-ranged",
             target: "weapon-proficiency"
@@ -141,22 +141,22 @@ export class Barbarian {
         if (character.classes[0].value == Barbarian.name) {
             const proficiencyBonus = character.getProficiencyBonus();
             modifiers.push({
-                name: "barbarian-saving-throw-proficiency-strength",
+                name: `${Barbarian.name}-saving-throw-proficiency-strength`,
                 title: "Saving throw proficiency",
                 value: "strength",
                 target: "saving-throw-proficiency"
             });
             modifiers.push({
-                name: "barbarian-saving-throw-proficiency-constitution",
+                name: `${Barbarian.name}-saving-throw-proficiency-constitution`,
                 title: "Saving throw proficiency",
                 value: "constitution",
                 target: "saving-throw-proficiency"
             });
-            const skillProficiencies = character.selections.find(s => s.name == "barbarian-skill-proficiencies")?.values ?? [];
+            const skillProficiencies = character.selections.find(s => s.name == `${Barbarian.name}-skill-proficiencies`)?.values ?? [];
             for (const skillProficiency of skillProficiencies) {
                 if (skillProficiency.value) {
                     modifiers.push({
-                        name: `barbarian-skill-proficiency-${skillProficiency.value}`,
+                        name: `${Barbarian.name}-skill-proficiency-${skillProficiency.value}`,
                         title: "Skill proficiency",
                         value: skillProficiency.value,
                         target: "skill-proficiency"
@@ -173,7 +173,7 @@ export class Barbarian {
         if (character.classes[0].value == Barbarian.name && !hasArmor) {
             const acModifier = Number(character.getAbilityScoreModifier("constitution"));
             modifiers.push({
-                name: "barbarian-unarmored-defense-armor-class-modifier",
+                name: `${Barbarian.name}-unarmored-defense-armor-class-modifier`,
                 title: "Unarmored defense",
                 value: acModifier,
                 target: "armor-class"
@@ -186,7 +186,7 @@ export class Barbarian {
             && e.properties.some(p => p.name == "armor-type" && p.value == "heavy-armor"));
         if (level >= 5 && !hasHeavyArmor) {
             modifiers.push({
-                name: "barbarian-fast-movement-speed-modifier",
+                name: `${Barbarian.name}-fast-movement-speed-modifier`,
                 title: "Fast movement",
                 value: 10,
                 target: "speed"
@@ -195,25 +195,25 @@ export class Barbarian {
 
         if (level == 20) {
             modifiers.push({
-                name: "barbarian-primal-champion-ability-score-modifier-strength",
+                name: `${Barbarian.name}-primal-champion-ability-score-modifier-strength`,
                 title: "Primal champion",
                 value: 4,
                 target: "ability-score:strength"
             });
             modifiers.push({
-                name: "barbarian-primal-champion-ability-score-modifier-constitution",
+                name: `${Barbarian.name}-primal-champion-ability-score-modifier-constitution`,
                 title: "Primal champion",
                 value: 4,
                 target: "ability-score:constitution"
             });
             modifiers.push({
-                name: "barbarian-primal-champion-modified-max-ability-score-modifier-strength",
+                name: `${Barbarian.name}-primal-champion-modified-max-ability-score-modifier-strength`,
                 title: "Primal champion",
                 value: 4,
                 target: "modified-max-ability-score:strength"
             });
             modifiers.push({
-                name: "barbarian-primal-champion-modified-max-ability-score-modifier-constitution",
+                name: `${Barbarian.name}-primal-champion-modified-max-ability-score-modifier-constitution`,
                 title: "Primal champion",
                 value: 4,
                 target: "modified-max-ability-score:constitution"
@@ -233,7 +233,7 @@ export class Barbarian {
         const tempFeatures = [];
 
         // rage
-        const level = Number(character.classes.find(c => c.value == "barbarian").level);
+        const level = Number(character.classes.find(c => c.value == Barbarian.name).level);
         const hasHeavyArmor = character.equipment.some(e =>
             e.isEquipped
             && e.properties
@@ -272,7 +272,7 @@ export class Barbarian {
             e.isEquipped
             && e.properties
             && e.properties.some(p => p.name == "armor-type" && armorTypes.includes(p.value)));
-        if (character.classes[0].value == "barbarian" && !hasArmor) {
+        if (character.classes[0].value == Barbarian.name && !hasArmor) {
             const unarmoredDefenseHtml = `
                 <p>While you are not wearing any armor, your armor class equals 10 + your Dexterity modifier + your Constitution modifier. You can use a shield and still gain this benefit.</p>
             `;
@@ -290,7 +290,7 @@ export class Barbarian {
             `;
             tempFeatures.push(character.getFeatureCard(`${Barbarian.name}-danger-sense`, "Danger Sense", dangerSenseHtml));
         }
-        if (character.classes[0].value == "barbarian" && level >= 5) {
+        if (character.classes[0].value == Barbarian.name && level >= 5) {
             const extraAttackHtml = `
                 <p>You can attack twice, instead of once, whenever you take the Attack action on your turn.</p>
             `;

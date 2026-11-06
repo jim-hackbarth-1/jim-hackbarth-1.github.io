@@ -66,7 +66,7 @@ export class BardCollegeOfLore {
             }
             const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
             const selectedElsewhere = character.modifiers
-                .filter(m => m.target == "skill-proficiency" && !selectedValues.some(sv => sv.value == m.value?.value))
+                .filter(m => m.target == "skill-proficiency" && !selectedValues.some(sv => sv.value == m.value))
                 .map(m => m.value);
             options = character.getSelectionOptions(
                 skills, selectedValues, selectedElsewhere, `${BardCollegeOfLore.title} - Skill proficiencies (choose 3)...`);

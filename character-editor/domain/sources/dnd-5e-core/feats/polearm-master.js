@@ -48,7 +48,8 @@ export class PolearmMaster {
         tempFeatures.push(character.getFeatureCard(PolearmMaster.name, PolearmMaster.title, PolearmMaster.#content));
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `class-${classIndex}-level-${level}-feat`;
-            feature.sourcePropertyValue = PolearmMaster.name
+            feature.sourcePropertyValue = PolearmMaster.name;
+            feature.cardSource = `${PolearmMaster.title} (Feat)`;
             features.push(feature);
         }
     }

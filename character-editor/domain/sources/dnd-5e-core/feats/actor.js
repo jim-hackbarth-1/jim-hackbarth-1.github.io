@@ -43,7 +43,8 @@ export class Actor {
         tempFeatures.push(character.getFeatureCard(Actor.name, Actor.title, Actor.#content));
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `class-${classIndex}-level-${level}-feat`;
-            feature.sourcePropertyValue = Actor.name
+            feature.sourcePropertyValue = Actor.name;
+            feature.cardSource = `${Actor.title} (Feat)`;
             features.push(feature);
         }
     }

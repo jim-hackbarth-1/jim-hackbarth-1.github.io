@@ -17,7 +17,8 @@ export class EldritchBlast {
 
     static applyFeatures(features, character, characterSpellClasses) {
         const tempFeatures = [];
-        const attackInfo = character.getAttackInfo({ target: "to-hit", damageDice: "1d10", damageType: "force" });
+        const attackInfo = character.getAttackInfo(
+            { target: "to-hit", damageDice: "1d10", damageType: "force", applyAbilityModifierToDamage: false });
         const spellCard = character.getSpellCard(EldritchBlast, EldritchBlast.#content, characterSpellClasses, attackInfo);
         tempFeatures.push(spellCard);
         for (const feature of tempFeatures) {

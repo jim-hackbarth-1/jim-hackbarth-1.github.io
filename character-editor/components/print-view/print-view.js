@@ -510,13 +510,14 @@ class PrintViewModel {
                 let spellCastingInfo = null;
                 const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.value);
                 if (cls?.getSpellCastingInfo) {
-                    spellCastingInfo = cls.getSpellCastingInfo(character, allSpells);
+                    spellCastingInfo = PrintViewModel.#invokeFunction(cls.getSpellCastingInfo, null, [character, allSpells]);
                 }
                 if (characterClass.subClass) {
                     const subClass = Sources.getSubClasses(character.sources, characterClass.value)
                         .find(sc => sc.name == characterClass.subClass.value);
                     if (subClass?.getSpellCastingInfo) {
-                        spellCastingInfo = subClass.getSpellCastingInfo(character, allSpells, spellCastingInfo);
+                        spellCastingInfo = PrintViewModel.#invokeFunction(
+                            subClass.getSpellCastingInfo, spellCastingInfo, [character, allSpells, spellCastingInfo]);
                     }
                 }
                 if (spellCastingInfo) {
@@ -792,6 +793,16 @@ class PrintViewModel {
             </div>
             <div id="${placeholderPrefix}-col-${displayColumn}-placeholder"></div>
         `;
+    }
+
+    static #invokeFunction(func, errorResponse, args) {
+        try {
+            return func(...args);
+        }
+        catch (error) {
+            console.error(error);
+            return errorResponse;
+        }
     }
 
 }

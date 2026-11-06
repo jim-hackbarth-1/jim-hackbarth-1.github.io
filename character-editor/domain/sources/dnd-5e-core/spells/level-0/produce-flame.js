@@ -28,7 +28,8 @@ export class ProduceFlame {
         if (level >= 17) {
             damageDice++;
         }
-        const attackInfo = character.getAttackInfo({ target: "to-hit", damageDice: `${damageDice}d8`, damageType: "fire" });
+        const attackInfo = character.getAttackInfo(
+            { target: "to-hit", damageDice: `${damageDice}d8`, damageType: "fire", applyAbilityModifierToDamage: false });
         const spellCard = character.getSpellCard(ProduceFlame, ProduceFlame.#content, characterSpellClasses, attackInfo);
         tempFeatures.push(spellCard);
         for (const feature of tempFeatures) {

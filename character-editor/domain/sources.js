@@ -539,7 +539,8 @@ export class Sources {
                 const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.value);
                 let multiclassEligibility = true;
                 if (cls.getMulticlassEligibility) {
-                    multiclassEligibility = cls.getMulticlassEligibility(character).isEligible;
+                    multiclassEligibility
+                        = Sources.#invokeFunction(cls.getMulticlassEligibility, { isEligible: false }, [character]);
                 }
                 if (i == 0) {
                     primaryMulticlassEligibility = multiclassEligibility;
@@ -647,12 +648,17 @@ export class Sources {
 
     }
 
-    static #applyFeaturesAndSpells(domainSource, features, spells, parameters) {       
-        if (domainSource?.applyFeatures) {
-            domainSource.applyFeatures(features, ...parameters);
+    static #applyFeaturesAndSpells(domainSource, features, spells, parameters) { 
+        try {
+            if (domainSource?.applyFeatures) {
+                domainSource.applyFeatures(features, ...parameters);
+            }
+            if (domainSource?.applySpells) {
+                domainSource.applySpells(spells, ...parameters);
+            }
         }
-        if (domainSource?.applySpells) {
-            domainSource.applySpells(spells, ...parameters);
+        catch (error) {
+            console.error(error);
         }
     }
 
@@ -711,14 +717,14 @@ export class Sources {
         if (character.race?.value) {
             const race = Sources.getRaces(character.sources).find(r => r.name == character.race?.value);
             if (race?.applyModifiers) {
-                race.applyModifiers(character, targetFilters);
+                Sources.#invokeAction(race.applyModifiers, [character, targetFilters]);
             }
             if (character.subRace?.value) {
                 const subRace = Sources
                     .getSubRaces(character.sources, character.race.value)
                     .find(sr => sr.name == character.subRace.value);
                 if (subRace.applyModifiers) {
-                    subRace.applyModifiers(character, targetFilters);
+                    Sources.#invokeAction(subRace.applyModifiers, [character, targetFilters]);
                 }
             }     
         }
@@ -727,7 +733,7 @@ export class Sources {
         if (character.background?.value) {
             const background = Sources.getBackgrounds(character.sources).find(b => b.name == character.background.value);
             if (background.applyModifiers) {
-                background.applyModifiers(character, targetFilters);
+                Sources.#invokeAction(background.applyModifiers, [character, targetFilters]);
             }
         }
 
@@ -739,7 +745,8 @@ export class Sources {
                 const cls = Sources.getClasses(character.sources).find(c => c.name == characterClass.value);
                 let multiclassEligibility = true;
                 if (cls.getMulticlassEligibility) {
-                    multiclassEligibility = cls.getMulticlassEligibility(character).isEligible;
+                    multiclassEligibility
+                        = Sources.#invokeFunction(cls.getMulticlassEligibility, { isEligible: false }, [character]);
                 }
                 if (i == 0) {
                     primaryMulticlassEligibility = multiclassEligibility;
@@ -779,7 +786,7 @@ export class Sources {
                     if (levelBoon.feat?.value) {
                         const feat = Sources.getFeats(character.sources).find(f => f.name == levelBoon.feat.value);
                         if (feat.applyModifiers) {
-                            feat.applyModifiers(character, i, levelBoon.level, targetFilters);
+                            Sources.#invokeAction(feat.applyModifiers, [character, i, levelBoon.level, targetFilters]);
                         }
                     }
                 }
@@ -791,7 +798,7 @@ export class Sources {
                         .getSubClasses(character.sources, characterClass.value)
                         .find(sc => sc.name == characterClass.subClass.value);
                     if (subClass.applyModifiers) {
-                        subClass.applyModifiers(character, i, targetFilters);
+                        Sources.#invokeAction(subClass.applyModifiers, [character, i, targetFilters]);
                     }
                 }               
             }
@@ -804,9 +811,28 @@ export class Sources {
             if (characterItem.isEquipped) {
                 const item = allEquipment.find(e => e.name == character.equipment[i].name);
                 if (item.applyModifiers) {
-                    item.applyModifiers(character, i, targetFilters);
+                    Sources.#invokeAction(item.applyModifiers, [character, i, targetFilters]);
                 }
             }
+        }
+    }
+
+    static #invokeAction(action, args) {
+        try {
+            action(...args);
+        }
+        catch (error) {
+            console.error(error);
+        }
+    }
+
+    static #invokeFunction(func, errorResponse, args) {
+        try {
+            return func(...args);
+        }
+        catch (error) {
+            console.error(error);
+            return errorResponse;
         }
     }
 

@@ -352,24 +352,68 @@ import { TrueStrike } from "./spells/level-0/true-strike.js";
 import { ViciousMockery } from "./spells/level-0/vicious-mockery.js";
 
 // spells - level 1
+import { Alarm } from "./spells/level-1/alarm.js";
 import { AnimalFriendship } from "./spells/level-1/animal-friendship.js";
 import { ArmorOfAgathys } from "./spells/level-1/armor-of-agathys.js";
+import { ArmsOfHadar } from "./spells/level-1/arms-of-hadar.js";
 import { Bane } from "./spells/level-1/bane.js";
 import { Bless } from "./spells/level-1/bless.js";
 import { BurningHands } from "./spells/level-1/burning-hands.js";
 import { CharmPerson } from "./spells/level-1/charm-person.js";
+import { ChromaticOrb } from "./spells/level-1/chromatic-orb.js";
+import { ColorSpray } from "./spells/level-1/color-spray.js";
 import { Command } from "./spells/level-1/command.js";
+import { CompelledDuel } from "./spells/level-1/compelled-duel.js";
 import { ComprehendLanguages } from "./spells/level-1/comprehend-languages.js";
+import { CreateOrDestroyWater } from "./spells/level-1/create-or-destroy-water.js";
 import { CureWounds } from "./spells/level-1/cure-wounds.js";
+import { DetectEvilAndGood } from "./spells/level-1/detect-evil-and-good.js";
+import { DetectMagic } from "./spells/level-1/detect-magic.js";
+import { DetectPoisonAndDisease } from "./spells/level-1/detect-poison-and-disease.js";
 import { DisguiseSelf } from "./spells/level-1/disguise-self.js";
+import { DissonantWhispers } from "./spells/level-1/dissonant-whispers.js";
 import { DivineFavor } from "./spells/level-1/divine-favor.js";
+import { EnsnaringStrike } from "./spells/level-1/ensnaring-strike.js";
+import { Entangle } from "./spells/level-1/entangle.js";
+import { ExpeditiousRetreat } from "./spells/level-1/expeditious-retreat.js";
 import { FaerieFire } from "./spells/level-1/faerie-fire.js";
+import { FalseLife } from "./spells/level-1/false-life.js";
+import { FeatherFall } from "./spells/level-1/feather-fall.js";
+import { FindFamiliar } from "./spells/level-1/find-familiar.js";
 import { FogCloud } from "./spells/level-1/fog-cloud.js";
+import { Goodberry } from "./spells/level-1/goodberry.js";
+import { Grease } from "./spells/level-1/grease.js";
+import { GuidingBolt } from "./spells/level-1/guiding-bolt.js";
+import { HailOfThorns } from "./spells/level-1/hail-of-thorns.js";
+import { HealingWord } from "./spells/level-1/healing-word.js";
+import { HellishRebuke } from "./spells/level-1/hellish-rebuke.js";
+import { Heroism } from "./spells/level-1/heroism.js";
+import { Hex } from "./spells/level-1/hex.js";
+import { HuntersMark } from "./spells/level-1/hunters-mark.js";
 import { Identify } from "./spells/level-1/identify.js";
+import { IllusoryScript } from "./spells/level-1/illusory-script.js";
 import { InflictWounds } from "./spells/level-1/inflict-wounds.js";
+import { Jump } from "./spells/level-1/jump.js";
+import { Longstrider } from "./spells/level-1/longstrider.js";
+import { MageArmor } from "./spells/level-1/mage-armor.js";
+import { MagicMissile } from "./spells/level-1/magic-missile.js";
+import { ProtectionFromEvilAndGood } from "./spells/level-1/protection-from-evil-and-good.js";
+import { PurifyFoodAndDrink } from "./spells/level-1/purify-food-and-drink.js";
+import { RayOfSickness } from "./spells/level-1/ray-of-sickness.js";
+import { Sanctuary } from "./spells/level-1/santuary.js";
+import { SearingSmite } from "./spells/level-1/searing-smite.js";
 import { ShieldOfFaith } from "./spells/level-1/shield-of-faith.js";
+import { Shield_Spell } from "./spells/level-1/shield.js";
+import { SilentImage } from "./spells/level-1/silent-image.js";
+import { Sleep } from "./spells/level-1/sleep.js";
 import { SpeakWithAnimals } from "./spells/level-1/speak-with-animals.js";
+import { TashasHideousLaughter } from "./spells/level-1/tashas-hideous-laughter.js";
+import { TensersFloatingDisk } from "./spells/level-1/tensers-floating-disk.js";
+import { ThunderousSmite } from "./spells/level-1/thunderous-smite.js";
 import { Thunderwave } from "./spells/level-1/thunderwave.js";
+import { UnseenServant } from "./spells/level-1/unseen-servant.js";
+import { WitchBolt } from "./spells/level-1/witch-bolt.js";
+import { WrathfulSmite } from "./spells/level-1/wrathful-smite.js";
 
 // spells - level 2
 import { AnimalMessenger } from "./spells/level-2/animal-messenger.js";
@@ -677,10 +721,19 @@ export class DnD5ESource {
         TrueStrike, ViciousMockery,
 
         // level 1
-        AnimalFriendship, ArmorOfAgathys, Bane, Bless, BurningHands,
-        CharmPerson, Command, ComprehendLanguages, CureWounds, DisguiseSelf,
-        DivineFavor, FaerieFire, FogCloud, Identify, InflictWounds,
-        ShieldOfFaith, SpeakWithAnimals, Thunderwave,
+        Alarm, AnimalFriendship, ArmorOfAgathys, ArmsOfHadar, Bane, 
+        Bless, BurningHands, CharmPerson, ChromaticOrb, ColorSpray, 
+        Command, CompelledDuel, ComprehendLanguages, CreateOrDestroyWater, CureWounds, 
+        DetectEvilAndGood, DetectMagic, DetectPoisonAndDisease, DisguiseSelf, DissonantWhispers, 
+        DivineFavor, EnsnaringStrike, Entangle, ExpeditiousRetreat, FaerieFire, 
+        FalseLife, FeatherFall, FindFamiliar, FogCloud, Goodberry, 
+        Grease, GuidingBolt, HailOfThorns, HealingWord, HellishRebuke, 
+        Heroism, Hex, HuntersMark, Identify, IllusoryScript, 
+        InflictWounds, Jump, Longstrider, MageArmor, MagicMissile, 
+        ProtectionFromEvilAndGood, PurifyFoodAndDrink, RayOfSickness, Sanctuary, SearingSmite, 
+        ShieldOfFaith, Shield_Spell, SilentImage, Sleep, SpeakWithAnimals, 
+        TashasHideousLaughter, TensersFloatingDisk, ThunderousSmite, Thunderwave, UnseenServant, 
+        WitchBolt, WrathfulSmite, 
 
         // level 2
         AnimalMessenger, Augury, Barkskin, BeastSense, BlindnessDeafness,

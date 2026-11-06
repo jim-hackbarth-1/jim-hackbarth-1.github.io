@@ -28,7 +28,8 @@ export class RayOfFrost {
         if (level >= 17) {
             damageDice++;
         }
-        const attackInfo = character.getAttackInfo({ target: "to-hit", damageDice: `${damageDice}d8`, damageType: "cold" });
+        const attackInfo = character.getAttackInfo(
+            { target: "to-hit", damageDice: `${damageDice}d8`, damageType: "cold", applyAbilityModifierToDamage: false });
         const spellCard = character.getSpellCard(RayOfFrost, RayOfFrost.#content, characterSpellClasses, attackInfo);
         tempFeatures.push(spellCard);
         for (const feature of tempFeatures) {

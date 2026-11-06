@@ -28,7 +28,8 @@ export class ShockingGrasp {
         if (level >= 17) {
             damageDice++;
         }
-        const attackInfo = character.getAttackInfo({ target: "to-hit", damageDice: `${damageDice}d8`, damageType: "lightning" });
+        const attackInfo = character.getAttackInfo(
+            { target: "to-hit", damageDice: `${damageDice}d8`, damageType: "lightning", applyAbilityModifierToDamage: false });
         const spellCard = character.getSpellCard(ShockingGrasp, ShockingGrasp.#content, characterSpellClasses, attackInfo);
         tempFeatures.push(spellCard);
         for (const feature of tempFeatures) {

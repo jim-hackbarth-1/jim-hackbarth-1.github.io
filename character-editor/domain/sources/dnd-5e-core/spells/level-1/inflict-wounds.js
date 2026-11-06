@@ -17,7 +17,8 @@ export class InflictWounds {
 
     static applyFeatures(features, character, characterSpellClasses) {
         const tempFeatures = [];
-        const attackInfo = character.getAttackInfo({ target: "to-hit", damageDice: "3d10", damageType: "necrotic" });
+        const attackInfo = character.getAttackInfo(
+            { target: "to-hit", damageDice: "3d10", damageType: "necrotic", applyAbilityModifierToDamage: false });
         tempFeatures.push(character.getSpellCard(InflictWounds, InflictWounds.#content, characterSpellClasses, attackInfo));
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = "spell";

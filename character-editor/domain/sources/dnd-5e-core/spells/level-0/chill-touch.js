@@ -29,7 +29,7 @@ export class ChillTouch {
             damageDice++;
         }
         const attackInfo = character.getAttackInfo(
-            { target: "to-hit", damageDice: `${damageDice}d8`, damageType: "necrotic" });
+            { target: "to-hit", damageDice: `${damageDice}d8`, damageType: "necrotic", applyAbilityModifierToDamage: false });
         const spellCard = character.getSpellCard(ChillTouch, ChillTouch.#content, characterSpellClasses, attackInfo);
         tempFeatures.push(spellCard);
         for (const feature of tempFeatures) {

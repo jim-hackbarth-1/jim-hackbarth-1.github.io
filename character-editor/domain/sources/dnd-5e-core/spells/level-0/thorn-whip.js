@@ -28,7 +28,8 @@ export class ThornWhip {
         if (level >= 17) {
             damageDice++;
         }
-        const attackInfo = character.getAttackInfo({ target: "to-hit", damageDice: `${damageDice}d6`, damageType: "piercing" });
+        const attackInfo = character.getAttackInfo(
+            { target: "to-hit", damageDice: `${damageDice}d6`, damageType: "piercing", applyAbilityModifierToDamage: false });
         const spellCard = character.getSpellCard(ThornWhip, ThornWhip.#content, characterSpellClasses, attackInfo);
         tempFeatures.push(spellCard);
         for (const feature of tempFeatures) {

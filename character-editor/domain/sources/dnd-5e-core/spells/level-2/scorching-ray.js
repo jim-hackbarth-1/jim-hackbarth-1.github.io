@@ -17,7 +17,8 @@ export class ScorchingRay {
 
     static applyFeatures(features, character, characterSpellClasses) {
         const tempFeatures = [];
-        const attackInfo = character.getAttackInfo({ target: "to-hit", damageDice: "2d6", damageType: "fire" });
+        const attackInfo = character.getAttackInfo(
+            { target: "to-hit", damageDice: "2d6", damageType: "fire", applyAbilityModifierToDamage: false });
         tempFeatures.push(character.getSpellCard(ScorchingRay, ScorchingRay.#content, characterSpellClasses, attackInfo));
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = "spell";

@@ -65,11 +65,6 @@ class DomainEquipmentModel {
                     this.#kitElement.querySelector(`#added-count-label-${itemName}`).innerText = addedCountLabel;
                 }
             }
-            if (updatedEquipmentIndex >= 0) {
-                const isEquipped = character.equipment[updatedEquipmentIndex].isEquipped;
-                const equippedLabel = isEquipped ? "Equipped" : "&nbsp;";
-                this.#kitElement.querySelector(`#checkbox-info-label-${updatedEquipmentIndex}`).innerHTML = equippedLabel;
-            }
         }
     }
 

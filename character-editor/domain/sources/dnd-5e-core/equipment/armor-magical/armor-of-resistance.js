@@ -141,7 +141,8 @@ export class ArmorOfResistance {
         }
         for (const feature of tempFeatures) {
             feature.sourcePropertyName = `equipment-${inventoryIndex}`;
-            feature.sourcePropertyValue = ArmorOfResistance.name
+            feature.sourcePropertyValue = ArmorOfResistance.name;
+            feature.cardSource = "Equipment";
             features.push(feature);
         }
     }

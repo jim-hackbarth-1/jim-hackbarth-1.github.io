@@ -12,9 +12,12 @@ export class RingMailArmor {
 
     static get properties() {
         return [
+            { name: "is-armor" },
+            { name: "stealth-disadvantage" },
             { name: "armor-name", value: RingMailArmor.name },
             { name: "armor-title", value: RingMailArmor.title },
-            { name: "armor-type", value: "heavy-armor" }
+            { name: "armor-type", value: "heavy-armor" },
+            { name: "ac-modifier", value: "4" }
         ];
     }
 

@@ -14,7 +14,7 @@ export class MagicWeapon {
 
     }
     static get displayProperties() {
-        return [];
+        return ["Uncommon, Rare, or Very rare"];
     }
 
     static getSelections(character, inventoryIndex) {
@@ -90,7 +90,7 @@ export class MagicWeapon {
             if (weaponName) {
                 const name = `magic-${weaponName}-bonus-${bonus}`;
                 modifiers.push({
-                    name: `${name}-to-hit-modifier`,
+                    name: `${name}-inventory-index-${inventoryIndex}-to-hit-modifier`,
                     target: "to-hit",
                     value: bonus,
                     title: MagicWeapon.title,
@@ -102,7 +102,7 @@ export class MagicWeapon {
                     ]
                 });
                 modifiers.push({
-                    name: `${name}-damage-modifier`,
+                    name: `${name}-inventory-index-${inventoryIndex}-damage-modifier`,
                     target: "damage",
                     value: bonus,
                     title: MagicWeapon.title,
@@ -136,7 +136,7 @@ export class MagicWeapon {
                 selectedWeapon = selectedValues[0].value;
             }
             if (selectedWeapon) {
-                tempFeatures.push(character.getWeaponAttackCard(inventoryIndex, item))
+                tempFeatures.push(character.getWeaponAttackCard(inventoryIndex, item));
             }
         }
         for (const feature of tempFeatures) {

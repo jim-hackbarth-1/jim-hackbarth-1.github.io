@@ -12,9 +12,12 @@ export class ChainMailArmor {
 
     static get properties() {
         return [
+            { name: "is-armor" },
+            { name: "stealth-disadvantage" },
             { name: "armor-name", value: ChainMailArmor.name },
             { name: "armor-title", value: ChainMailArmor.title },
             { name: "armor-type", value: "heavy-armor" },
+            { name: "ac-modifier", value: "6" },
             { name: "strength", value: "13" }
         ];
     }
@@ -55,7 +58,7 @@ export class ChainMailArmor {
             const strength = character.getAbilityScore("strength");
             if (Number(strength) < 13) {
                 modifiers.push({
-                    name: `${ChainMailArmor.name}-speed-modifier`,
+                    name: `${ChainMailArmor.name}-inventory-index-${inventoryIndex}-speed-modifier`,
                     target: "speed",
                     value: -10,
                     title: ChainMailArmor.title

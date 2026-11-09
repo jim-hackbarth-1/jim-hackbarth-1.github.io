@@ -3,7 +3,7 @@ import { DnD5ESource } from "../../dnd-5e-core-source.js";
 
 export class DisguiseKit {
 
-    static get name() { return "diguise-kit"; }
+    static get name() { return "disguise-kit"; }
     static get title() { return "Disguise Kit"; }
     static get category() { return "tools"; }
     static get canBeEquipped() { return true; }

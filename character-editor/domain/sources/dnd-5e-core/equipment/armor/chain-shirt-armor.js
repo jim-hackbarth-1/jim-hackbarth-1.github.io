@@ -12,9 +12,11 @@ export class ChainShirtArmor {
 
     static get properties() {
         return [
+            { name: "is-armor" },
             { name: "armor-name", value: ChainShirtArmor.name },
             { name: "armor-title", value: ChainShirtArmor.title },
-            { name: "armor-type", value: "medium-armor" }
+            { name: "armor-type", value: "medium-armor" },
+            { name: "ac-modifier", value: "3" }
         ];
     }
 

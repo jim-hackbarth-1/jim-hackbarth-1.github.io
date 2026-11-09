@@ -12,8 +12,10 @@ export class StuddedLeatherArmor {
 
     static get properties() {
         return [
+            { name: "is-armor" },
             { name: "armor-name", value: StuddedLeatherArmor.name },
             { name: "armor-title", value: StuddedLeatherArmor.title },
+            { name: "ac-modifier", value: "2" },
             { name: "armor-type", value: "light-armor" }
         ];
     }

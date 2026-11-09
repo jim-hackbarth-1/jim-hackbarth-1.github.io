@@ -12,9 +12,11 @@ export class Shield {
 
     static get properties() {
         return [
+            { name: "is-shield" },
             { name: "armor-name", value: "shield" },
             { name: "armor-title", value: Shield.title },
-            { name: "armor-type", value: "shield" }
+            { name: "armor-type", value: "shield" },
+            { name: "ac-modifier", value: "2" }
         ];
     }
 

@@ -12,9 +12,12 @@ export class SplintArmor {
 
     static get properties() {
         return [
+            { name: "is-armor" },
+            { name: "stealth-disadvantage" },
             { name: "armor-name", value: SplintArmor.name },
             { name: "armor-title", value: SplintArmor.title },
             { name: "armor-type", value: "heavy-armor" },
+            { name: "ac-modifier", value: "7" },
             { name: "strength", value: "15" }
         ];
     }
@@ -56,7 +59,7 @@ export class SplintArmor {
             const strength = character.getAbilityScore("strength");
             if (Number(strength) < 15) {
                 modifiers.push({
-                    name: `${SplintArmor.name}-speed-modifier`,
+                    name: `${SplintArmor.name}-inventory-index-${inventoryIndex}-speed-modifier`,
                     target: "speed",
                     value: -10,
                     title: SplintArmor.title

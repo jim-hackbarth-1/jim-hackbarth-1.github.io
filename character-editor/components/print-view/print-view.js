@@ -65,12 +65,21 @@ class PrintViewModel {
             if (isProficient) {
                 modifier += proficiencyBonus;
             }
+
+            let title = skill.title;
+            if (skill.name == "stealth") {
+                const hasStealthDisadvantage = this.#hasArmorStealthDisadvantage(character);
+                if (hasStealthDisadvantage) {
+                    title = `${title} <br/><span style="color:saddlebrown;font-size:small;font-style:italic;padding-right:5px;">(armor disadvantage)</span>`;
+                }
+            }
+
             // additional modifiers
             const skillModifiers = this.#getModifiers(character, `skill:${skill.name}`);
             modifier += Number(skillModifiers);
             const modifierLabel = (modifier >= 0) ? `+ ${modifier}` : `- ${Math.abs(modifier)}`;
             skills.push({
-                title: skill.title,
+                title: title,
                 isProficient: isProficient,
                 modifier: modifierLabel
             });
@@ -192,14 +201,14 @@ class PrintViewModel {
 
     #updateInitiative(character) {
         const dexModifier = character.getAbilityScoreModifier("dexterity");
-        const initModifiers = this.#getModifiers(character, "initiative");
+        const initModifiers = this.#getModifiers(character, "initiative", true);
         const initiative = Number(dexModifier) + Number(initModifiers);
         this.#kitElement.querySelector("#initiative").innerHTML = (initiative < 0) ? `${initiative}` : `+${initiative}`;
     }
 
     #updateSpeed(character, race) {
         const baseSpeed = race?.speed ?? 30;
-        const speedModifiers = this.#getModifiers(character, "speed");
+        const speedModifiers = this.#getModifiers(character, "speed", true);
         this.#kitElement.querySelector("#speed").innerHTML = Number(baseSpeed) + Number(speedModifiers);
     }
 
@@ -216,7 +225,7 @@ class PrintViewModel {
         if (hasHeavyArmor) {
             dexModifier = 0;
         }
-        let acModifiers = character.modifiers.filter(m => m.target == "armor-class").map(m => m.value).reduce((a, b) => a + b, 0);
+        let acModifiers = character.modifiers.filter(m => m.target == "armor-class").map(m => m.value).reduce((a, b) => Number(a) + Number(b), 0);
         const ac = Number(armorClass) + Number(dexModifier) + Number(acModifiers);
         this.#kitElement.querySelector("#armor-class").innerHTML = ac;
     }
@@ -433,7 +442,13 @@ class PrintViewModel {
         }
     }
 
-    #getModifiers(character, target) {
+    #getModifiers(character, target, numeric) {
+        if (numeric) {
+            return character.modifiers
+                .filter(m => m.target == target)
+                .map(m => Number(m.value))
+                .reduce((a, b) => a + b, 0);
+        }
         return character.modifiers
             .filter(m => m.target == target)
             .map(m => m.value)
@@ -451,7 +466,8 @@ class PrintViewModel {
         }
         let resetCategories = [
             { name: "short-rest", title: "Per Short rest" },
-            { name: "long-rest", title: "Per Long rest" }
+            { name: "long-rest", title: "Per Long rest" },
+            { name: "next-dawn", title: "Next dawn" }
         ];
         const useInfoLabels = [];
         for (const resetCategory of resetCategories) {
@@ -803,6 +819,11 @@ class PrintViewModel {
             console.error(error);
             return errorResponse;
         }
+    }
+
+    #hasArmorStealthDisadvantage(character) {
+        return character.equipment.some(
+            e => e.isEquipped && e.properties && e.properties.some(p => p.name == "stealth-disadvantage"));
     }
 
 }

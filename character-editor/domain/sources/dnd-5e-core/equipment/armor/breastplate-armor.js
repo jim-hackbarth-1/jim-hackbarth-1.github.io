@@ -12,9 +12,11 @@ export class BreastPlateArmor {
 
     static get properties() {
         return [
+            { name: "is-armor" },
             { name: "armor-name", value: BreastPlateArmor.name },
             { name: "armor-title", value: BreastPlateArmor.title },
-            { name: "armor-type", value: "medium-armor" }
+            { name: "armor-type", value: "medium-armor" },
+            { name: "ac-modifier", value: "4" }
         ];
     }
 

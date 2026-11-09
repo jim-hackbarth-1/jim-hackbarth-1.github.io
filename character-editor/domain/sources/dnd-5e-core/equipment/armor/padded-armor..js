@@ -12,9 +12,12 @@ export class PaddedArmor {
 
     static get properties() {
         return [
+            { name: "is-armor" },
+            { name: "stealth-disadvantage" },
             { name: "armor-name", value: PaddedArmor.name },
             { name: "armor-title", value: PaddedArmor.title },
-            { name: "armor-type", value: "light-armor" }
+            { name: "armor-type", value: "light-armor" },
+            { name: "ac-modifier", value: "1" }
         ];
     }
 

@@ -454,6 +454,31 @@
                 font-style: italic;
             }
 
+            .card table {
+                border: 1px solid black;
+                border-collapse: collapse;
+                margin-bottom: 5px;
+                top: 0;
+            }
+
+            .card table caption {
+                background-color: saddlebrown;
+                color: white;
+            }
+
+            .card table th, td {
+                padding: 5px;
+                text-align: left;
+            }
+
+            .card tr:nth-child(even) {
+                background-color: #FFF8EB;
+            }
+
+            .card tr:nth-child(odd) {
+                background-color: #D6C29C;
+            }
+
             @media print {
 
                 .page-content {
@@ -621,9 +646,10 @@
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <!-- skills -->
+            <div class="row">         
                 <div>
+
+                    <!-- skills -->
                     <div id="skills" kit-element class="cell">
                         <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
                         <div class="field-label">Skill Proficiencies</div>
@@ -648,6 +674,8 @@
                         </div>
                         <div class="corner bottom-right" kit-component="no-model:./resources/icons/bottom-right.html"></div>
                     </div>
+
+                    <!-- languages -->
                     <div id="languages" class="cell">
                         <div class="corner top-left" kit-component="no-model:./resources/icons/top-left.html"></div>
                         <div class="field-label">Languages</div>

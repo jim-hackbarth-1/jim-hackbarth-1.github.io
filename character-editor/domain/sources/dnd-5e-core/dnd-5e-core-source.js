@@ -247,6 +247,27 @@ import { Shield } from "./equipment/armor/shield.js";
 import { SplintArmor } from "./equipment/armor/splint-armor.js";
 import { StuddedLeatherArmor } from "./equipment/armor/studded-leather.js";
 
+// equipment - armor-magical
+import { AdamantineArmor } from "./equipment/armor-magical/adamantine-armor.js";
+import { AnimatedShield } from "./equipment/armor-magical/animated-shield.js";
+import { ArmorOfInvulnerability } from "./equipment/armor-magical/armor-of-invulnerability.js";
+import { ArmorOfResistance } from "./equipment/armor-magical/armor-of-resistance.js";
+import { ArmorOfVulnerability } from "./equipment/armor-magical/armor-of-vulnerability.js";
+import { ArrowCatchingShield } from "./equipment/armor-magical/arrow-catching-shield.js";
+import { DemonArmor } from "./equipment/armor-magical/demon-armor.js";
+import { DragonScaleMailArmor } from "./equipment/armor-magical/dragon-scale-mail.js";
+import { DwarvenPlateArmor } from "./equipment/armor-magical/dwarven-plate.js";
+import { EfreetiChainMail } from "./equipment/armor-magical/efreeti-chain.js";
+import { ElvenChain } from "./equipment/armor-magical/elven-chain.js";
+import { MagicArmor } from "./equipment/armor-magical/magic-armor.js";
+import { MagicShield } from "./equipment/armor-magical/magic-shield.js";
+import { MarinersArmor } from "./equipment/armor-magical/mariners-armor.js";
+import { MithralArmor } from "./equipment/armor-magical/mithral-armor.js";
+import { PlateArmorOfEtherealness } from "./equipment/armor-magical/plate-armor-of-etherealness.js";
+import { SentinelShield } from "./equipment/armor-magical/sentinel-shield.js";
+import { ShieldOfMissileAttraction } from "./equipment/armor-magical/shield-of-missile-attraction.js";
+import { SpellguardShield } from "./equipment/armor-magical/spellguard-shield.js";
+
 // equipment - spell-foci
 import { ArcaneFocusCrystal } from "./equipment/spell-foci/arcane-focus-crystal.js";
 import { ArcaneFocusOrb } from "./equipment/spell-foci/arcane-focus-orb.js";
@@ -514,6 +535,7 @@ import { Scrying } from "./spells/level-5/scrying.js";
 import { TreeStride } from "./spells/level-5/tree-stride.js";
 
 // spells - level 7
+import { Etherealness } from "./spells/level-7/etherealness.js";
 import { FingerOfDeath } from "./spells/level-7/finger-of-death.js";
 
 export class DnD5ESource {
@@ -681,6 +703,12 @@ export class DnD5ESource {
         LeatherArmor, PaddedArmor, PlateArmor, RingMailArmor, ScaleMailArmor,
         Shield, SplintArmor, StuddedLeatherArmor,
 
+        // armor-magical
+        AdamantineArmor, AnimatedShield, ArmorOfInvulnerability, ArmorOfResistance, ArmorOfVulnerability,
+        ArrowCatchingShield, DemonArmor, DragonScaleMailArmor, DwarvenPlateArmor, EfreetiChainMail,
+        ElvenChain, MagicArmor, MagicShield, MarinersArmor, MithralArmor,
+        PlateArmorOfEtherealness, SentinelShield, ShieldOfMissileAttraction, SpellguardShield,
+
         // spell-foci
         ArcaneFocusCrystal, ArcaneFocusOrb, ArcaneFocusRod, ArcaneFocusStaff, ArcaneFocusWand,
         DruidicFocusMistletoe, DruidicFocusStaff, DruidicFocusTotem, DruidicFocusWand, HolySymbolAmulet,
@@ -786,7 +814,7 @@ export class DnD5ESource {
         RaiseDead, Scrying, TreeStride,
 
         // level 7
-        FingerOfDeath
+        Etherealness, FingerOfDeath
     ];
     static getSpells() {
         return DnD5ESource.#spells;

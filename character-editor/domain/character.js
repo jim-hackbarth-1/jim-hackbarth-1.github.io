@@ -438,13 +438,13 @@ export class Character {
         const baseScore = abilityScoreItem.baseScore;
         const nonEquipmentModifier = this.modifiers
             .filter(m => m.target == `ability-score:${ability}` && !m.sourcePropertyName.startsWith("equipment"))
-            .map(m => m.value)
+            .map(m => Number(m.value))
             .reduce((a, b) => a + b, 0);
         let abilityScore = Number(baseScore) + Number(nonEquipmentModifier);
         let max = Number(abilityScoreItem.modifiedMaximum);
         const modifiedMaxModifiers = this.modifiers
             .filter(m => m.target == `modified-max-ability-score:${ability}` && !m.sourcePropertyName.startsWith("equipment"))
-            .map(m => m.value)
+            .map(m => Number(m.value))
             .reduce((a, b) => a + b, 0);
         max += modifiedMaxModifiers;
         if (abilityScore > max) {
@@ -452,7 +452,7 @@ export class Character {
         }
         const equipmentModifier = this.modifiers
             .filter(m => m.target == `ability-score:${ability}` && m.sourcePropertyName.startsWith("equipment"))
-            .map(m => m.value)
+            .map(m => Number(m.value))
             .reduce((a, b) => a + b, 0);
         abilityScore += Number(equipmentModifier);
         return abilityScore;
@@ -461,7 +461,7 @@ export class Character {
     getAbilityScoreModifier(ability) {
         const abilityScore = Number(this.getAbilityScore(ability));
         const abilityScoreModifiers = this.modifiers
-            .filter(m => m.target == `ability-score-modifier:${ability}`).map(m => m.value).reduce((a, b) => a + b, 0);
+            .filter(m => m.target == `ability-score-modifier:${ability}`).map(m => Number(m.value)).reduce((a, b) => a + b, 0);
         return Math.floor((abilityScore - 10) / 2) + Number(abilityScoreModifiers);
     }
 

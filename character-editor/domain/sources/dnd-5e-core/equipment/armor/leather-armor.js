@@ -12,9 +12,11 @@ export class LeatherArmor {
 
     static get properties() {
         return [
+            { name: "is-armor" },
             { name: "armor-name", value: LeatherArmor.name },
             { name: "armor-title", value: LeatherArmor.title },
-            { name: "armor-type", value: "light-armor" }
+            { name: "armor-type", value: "light-armor" },
+            { name: "ac-modifier", value: "1" }
         ];
     }
 

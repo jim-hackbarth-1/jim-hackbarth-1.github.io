@@ -10,11 +10,13 @@ export class BracersOfArchery {
     static get html() { return DnD5ESource.getEquipmentHtml(BracersOfArchery, BracersOfArchery.#content); }
 
     static get properties() {
-        return [];
+        return [
+            { name: "attunement" }
+        ];
 
     }
     static get displayProperties() {
-        return [];
+        return ["Uncommon", "Requires attunement"];
     }
 
     static getSelections(character, inventoryIndex) {
@@ -36,19 +38,19 @@ export class BracersOfArchery {
         const isEquipped = character.equipment[inventoryIndex].isEquipped;
         if (isEquipped) {
             modifiers.push({
-                name: "bracers-of-archery-proficiency-shortbow",
+                name: `bracers-of-archery-inventory-index-${inventoryIndex}-proficiency-shortbow`,
                 target: "weapon-proficiency",
                 value: "shortbow",
                 title: BracersOfArchery.title
             });
             modifiers.push({
-                name: "bracers-of-archery-proficiency-longbow",
+                name: `bracers-of-archery-inventory-index-${inventoryIndex}-proficiency-longbow`,
                 target: "weapon-proficiency",
                 value: "longbow",
                 title: BracersOfArchery.title
             });
             modifiers.push({
-                name: "bracers-of-archery-damage-modifier",
+                name: `bracers-of-archery-inventory-index-${inventoryIndex}-damage-modifier`,
                 target: "damage",
                 value: 2,
                 title: BracersOfArchery.title,

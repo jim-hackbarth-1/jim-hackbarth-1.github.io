@@ -12,9 +12,12 @@ export class ScaleMailArmor {
 
     static get properties() {
         return [
+            { name: "is-armor" },
+            { name: "stealth-disadvantage" },
             { name: "armor-name", value: ScaleMailArmor.name },
             { name: "armor-title", value: ScaleMailArmor.title },
-            { name: "armor-type", value: "medium-armor" }
+            { name: "armor-type", value: "medium-armor" },
+            { name: "ac-modifier", value: "4" }
         ];
     }
 

@@ -233,18 +233,23 @@ class DomainEquipmentModel {
                 }
             }
             let displayProperties = item.displayProperties ?? [];
-            if (item.armorType == "shield") {
-                displayProperties.push("<span class='property-note'>(Only 1 shield may be equipped.)</span>");
-            }
-            if (armorTypes.includes(item.armorType)) {
+            const properties = item.properties ?? [];
+            if (properties.some(p => p.name == "is-armor")) {
                 displayProperties.push("<span class='property-note'>(Only 1 armor may be equipped.)</span>");
             }
+            if (properties.some(p => p.name == "is-shield")) {
+                displayProperties.push("<span class='property-note'>(Only 1 shield may be equipped.)</span>");
+            }
+            if (properties.some(p => p.name == "attunement")) {
+                displayProperties.push("<span class='property-note'>(Max. of 3 items requiring attunement may be equipped)</span>");
+            }
+
             inventory.push({
                 index: i,
                 name: item.name,
                 title: item.title,
                 source: item.source,
-                displayProperties: item.displayProperties,
+                displayProperties: displayProperties,
                 canBeEquipped: item.canBeEquipped,
                 selections: selections,
                 html: item.html,
@@ -273,12 +278,17 @@ class DomainEquipmentModel {
             const allEquipment = Sources.getEquipment(character.sources);
             const equipment = allEquipment.find(e => e.name == character.equipment[index].name);
             let canEquip = true;
-            if (equipment.armorType == "shield") {
+
+            const properties = equipment.properties ?? [];
+            if (properties.some(p => p.name == "is-armor")) {
+                canEquip = !this.#hasEquippedArmor(character, index);
+            }
+            if (canEquip && properties.some(p => p.name == "is-shield")) {
                 canEquip = !this.#hasEquippedShield(character, index);
             }
-            const armorTypes = ["light-armor", "medium-armor", "heavy-armor"];
-            if (armorTypes.includes(equipment.armorType)) {
-                canEquip = !this.#hasEquippedArmor(character, index, armorTypes);
+            if (canEquip && properties.some(p => p.name == "attunement")) {
+                const attunedCount = this.#attunementCount(character);
+                canEquip = (attunedCount < 3);
             }
             if (canEquip) {
                 if (equipment.equip) {
@@ -423,20 +433,25 @@ class DomainEquipmentModel {
         return addedCountLabel;
     }
 
+    #hasEquippedArmor(character, inventoryIndex) {
+        let armorIndex = character.equipment.findIndex(e =>
+            e.isEquipped
+            && e.properties
+            && e.properties.some(p => p.name == "is-armor"));
+        return (armorIndex > -1 && armorIndex != inventoryIndex);
+    }
+
     #hasEquippedShield(character, inventoryIndex) {
         let shieldIndex = character.equipment.findIndex(e =>
             e.isEquipped
             && e.properties
-            && e.properties.some(p => p.name == "armor-type" && p.value == "shield"));
+            && e.properties.some(p => p.name == "is-shield"));
         return (shieldIndex > -1 && shieldIndex != inventoryIndex);
     }
 
-    #hasEquippedArmor(character, inventoryIndex, armorTypes) {
-        let armorIndex = character.equipment.findIndex(e =>
-            e.isEquipped
-            && e.properties
-            && e.properties.some(p => p.name == "armor-type" && armorTypes.includes(p.value)));
-        return (armorIndex > -1 && armorIndex != inventoryIndex);
+    #attunementCount(character) {
+        const attuned = character.equipment.filter(e => e.properties && e.properties.some(p => p.name == "attunement"));
+        return attuned.length;
     }
 
 }

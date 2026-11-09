@@ -12,9 +12,12 @@ export class PlateArmor {
 
     static get properties() {
         return [
+            { name: "is-armor" },
+            { name: "stealth-disadvantage" },
             { name: "armor-name", value: PlateArmor.name },
             { name: "armor-title", value: PlateArmor.title },
             { name: "armor-type", value: "heavy-armor" },
+            { name: "ac-modifier", value: "8" },
             { name: "strength", value: "15" }
         ];
     }
@@ -56,7 +59,7 @@ export class PlateArmor {
             const strength = character.getAbilityScore("strength");
             if (Number(strength) < 15) {
                 modifiers.push({
-                    name: `${PlateArmor.name}-speed-modifier`,
+                    name: `${PlateArmor.name}-inventory-index-${inventoryIndex}-speed-modifier`,
                     target: "speed",
                     value: -10,
                     title: PlateArmor.title

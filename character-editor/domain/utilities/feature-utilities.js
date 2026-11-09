@@ -101,7 +101,7 @@ export class FeatureUtilities {
             if (attackInfo.applyProficiencyModifier) {
                 attackModifiers.push({ name: "proficiency", title: "Proficiency", value: proficiencyModifier });
             }
-            const totalAttackModifier = attackModifiers.map(m => m.value).reduce((a, b) => a + b, 0);
+            const totalAttackModifier = attackModifiers.map(m => Number(m.value)).reduce((a, b) => a + b, 0);
             descriptions.push(this.#getTargetDescription(attackInfo.target, totalAttackModifier, saveAbilityTitle));
         }
 
@@ -115,7 +115,7 @@ export class FeatureUtilities {
             if (attackInfo.applyProficiencyModifierToDamage) {
                 damageModifiers.push({ name: "proficiency", title: "Proficiency", value: proficiencyModifier });
             }
-            const totalDamageModifier = damageModifiers.map(m => m.value).reduce((a, b) => a + b, 0);
+            const totalDamageModifier = damageModifiers.map(m => Number(m.value)).reduce((a, b) => a + b, 0);
             descriptions.push(this.#getDamageDescription(character, attackInfo.damageDice, totalDamageModifier, attackInfo.damageType));
         }
 
@@ -149,7 +149,7 @@ export class FeatureUtilities {
         attackModifiers = this.#getFeatureCardTargetModifiers(character, "to-hit", inventoryIndex, weapon);
         attackModifiers.push({ name: attackAbility, title: attackAbilityTitle, value: attackAbilityModifier });
         attackModifiers.push({ name: "proficiency", title: "Proficiency", value: proficiencyModifier });
-        const totalAttackModifier = Number(attackModifiers.map(m => m.value).reduce((a, b) => a + b, 0));
+        const totalAttackModifier = Number(attackModifiers.map(m => Number(m.value)).reduce((a, b) => a + b, 0));
         const targetDescription = this.#getTargetDescription("to-hit", totalAttackModifier);
         descriptions.push(targetDescription);
 
@@ -162,7 +162,7 @@ export class FeatureUtilities {
         if (damageType) {
             damageModifiers = this.#getFeatureCardTargetModifiers(character, "damage", inventoryIndex, weapon);
             damageModifiers.push({ name: attackAbility, title: attackAbilityTitle, value: attackAbilityModifier });
-            totalDamageModifier = Number(damageModifiers.map(m => m.value).reduce((a, b) => a + b, 0));
+            totalDamageModifier = Number(damageModifiers.map(m => Number(m.value)).reduce((a, b) => a + b, 0));
             damageDice = weapon.properties.find(p => p.name == "damage-dice")?.value;
             descriptions.push(this.#getDamageDescription(character, damageDice, totalDamageModifier, damageType));
         }
@@ -190,7 +190,7 @@ export class FeatureUtilities {
             if (damageType) {
                 offHandDescriptions.push(this.#getDamageDescription(character, damageDice, offHandDamageModifier, damageType, inventoryIndex, weapon));
             }
-            notes.push(`Off hand: ${offHandDescriptions.join(", ")}`);
+            notes.push(`Off hand (bonus action): ${offHandDescriptions.join(", ")}`);
         }
         const isVersatile = weapon.properties.some(p => p.name == "versatile");
         if (isVersatile) {
@@ -237,7 +237,7 @@ export class FeatureUtilities {
                 if (attackInfo.applyProficiencyModifier) {
                     attackModifiers.push({ name: "proficiency", title: "Proficiency", value: proficiencyModifier });
                 }
-                const totalAttackModifier = attackModifiers.map(m => m.value).reduce((a, b) => a + b, 0);
+                const totalAttackModifier = attackModifiers.map(m => Number(m.value)).reduce((a, b) => a + b, 0);
                 descriptions.push(this.#getTargetDescription(attackInfo.target, totalAttackModifier, saveAbilityTitle));
             }
 
@@ -251,7 +251,7 @@ export class FeatureUtilities {
                 if (attackInfo.applyProficiencyModifierToDamage) {
                     damageModifiers.push({ name: "proficiency", title: "Proficiency", value: proficiencyModifier });
                 }
-                const totalDamageModifier = damageModifiers.map(m => m.value).reduce((a, b) => a + b, 0);
+                const totalDamageModifier = damageModifiers.map(m => Number(m.value)).reduce((a, b) => a + b, 0);
                 descriptions.push(this.#getDamageDescription(character, attackInfo.damageDice, totalDamageModifier, attackInfo.damageType));
             }
 

@@ -99,7 +99,7 @@ export class Charlatan {
             target: "tool-proficiency"
         });
         modifiers.push({
-            name: `${Charlatan.name}-tool-proficiency-disguise-kit`,
+            name: `${Charlatan.name}-tool-proficiency-forgery-kit`,
             title: "Tool proficiency",
             value: "forgery-kit",
             target: "tool-proficiency"

@@ -203,6 +203,9 @@ export class SelectionModel {
                 if (source.name == "weapons") {
                     source.options = this.#getWeapons(character);
                 }
+                if (source.name == "armor") {
+                    source.options = this.#getArmor(character);
+                }
                 if (source.name == "spell-foci") {
                     source.options = this.#getSpellFoci(character);
                 }
@@ -239,6 +242,10 @@ export class SelectionModel {
 
     #getWeapons(character) {
         return Sources.getEquipment(character.sources).filter(e => e.category == "weapons");
+    }
+
+    #getArmor(character) {
+        return Sources.getEquipment(character.sources).filter(e => e.category == "armor");
     }
 
     #getSpellFoci(character) {

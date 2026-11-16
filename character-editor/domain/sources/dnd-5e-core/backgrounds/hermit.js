@@ -73,13 +73,21 @@ export class Hermit {
     static getSelections(character) {
         const selections = [];
         selections.push(character.getSelection(
+            character.selections, `${Hermit.name}-seclusion`, "Reason for seclusion", 1));
+        selections.push(character.getSelection(
             character.selections, `${Hermit.name}-language`, "Language", 1, [{ name: "languages" }]));
         return selections;
     }
 
     static getSelectionOptions(character, selectionName, sources) {
         let options = [];
-        if (selectionName == "hermit-language") {
+        if (selectionName == `${Hermit.name}-seclusion`) {
+            const reasons = [...Hermit.#seclusionReasons];
+            const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
+            options = character.getSelectionOptions(
+                reasons, selectedValues, [], "Reason for seclusion (choose 1) ...");
+        }
+        if (selectionName == `${Hermit.name}-language`) {
             const languages = [...sources.find(s => s.name == "languages").options];
             const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
             const selectedElsewhere = character.modifiers
@@ -92,6 +100,7 @@ export class Hermit {
     }
 
     static applyModifiers(character, targetFilters) {
+
         const modifiers = [];
         modifiers.push({
             name: "hermit-skill-proficiency-medicine",
@@ -140,7 +149,16 @@ export class Hermit {
         const tempFeatures = [];
 
         // background
-        const backgroundHtml = character.getBackgroundHtml();
+        let reasonForSeclusion = null;
+        const reasons = character.selections.find(s => s.name == `${Hermit.name}-seclusion`)?.values ?? [];
+        if (reasons.length > 0) {
+            reasonForSeclusion = reasons[0];
+        }
+        const additionalDetails = [];
+        if (reasonForSeclusion?.value) {
+            additionalDetails.push({ title: "Reason for seclusion", text: reasonForSeclusion.text });
+        }
+        const backgroundHtml = character.getBackgroundHtml(additionalDetails);
         if (backgroundHtml) {
             tempFeatures.push(character.getFeatureCard(Hermit.name, Hermit.title, backgroundHtml, Hermit.title));
         }
@@ -164,5 +182,40 @@ export class Hermit {
     static applySpells(spells, character) {
 
     }
+
+    static #seclusionReasons = [
+        {
+            name: "seclusion-1",
+            title: "<p style='font-family:Calibri,sans-serif;'>I was searching for spiritual enlightenment.</p>"
+        },
+        {
+            name: "seclusion-2",
+            title: "<p style='font-family:Calibri,sans-serif;'>I was partaking of communal living in accordance with the dictates of a religious order.</p>"
+        },
+        {
+            name: "seclusion-3",
+            title: "<p style='font-family:Calibri,sans-serif;'>I was exiled for a crime I didn't commit.</p>"
+        },
+        {
+            name: "seclusion-4",
+            title: "<p style='font-family:Calibri,sans-serif;'>I retreated from society after a life-altering event.</p>"
+        },
+        {
+            name: "seclusion-5",
+            title: "<p style='font-family:Calibri,sans-serif;'>I needed a quiet place to work on my art, literature, music, or manifesto.</p>"
+        },
+        {
+            name: "seclusion-6",
+            title: "<p style='font-family:Calibri,sans-serif;'>I needed to commune with nature, far from civilization.</p>"
+        },
+        {
+            name: "seclusion-7",
+            title: "<p style='font-family:Calibri,sans-serif;'>I was the caretaker of an ancient ruin or relic.</p>"
+        },
+        {
+            name: "seclusion-8",
+            title: "<p style='font-family:Calibri,sans-serif;'>I was a pilgrim in search of a person, place, or relic of spiritual significance.</p>"
+        }
+    ];
 
 }

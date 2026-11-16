@@ -43,7 +43,7 @@ export class Charlatan {
             { name: "ideal-2", title: "<b>Fairness.</b> I never target people who can't afford to lose a few coins. (Lawful)" },
             { name: "ideal-3", title: "<b>Fairness.</b> I never target people who can't afford to lose a few coins. (Lawful)" },
             { name: "ideal-4", title: "<b>Creativity.</b> I never run the same con twice. (Chaotic)" },
-            { name: "ideal-5", title: "<b>Friendship.</b> Material goods come and go.Bonds of friendship last forever. (Good)" },
+            { name: "ideal-5", title: "<b>Friendship.</b> Material goods come and go.  Bonds of friendship last forever. (Good)" },
             { name: "ideal-6", title: "<b>Aspiration.</b> I'm determined to make something of myself. (Any)" }
         ]
     }
@@ -71,11 +71,19 @@ export class Charlatan {
     }
 
     static getSelections(character) {
-        return [];
+        const selections = [];
+        selections.push(character.getSelection(character.selections, `${Charlatan.name}-scam`, "Scam", 1));
+        return selections;
     }
 
     static getSelectionOptions(character, selectionName, sources) {
-        return [];
+        let options = [];
+        if (selectionName == `${Charlatan.name}-scam`) {
+            const scams = [...Charlatan.#scams];
+            const selectedValues = character.selections.find(s => s.name == selectionName)?.values ?? [];
+            options = character.getSelectionOptions(scams, selectedValues, [], "Scam (choose 1) ...");
+        }
+        return options;
     }
 
     static applyModifiers(character, targetFilters) {
@@ -117,7 +125,16 @@ export class Charlatan {
         const tempFeatures = [];
 
         // background
-        const backgroundHtml = character.getBackgroundHtml();
+        let scam = null;
+        const scams = character.selections.find(s => s.name == `${Charlatan.name}-scam`)?.values ?? [];
+        if (scams.length > 0) {
+            scam = scams[0];
+        }
+        const additionalDetails = [];
+        if (scam?.value) {
+            additionalDetails.push({ title: "Scam", text: scam.text });
+        }
+        const backgroundHtml = character.getBackgroundHtml(additionalDetails);
         if (backgroundHtml) {
             tempFeatures.push(character.getFeatureCard(Charlatan.name, Charlatan.title, backgroundHtml, Charlatan.title));
         }
@@ -141,4 +158,31 @@ export class Charlatan {
     static applySpells(spells, character) {
 
     }
+
+    static #scams = [
+        {
+            name: "scam-1",
+            title: "<p style='font-family:Calibri,sans-serif;'>I cheat at games of chance.</p>"
+        },
+        {
+            name: "scam-2",
+            title: "<p style='font-family:Calibri,sans-serif;'>I shave coins or forge documents.</p>"
+        },
+        {
+            name: "scam-3",
+            title: "<p style='font-family:Calibri,sans-serif;'>I insinuate myself into people's lives to prey on their weakness and secure their fortunes.</p>"
+        },
+        {
+            name: "scam-4",
+            title: "<p style='font-family:Calibri,sans-serif;'>I put on new identities like clothes.</p>"
+        },
+        {
+            name: "scam-5",
+            title: "<p style='font-family:Calibri,sans-serif;'>I run sleight-of-hand cons on street corners.</p>"
+        },
+        {
+            name: "scam-6",
+            title: "<p style='font-family:Calibri,sans-serif;'>I convince people that worthless junk is worth their hard-earned money.</p>"
+        }
+    ];
 }

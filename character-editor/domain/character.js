@@ -399,7 +399,7 @@ export class Character {
         return Character.#featureUtilities.getSpellCard(this, spell, html, characterSpellClasses, attackInfo);
     }
 
-    getBackgroundHtml() {
+    getBackgroundHtml(additionalDetails) {
         let backgroundHtml = "";
         let traitsHtml = "";
         if (this.traits) {
@@ -410,16 +410,23 @@ export class Character {
             }
         }
         if (traitsHtml) {
-            backgroundHtml += "<div><p><b>Traits</b></p>" + traitsHtml + "</div>";
+            backgroundHtml += `<div><p><b>Traits</b></p>${traitsHtml}</div>`;
         }
-        if (this.ideal?.text) {
-            backgroundHtml += "<div style='margin-top:5px;'><p><b>Ideal</b></p>" + this.ideal.text + "</div>";
+        if (this.ideal?.value) {
+            backgroundHtml += `<div style="margin-top:5px;"><p><b>Ideal</b></p>${this.ideal.text ?? ""}</div>`;
         }
-        if (this.bond?.text) {
-            backgroundHtml += "<div style='margin-top:5px;'><p><b>Bond</b></p>" + this.bond.text + "</div>";
+        if (this.bond?.value) {
+            backgroundHtml += `<div style="margin-top:5px;"><p><b>Bond</b></p>${this.bond.text ?? ""}</div>`;
         }
-        if (this.flaw?.text) {
-            backgroundHtml += "<div style='margin-top:5px;'><p><b>Flaw</b></p>" + this.flaw.text + "</div>";
+        if (this.flaw?.value) {
+            backgroundHtml += `<div style="margin-top:5px;"><p><b>Flaw</b></p>${this.flaw.text ?? ""}</div>`;
+        }
+        if (additionalDetails) {
+            for (const detail of additionalDetails) {
+                if (detail.title && detail.text) {
+                    backgroundHtml += `<div style="margin-top:5px;"><p><b>${detail.title}</b></p>${detail.text}</div>`;
+                }
+            }
         }
         return backgroundHtml;
     }

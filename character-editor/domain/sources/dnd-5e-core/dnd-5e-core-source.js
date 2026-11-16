@@ -268,6 +268,34 @@ import { SentinelShield } from "./equipment/armor-magical/sentinel-shield.js";
 import { ShieldOfMissileAttraction } from "./equipment/armor-magical/shield-of-missile-attraction.js";
 import { SpellguardShield } from "./equipment/armor-magical/spellguard-shield.js";
 
+// equipment - mounts-and-vehicles
+import { Barding } from "./equipment/mounts-and-vehicles/barding.js";
+import { BitAndBridle } from "./equipment/mounts-and-vehicles/bit-and-bridle.js";
+import { Camel } from "./equipment/mounts-and-vehicles/camel.js";
+import { Carriage } from "./equipment/mounts-and-vehicles/carriage.js";
+import { Cart } from "./equipment/mounts-and-vehicles/cart.js";
+import { Chariot } from "./equipment/mounts-and-vehicles/chariot.js";
+import { DonkeyOrMule } from "./equipment/mounts-and-vehicles/donkey-or-mule.js";
+import { Elephant } from "./equipment/mounts-and-vehicles/elephant.js";
+import { Galley } from "./equipment/mounts-and-vehicles/galley.js";
+import { HorseDraft } from "./equipment/mounts-and-vehicles/horse-draft.js";
+import { HorseRiding } from "./equipment/mounts-and-vehicles/horse-riding.js";
+import { Keelboat } from "./equipment/mounts-and-vehicles/keelboat.js";
+import { Longship } from "./equipment/mounts-and-vehicles/longship.js";
+import { Mastiff } from "./equipment/mounts-and-vehicles/mastiff.js";
+import { Pony } from "./equipment/mounts-and-vehicles/pony.js";
+import { Rowboat } from "./equipment/mounts-and-vehicles/rowboat.js";
+import { SaddleExotic } from "./equipment/mounts-and-vehicles/saddle-exotic.js";
+import { SaddleMilitary } from "./equipment/mounts-and-vehicles/saddle-military.js";
+import { SaddlePack } from "./equipment/mounts-and-vehicles/saddle-pack.js";
+import { SaddleRiding } from "./equipment/mounts-and-vehicles/saddle-riding.js";
+import { Saddlebags } from "./equipment/mounts-and-vehicles/saddlebags.js";
+import { SailingShip } from "./equipment/mounts-and-vehicles/sailing-ship.js";
+import { Sled } from "./equipment/mounts-and-vehicles/sled.js";
+import { Wagon } from "./equipment/mounts-and-vehicles/wagon.js";
+import { Warhorse } from "./equipment/mounts-and-vehicles/warhorse.js";
+import { Warship } from "./equipment/mounts-and-vehicles/warship.js";
+
 // equipment - spell-foci
 import { ArcaneFocusCrystal } from "./equipment/spell-foci/arcane-focus-crystal.js";
 import { ArcaneFocusOrb } from "./equipment/spell-foci/arcane-focus-orb.js";
@@ -746,6 +774,14 @@ export class DnD5ESource {
         ArrowCatchingShield, DemonArmor, DragonScaleMailArmor, DwarvenPlateArmor, EfreetiChainMail,
         ElvenChain, MagicArmor, MagicShield, MarinersArmor, MithralArmor,
         PlateArmorOfEtherealness, SentinelShield, ShieldOfMissileAttraction, SpellguardShield,
+
+        // mounts-and-vehicles
+        Barding, BitAndBridle, Camel, Carriage, Cart,
+        Chariot, DonkeyOrMule, Elephant, Galley, HorseDraft,
+        HorseRiding, Keelboat, Longship, Mastiff, Pony,
+        Rowboat, SaddleExotic, SaddleMilitary, SaddlePack, SaddleRiding,
+        Saddlebags, SailingShip, Sled, Wagon, Warhorse,
+        Warship, 
 
         // spell-foci
         ArcaneFocusCrystal, ArcaneFocusOrb, ArcaneFocusRod, ArcaneFocusStaff, ArcaneFocusWand,

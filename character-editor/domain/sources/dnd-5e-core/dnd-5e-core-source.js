@@ -460,27 +460,65 @@ import { WitchBolt } from "./spells/level-1/witch-bolt.js";
 import { WrathfulSmite } from "./spells/level-1/wrathful-smite.js";
 
 // spells - level 2
+import { Aid } from "./spells/level-2/aid.js";
+import { AlterSelf } from "./spells/level-2/alter-self.js";
 import { AnimalMessenger } from "./spells/level-2/animal-messenger.js";
+import { ArcaneLock } from "./spells/level-2/arcane-lock.js";
 import { Augury } from "./spells/level-2/augury.js";
 import { Barkskin } from "./spells/level-2/barkskin.js";
 import { BeastSense } from "./spells/level-2/beast-sense.js";
 import { BlindnessDeafness } from "./spells/level-2/blindness-deafness.js";
+import { Blur } from "./spells/level-2/blur.js";
+import { BrandingSmite } from "./spells/level-2/branding-smite.js";
 import { CalmEmotions } from "./spells/level-2/calm-emotions.js";
 import { CloudOfDaggers } from "./spells/level-2/cloud-of-daggers.js";
+import { ContinualFlame } from "./spells/level-2/continual-flame.js";
+import { CordonOfArrows } from "./spells/level-2/cordon-of-arrows.js";
 import { CrownOfMadness } from "./spells/level-2/crown-of-madness.js";
 import { Darkness } from "./spells/level-2/darkness.js";
+import { Darkvision } from "./spells/level-2/darkvision.js";
+import { DetectThoughts } from "./spells/level-2/detect-thoughts.js";
+import { EnhanceAbility } from "./spells/level-2/enhance-ability.js";
+import { EnlargeReduce } from "./spells/level-2/enlarge-reduce.js";
+import { Enthrall } from "./spells/level-2/enthrall.js";
+import { FindSteed } from "./spells/level-2/find-steed.js";
+import { FindTraps } from "./spells/level-2/find-traps.js";
+import { FlameBlade } from "./spells/level-2/flame-blade.js";
 import { FlamingSphere } from "./spells/level-2/flaming-sphere.js";
 import { GentleRepose } from "./spells/level-2/gentle-repose.js";
 import { GustOfWind } from "./spells/level-2/gust-of-wind.js";
+import { HeatMetal } from "./spells/level-2/heat-metal.js";
+import { HoldPerson } from "./spells/level-2/hold-person.js";
+import { Invisibility } from "./spells/level-2/invisibility.js";
+import { Knock } from "./spells/level-2/knock.js";
 import { LesserRestoration } from "./spells/level-2/lesser-restoration.js";
+import { Levitate } from "./spells/level-2/levitate.js";
+import { LocateAnimalsOrPlants } from "./spells/level-2/locate-animals-or-plants.js";
+import { LocateObject } from "./spells/level-2/locate-object.js";
+import { MagicMouth } from "./spells/level-2/magic-mouth.js";
 import { MagicWeaponSpell } from "./spells/level-2/magic-weapon.js";
+import { MelfsAcidArrow } from "./spells/level-2/melfs-acid-arrow.js";
 import { MirrorImage } from "./spells/level-2/mirror-image.js";
+import { MistyStep } from "./spells/level-2/misty-step.js";
+import { Moonbeam } from "./spells/level-2/moonbeam.js";
+import { NystalsMagicAura } from "./spells/level-2/nystals-magic-aura.js";
 import { PassWithoutTrace } from "./spells/level-2/pass-without-trace.js";
+import { PhantasmalForce } from "./spells/level-2/phantasmal-force.js";
+import { PrayerOfHealing } from "./spells/level-2/prayer-of-healing.js";
+import { ProtectionFromPoison } from "./spells/level-2/protection-from-poison.js";
+import { RayOfEnfeeblement } from "./spells/level-2/ray-of-enfeeblement.js";
+import { RopeTrick } from "./spells/level-2/rope-trick.js";
 import { ScorchingRay } from "./spells/level-2/scorching-ray.js";
+import { SeeInvisibility } from "./spells/level-2/see-invisibility.js";
 import { Shatter } from "./spells/level-2/shatter.js";
+import { Silence } from "./spells/level-2/silence.js";
+import { SpiderClimb } from "./spells/level-2/spider-climb.js";
 import { SpikeGrowth } from "./spells/level-2/spike-growth.js";
 import { SpiritualWeapon } from "./spells/level-2/spiritual-weapon.js";
 import { Suggestion } from "./spells/level-2/suggestion.js";
+import { WardingBond } from "./spells/level-2/warding-bond.js";
+import { Web } from "./spells/level-2/web.js";
+import { ZoneOfTruth } from "./spells/level-2/zone-of-truth.js";
 
 // spells - level 3
 import { AnimateDead } from "./spells/level-3/animate-dead.js";
@@ -791,11 +829,18 @@ export class DnD5ESource {
         WitchBolt, WrathfulSmite, 
 
         // level 2
-        AnimalMessenger, Augury, Barkskin, BeastSense, BlindnessDeafness,
-        CalmEmotions, CloudOfDaggers, CrownOfMadness, Darkness, FlamingSphere,
-        GentleRepose, GustOfWind, LesserRestoration, MagicWeaponSpell, MirrorImage,
-        PassWithoutTrace, ScorchingRay, Shatter, SpikeGrowth, SpiritualWeapon,
-        Suggestion,
+        Aid, AlterSelf, AnimalMessenger, ArcaneLock, Augury,
+        Barkskin, BeastSense, BlindnessDeafness, Blur, BrandingSmite,
+        CalmEmotions, CloudOfDaggers, ContinualFlame, CordonOfArrows, CrownOfMadness,
+        Darkness, Darkvision, DetectThoughts, EnhanceAbility, EnlargeReduce,
+        Enthrall, FindSteed, FindTraps, FlameBlade, FlamingSphere,
+        GentleRepose, GustOfWind, HeatMetal, HoldPerson, Invisibility,
+        Knock, LesserRestoration, Levitate, LocateAnimalsOrPlants, LocateObject,
+        MagicMouth, MagicWeaponSpell, MelfsAcidArrow, MirrorImage, MistyStep,
+        Moonbeam, NystalsMagicAura, PassWithoutTrace, PhantasmalForce, PrayerOfHealing,
+        ProtectionFromPoison, RayOfEnfeeblement, RopeTrick, ScorchingRay, SeeInvisibility,
+        Shatter, Silence, SpiderClimb, SpikeGrowth, SpiritualWeapon,
+        Suggestion, WardingBond, Web, ZoneOfTruth, 
 
         // level 3
         AnimateDead, BeaconOfHope, BestowCurse, Blink, CallLightning,

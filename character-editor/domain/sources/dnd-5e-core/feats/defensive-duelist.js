@@ -8,7 +8,7 @@ export class DefensiveDuelist {
     static get canBeTakenMultipleTimes() { return false; }
     static get html() { return DnD5ESource.getFeatHtml(DefensiveDuelist, DefensiveDuelist.#content); }
 
-    static checkPrerequisites(character) {
+    static checkPrerequisites(character, features) {
         const dexterity = Number(character.getAbilityScore("dexterity"));
         if (dexterity >= 13) {
             return { prerequisitesMet: true, text: null };

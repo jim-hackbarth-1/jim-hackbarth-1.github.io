@@ -16,7 +16,7 @@ export class DungeonDelver {
     static get canBeTakenMultipleTimes() { return false; }
     static get html() { return DnD5ESource.getFeatHtml(DungeonDelver, DungeonDelver.#content); }
 
-    static checkPrerequisites(character) {
+    static checkPrerequisites(character, features) {
         return { prerequisitesMet: true, text: null };
     }
 

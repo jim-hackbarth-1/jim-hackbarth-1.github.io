@@ -8,7 +8,7 @@ export class Lucky {
     static get canBeTakenMultipleTimes() { return false; }
     static get html() { return DnD5ESource.getFeatHtml(Lucky, Lucky.#content); }
 
-    static checkPrerequisites(character) {
+    static checkPrerequisites(character, features) {
         return { prerequisitesMet: true, text: null };
     }
 

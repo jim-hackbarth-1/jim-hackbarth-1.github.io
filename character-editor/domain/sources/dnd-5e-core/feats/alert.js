@@ -8,7 +8,7 @@ export class Alert {
     static get canBeTakenMultipleTimes() { return false; }
     static get html() { return DnD5ESource.getFeatHtml(Alert, Alert.#content); }
 
-    static checkPrerequisites(character) {
+    static checkPrerequisites(character, features) {
         return { prerequisitesMet: true, text: null };
     }
 

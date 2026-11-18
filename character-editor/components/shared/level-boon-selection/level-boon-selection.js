@@ -143,7 +143,8 @@ class LevelBoonSelectionModel {
         if (this.#levelBoon.feat?.value) {
             const feat = Sources.getFeats(character.sources).find(f => f.name == this.#levelBoon.feat.value);
             if (feat?.checkPrerequisites) {
-                const prereq = feat.checkPrerequisites(character).text;
+                const features = Sources.getCharacterFeatures(character);
+                const prereq = feat.checkPrerequisites(character, features).text;
                 if (prereq) {
                     alertMessage = `<p>Character does not meet prerequisites:<br/>- ${prereq}</p>`;
                 }
@@ -165,9 +166,10 @@ class LevelBoonSelectionModel {
     getFeats = () => {
         const character = EditorViewModel.character;
         const feats = Sources.getFeats(character.sources);
+        const features = Sources.getCharacterFeatures(character);
         for (const feat of feats) {
             if (feat.checkPrerequisites) {
-                feat.prerequisites = feat.checkPrerequisites(character);
+                feat.prerequisites = feat.checkPrerequisites(character, features);
             }
         }
         const selectedFeats = [];

@@ -8,7 +8,7 @@ export class GreatWeaponMaster {
     static get canBeTakenMultipleTimes() { return false; }
     static get html() { return DnD5ESource.getFeatHtml(GreatWeaponMaster, GreatWeaponMaster.#content); }
 
-    static checkPrerequisites(character) {
+    static checkPrerequisites(character, features) {
         return { prerequisitesMet: true, text: null };
     }
 

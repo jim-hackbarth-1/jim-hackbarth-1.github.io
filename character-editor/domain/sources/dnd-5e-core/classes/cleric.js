@@ -71,8 +71,9 @@ export class Cleric {
             if (selectionNames.includes(selectionName)) {
                 const cantripCount = Cleric.#getCantripCount(i);
                 const spellCount = Cleric.#getSpellCount(i);
+                const maxSpellLevel = Cleric.#getMaxSpellLevel(i);
                 return character.getSpellSelectionOptions(
-                    i, classIndex, selectionName, sources, cantripCount, spellCount);
+                    i, classIndex, selectionName, sources, cantripCount, spellCount, maxSpellLevel);
             }
         }
         return [];
@@ -314,7 +315,7 @@ export class Cleric {
     }
 
     static #getSkillSelectionOptions(character, sources) {
-        const clericSkills = ["history", "insight", "medecine", "persuasion", "religion"];
+        const clericSkills = ["history", "insight", "medicine", "persuasion", "religion"];
         let skills = [...sources.find(s => s.name == "skills").options];
         skills = skills.filter(s => clericSkills.includes(s.name));
         for (const skill of skills) {

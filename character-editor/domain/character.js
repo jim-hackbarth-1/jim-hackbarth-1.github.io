@@ -340,9 +340,9 @@ export class Character {
             this, level, classIndex, cantripCount, spellCount, canReplace);
     }
 
-    getSpellSelectionOptions(level, classIndex, selectionName, sources, cantripCount, spellCount) {
+    getSpellSelectionOptions(level, classIndex, selectionName, sources, cantripCount, spellCount, maxSpellLevel) {
         return Character.#selectionUtilities.getSpellSelectionOptions(
-            this, level, classIndex, selectionName, sources, cantripCount, spellCount);
+            this, level, classIndex, selectionName, sources, cantripCount, spellCount, maxSpellLevel);
     }
 
     getSpellSelectionInfo(className) {

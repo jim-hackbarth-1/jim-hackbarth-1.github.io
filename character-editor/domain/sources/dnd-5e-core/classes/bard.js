@@ -110,8 +110,9 @@ export class Bard {
             if (selectionNames.includes(selectionName)) {
                 const cantripCount = Bard.#getCantripCount(i);
                 const spellCount = Bard.#getSpellCount(i);
+                const maxSpellLevel = Bard.#getMaxSpellLevel(i);
                 return character.getSpellSelectionOptions(
-                    i, classIndex, selectionName, sources, cantripCount, spellCount);
+                    i, classIndex, selectionName, sources, cantripCount, spellCount, maxSpellLevel);
             }
         }
         return [];

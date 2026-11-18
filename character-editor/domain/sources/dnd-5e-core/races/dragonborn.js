@@ -203,8 +203,10 @@ export class Dragonborn {
             range: areaOfEffect,
             notes: ["Half damage on save"]
         });
-        return character.getFeatureCard(
+        const breathWeapon = character.getFeatureCard(
             `${Dragonborn.name}-breath-weapon`, "Breath weapon", breathWeaponHtml, Dragonborn.title, attackInfo);
+        breathWeapon.useInfo = { reset: "short-rest", uses: 1 };
+        return breathWeapon;
     }
 
 }

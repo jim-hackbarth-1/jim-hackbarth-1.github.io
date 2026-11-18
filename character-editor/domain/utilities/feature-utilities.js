@@ -211,7 +211,7 @@ export class FeatureUtilities {
 
     #getSpellAttacks(character, characterSpellClasses, spell, attackInfo) {
 
-        const spellClasses = characterSpellClasses.filter(csc => spell.classes.includes(csc.name));
+        let spellClasses = characterSpellClasses.filter(csc => spell.classes.includes(csc.name));
         if (spellClasses.length == 0) {
             spellClasses = characterSpellClasses;
         }

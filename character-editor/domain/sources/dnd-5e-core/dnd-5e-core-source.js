@@ -555,18 +555,28 @@ import { BestowCurse } from "./spells/level-3/bestow-curse.js";
 import { Blink } from "./spells/level-3/blink.js";
 import { CallLightning } from "./spells/level-3/call-lightning.js";
 import { Clairvoyance } from "./spells/level-3/clairvoyance.js";
+import { CreateFoodAndWater } from "./spells/level-3/create-food-and-water.js";
 import { CrusadersMantle } from "./spells/level-3/crusaders-mantle.js";
 import { Daylight } from "./spells/level-3/daylight.js";
 import { DispelMagic } from "./spells/level-3/dispel-magic.js";
 import { Fear } from "./spells/level-3/fear.js";
 import { FeignDeath } from "./spells/level-3/feign-death.js";
 import { Fireball } from "./spells/level-3/fireball.js";
+import { GaseousForm } from "./spells/level-3/gaseous-form.js";
+import { Haste } from "./spells/level-3/haste.js";
+import { LightningBolt } from "./spells/level-3/lightning-bolt.js";
+import { MeldIntoStone } from "./spells/level-3/meld-into-stone.js";
 import { NonDetection } from "./spells/level-3/nondetection.js";
 import { PlantGrowth } from "./spells/level-3/plant-growth.js";
+import { ProtectionFromEnergy } from "./spells/level-3/protection-from-energy.js";
 import { Revivify } from "./spells/level-3/revivify.js";
 import { SleetStorm } from "./spells/level-3/sleet-storm.js";
+import { Slow } from "./spells/level-3/slow.js";
 import { SpeakWithDead } from "./spells/level-3/speak-with-dead.js";
 import { SpiritGuardians } from "./spells/level-3/spirit-guardians.js";
+import { StinkingCloud } from "./spells/level-3/stinking-cloud.js";
+import { WaterBreathing } from "./spells/level-3/water-breathing.js";
+import { WaterWalk } from "./spells/level-3/water-walk.js";
 import { WindWall } from "./spells/level-3/wind-wall.js";
 
 // spells - level 4
@@ -576,29 +586,41 @@ import { Confusion } from "./spells/level-4/confusion.js";
 import { ControlWater } from "./spells/level-4/control-water.js";
 import { DeathWard } from "./spells/level-4/death-ward.js";
 import { DimensionDoor } from "./spells/level-4/dimension-door.js";
+import { Divination } from "./spells/level-4/divination.js";
 import { DominateBeast } from "./spells/level-4/dominate-beast.js";
+import { FireShield } from "./spells/level-4/fire-shield.js";
 import { FreedomOfMovement } from "./spells/level-4/freedom-of-movement.js";
 import { GraspingVine } from "./spells/level-4/grasping-vine.js";
+import { GreaterInvisibility } from "./spells/level-4/greater-invisibility.js";
 import { GuardianOfFaith } from "./spells/level-4/guardian-of-faith.js";
+import { HallucinatoryTerrain } from "./spells/level-4/hallucinatory-terrain.js";
 import { IceStorm } from "./spells/level-4/ice-storm.js";
+import { LocateCreature } from "./spells/level-4/locate-creature.js";
 import { Polymorph } from "./spells/level-4/polymorph.js";
+import { StoneShape } from "./spells/level-4/stone-shape.js";
 import { Stoneskin } from "./spells/level-4/stoneskin.js";
 import { WallOfFire } from "./spells/level-4/wall-of-fire.js";
 
 // spells - level 5
 import { AntiLifeShell } from "./spells/level-5/antilife-shell.js";
+import { Cloudkill } from "./spells/level-5/cloudkill.js";
 import { CommuneWithNature } from "./spells/level-5/commune-with-nature.js";
+import { ConeOfCold } from "./spells/level-5/cone-of-cold.js";
+import { ConjureElemental } from "./spells/level-5/conjure-elemental.js";
 import { DestructiveWave } from "./spells/level-5/destructive-wave.js";
 import { DominatePerson } from "./spells/level-5/dominate-person.js";
+import { Dream } from "./spells/level-5/dream.js";
 import { FlameStrike } from "./spells/level-5/flame-strike.js";
 import { HoldMonster } from "./spells/level-5/hold-monster.js";
 import { InsectPlague } from "./spells/level-5/insect-plague.js";
 import { LegendLore } from "./spells/level-5/legend-lore.js";
 import { MassCureWounds } from "./spells/level-5/mass-cure-wounds.js";
 import { ModifyMemory } from "./spells/level-5/modify-memory.js";
+import { Passwall } from "./spells/level-5/passwall.js";
 import { RaiseDead } from "./spells/level-5/raise-dead.js";
 import { Scrying } from "./spells/level-5/scrying.js";
 import { TreeStride } from "./spells/level-5/tree-stride.js";
+import { WallOfStone } from "./spells/level-5/wall-of-stone.js";
 
 // spells - level 7
 import { Etherealness } from "./spells/level-7/etherealness.js";
@@ -880,19 +902,23 @@ export class DnD5ESource {
 
         // level 3
         AnimateDead, BeaconOfHope, BestowCurse, Blink, CallLightning,
-        Clairvoyance, CrusadersMantle, Daylight, DispelMagic, Fear,
-        FeignDeath, Fireball, NonDetection, PlantGrowth, Revivify,
-        SleetStorm, SpeakWithDead, SpiritGuardians, WindWall,
+        Clairvoyance, CreateFoodAndWater, CrusadersMantle, Daylight, DispelMagic,
+        Fear, FeignDeath, Fireball, GaseousForm, Haste,
+        LightningBolt, MeldIntoStone, NonDetection, PlantGrowth, ProtectionFromEnergy,
+        Revivify, SleetStorm, Slow, SpeakWithDead, SpiritGuardians,
+        StinkingCloud, WaterBreathing, WaterWalk, WindWall, 
 
         // level 4
         ArcaneEye, Blight, Confusion, ControlWater, DeathWard,
-        DimensionDoor, DominateBeast, FreedomOfMovement, GraspingVine, GuardianOfFaith,
-        IceStorm, Polymorph, Stoneskin, WallOfFire,
+        DimensionDoor, Divination, DominateBeast, FireShield, FreedomOfMovement,
+        GraspingVine, GreaterInvisibility, GuardianOfFaith, HallucinatoryTerrain, IceStorm,
+        LocateCreature, Polymorph, StoneShape, Stoneskin, WallOfFire, 
 
         // level 5
-        AntiLifeShell, CommuneWithNature, DestructiveWave, DominatePerson, FlameStrike,
-        HoldMonster, InsectPlague, LegendLore, MassCureWounds, ModifyMemory,
-        RaiseDead, Scrying, TreeStride,
+        AntiLifeShell, Cloudkill, CommuneWithNature, ConeOfCold, ConjureElemental,
+        DestructiveWave, DominatePerson, Dream, FlameStrike, HoldMonster,
+        InsectPlague, LegendLore, MassCureWounds, ModifyMemory, Passwall,
+        RaiseDead, Scrying, TreeStride, WallOfStone,
 
         // level 7
         Etherealness, FingerOfDeath

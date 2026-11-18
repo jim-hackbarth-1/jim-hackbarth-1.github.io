@@ -99,7 +99,7 @@ export class SelectionUtilities {
         };
     }
 
-    getSpellSelectionOptions(character, level, classIndex, selectionName, sources, cantripCount, spellCount) {
+    getSpellSelectionOptions(character, level, classIndex, selectionName, sources, cantripCount, spellCount, maxSpellLevel) {
         const className = character.classes[classIndex].value;
         let spells = [...sources.find(s => s.name == "spells").options];
         spells = spells.filter(s => s.classes.includes(className));
@@ -108,7 +108,7 @@ export class SelectionUtilities {
             spells = spells.filter(s => Number(s.level) == 0);
         }
         else {
-            spells = spells.filter(s => Number(s.level) >= 1 && Number(s.level) <= level);
+            spells = spells.filter(s => Number(s.level) >= 1 && Number(s.level) <= Number(maxSpellLevel));
         }
         const spellSelectionInfo = this.getSpellSelectionInfo(character, className);
         if (selectionSource == "replaced-spell") {
@@ -127,7 +127,8 @@ export class SelectionUtilities {
                 disabledReason = `Disabled: ${spell.title} has been replaced by ${replacementSpell.text}.`
             }
             if (!disabledReason && selectionSource != "replaced-spell") {
-                const isSelectedElsewhere = SelectionUtilities.#isSpellSelectedElsewhere(character, spell.name, selectionName, spellSelectionInfo);
+                const isSelectedElsewhere = SelectionUtilities.#isSpellSelectedElsewhere(
+                    character, spell.name, selectionName, spellSelectionInfo);
                 if (isSelectedElsewhere) {
                     disabledReason = `Disabled: ${spell.title} selected elsewhere.`
                 }

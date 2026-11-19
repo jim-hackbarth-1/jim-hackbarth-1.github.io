@@ -96,8 +96,6 @@ export class Criminal {
 
     static applyModifiers(character, targetFilters) {
 
-        //     <b>Tool Proficiencies:</b> One type of gaming set, thieves’ tools
-
         const modifiers = [];
         modifiers.push({
             name: `${Criminal.name}-skill-proficiency-deception`,

@@ -550,31 +550,52 @@ import { ZoneOfTruth } from "./spells/level-2/zone-of-truth.js";
 
 // spells - level 3
 import { AnimateDead } from "./spells/level-3/animate-dead.js";
+import { AuraOfVitality } from "./spells/level-3/aura-of-vitality.js";
 import { BeaconOfHope } from "./spells/level-3/beacon-of-hope.js";
 import { BestowCurse } from "./spells/level-3/bestow-curse.js";
+import { BlindingSmite } from "./spells/level-3/blinding-smite.js";
 import { Blink } from "./spells/level-3/blink.js";
 import { CallLightning } from "./spells/level-3/call-lightning.js";
 import { Clairvoyance } from "./spells/level-3/clairvoyance.js";
+import { ConjureAnimals } from "./spells/level-3/conjure-animals.js";
+import { ConjureBarrage } from "./spells/level-3/conjure-barrage.js";
+import { Counterspell } from "./spells/level-3/counterspell.js";
 import { CreateFoodAndWater } from "./spells/level-3/create-food-and-water.js";
 import { CrusadersMantle } from "./spells/level-3/crusaders-mantle.js";
 import { Daylight } from "./spells/level-3/daylight.js";
 import { DispelMagic } from "./spells/level-3/dispel-magic.js";
+import { ElementalWeapon } from "./spells/level-3/elemental-weapon.js";
 import { Fear } from "./spells/level-3/fear.js";
 import { FeignDeath } from "./spells/level-3/feign-death.js";
 import { Fireball } from "./spells/level-3/fireball.js";
+import { Fly } from "./spells/level-3/fly.js";
 import { GaseousForm } from "./spells/level-3/gaseous-form.js";
+import { GlyphOfWarding } from "./spells/level-3/glyph-of-warding.js";
 import { Haste } from "./spells/level-3/haste.js";
+import { HungerOfHadar } from "./spells/level-3/hunger-of-hadar.js";
+import { HypnoticPattern } from "./spells/level-3/hypnotic-pattern.js";
+import { LeomundsTinyHut } from "./spells/level-3/leomunds-tiny-hut.js";
+import { LightningArrow } from "./spells/level-3/lightning-arrow.js";
 import { LightningBolt } from "./spells/level-3/lightning-bolt.js";
+import { MagicCircle } from "./spells/level-3/magic-circle.js";
+import { MajorImage } from "./spells/level-3/major-image.js";
+import { MassHealingWord } from "./spells/level-3/mass-healing-word.js";
 import { MeldIntoStone } from "./spells/level-3/meld-into-stone.js";
 import { NonDetection } from "./spells/level-3/nondetection.js";
+import { PhantomSteed } from "./spells/level-3/phantom-steed.js";
 import { PlantGrowth } from "./spells/level-3/plant-growth.js";
 import { ProtectionFromEnergy } from "./spells/level-3/protection-from-energy.js";
+import { RemoveCurse } from "./spells/level-3/remove-curse.js";
 import { Revivify } from "./spells/level-3/revivify.js";
+import { Sending } from "./spells/level-3/sending.js";
 import { SleetStorm } from "./spells/level-3/sleet-storm.js";
 import { Slow } from "./spells/level-3/slow.js";
 import { SpeakWithDead } from "./spells/level-3/speak-with-dead.js";
+import { SpeakWithPlants } from "./spells/level-3/speak-with-plants.js";
 import { SpiritGuardians } from "./spells/level-3/spirit-guardians.js";
 import { StinkingCloud } from "./spells/level-3/stinking-cloud.js";
+import { Tongues } from "./spells/level-3/tongues.js";
+import { VampiricTouch } from "./spells/level-3/vampiric-touch.js";
 import { WaterBreathing } from "./spells/level-3/water-breathing.js";
 import { WaterWalk } from "./spells/level-3/water-walk.js";
 import { WindWall } from "./spells/level-3/wind-wall.js";
@@ -901,12 +922,16 @@ export class DnD5ESource {
         Suggestion, WardingBond, Web, ZoneOfTruth, 
 
         // level 3
-        AnimateDead, BeaconOfHope, BestowCurse, Blink, CallLightning,
-        Clairvoyance, CreateFoodAndWater, CrusadersMantle, Daylight, DispelMagic,
-        Fear, FeignDeath, Fireball, GaseousForm, Haste,
-        LightningBolt, MeldIntoStone, NonDetection, PlantGrowth, ProtectionFromEnergy,
-        Revivify, SleetStorm, Slow, SpeakWithDead, SpiritGuardians,
-        StinkingCloud, WaterBreathing, WaterWalk, WindWall, 
+        AnimateDead, AuraOfVitality, BeaconOfHope, BestowCurse, BlindingSmite,
+        Blink, CallLightning, Clairvoyance, ConjureAnimals, ConjureBarrage,
+        Counterspell, CreateFoodAndWater, CrusadersMantle, Daylight, DispelMagic,
+        ElementalWeapon, Fear, FeignDeath, Fireball, Fly,
+        GaseousForm, GlyphOfWarding, Haste, HungerOfHadar, HypnoticPattern,
+        LeomundsTinyHut, LightningArrow, LightningBolt, MagicCircle, MajorImage,
+        MassHealingWord, MeldIntoStone, NonDetection, PhantomSteed, PlantGrowth,
+        ProtectionFromEnergy, RemoveCurse, Revivify, Sending, SleetStorm,
+        Slow, SpeakWithDead, SpeakWithPlants, SpiritGuardians, StinkingCloud,
+        Tongues, VampiricTouch, WaterBreathing, WaterWalk, WindWall, 
 
         // level 4
         ArcaneEye, Blight, Confusion, ControlWater, DeathWard,

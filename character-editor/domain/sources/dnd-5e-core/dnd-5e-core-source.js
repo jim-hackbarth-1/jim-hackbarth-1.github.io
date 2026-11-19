@@ -296,6 +296,33 @@ import { Wagon } from "./equipment/mounts-and-vehicles/wagon.js";
 import { Warhorse } from "./equipment/mounts-and-vehicles/warhorse.js";
 import { Warship } from "./equipment/mounts-and-vehicles/warship.js";
 
+// equipment - potions
+import { ElixirOfHealth } from "./equipment/potions/elixir-of-health.js";
+import { OilOfEtherealness } from "./equipment/potions/oil-of-etherealness.js";
+import { OilOfSharpness } from "./equipment/potions/oil-of-sharpness.js";
+import { OilOfSlipperiness } from "./equipment/potions/oil-of-slipperiness.js";
+import { PhilterOfLove } from "./equipment/potions/philter-of-love.js";
+import { PotionOfAnimalFriendship } from "./equipment/potions/potion-of-animal-friendship.js";
+import { PotionOfClairvoyance } from "./equipment/potions/potion-of-clairvoyance.js";
+import { PotionOfClimbing } from "./equipment/potions/potion-of-climbing.js";
+import { PotionOfDiminuation } from "./equipment/potions/potion-of-diminuation.js";
+import { PotionOfFireBreath } from "./equipment/potions/potion-of-fire-breath.js";
+import { PotionOfFlying } from "./equipment/potions/potion-of-flying.js";
+import { PotionOfGaseousForm } from "./equipment/potions/potion-of-gaseous-form.js";
+import { PotionOfGiantStrength } from "./equipment/potions/potion-of-giant-strength.js";
+import { PotionOfGrowth } from "./equipment/potions/potion-of-growth.js";
+import { PotionOfHealing } from "./equipment/potions/potion-of-healing.js";
+import { PotionOfHeroism } from "./equipment/potions/potion-of-heroism.js";
+import { PotionOfInvisibility } from "./equipment/potions/potion-of-invisibility.js";
+import { PotionOfInvulnerability } from "./equipment/potions/potion-of-invulnerability.js";
+import { PotionOfLongevity } from "./equipment/potions/potion-of-longevity.js";
+import { PotionOfMindReading } from "./equipment/potions/potion-of-mind-reading.js";
+import { PotionOfPoison } from "./equipment/potions/potion-of-poison.js";
+import { PotionOfResistance } from "./equipment/potions/potion-of-resistance.js";
+import { PotionOfSpeed } from "./equipment/potions/potion-of-speed.js";
+import { PotionOfVitality } from "./equipment/potions/potion-of-vitality.js";
+import { PotionOfWaterBreathing } from "./equipment/potions/potion-of-water-breathing.js";
+
 // equipment - spell-foci
 import { ArcaneFocusCrystal } from "./equipment/spell-foci/arcane-focus-crystal.js";
 import { ArcaneFocusOrb } from "./equipment/spell-foci/arcane-focus-orb.js";
@@ -825,6 +852,13 @@ export class DnD5ESource {
         Rowboat, SaddleExotic, SaddleMilitary, SaddlePack, SaddleRiding,
         Saddlebags, SailingShip, Sled, Wagon, Warhorse,
         Warship, 
+
+        // potions
+        ElixirOfHealth, OilOfEtherealness, OilOfSharpness, OilOfSlipperiness, PhilterOfLove,
+        PotionOfAnimalFriendship, PotionOfClairvoyance, PotionOfClimbing, PotionOfDiminuation, PotionOfFireBreath,
+        PotionOfFlying, PotionOfGaseousForm, PotionOfGiantStrength, PotionOfGrowth, PotionOfHealing,
+        PotionOfHeroism, PotionOfInvisibility, PotionOfInvulnerability, PotionOfLongevity, PotionOfMindReading,
+        PotionOfPoison, PotionOfResistance, PotionOfSpeed, PotionOfVitality, PotionOfWaterBreathing, 
 
         // spell-foci
         ArcaneFocusCrystal, ArcaneFocusOrb, ArcaneFocusRod, ArcaneFocusStaff, ArcaneFocusWand,
